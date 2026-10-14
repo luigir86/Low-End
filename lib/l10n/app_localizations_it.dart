@@ -35,4 +35,60 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get libraryDescription =>
       'Le tue partiture PDF, scalette e annotazioni.';
+
+  @override
+  String get tuneMode => 'Accorda';
+
+  @override
+  String get droneMode => 'Drone';
+
+  @override
+  String get noteLabel => 'Nota';
+
+  @override
+  String get octaveLabel => 'Ottava';
+
+  @override
+  String get addFifth => 'Aggiungi la quinta';
+
+  @override
+  String get addOctave => 'Aggiungi l\'ottava sopra';
+
+  @override
+  String get referencePitch => 'La di riferimento';
+
+  @override
+  String get volumeLabel => 'Volume';
+
+  @override
+  String get play => 'Suona';
+
+  @override
+  String get stop => 'Ferma';
+
+  @override
+  String frequencyHz(String frequency) {
+    return '$frequency Hz';
+  }
+
+  @override
+  String get lowNoteWarning =>
+      'Gli altoparlanti del telefono riproducono a fatica note così gravi. Usa le cuffie o una cassa esterna.';
+
+  @override
+  String droneNowPlaying(String note) {
+    return 'Drone · $note';
+  }
+
+  @override
+  String stopSound(String name) {
+    return 'Ferma $name';
+  }
+
+  @override
+  String get droneShortcutHint => 'Studia con drone e clic insieme.';
+
+  @override
+  String get audioUnavailable =>
+      'Non è stato possibile avviare l\'audio su questo dispositivo.';
 }

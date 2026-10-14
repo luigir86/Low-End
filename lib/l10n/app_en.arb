@@ -7,5 +7,42 @@
   "comingSoon": "Coming soon",
   "tunerDescription": "Tuner for double bass and electric bass, down to low B.",
   "metronomeDescription": "Precise metronome with accents and subdivisions.",
-  "libraryDescription": "Your PDF scores, set lists and annotations."
+  "libraryDescription": "Your PDF scores, set lists and annotations.",
+  "tuneMode": "Tune",
+  "droneMode": "Drone",
+  "noteLabel": "Note",
+  "octaveLabel": "Octave",
+  "addFifth": "Add the fifth",
+  "addOctave": "Add the octave above",
+  "referencePitch": "Reference A",
+  "volumeLabel": "Volume",
+  "play": "Play",
+  "stop": "Stop",
+  "frequencyHz": "{frequency} Hz",
+  "@frequencyHz": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      }
+    }
+  },
+  "lowNoteWarning": "Phone speakers can barely play notes this low. Use headphones or an external speaker.",
+  "droneNowPlaying": "Drone · {note}",
+  "@droneNowPlaying": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "stopSound": "Stop {name}",
+  "@stopSound": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "droneShortcutHint": "Practise with the drone and the click together.",
+  "audioUnavailable": "Sound could not start on this device."
 }

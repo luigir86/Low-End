@@ -7,5 +7,21 @@
   "comingSoon": "In arrivo",
   "tunerDescription": "Accordatore per contrabbasso e basso elettrico, fino al Si grave.",
   "metronomeDescription": "Metronomo preciso con accenti e suddivisioni.",
-  "libraryDescription": "Le tue partiture PDF, scalette e annotazioni."
+  "libraryDescription": "Le tue partiture PDF, scalette e annotazioni.",
+  "tuneMode": "Accorda",
+  "droneMode": "Drone",
+  "noteLabel": "Nota",
+  "octaveLabel": "Ottava",
+  "addFifth": "Aggiungi la quinta",
+  "addOctave": "Aggiungi l'ottava sopra",
+  "referencePitch": "La di riferimento",
+  "volumeLabel": "Volume",
+  "play": "Suona",
+  "stop": "Ferma",
+  "frequencyHz": "{frequency} Hz",
+  "lowNoteWarning": "Gli altoparlanti del telefono riproducono a fatica note così gravi. Usa le cuffie o una cassa esterna.",
+  "droneNowPlaying": "Drone · {note}",
+  "stopSound": "Ferma {name}",
+  "droneShortcutHint": "Studia con drone e clic insieme.",
+  "audioUnavailable": "Non è stato possibile avviare l'audio su questo dispositivo."
 }
