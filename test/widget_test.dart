@@ -4,7 +4,7 @@ import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/widgets/pulsing_dot.dart';
 
 void main() {
-  testWidgets('shows the three main sections and switches between them', (
+  testWidgets('shows the two main sections and switches between them', (
     tester,
   ) async {
     await tester.pumpWidget(LowEndApp(toneOutput: SilentToneOutput()));
@@ -12,7 +12,7 @@ void main() {
 
     expect(find.text('Tuner'), findsOneWidget);
     expect(find.text('Metronome'), findsOneWidget);
-    expect(find.text('Library'), findsOneWidget);
+    expect(find.text('Library'), findsNothing);
 
     await tester.tap(find.text('Metronome'));
     await tester.pumpAndSettle();

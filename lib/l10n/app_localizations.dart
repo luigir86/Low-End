@@ -116,12 +116,6 @@ abstract class AppLocalizations {
   /// **'Metronome'**
   String get metronomeTab;
 
-  /// No description provided for @libraryTab.
-  ///
-  /// In en, this message translates to:
-  /// **'Library'**
-  String get libraryTab;
-
   /// No description provided for @comingSoon.
   ///
   /// In en, this message translates to:
@@ -133,12 +127,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Precise metronome with accents and subdivisions.'**
   String get metronomeDescription;
-
-  /// No description provided for @libraryDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Your PDF scores, set lists and annotations.'**
-  String get libraryDescription;
 
   /// No description provided for @tuneMode.
   ///

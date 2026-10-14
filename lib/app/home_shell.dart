@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../audio/audio_scope.dart';
-import '../features/library/library_screen.dart';
 import '../features/metronome/metronome_screen.dart';
 import '../features/tuner/tuner_screen.dart';
 import '../l10n/app_localizations.dart';
@@ -19,7 +18,7 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int _index = 0;
 
-  static const _screens = [TunerScreen(), MetronomeScreen(), LibraryScreen()];
+  static const _screens = [TunerScreen(), MetronomeScreen()];
 
   @override
   Widget build(BuildContext context) {
@@ -62,10 +61,6 @@ class _HomeShellState extends State<HomeShell> {
                 NavigationDestination(
                   icon: const Icon(Icons.timer_outlined),
                   label: l10n.metronomeTab,
-                ),
-                NavigationDestination(
-                  icon: const Icon(Icons.library_music_outlined),
-                  label: l10n.libraryTab,
                 ),
               ],
             ),

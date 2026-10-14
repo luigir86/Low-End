@@ -19,18 +19,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get metronomeTab => 'Metronome';
 
   @override
-  String get libraryTab => 'Library';
-
-  @override
   String get comingSoon => 'Coming soon';
 
   @override
   String get metronomeDescription =>
       'Precise metronome with accents and subdivisions.';
-
-  @override
-  String get libraryDescription =>
-      'Your PDF scores, set lists and annotations.';
 
   @override
   String get tuneMode => 'Tune';
