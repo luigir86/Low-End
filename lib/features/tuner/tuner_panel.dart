@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+import '../../app/theme.dart';
 import '../../audio/audio_scope.dart';
 import '../../audio/pitch.dart';
 import '../../l10n/app_localizations.dart';
@@ -196,18 +197,14 @@ class _NoteDisplay extends StatelessWidget {
   }
 }
 
-/// Green when in tune, amber when close, red when far off.
-///
-/// Darker shades on light backgrounds and lighter ones on dark backgrounds,
-/// so the note and the needle keep at least 3:1 contrast (WCAG 1.4.3, 1.4.11).
+/// Green when in tune, ochre when close, red when far off: the shades live
+/// in lib/app/theme.dart and keep at least 3:1 contrast (WCAG 1.4.3, 1.4.11).
 Color _centsColor(ThemeData theme, double cents) {
-  final dark = theme.brightness == Brightness.dark;
+  final colors = theme.extension<LowEndColors>()!;
   final off = cents.abs();
-  if (off <= TunerReading.inTuneCents) {
-    return dark ? Colors.green.shade300 : Colors.green.shade800;
-  }
-  if (off <= 15) return dark ? Colors.amber.shade300 : const Color(0xFF8A5A00);
-  return theme.colorScheme.error;
+  if (off <= TunerReading.inTuneCents) return colors.inTune;
+  if (off <= 15) return colors.close;
+  return colors.off;
 }
 
 /// A horizontal scale from -50 to +50 cents with a needle.
@@ -426,7 +423,7 @@ class _StrobeState extends State<_Strobe> with SingleTickerProviderStateMixin {
             stripes: c == null
                 ? theme.colorScheme.outlineVariant
                 : _centsColor(theme, c),
-            background: theme.colorScheme.surfaceContainerHighest,
+            background: LowEndColors.of(context).strobeBackground,
           ),
         ),
       ),

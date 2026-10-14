@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Same as the app's light background, so opening the app shows no
+    <!-- Same as Palette.maple in lib/app/theme.dart, so opening the app shows no
          white flash before the first frame. -->
-    <color name="launch_background">#FFF8F5</color>
+    <color name="launch_background">#FBF6F1</color>
 </resources>

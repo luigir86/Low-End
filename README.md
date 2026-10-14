@@ -38,6 +38,7 @@ lib/
     metronome/              metronome screen and logic
   audio/                    pitch maths and sound output
   widgets/                  shared UI pieces
+  app/theme.dart            colours, shapes and text styles (wood palette, Pantone Mocha Mousse)
   l10n/                     translations (app_en.arb, app_it.arb)
 test/                       automated tests
 ```
