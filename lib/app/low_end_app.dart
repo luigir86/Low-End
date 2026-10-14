@@ -48,9 +48,14 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    // The microphone only listens while the tuner is on screen.
+    // The tuner listens whenever it is on screen, and only then.
     _navigation.addListener(() {
-      if (!_navigation.tunerVisible) _tuner.stop();
+      _navigation.tunerVisible ? _tuner.start() : _tuner.stop();
+    });
+    // The app opens on the tuner: start listening once the first frame is
+    // up, so the microphone never delays it.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_navigation.tunerVisible) _tuner.start();
     });
     // Registered before MaterialApp's own observer, so action links are
     // handled here instead of being treated as pages to open.

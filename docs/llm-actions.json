@@ -1,7 +1,7 @@
 [
   {
     "name": "get_state",
-    "description": "Returns what the app is doing now: the section on screen, the tuner (listening, tuning, last note heard and how many cents off), the drone (playing, note, added intervals, volume) and the reference A.",
+    "description": "Returns what the app is doing now: the section on screen, the tuner (listening, last note heard and how many cents off), the drone (playing, note, added intervals, volume) and the reference A.",
     "input_schema": {
       "type": "object",
       "properties": {},
@@ -31,27 +31,10 @@
   },
   {
     "name": "tuner_start",
-    "description": "Opens the tuner and starts listening through the microphone. The tuner stops by itself when another section opens or the app goes to the background. Read the result with get_state.",
+    "description": "Opens the chromatic tuner and starts listening through the microphone: it recognises any note played. The tuner stops by itself when another section opens or the app goes to the background. Read the note with get_state.",
     "input_schema": {
       "type": "object",
-      "properties": {
-        "tuning": {
-          "type": "string",
-          "enum": [
-            "chromatic",
-            "orchestral",
-            "solo",
-            "cExtension",
-            "fiveLowB",
-            "fiveHighC",
-            "fourStrings",
-            "fiveStrings",
-            "sixStrings",
-            "dropD"
-          ],
-          "description": "Open strings to tune to; \"chromatic\" for any note."
-        }
-      },
+      "properties": {},
       "additionalProperties": false
     }
   },
@@ -61,34 +44,6 @@
     "input_schema": {
       "type": "object",
       "properties": {},
-      "additionalProperties": false
-    }
-  },
-  {
-    "name": "set_tuning",
-    "description": "Chooses the instrument tuning. Double bass: orchestral (E A D G), solo (F# B E A), cExtension, fiveLowB, fiveHighC. Electric bass: fourStrings, fiveStrings, sixStrings, dropD.",
-    "input_schema": {
-      "type": "object",
-      "properties": {
-        "tuning": {
-          "type": "string",
-          "enum": [
-            "chromatic",
-            "orchestral",
-            "solo",
-            "cExtension",
-            "fiveLowB",
-            "fiveHighC",
-            "fourStrings",
-            "fiveStrings",
-            "sixStrings",
-            "dropD"
-          ]
-        }
-      },
-      "required": [
-        "tuning"
-      ],
       "additionalProperties": false
     }
   },

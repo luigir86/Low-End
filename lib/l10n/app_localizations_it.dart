@@ -88,10 +88,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get stopListening => 'Smetti di ascoltare';
 
   @override
-  String get tunerIdleHint => 'Tocca Ascolta, poi suona una corda alla volta.';
+  String get tunerIdleHint => 'Tocca Ascolta, poi suona una nota alla volta.';
 
   @override
-  String get playAString => 'Suona una corda';
+  String get playAString => 'Suona una nota';
 
   @override
   String get micPermissionDenied =>
@@ -113,40 +113,6 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String centsValue(String cents) {
     return '$cents cent';
-  }
-
-  @override
-  String playingNote(String note) {
-    return 'Stai suonando $note';
-  }
-
-  @override
-  String get tuningLabel => 'Accordatura';
-
-  @override
-  String get chromatic => 'Cromatico (qualsiasi nota)';
-
-  @override
-  String get doubleBass => 'Contrabbasso';
-
-  @override
-  String get electricBass => 'Basso elettrico';
-
-  @override
-  String tuningName(String id) {
-    String _temp0 = intl.Intl.selectLogic(id, {
-      'orchestral': 'Orchestrale',
-      'solo': 'Solistica',
-      'cExtension': 'Estensione al Do',
-      'fiveLowB': '5 corde, Si grave',
-      'fiveHighC': '5 corde, Do acuto',
-      'fourStrings': '4 corde',
-      'fiveStrings': '5 corde',
-      'sixStrings': '6 corde',
-      'dropD': 'Drop D',
-      'other': '$id',
-    });
-    return '$_temp0';
   }
 
   @override

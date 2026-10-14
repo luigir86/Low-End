@@ -1,3 +1,4 @@
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:low_end/app/low_end_app.dart';
 import 'package:low_end/audio/mic_input.dart';
@@ -20,21 +21,21 @@ class _WatchedToneOutput extends SilentToneOutput {
   }
 }
 
-/// Records whether anything asked for the microphone.
+/// Records when the microphone was first asked for.
 class _WatchedMic extends FakeMicInput {
-  var used = false;
+  SchedulerPhase? askedDuring;
 
   @override
   Future<bool> requestPermission() {
-    used = true;
+    askedDuring ??= SchedulerBinding.instance.schedulerPhase;
     return super.requestPermission();
   }
 }
 
 void main() {
-  // Opening the app must stay instant: the audio engine and the microphone
-  // start only when the player asks for them, never at launch.
-  testWidgets('launching starts neither the audio engine nor the microphone', (
+  // Opening the app must stay instant: the first frame is drawn before the
+  // microphone starts, and the audio engine waits for the first sound.
+  testWidgets('the first frame comes before the microphone and the audio', (
     tester,
   ) async {
     final output = _WatchedToneOutput();
@@ -42,8 +43,10 @@ void main() {
     await tester.pumpWidget(LowEndApp(toneOutput: output, micInput: mic));
     await tester.pumpAndSettle();
 
-    expect(find.text('Start listening'), findsOneWidget);
+    // The tuner on screen starts listening by itself, but only once the
+    // first frame has been drawn.
+    expect(mic.askedDuring, SchedulerPhase.postFrameCallbacks);
+    expect(find.text('Stop listening'), findsOneWidget);
     expect(output.used, isFalse);
-    expect(mic.used, isFalse);
   });
 }

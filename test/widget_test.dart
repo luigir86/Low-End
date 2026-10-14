@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:low_end/app/low_end_app.dart';
+import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/widgets/pulsing_dot.dart';
 
@@ -7,7 +8,9 @@ void main() {
   testWidgets('shows the two main sections and switches between them', (
     tester,
   ) async {
-    await tester.pumpWidget(LowEndApp(toneOutput: SilentToneOutput()));
+    await tester.pumpWidget(
+      LowEndApp(toneOutput: SilentToneOutput(), micInput: FakeMicInput()),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('Tuner'), findsOneWidget);
@@ -26,7 +29,9 @@ void main() {
     tester,
   ) async {
     final output = SilentToneOutput();
-    await tester.pumpWidget(LowEndApp(toneOutput: output));
+    await tester.pumpWidget(
+      LowEndApp(toneOutput: output, micInput: FakeMicInput()),
+    );
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Drone').first);
@@ -50,7 +55,9 @@ void main() {
 
   testWidgets('drone can be started from the metronome', (tester) async {
     final output = SilentToneOutput();
-    await tester.pumpWidget(LowEndApp(toneOutput: output));
+    await tester.pumpWidget(
+      LowEndApp(toneOutput: output, micInput: FakeMicInput()),
+    );
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Metronome'));
@@ -65,7 +72,9 @@ void main() {
   testWidgets('the About dialog shows the licence and the package notices', (
     tester,
   ) async {
-    await tester.pumpWidget(LowEndApp(toneOutput: SilentToneOutput()));
+    await tester.pumpWidget(
+      LowEndApp(toneOutput: SilentToneOutput(), micInput: FakeMicInput()),
+    );
     await tester.pumpAndSettle();
 
     await tester.tap(find.byTooltip('About Low End'));

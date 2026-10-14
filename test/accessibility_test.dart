@@ -48,8 +48,6 @@ void main() {
       await expectAccessible(tester);
 
       // A note slightly flat, then in tune: both colours must stay readable.
-      await tester.tap(find.text('Start listening'));
-      await tester.pump();
       for (final hz in [97.0, 98.0]) {
         for (var i = 0; i < 5; i++) {
           mic.add(_sine(hz, 1600, chunk: i));
@@ -76,8 +74,6 @@ void main() {
     final handle = tester.ensureSemantics();
     final mic = FakeMicInput();
     await pumpApp(tester, mic: mic);
-    await tester.tap(find.text('Start listening'));
-    await tester.pump();
     for (var i = 0; i < 5; i++) {
       mic.add(_sine(98, 1600, chunk: i));
       await tester.pump();

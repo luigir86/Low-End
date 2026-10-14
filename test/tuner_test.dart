@@ -108,15 +108,9 @@ void main() {
       LowEndApp(toneOutput: SilentToneOutput(), micInput: mic),
     );
     await tester.pumpAndSettle();
-    expect(
-      find.text('Tap Start listening, then play one string at a time.'),
-      findsOneWidget,
-    );
-
-    await tester.tap(find.text('Start listening'));
-    await tester.pump();
+    // Opening the tuner starts listening right away.
     expect(mic.isCapturing, isTrue);
-    expect(find.text('Play a string'), findsOneWidget);
+    expect(find.text('Play a note'), findsOneWidget);
 
     for (var i = 0; i < 5; i++) {
       mic.add(_sine(98, 1600, chunk: i)); // G2, the top string.

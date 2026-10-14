@@ -62,11 +62,10 @@ void main() {
 
   test('starting the tuner shows it, leaving it turns the mic off', () async {
     await actions.call('open_section', {'section': 'metronome'});
-    final result = await actions.call('tuner_start', {'tuning': 'fiveLowB'});
+    final result = await actions.call('tuner_start');
     final state = result['state']! as Map;
     expect(state['section'], 'tuner');
     expect((state['tuner'] as Map)['status'], 'listening');
-    expect((state['tuner'] as Map)['strings'], ['B0', 'E1', 'A1', 'D2', 'G2']);
     expect(mic.isCapturing, isTrue);
 
     await actions.call('tuner_stop');

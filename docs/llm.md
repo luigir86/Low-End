@@ -8,11 +8,10 @@ The actions live in [`lib/actions/app_actions.dart`](../lib/actions/app_actions.
 
 | Action | What it does |
 |---|---|
-| `get_state` | Section on screen, tuner (status, tuning, last note, cents off, in tune), drone (playing, note, fifth, octave, volume), reference A |
+| `get_state` | Section on screen, tuner (status, last note, cents off, in tune), drone (playing, note, fifth, octave, volume), reference A |
 | `open_section` | Shows `tuner`, `drone` or `metronome` |
-| `tuner_start` | Opens the tuner and listens (optionally with a `tuning`) |
+| `tuner_start` | Opens the chromatic tuner and listens: it names any note played |
 | `tuner_stop` | Stops listening |
-| `set_tuning` | `orchestral`, `solo`, `cExtension`, `fiveLowB`, `fiveHighC`, `fourStrings`, `fiveStrings`, `sixStrings`, `dropD` or `chromatic` |
 | `drone_play` | Plays the drone, applying `note` (A, Bb2, Sol1…), `octave`, `add_fifth`, `add_octave`, `volume` |
 | `drone_stop` | Stops the drone |
 | `drone_set` | Changes the drone settings without starting or stopping it |
@@ -28,7 +27,7 @@ On Android and iPhone the app opens links of the form
 lowend://action/<action>?<argument>=<value>&...
 ```
 
-for example `lowend://action/drone_play?note=D&octave=2&add_fifth=true` or `lowend://action/tuner_start?tuning=solo`. Any assistant, shortcut or automation app that can open a link can use them (on Android, for example, Tasker, a home-screen shortcut, or `adb shell am start -d "lowend://action/drone_stop"` to try it).
+for example `lowend://action/drone_play?note=D&octave=2&add_fifth=true` or `lowend://action/tuner_start`. Any assistant, shortcut or automation app that can open a link can use them (on Android, for example, Tasker, a home-screen shortcut, or `adb shell am start -d "lowend://action/drone_stop"` to try it).
 
 Links can only do what the buttons do. The microphone still listens only while the tuner is on screen, so `tuner_start` brings the tuner to the front.
 

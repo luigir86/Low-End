@@ -33,7 +33,8 @@ class TunerController extends ChangeNotifier {
   StreamSubscription<Float64List>? _subscription;
   var _status = TunerStatus.idle;
   double? _frequency;
-  Tuning? _tuning = tunings.first;
+  // Chromatic by default: the tuner names whatever note it hears.
+  Tuning? _tuning;
 
   TunerStatus get status => _status;
   bool get isListening =>

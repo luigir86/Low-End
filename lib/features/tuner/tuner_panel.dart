@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import '../../audio/audio_scope.dart';
 import '../../audio/pitch.dart';
@@ -7,8 +8,9 @@ import 'reference_pitch_picker.dart';
 import 'tuner_controller.dart';
 import 'tunings.dart';
 
-/// The tuner: listens to the microphone and shows how far the note played is
-/// from the nearest open string (or the nearest note, in chromatic mode).
+/// The tuner: listens to the microphone, names whatever note it hears (no
+/// tuning to choose) and shows how far off it is on a strobe, like the
+/// Peterson tuners many bassists know.
 class TunerPanel extends StatefulWidget {
   const TunerPanel({super.key});
 
@@ -23,8 +25,14 @@ class _TunerPanelState extends State<TunerPanel> {
   @override
   void initState() {
     super.initState();
-    // Stop listening when the app goes to the background.
-    _lifecycle = AppLifecycleListener(onHide: () => _tuner.stop());
+    // Stop listening when the app goes to the background, and listen again
+    // when it comes back with the tuner on screen.
+    _lifecycle = AppLifecycleListener(
+      onHide: () => _tuner.stop(),
+      onShow: () {
+        if (AudioScope.of(context).navigation.tunerVisible) _tuner.start();
+      },
+    );
   }
 
   @override
@@ -56,23 +64,20 @@ class _TunerPanelState extends State<TunerPanel> {
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _TuningPicker(tuner: _tuner, language: language),
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
             _NoteDisplay(
               reading: reading,
               listening: _tuner.isListening,
               language: language,
             ),
             const SizedBox(height: 16),
-            // The needle moves 20 times a second: repaint only the gauge.
-            RepaintBoundary(child: _CentsGauge(cents: reading?.cents)),
-            const SizedBox(height: 8),
-            if (_tuner.tuning case final tuning?)
-              _StringRow(
-                tuning: tuning,
-                target: reading?.target,
-                language: language,
-              ),
+            // Moves on every frame: repaint only this part of the screen.
+            RepaintBoundary(
+              child: MediaQuery.disableAnimationsOf(context)
+                  // A still needle for players who turned animations off.
+                  ? _CentsGauge(cents: reading?.cents)
+                  : _Strobe(cents: reading?.cents),
+            ),
             const SizedBox(height: 24),
             Center(
               child: FilledButton.icon(
@@ -118,43 +123,6 @@ class _TunerPanelState extends State<TunerPanel> {
   };
 }
 
-class _TuningPicker extends StatelessWidget {
-  const _TuningPicker({required this.tuner, required this.language});
-
-  final TunerController tuner;
-  final String language;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    String instrument(Instrument i) => switch (i) {
-      Instrument.doubleBass => l10n.doubleBass,
-      Instrument.electricBass => l10n.electricBass,
-    };
-    return DropdownButtonFormField<Tuning?>(
-      initialValue: tuner.tuning,
-      isExpanded: true,
-      decoration: InputDecoration(
-        labelText: l10n.tuningLabel,
-        border: const OutlineInputBorder(),
-      ),
-      items: [
-        DropdownMenuItem(value: null, child: Text(l10n.chromatic)),
-        for (final t in tunings)
-          DropdownMenuItem(
-            value: t,
-            child: Text(
-              '${instrument(t.instrument)} · ${l10n.tuningName(t.id)} '
-              '(${t.strings.map((n) => n.name(language)).join(' ')})',
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-      ],
-      onChanged: tuner.setTuning,
-    );
-  }
-}
-
 class _NoteDisplay extends StatelessWidget {
   const _NoteDisplay({
     required this.reading,
@@ -177,7 +145,7 @@ class _NoteDisplay extends StatelessWidget {
     if (r == null) {
       return Column(
         children: [
-          Text('–', style: theme.textTheme.displayLarge),
+          Text('–', style: _noteStyle(theme)),
           Text(listening ? l10n.playAString : '', style: muted),
         ],
       );
@@ -198,12 +166,10 @@ class _NoteDisplay extends StatelessWidget {
       child: ExcludeSemantics(
         child: Column(
           children: [
-            Text(
-              r.target.label(language),
-              style: theme.textTheme.displayLarge?.copyWith(
-                color: _centsColor(theme, r.cents),
-                fontWeight: FontWeight.w600,
-              ),
+            _NoteName(
+              note: r.target,
+              language: language,
+              color: _centsColor(theme, r.cents),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -219,10 +185,7 @@ class _NoteDisplay extends StatelessWidget {
               ],
             ),
             Text(
-              r.played == r.target
-                  ? l10n.frequencyHz(r.frequency.toStringAsFixed(1))
-                  : '${l10n.playingNote(r.played.label(language))} · '
-                        '${l10n.frequencyHz(r.frequency.toStringAsFixed(1))}',
+              l10n.frequencyHz(r.frequency.toStringAsFixed(1)),
               style: muted,
               textAlign: TextAlign.center,
             ),
@@ -352,44 +315,161 @@ class _GaugePainter extends CustomPainter {
       old.cents != cents || old.needle != needle || old.scale != scale;
 }
 
-/// The open strings of the chosen tuning, with the one being tuned lit up.
-class _StringRow extends StatelessWidget {
-  const _StringRow({
-    required this.tuning,
-    required this.target,
+TextStyle? _noteStyle(ThemeData theme) =>
+    theme.textTheme.displayLarge?.copyWith(fontSize: 96, height: 1.1);
+
+/// The note name, large, with its octave smaller beside it: "A₁".
+class _NoteName extends StatelessWidget {
+  const _NoteName({
+    required this.note,
     required this.language,
+    required this.color,
   });
 
-  final Tuning tuning;
-  final Note? target;
+  final Note note;
   final String language;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (final string in tuning.strings)
-          Semantics(
-            selected: string == target,
-            child: Chip(
-              label: Text(
-                string.label(language),
-                style: TextStyle(
-                  color: string == target
-                      ? colors.onPrimary
-                      : colors.onSurfaceVariant,
-                  // Bold as well as coloured, so it doesn't rely on colour.
-                  fontWeight: string == target ? FontWeight.bold : null,
-                ),
-              ),
-              backgroundColor: string == target ? colors.primary : null,
-            ),
+    final style = _noteStyle(Theme.of(context))
+        ?.copyWith(color: color, fontWeight: FontWeight.w600);
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: note.name(language)),
+          TextSpan(
+            text: '${note.octave}',
+            style: TextStyle(fontSize: (style?.fontSize ?? 96) * 0.4),
           ),
-      ],
+        ],
+      ),
+      style: style,
+      textAlign: TextAlign.center,
     );
   }
+}
+
+/// A strobe like those of Peterson tuners: bands of stripes drift left when
+/// the note is flat and right when it is sharp, faster the further off it
+/// is, and stand still when it is spot on. The lower band moves twice as
+/// fast as the upper one, so it shows even a cent or two.
+class _Strobe extends StatefulWidget {
+  const _Strobe({required this.cents});
+
+  final double? cents;
+
+  @override
+  State<_Strobe> createState() => _StrobeState();
+}
+
+class _StrobeState extends State<_Strobe> with SingleTickerProviderStateMixin {
+  /// Stripes per second for each cent off, in the upper band.
+  static const _speed = 0.5;
+
+  /// Fastest drift, in stripes per second: beyond this the eye loses track.
+  static const _maxSpeed = 6.0;
+
+  late final Ticker _ticker = createTicker(_tick);
+  final _phase = ValueNotifier<double>(0);
+  var _last = Duration.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(_Strobe oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _sync();
+  }
+
+  /// Runs the animation only while a note is heard, to save battery.
+  void _sync() {
+    final hearing = widget.cents != null;
+    if (hearing && !_ticker.isActive) {
+      _last = Duration.zero;
+      _ticker.start();
+    } else if (!hearing && _ticker.isActive) {
+      _ticker.stop();
+    }
+  }
+
+  void _tick(Duration elapsed) {
+    final seconds = (elapsed - _last).inMicroseconds / 1e6;
+    _last = elapsed;
+    final cents = widget.cents ?? 0;
+    final speed = (cents * _speed).clamp(-_maxSpeed, _maxSpeed);
+    _phase.value = (_phase.value + speed * seconds) % 1024;
+  }
+
+  @override
+  void dispose() {
+    _ticker.dispose();
+    _phase.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final c = widget.cents;
+    return ExcludeSemantics(
+      child: SizedBox(
+        height: 88,
+        width: double.infinity,
+        child: CustomPaint(
+          painter: _StrobePainter(
+            phase: _phase,
+            stripes: c == null
+                ? theme.colorScheme.outlineVariant
+                : _centsColor(theme, c),
+            background: theme.colorScheme.surfaceContainerHighest,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StrobePainter extends CustomPainter {
+  _StrobePainter({
+    required this.phase,
+    required this.stripes,
+    required this.background,
+  }) : super(repaint: phase);
+
+  final ValueNotifier<double> phase;
+  final Color stripes;
+  final Color background;
+
+  static const _stripe = 14.0;
+  static const _gap = 6.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final frame = RRect.fromRectAndRadius(
+      Offset.zero & size,
+      const Radius.circular(12),
+    );
+    canvas.drawRRect(frame, Paint()..color = background);
+    canvas.save();
+    canvas.clipRRect(frame);
+    final paint = Paint()..color = stripes;
+    final bandHeight = (size.height - _gap * 3) / 2;
+    for (var band = 0; band < 2; band++) {
+      final top = _gap + band * (bandHeight + _gap);
+      final shift = (phase.value * (band + 1) % 1) * _stripe * 2;
+      for (var x = shift - _stripe * 2; x < size.width; x += _stripe * 2) {
+        canvas.drawRect(Rect.fromLTWH(x, top, _stripe, bandHeight), paint);
+      }
+    }
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_StrobePainter old) =>
+      old.stripes != stripes || old.background != background;
 }

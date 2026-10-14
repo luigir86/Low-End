@@ -44,8 +44,8 @@
   "audioUnavailable": "Sound could not start on this device.",
   "startListening": "Start listening",
   "stopListening": "Stop listening",
-  "tunerIdleHint": "Tap Start listening, then play one string at a time.",
-  "playAString": "Play a string",
+  "tunerIdleHint": "Tap Start listening, then play one note at a time.",
+  "playAString": "Play a note",
   "micPermissionDenied": "Low End needs the microphone to hear your bass. If you said no, allow it in the phone settings under Apps › Low End › Permissions.",
   "micUnavailable": "The microphone could not start on this device.",
   "inTune": "In tune",
@@ -55,26 +55,6 @@
   "@centsValue": {
     "placeholders": {
       "cents": {
-        "type": "String"
-      }
-    }
-  },
-  "playingNote": "You are playing {note}",
-  "@playingNote": {
-    "placeholders": {
-      "note": {
-        "type": "String"
-      }
-    }
-  },
-  "tuningLabel": "Tuning",
-  "chromatic": "Chromatic (any note)",
-  "doubleBass": "Double bass",
-  "electricBass": "Electric bass",
-  "tuningName": "{id, select, orchestral{Orchestral} solo{Solo} cExtension{C extension} fiveLowB{5 strings, low B} fiveHighC{5 strings, high C} fourStrings{4 strings} fiveStrings{5 strings} sixStrings{6 strings} dropD{Drop D} other{{id}}}",
-  "@tuningName": {
-    "placeholders": {
-      "id": {
         "type": "String"
       }
     }

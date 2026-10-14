@@ -4,7 +4,7 @@ Low End is a mobile app for double bass and electric bass players, built with [F
 
 ## Planned features
 
-1. **Tuner** for double bass (orchestral and solo tuning, C extension, 5-string) and electric bass (4, 5 and 6 strings, drop tunings).
+1. **Tuner** for double bass and electric bass, chromatic with a strobe display in the style of Peterson tuners: play any note and it shows up, no tuning to choose.
 2. **Drone**: a sustained pure tone to practise intonation on, with optional pure fifth and octave, inside the Tuner section and also reachable from the Metronome.
 3. **Metronome** with accents, subdivisions and a speed trainer.
 4. **PDF library** for sheet music, set lists and annotations (later: the app starts with the tuner, drone and metronome).
@@ -13,17 +13,17 @@ Low End is a mobile app for double bass and electric bass players, built with [F
 
 The app is available in English and Italian.
 
-The tuner listens through the microphone only while you ask it to, and stops as soon as you leave it or the app goes to the background. It finds the note with the YIN algorithm (`lib/audio/pitch_detector.dart`), down to the low B of five-string basses.
+The tuner starts listening as soon as it is on screen (you can pause it), and stops as soon as you leave it or the app goes to the background. It finds the note with the YIN algorithm (`lib/audio/pitch_detector.dart`), down to the low B of five-string basses.
 
 While any sound plays, its tab shows a pulsing dot and a strip above the navigation bar offers a stop button for it.
 
 ## Free, light and accessible
 
 - **Open source** under the [MIT License](LICENSE). Contributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
-- **Private**: no account, no internet, no tracking; the microphone is used only while the tuner listens. See [PRIVACY.md](PRIVACY.md).
+- **Private**: no account, no internet, no tracking; the microphone is used only while the tuner is on screen. See [PRIVACY.md](PRIVACY.md).
 - **Light**: only two audio packages ([flutter_soloud](https://pub.dev/packages/flutter_soloud) for sound, [record](https://pub.dev/packages/record) for the microphone), one permission (microphone), and the audio codecs the app doesn't need are left out of the build.
 - **LLM first**: everything on screen is also an action an assistant can call, with a JSON answer, through `lowend://action/...` links. See [docs/llm.md](docs/llm.md).
-- **Fast to open**: nothing heavy runs at launch. The audio engine starts only the first time a sound plays and the microphone only when the tuner listens (`test/startup_test.dart` checks this), and the launch screen uses the app's own background colour, so there is no white flash.
+- **Fast to open**: nothing heavy runs at launch. The audio engine starts only the first time a sound plays and the microphone only after the first frame is drawn (`test/startup_test.dart` checks this), and the launch screen uses the app's own background colour, so there is no white flash.
 - **Accessible**: built to follow WCAG 2.1 level AA. Every control has a screen-reader label, the tuner announces the note and whether it is flat, sharp or in tune, colours keep a 3:1 contrast or better and are never the only cue, text can be enlarged, and the playing dot stops moving when the phone asks for fewer animations. `test/accessibility_test.dart` checks this automatically.
 
 ## Project structure

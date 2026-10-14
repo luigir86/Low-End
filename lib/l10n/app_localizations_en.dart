@@ -89,10 +89,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tunerIdleHint =>
-      'Tap Start listening, then play one string at a time.';
+      'Tap Start listening, then play one note at a time.';
 
   @override
-  String get playAString => 'Play a string';
+  String get playAString => 'Play a note';
 
   @override
   String get micPermissionDenied =>
@@ -113,40 +113,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String centsValue(String cents) {
     return '$cents cents';
-  }
-
-  @override
-  String playingNote(String note) {
-    return 'You are playing $note';
-  }
-
-  @override
-  String get tuningLabel => 'Tuning';
-
-  @override
-  String get chromatic => 'Chromatic (any note)';
-
-  @override
-  String get doubleBass => 'Double bass';
-
-  @override
-  String get electricBass => 'Electric bass';
-
-  @override
-  String tuningName(String id) {
-    String _temp0 = intl.Intl.selectLogic(id, {
-      'orchestral': 'Orchestral',
-      'solo': 'Solo',
-      'cExtension': 'C extension',
-      'fiveLowB': '5 strings, low B',
-      'fiveHighC': '5 strings, high C',
-      'fourStrings': '4 strings',
-      'fiveStrings': '5 strings',
-      'sixStrings': '6 strings',
-      'dropD': 'Drop D',
-      'other': '$id',
-    });
-    return '$_temp0';
   }
 
   @override

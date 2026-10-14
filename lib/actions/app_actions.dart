@@ -64,8 +64,6 @@ class AppActions {
   final TunerController tuner;
   final AppNavigation navigation;
 
-  static final _tuningIds = ['chromatic', for (final t in tunings) t.id];
-
   static const _note = {
     'type': 'string',
     'description':
@@ -78,7 +76,7 @@ class AppActions {
       name: 'get_state',
       description:
           'Returns what the app is doing now: the section on screen, the '
-          'tuner (listening, tuning, last note heard and how many cents off), '
+          'tuner (listening, last note heard and how many cents off), '
           'the drone (playing, note, added intervals, volume) and the '
           'reference A.',
     ),
@@ -93,34 +91,17 @@ class AppActions {
       },
       required: ['section'],
     ),
-    AppAction(
+    const AppAction(
       name: 'tuner_start',
       description:
-          'Opens the tuner and starts listening through the microphone. The '
-          'tuner stops by itself when another section opens or the app goes '
-          'to the background. Read the result with get_state.',
-      parameters: {
-        'tuning': {
-          'type': 'string',
-          'enum': _tuningIds,
-          'description': 'Open strings to tune to; "chromatic" for any note.',
-        },
-      },
+          'Opens the chromatic tuner and starts listening through the '
+          'microphone: it recognises any note played. The tuner stops by '
+          'itself when another section opens or the app goes to the '
+          'background. Read the note with get_state.',
     ),
     const AppAction(
       name: 'tuner_stop',
       description: 'Stops the tuner and turns the microphone off.',
-    ),
-    AppAction(
-      name: 'set_tuning',
-      description:
-          'Chooses the instrument tuning. Double bass: orchestral (E A D G), '
-          'solo (F# B E A), cExtension, fiveLowB, fiveHighC. Electric bass: '
-          'fourStrings, fiveStrings, sixStrings, dropD.',
-      parameters: {
-        'tuning': {'type': 'string', 'enum': _tuningIds},
-      },
-      required: ['tuning'],
     ),
     const AppAction(
       name: 'drone_play',
@@ -200,13 +181,10 @@ class AppActions {
       case 'open_section':
         navigation.open(_enum(AppSection.values, args['section']));
       case 'tuner_start':
-        if (args['tuning'] != null) tuner.setTuning(_tuning(args['tuning']));
         navigation.open(AppSection.tuner);
         await tuner.start();
       case 'tuner_stop':
         await tuner.stop();
-      case 'set_tuning':
-        tuner.setTuning(_tuning(args['tuning']));
       case 'drone_play':
         _setDrone(args);
         if (!drone.isPlaying) await drone.start();
@@ -266,8 +244,6 @@ class AppActions {
       'reference_pitch_hz': drone.a4,
       'tuner': {
         'status': tuner.status.name,
-        'tuning': tuner.tuning?.id ?? 'chromatic',
-        'strings': [for (final n in tuner.tuning?.strings ?? []) noteId(n)],
         'reading': reading == null
             ? null
             : {
@@ -324,12 +300,6 @@ class AppActions {
       (throw ActionError(
         '"$name" must be one of ${values.map((v) => v.name).join(', ')}.',
       ));
-
-  static Tuning? _tuning(Object? id) {
-    if (id == 'chromatic') return null;
-    return tunings.where((t) => t.id == id).firstOrNull ??
-        (throw ActionError('Unknown tuning "$id".'));
-  }
 
   static double _number(Object? v, String key) =>
       v is num ? v.toDouble() : (throw ActionError('"$key" must be a number.'));
