@@ -1,0 +1,11 @@
+{
+  "@@locale": "en",
+  "appTitle": "Low End",
+  "tunerTab": "Tuner",
+  "metronomeTab": "Metronome",
+  "libraryTab": "Library",
+  "comingSoon": "Coming soon",
+  "tunerDescription": "Tuner for double bass and electric bass, down to low B.",
+  "metronomeDescription": "Precise metronome with accents and subdivisions.",
+  "libraryDescription": "Your PDF scores, set lists and annotations."
+}

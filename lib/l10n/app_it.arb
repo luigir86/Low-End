@@ -1,0 +1,11 @@
+{
+  "@@locale": "it",
+  "appTitle": "Low End",
+  "tunerTab": "Accordatore",
+  "metronomeTab": "Metronomo",
+  "libraryTab": "Libreria",
+  "comingSoon": "In arrivo",
+  "tunerDescription": "Accordatore per contrabbasso e basso elettrico, fino al Si grave.",
+  "metronomeDescription": "Metronomo preciso con accenti e suddivisioni.",
+  "libraryDescription": "Le tue partiture PDF, scalette e annotazioni."
+}
