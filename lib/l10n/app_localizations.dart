@@ -128,12 +128,6 @@ abstract class AppLocalizations {
   /// **'Coming soon'**
   String get comingSoon;
 
-  /// No description provided for @tunerDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Tuner for double bass and electric bass, down to low B.'**
-  String get tunerDescription;
-
   /// No description provided for @metronomeDescription.
   ///
   /// In en, this message translates to:
@@ -241,6 +235,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sound could not start on this device.'**
   String get audioUnavailable;
+
+  /// No description provided for @startListening.
+  ///
+  /// In en, this message translates to:
+  /// **'Start listening'**
+  String get startListening;
+
+  /// No description provided for @stopListening.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop listening'**
+  String get stopListening;
+
+  /// No description provided for @tunerIdleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap Start listening, then play one string at a time.'**
+  String get tunerIdleHint;
+
+  /// No description provided for @playAString.
+  ///
+  /// In en, this message translates to:
+  /// **'Play a string'**
+  String get playAString;
+
+  /// No description provided for @micPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Low End needs the microphone to hear your bass. If you said no, allow it in the phone settings under Apps › Low End › Permissions.'**
+  String get micPermissionDenied;
+
+  /// No description provided for @micUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The microphone could not start on this device.'**
+  String get micUnavailable;
+
+  /// No description provided for @inTune.
+  ///
+  /// In en, this message translates to:
+  /// **'In tune'**
+  String get inTune;
+
+  /// No description provided for @flat.
+  ///
+  /// In en, this message translates to:
+  /// **'Flat'**
+  String get flat;
+
+  /// No description provided for @sharp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharp'**
+  String get sharp;
+
+  /// No description provided for @centsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{cents} cents'**
+  String centsValue(String cents);
+
+  /// No description provided for @playingNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You are playing {note}'**
+  String playingNote(String note);
+
+  /// No description provided for @tuningLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuning'**
+  String get tuningLabel;
+
+  /// No description provided for @chromatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Chromatic (any note)'**
+  String get chromatic;
+
+  /// No description provided for @doubleBass.
+  ///
+  /// In en, this message translates to:
+  /// **'Double bass'**
+  String get doubleBass;
+
+  /// No description provided for @electricBass.
+  ///
+  /// In en, this message translates to:
+  /// **'Electric bass'**
+  String get electricBass;
+
+  /// No description provided for @tuningName.
+  ///
+  /// In en, this message translates to:
+  /// **'{id, select, orchestral{Orchestral} solo{Solo} cExtension{C extension} fiveLowB{5 strings, low B} fiveHighC{5 strings, high C} fourStrings{4 strings} fiveStrings{5 strings} sixStrings{6 strings} dropD{Drop D} other{{id}}}'**
+  String tuningName(String id);
 }
 
 class _AppLocalizationsDelegate

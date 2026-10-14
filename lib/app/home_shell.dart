@@ -46,7 +46,11 @@ class _HomeShellState extends State<HomeShell> {
             ),
             NavigationBar(
               selectedIndex: _index,
-              onDestinationSelected: (i) => setState(() => _index = i),
+              onDestinationSelected: (i) {
+                // The microphone only listens while the tuner is on screen.
+                if (i != 0) AudioScope.of(context).tuner.stop();
+                setState(() => _index = i);
+              },
               destinations: [
                 NavigationDestination(
                   icon: ActivityIcon(

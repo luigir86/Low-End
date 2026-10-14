@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../audio/audio_scope.dart';
 import '../../l10n/app_localizations.dart';
-import '../../widgets/placeholder_section.dart';
 import 'drone/drone_panel.dart';
+import 'tuner_panel.dart';
 
 enum _TunerMode { tune, drone }
 
@@ -38,15 +39,17 @@ class _TunerScreenState extends State<TunerScreen> {
               ),
             ],
             selected: {_mode},
-            onSelectionChanged: (s) => setState(() => _mode = s.first),
+            onSelectionChanged: (s) {
+              if (s.first != _TunerMode.tune) {
+                AudioScope.of(context).tuner.stop();
+              }
+              setState(() => _mode = s.first);
+            },
           ),
         ),
         Expanded(
           child: switch (_mode) {
-            _TunerMode.tune => PlaceholderSection(
-              icon: Icons.tune,
-              description: l10n.tunerDescription,
-            ),
+            _TunerMode.tune => const TunerPanel(),
             _TunerMode.drone => const DronePanel(),
           },
         ),

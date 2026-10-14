@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The tuner listens to the instrument through the microphone. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <application
         android:label="Low End"
         android:name="${applicationName}"

@@ -1,0 +1,110 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:record/record.dart';
+
+/// Captures sound from the microphone as mono samples from -1 to 1.
+///
+/// Kept behind an interface so the rest of the app can be tested without a
+/// real microphone.
+abstract class MicInput {
+  /// Asks for microphone access if needed; returns whether it was granted.
+  Future<bool> requestPermission();
+
+  /// Starts capturing at [sampleRate] samples per second.
+  Future<Stream<Float64List>> start(int sampleRate);
+
+  Future<void> stop();
+}
+
+/// [MicInput] backed by the record package.
+class RecordMicInput implements MicInput {
+  AudioRecorder? _recorder;
+
+  AudioRecorder get _rec => _recorder ??= AudioRecorder();
+
+  @override
+  Future<bool> requestPermission() => _rec.hasPermission();
+
+  @override
+  Future<Stream<Float64List>> start(int sampleRate) async {
+    final bytes = await _rec.startStream(
+      RecordConfig(
+        encoder: AudioEncoder.pcm16bits,
+        sampleRate: sampleRate,
+        numChannels: 1,
+        // Phone voice processing would flatten and filter the low notes.
+        autoGain: false,
+        echoCancel: false,
+        noiseSuppress: false,
+        androidConfig: const AndroidRecordConfig(
+          audioSource: AndroidAudioSource.mic,
+          manageBluetooth: false,
+        ),
+      ),
+    );
+    return bytes.transform(const Pcm16Decoder());
+  }
+
+  @override
+  Future<void> stop() async {
+    await _recorder?.stop();
+  }
+}
+
+/// Turns little-endian 16-bit PCM bytes into samples from -1 to 1, carrying
+/// over a byte when a chunk splits a sample in two.
+class Pcm16Decoder extends StreamTransformerBase<Uint8List, Float64List> {
+  const Pcm16Decoder();
+
+  @override
+  Stream<Float64List> bind(Stream<Uint8List> stream) async* {
+    int? leftover;
+    await for (final chunk in stream) {
+      final bytes = leftover == null
+          ? chunk
+          : (Uint8List(chunk.length + 1)
+              ..[0] = leftover
+              ..setRange(1, chunk.length + 1, chunk));
+      final count = bytes.length ~/ 2;
+      leftover = bytes.length.isOdd ? bytes.last : null;
+      final data = ByteData.sublistView(bytes);
+      final samples = Float64List(count);
+      for (var i = 0; i < count; i++) {
+        samples[i] = data.getInt16(i * 2, Endian.little) / 32768;
+      }
+      yield samples;
+    }
+  }
+}
+
+/// [MicInput] fed by hand; used in tests.
+@visibleForTesting
+class FakeMicInput implements MicInput {
+  FakeMicInput({this.allowed = true});
+
+  bool allowed;
+  StreamController<Float64List>? _controller;
+
+  bool get isCapturing => _controller != null;
+
+  /// Sends [samples] as if the microphone had captured them.
+  void add(Float64List samples) => _controller?.add(samples);
+
+  @override
+  Future<bool> requestPermission() async => allowed;
+
+  @override
+  Future<Stream<Float64List>> start(int sampleRate) async {
+    _controller = StreamController<Float64List>();
+    return _controller!.stream;
+  }
+
+  @override
+  Future<void> stop() async {
+    final controller = _controller;
+    _controller = null;
+    // Not awaited: with the listener already gone, close never completes.
+    controller?.close();
+  }
+}

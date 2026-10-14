@@ -19,6 +19,12 @@ class Note {
   const Note(this.pitchClass, this.octave)
     : assert(pitchClass >= 0 && pitchClass < 12);
 
+  /// The equal-tempered note closest to [frequency] in Hz.
+  factory Note.nearest(double frequency, {double a4 = 440}) {
+    final midi = (69 + 12 * math.log(frequency / a4) / math.ln2).round();
+    return Note(midi % 12, midi ~/ 12 - 1);
+  }
+
   final int pitchClass;
   final int octave;
 
@@ -28,6 +34,11 @@ class Note {
   /// Equal-tempered frequency in Hz, given the frequency of A4.
   double frequency({double a4 = 440}) =>
       a4 * math.pow(2, (midi - 69) / 12).toDouble();
+
+  /// How far [frequency] is from this note, in cents (hundredths of a
+  /// semitone): negative when flat, positive when sharp.
+  double centsOf(double frequency, {double a4 = 440}) =>
+      1200 * math.log(frequency / this.frequency(a4: a4)) / math.ln2;
 
   /// The note name without octave, for the given language code.
   String name(String languageCode) =>

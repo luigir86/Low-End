@@ -25,10 +25,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get comingSoon => 'Coming soon';
 
   @override
-  String get tunerDescription =>
-      'Tuner for double bass and electric bass, down to low B.';
-
-  @override
   String get metronomeDescription =>
       'Precise metronome with accents and subdivisions.';
 
@@ -91,4 +87,72 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get audioUnavailable => 'Sound could not start on this device.';
+
+  @override
+  String get startListening => 'Start listening';
+
+  @override
+  String get stopListening => 'Stop listening';
+
+  @override
+  String get tunerIdleHint =>
+      'Tap Start listening, then play one string at a time.';
+
+  @override
+  String get playAString => 'Play a string';
+
+  @override
+  String get micPermissionDenied =>
+      'Low End needs the microphone to hear your bass. If you said no, allow it in the phone settings under Apps › Low End › Permissions.';
+
+  @override
+  String get micUnavailable => 'The microphone could not start on this device.';
+
+  @override
+  String get inTune => 'In tune';
+
+  @override
+  String get flat => 'Flat';
+
+  @override
+  String get sharp => 'Sharp';
+
+  @override
+  String centsValue(String cents) {
+    return '$cents cents';
+  }
+
+  @override
+  String playingNote(String note) {
+    return 'You are playing $note';
+  }
+
+  @override
+  String get tuningLabel => 'Tuning';
+
+  @override
+  String get chromatic => 'Chromatic (any note)';
+
+  @override
+  String get doubleBass => 'Double bass';
+
+  @override
+  String get electricBass => 'Electric bass';
+
+  @override
+  String tuningName(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'orchestral': 'Orchestral',
+      'solo': 'Solo',
+      'cExtension': 'C extension',
+      'fiveLowB': '5 strings, low B',
+      'fiveHighC': '5 strings, high C',
+      'fourStrings': '4 strings',
+      'fiveStrings': '5 strings',
+      'sixStrings': '6 strings',
+      'dropD': 'Drop D',
+      'other': '$id',
+    });
+    return '$_temp0';
+  }
 }

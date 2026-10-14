@@ -13,6 +13,8 @@ Low End is a mobile app for double bass and electric bass players, built with [F
 
 The app is available in English and Italian.
 
+The tuner listens through the microphone only while you ask it to, and stops as soon as you leave it or the app goes to the background. It finds the note with the YIN algorithm (`lib/audio/pitch_detector.dart`), down to the low B of five-string basses.
+
 While any sound plays, its tab shows a pulsing dot and a strip above the navigation bar offers a stop button for it.
 
 ## Project structure

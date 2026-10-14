@@ -25,10 +25,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get comingSoon => 'In arrivo';
 
   @override
-  String get tunerDescription =>
-      'Accordatore per contrabbasso e basso elettrico, fino al Si grave.';
-
-  @override
   String get metronomeDescription =>
       'Metronomo preciso con accenti e suddivisioni.';
 
@@ -91,4 +87,72 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get audioUnavailable =>
       'Non è stato possibile avviare l\'audio su questo dispositivo.';
+
+  @override
+  String get startListening => 'Ascolta';
+
+  @override
+  String get stopListening => 'Smetti di ascoltare';
+
+  @override
+  String get tunerIdleHint => 'Tocca Ascolta, poi suona una corda alla volta.';
+
+  @override
+  String get playAString => 'Suona una corda';
+
+  @override
+  String get micPermissionDenied =>
+      'Low End ha bisogno del microfono per sentire il tuo basso. Se hai risposto di no, consentilo nelle impostazioni del telefono in App › Low End › Autorizzazioni.';
+
+  @override
+  String get micUnavailable =>
+      'Non è stato possibile avviare il microfono su questo dispositivo.';
+
+  @override
+  String get inTune => 'Intonato';
+
+  @override
+  String get flat => 'Calante';
+
+  @override
+  String get sharp => 'Crescente';
+
+  @override
+  String centsValue(String cents) {
+    return '$cents cent';
+  }
+
+  @override
+  String playingNote(String note) {
+    return 'Stai suonando $note';
+  }
+
+  @override
+  String get tuningLabel => 'Accordatura';
+
+  @override
+  String get chromatic => 'Cromatico (qualsiasi nota)';
+
+  @override
+  String get doubleBass => 'Contrabbasso';
+
+  @override
+  String get electricBass => 'Basso elettrico';
+
+  @override
+  String tuningName(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'orchestral': 'Orchestrale',
+      'solo': 'Solistica',
+      'cExtension': 'Estensione al Do',
+      'fiveLowB': '5 corde, Si grave',
+      'fiveHighC': '5 corde, Do acuto',
+      'fourStrings': '4 corde',
+      'fiveStrings': '5 corde',
+      'sixStrings': '6 corde',
+      'dropD': 'Drop D',
+      'other': '$id',
+    });
+    return '$_temp0';
+  }
 }
