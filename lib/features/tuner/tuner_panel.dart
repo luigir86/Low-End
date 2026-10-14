@@ -64,7 +64,8 @@ class _TunerPanelState extends State<TunerPanel> {
               language: language,
             ),
             const SizedBox(height: 16),
-            _CentsGauge(cents: reading?.cents),
+            // The needle moves 20 times a second: repaint only the gauge.
+            RepaintBoundary(child: _CentsGauge(cents: reading?.cents)),
             const SizedBox(height: 8),
             if (_tuner.tuning case final tuning?)
               _StringRow(

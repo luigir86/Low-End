@@ -23,6 +23,7 @@ While any sound plays, its tab shows a pulsing dot and a strip above the navigat
 - **Private**: no account, no internet, no tracking; the microphone is used only while the tuner listens. See [PRIVACY.md](PRIVACY.md).
 - **Light**: only two audio packages ([flutter_soloud](https://pub.dev/packages/flutter_soloud) for sound, [record](https://pub.dev/packages/record) for the microphone), one permission (microphone), and the audio codecs the app doesn't need are left out of the build.
 - **LLM first**: everything on screen is also an action an assistant can call, with a JSON answer, through `lowend://action/...` links. See [docs/llm.md](docs/llm.md).
+- **Fast to open**: nothing heavy runs at launch. The audio engine starts only the first time a sound plays and the microphone only when the tuner listens (`test/startup_test.dart` checks this), and the launch screen uses the app's own background colour, so there is no white flash.
 - **Accessible**: built to follow WCAG 2.1 level AA. Every control has a screen-reader label, the tuner announces the note and whether it is flat, sharp or in tune, colours keep a 3:1 contrast or better and are never the only cue, text can be enlarged, and the playing dot stops moving when the phone asks for fewer animations. `test/accessibility_test.dart` checks this automatically.
 
 ## Project structure
@@ -57,6 +58,8 @@ To build a small APK to share with friends, make one per processor type and send
 ```
 flutter build apk --release --split-per-abi
 ```
+
+To measure how fast the app opens on your phone, run `flutter run --profile --trace-startup`: the times are written to `build/start_up_info.json` (`timeToFirstFrameMicros` is what you feel).
 
 For Google Play, build an app bundle with `flutter build appbundle`: the store then sends each phone only what it needs.
 

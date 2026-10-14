@@ -23,6 +23,18 @@ class LowEndApp extends StatefulWidget {
   State<LowEndApp> createState() => _LowEndAppState();
 }
 
+// Built once, not on every rebuild. The launch screen colours in
+// android/app/src/main/res/values*/colors.xml match these backgrounds.
+final _lightTheme = ThemeData(
+  colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF8B4513)),
+);
+final _darkTheme = ThemeData(
+  colorScheme: ColorScheme.fromSeed(
+    seedColor: const Color(0xFF8B4513),
+    brightness: Brightness.dark,
+  ),
+);
+
 class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
   late final _drone = DroneController(widget.toneOutput ?? SoLoudToneOutput());
   late final _tuner = TunerController(widget.micInput ?? RecordMicInput());
@@ -88,15 +100,8 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
         onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF8B4513)),
-        ),
-        darkTheme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF8B4513),
-            brightness: Brightness.dark,
-          ),
-        ),
+        theme: _lightTheme,
+        darkTheme: _darkTheme,
         // Always start on the main screen: a launch link is an action, not a
         // page (see _runLink).
         onGenerateRoute: (_) =>

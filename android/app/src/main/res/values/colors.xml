@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Same as the app's light background, so opening the app shows no
+         white flash before the first frame. -->
+    <color name="launch_background">#FFF8F5</color>
+</resources>
