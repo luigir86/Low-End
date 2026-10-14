@@ -55,9 +55,27 @@ void main() {
 
     await tester.tap(find.text('Metronome'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Play'));
+    await tester.tap(find.byTooltip('Play Drone · A3'));
     await tester.pump();
     expect(output.frequencies, isNotEmpty);
-    expect(find.byTooltip('Stop Drone · A3'), findsOneWidget);
+    // On the shortcut itself and in the now-playing strip.
+    expect(find.byTooltip('Stop Drone · A3'), findsNWidgets(2));
+  });
+
+  testWidgets('the About dialog shows the licence and the package notices', (
+    tester,
+  ) async {
+    await tester.pumpWidget(LowEndApp(toneOutput: SilentToneOutput()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('About Low End'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text(
+        'Free and open-source software, released under the MIT License.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('View licenses'), findsOneWidget);
   });
 }

@@ -17,6 +17,13 @@ The tuner listens through the microphone only while you ask it to, and stops as 
 
 While any sound plays, its tab shows a pulsing dot and a strip above the navigation bar offers a stop button for it.
 
+## Free, light and accessible
+
+- **Open source** under the [MIT License](LICENSE). Contributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
+- **Private**: no account, no internet, no tracking; the microphone is used only while the tuner listens. See [PRIVACY.md](PRIVACY.md).
+- **Light**: only two audio packages ([flutter_soloud](https://pub.dev/packages/flutter_soloud) for sound, [record](https://pub.dev/packages/record) for the microphone), one permission (microphone), and the audio codecs the app doesn't need are left out of the build.
+- **Accessible**: built to follow WCAG 2.1 level AA. Every control has a screen-reader label, the tuner announces the note and whether it is flat, sharp or in tune, colours keep a 3:1 contrast or better and are never the only cue, text can be enlarged, and the playing dot stops moving when the phone asks for fewer animations. `test/accessibility_test.dart` checks this automatically.
+
 ## Project structure
 
 ```
@@ -42,6 +49,14 @@ flutter run
 ```
 
 Run the tests with `flutter test`.
+
+To build a small APK to share with friends, make one per processor type and send the `arm64-v8a` one (it fits almost every phone from the last ten years):
+
+```
+flutter build apk --release --split-per-abi
+```
+
+For Google Play, build an app bundle with `flutter build appbundle`: the store then sends each phone only what it needs.
 
 ## Translations
 

@@ -148,4 +148,31 @@ class AppLocalizationsEn extends AppLocalizations {
     });
     return '$_temp0';
   }
+
+  @override
+  String playSound(String name) {
+    return 'Play $name';
+  }
+
+  @override
+  String get octaveDown => 'Octave down';
+
+  @override
+  String get octaveUp => 'Octave up';
+
+  @override
+  String get aboutTooltip => 'About Low End';
+
+  @override
+  String get aboutLegalese =>
+      'Free and open-source software, released under the MIT License.';
+
+  @override
+  String get aboutDescription =>
+      'Tuner, drone and metronome for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.';
+
+  @override
+  String aboutSource(String url) {
+    return 'Source code: $url';
+  }
 }

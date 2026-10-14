@@ -36,5 +36,12 @@
   "chromatic": "Cromatico (qualsiasi nota)",
   "doubleBass": "Contrabbasso",
   "electricBass": "Basso elettrico",
-  "tuningName": "{id, select, orchestral{Orchestrale} solo{Solistica} cExtension{Estensione al Do} fiveLowB{5 corde, Si grave} fiveHighC{5 corde, Do acuto} fourStrings{4 corde} fiveStrings{5 corde} sixStrings{6 corde} dropD{Drop D} other{{id}}}"
+  "tuningName": "{id, select, orchestral{Orchestrale} solo{Solistica} cExtension{Estensione al Do} fiveLowB{5 corde, Si grave} fiveHighC{5 corde, Do acuto} fourStrings{4 corde} fiveStrings{5 corde} sixStrings{6 corde} dropD{Drop D} other{{id}}}",
+  "playSound": "Suona {name}",
+  "octaveDown": "Ottava sotto",
+  "octaveUp": "Ottava sopra",
+  "aboutTooltip": "Informazioni su Low End",
+  "aboutLegalese": "Software libero e open source, distribuito con licenza MIT.",
+  "aboutDescription": "Accordatore, drone e metronomo per contrabbasso e basso elettrico. Low End funziona offline: il microfono si usa solo mentre l'accordatore ascolta, e nessun suono o dato esce dal telefono.",
+  "aboutSource": "Codice sorgente: {url}"
 }

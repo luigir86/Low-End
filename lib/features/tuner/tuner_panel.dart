@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../audio/audio_scope.dart';
 import '../../audio/pitch.dart';
 import '../../l10n/app_localizations.dart';
+import 'reference_pitch_picker.dart';
 import 'tuner_controller.dart';
 import 'tunings.dart';
 
@@ -87,38 +88,21 @@ class _TunerPanelState extends State<TunerPanel> {
             ),
             const SizedBox(height: 8),
             if (_statusMessage(l10n) case final message?)
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: _tuner.status == TunerStatus.idle
-                    ? theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      )
-                    : TextStyle(color: theme.colorScheme.error),
+              // Announced by screen readers, e.g. when the microphone is denied.
+              Semantics(
+                liveRegion: true,
+                child: Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: _tuner.status == TunerStatus.idle
+                      ? theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        )
+                      : TextStyle(color: theme.colorScheme.error),
+                ),
               ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l10n.referencePitch,
-                    style: theme.textTheme.titleSmall,
-                  ),
-                ),
-                // Shared with the drone, so both agree on the same A.
-                DropdownButton<double>(
-                  value: drone.a4,
-                  items: [
-                    for (final hz in referencePitches)
-                      DropdownMenuItem(
-                        value: hz,
-                        child: Text('${hz.round()} Hz'),
-                      ),
-                  ],
-                  onChanged: (hz) => drone.setReferencePitch(hz!),
-                ),
-              ],
-            ),
+            ReferencePitchPicker(drone: drone),
           ],
         );
       },
@@ -198,38 +182,68 @@ class _NoteDisplay extends StatelessWidget {
       );
     }
     final cents = r.cents.round();
+    final direction = r.inTune
+        ? l10n.inTune
+        : (cents < 0 ? l10n.flat : l10n.sharp);
     final verdict = r.inTune
         ? l10n.inTune
-        : '${cents < 0 ? l10n.flat : l10n.sharp} · '
+        : '$direction · '
               '${l10n.centsValue('${cents > 0 ? '+' : ''}$cents')}';
-    return Column(
-      children: [
-        Text(
-          r.target.label(language),
-          style: theme.textTheme.displayLarge?.copyWith(
-            color: _centsColor(theme.colorScheme, r.cents),
-            fontWeight: FontWeight.w600,
-          ),
+    // Screen readers hear the note and whether it is flat, sharp or in tune,
+    // only when that changes: reading every cent aloud would never stop.
+    return Semantics(
+      liveRegion: true,
+      label: '${r.target.label(language)}, $direction',
+      child: ExcludeSemantics(
+        child: Column(
+          children: [
+            Text(
+              r.target.label(language),
+              style: theme.textTheme.displayLarge?.copyWith(
+                color: _centsColor(theme, r.cents),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // A shape as well as a colour, for colour-blind players.
+                if (r.inTune) ...[
+                  Icon(Icons.check_circle, color: _centsColor(theme, 0)),
+                  const SizedBox(width: 6),
+                ],
+                Flexible(
+                  child: Text(verdict, style: theme.textTheme.titleMedium),
+                ),
+              ],
+            ),
+            Text(
+              r.played == r.target
+                  ? l10n.frequencyHz(r.frequency.toStringAsFixed(1))
+                  : '${l10n.playingNote(r.played.label(language))} · '
+                        '${l10n.frequencyHz(r.frequency.toStringAsFixed(1))}',
+              style: muted,
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
-        Text(verdict, style: theme.textTheme.titleMedium),
-        Text(
-          r.played == r.target
-              ? l10n.frequencyHz(r.frequency.toStringAsFixed(1))
-              : '${l10n.playingNote(r.played.label(language))} · '
-                    '${l10n.frequencyHz(r.frequency.toStringAsFixed(1))}',
-          style: muted,
-        ),
-      ],
+      ),
     );
   }
 }
 
 /// Green when in tune, amber when close, red when far off.
-Color _centsColor(ColorScheme colors, double cents) {
+///
+/// Darker shades on light backgrounds and lighter ones on dark backgrounds,
+/// so the note and the needle keep at least 3:1 contrast (WCAG 1.4.3, 1.4.11).
+Color _centsColor(ThemeData theme, double cents) {
+  final dark = theme.brightness == Brightness.dark;
   final off = cents.abs();
-  if (off <= TunerReading.inTuneCents) return Colors.green.shade600;
-  if (off <= 15) return Colors.amber.shade700;
-  return colors.error;
+  if (off <= TunerReading.inTuneCents) {
+    return dark ? Colors.green.shade300 : Colors.green.shade800;
+  }
+  if (off <= 15) return dark ? Colors.amber.shade300 : const Color(0xFF8A5A00);
+  return theme.colorScheme.error;
 }
 
 /// A horizontal scale from -50 to +50 cents with a needle.
@@ -244,30 +258,35 @@ class _CentsGauge extends StatelessWidget {
     final c = cents;
     return Column(
       children: [
-        SizedBox(
-          height: 56,
-          width: double.infinity,
-          child: TweenAnimationBuilder<double>(
-            tween: Tween(end: (c ?? 0).clamp(-50, 50)),
-            duration: const Duration(milliseconds: 120),
-            builder: (context, value, _) => CustomPaint(
-              painter: _GaugePainter(
-                cents: c == null ? null : value,
-                scale: theme.colorScheme.outline,
-                needle: c == null
-                    ? theme.colorScheme.outlineVariant
-                    : _centsColor(theme.colorScheme, c),
-                zone: Colors.green.withValues(alpha: 0.25),
+        // The note display above already says all of this in words.
+        ExcludeSemantics(
+          child: SizedBox(
+            height: 56,
+            width: double.infinity,
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(end: (c ?? 0).clamp(-50, 50)),
+              duration: const Duration(milliseconds: 120),
+              builder: (context, value, _) => CustomPaint(
+                painter: _GaugePainter(
+                  cents: c == null ? null : value,
+                  scale: theme.colorScheme.outline,
+                  needle: c == null
+                      ? theme.colorScheme.outlineVariant
+                      : _centsColor(theme, c),
+                  zone: _centsColor(theme, 0).withValues(alpha: 0.25),
+                ),
               ),
             ),
           ),
         ),
-        Row(
-          children: [
-            Text('♭', style: theme.textTheme.titleLarge),
-            const Spacer(),
-            Text('♯', style: theme.textTheme.titleLarge),
-          ],
+        ExcludeSemantics(
+          child: Row(
+            children: [
+              Text('♭', style: theme.textTheme.titleLarge),
+              const Spacer(),
+              Text('♯', style: theme.textTheme.titleLarge),
+            ],
+          ),
         ),
       ],
     );
@@ -353,16 +372,21 @@ class _StringRow extends StatelessWidget {
       runSpacing: 8,
       children: [
         for (final string in tuning.strings)
-          Chip(
-            label: Text(
-              string.label(language),
-              style: TextStyle(
-                color: string == target
-                    ? colors.onPrimary
-                    : colors.onSurfaceVariant,
+          Semantics(
+            selected: string == target,
+            child: Chip(
+              label: Text(
+                string.label(language),
+                style: TextStyle(
+                  color: string == target
+                      ? colors.onPrimary
+                      : colors.onSurfaceVariant,
+                  // Bold as well as coloured, so it doesn't rely on colour.
+                  fontWeight: string == target ? FontWeight.bold : null,
+                ),
               ),
+              backgroundColor: string == target ? colors.primary : null,
             ),
-            backgroundColor: string == target ? colors.primary : null,
           ),
       ],
     );

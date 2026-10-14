@@ -148,4 +148,31 @@ class AppLocalizationsIt extends AppLocalizations {
     });
     return '$_temp0';
   }
+
+  @override
+  String playSound(String name) {
+    return 'Suona $name';
+  }
+
+  @override
+  String get octaveDown => 'Ottava sotto';
+
+  @override
+  String get octaveUp => 'Ottava sopra';
+
+  @override
+  String get aboutTooltip => 'Informazioni su Low End';
+
+  @override
+  String get aboutLegalese =>
+      'Software libero e open source, distribuito con licenza MIT.';
+
+  @override
+  String get aboutDescription =>
+      'Accordatore, drone e metronomo per contrabbasso e basso elettrico. Low End funziona offline: il microfono si usa solo mentre l\'accordatore ascolta, e nessun suono o dato esce dal telefono.';
+
+  @override
+  String aboutSource(String url) {
+    return 'Codice sorgente: $url';
+  }
 }

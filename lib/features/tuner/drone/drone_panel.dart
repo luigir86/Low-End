@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../audio/audio_scope.dart';
 import '../../../audio/pitch.dart';
 import '../../../l10n/app_localizations.dart';
+import '../reference_pitch_picker.dart';
 import 'drone_controller.dart';
 
 /// Controls for the drone: note, octave, added intervals, reference pitch and
@@ -72,6 +73,7 @@ class DronePanel extends StatelessWidget {
               ),
               IconButton.outlined(
                 icon: const Icon(Icons.remove),
+                tooltip: l10n.octaveDown,
                 onPressed: drone.note.octave > DroneController.minOctave
                     ? () => drone.setOctave(drone.note.octave - 1)
                     : null,
@@ -86,6 +88,7 @@ class DronePanel extends StatelessWidget {
               ),
               IconButton.outlined(
                 icon: const Icon(Icons.add),
+                tooltip: l10n.octaveUp,
                 onPressed: drone.note.octave < DroneController.maxOctave
                     ? () => drone.setOctave(drone.note.octave + 1)
                     : null,
@@ -127,27 +130,7 @@ class DronePanel extends StatelessWidget {
             onChanged: drone.setAddOctave,
           ),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  l10n.referencePitch,
-                  style: theme.textTheme.titleSmall,
-                ),
-              ),
-              DropdownButton<double>(
-                value: drone.a4,
-                items: [
-                  for (final hz in referencePitches)
-                    DropdownMenuItem(
-                      value: hz,
-                      child: Text('${hz.round()} Hz'),
-                    ),
-                ],
-                onChanged: (hz) => drone.setReferencePitch(hz!),
-              ),
-            ],
-          ),
+          ReferencePitchPicker(drone: drone),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -183,8 +166,10 @@ class _NotePicker extends StatelessWidget {
       children: [
         for (var pc = 0; pc < 12; pc++)
           ChoiceChip(
-            label: SizedBox(
-              width: 40,
+            // A minimum width, not a fixed one, so names like "Sol#" still fit
+            // with large text.
+            label: ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 40),
               child: Text(
                 Note(pc, drone.note.octave).name(language),
                 textAlign: TextAlign.center,

@@ -319,6 +319,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{id, select, orchestral{Orchestral} solo{Solo} cExtension{C extension} fiveLowB{5 strings, low B} fiveHighC{5 strings, high C} fourStrings{4 strings} fiveStrings{5 strings} sixStrings{6 strings} dropD{Drop D} other{{id}}}'**
   String tuningName(String id);
+
+  /// No description provided for @playSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Play {name}'**
+  String playSound(String name);
+
+  /// No description provided for @octaveDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Octave down'**
+  String get octaveDown;
+
+  /// No description provided for @octaveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Octave up'**
+  String get octaveUp;
+
+  /// No description provided for @aboutTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'About Low End'**
+  String get aboutTooltip;
+
+  /// No description provided for @aboutLegalese.
+  ///
+  /// In en, this message translates to:
+  /// **'Free and open-source software, released under the MIT License.'**
+  String get aboutLegalese;
+
+  /// No description provided for @aboutDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuner, drone and metronome for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.'**
+  String get aboutDescription;
+
+  /// No description provided for @aboutSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source code: {url}'**
+  String aboutSource(String url);
 }
 
 class _AppLocalizationsDelegate

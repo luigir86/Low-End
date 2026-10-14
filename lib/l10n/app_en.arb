@@ -78,5 +78,26 @@
         "type": "String"
       }
     }
+  },
+  "playSound": "Play {name}",
+  "@playSound": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "octaveDown": "Octave down",
+  "octaveUp": "Octave up",
+  "aboutTooltip": "About Low End",
+  "aboutLegalese": "Free and open-source software, released under the MIT License.",
+  "aboutDescription": "Tuner, drone and metronome for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.",
+  "aboutSource": "Source code: {url}",
+  "@aboutSource": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
   }
 }

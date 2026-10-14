@@ -5,6 +5,7 @@ import '../features/metronome/metronome_screen.dart';
 import '../features/tuner/tuner_screen.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/pulsing_dot.dart';
+import 'about.dart';
 import 'now_playing_strip.dart';
 
 /// Main screen with bottom navigation between the app's sections.
@@ -28,7 +29,16 @@ class _HomeShellState extends State<HomeShell> {
     return ListenableBuilder(
       listenable: drone,
       builder: (context, _) => Scaffold(
-        appBar: AppBar(title: Text(l10n.appTitle)),
+        appBar: AppBar(
+          title: Text(l10n.appTitle),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.info_outline),
+              tooltip: l10n.aboutTooltip,
+              onPressed: () => showLowEndAbout(context),
+            ),
+          ],
+        ),
         body: IndexedStack(index: _index, children: _screens),
         bottomNavigationBar: Column(
           mainAxisSize: MainAxisSize.min,

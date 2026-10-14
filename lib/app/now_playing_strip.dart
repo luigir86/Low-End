@@ -41,8 +41,9 @@ class NowPlayingStrip extends StatelessWidget {
                   child: Column(
                     children: [
                       for (final sound in sounds)
-                        SizedBox(
-                          height: 48,
+                        // A minimum height, so large text can still grow.
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 48),
                           child: Row(
                             children: [
                               const PulsingDot(),

@@ -35,19 +35,27 @@ class _DroneShortcut extends StatelessWidget {
     final language = Localizations.localeOf(context).languageCode;
     return ListenableBuilder(
       listenable: drone,
-      builder: (context, _) => Card(
-        margin: const EdgeInsets.all(16),
-        child: ListTile(
-          leading: const Icon(Icons.graphic_eq),
-          title: Text(l10n.droneNowPlaying(drone.note.label(language))),
-          subtitle: Text(l10n.droneShortcutHint),
-          trailing: IconButton.filledTonal(
-            icon: Icon(drone.isPlaying ? Icons.stop_rounded : Icons.play_arrow),
-            tooltip: drone.isPlaying ? l10n.stop : l10n.play,
-            onPressed: drone.toggle,
+      builder: (context, _) {
+        final label = l10n.droneNowPlaying(drone.note.label(language));
+        return Card(
+          margin: const EdgeInsets.all(16),
+          child: ListTile(
+            leading: const Icon(Icons.graphic_eq),
+            title: Text(label),
+            subtitle: Text(l10n.droneShortcutHint),
+            trailing: IconButton.filledTonal(
+              icon: Icon(
+                drone.isPlaying ? Icons.stop_rounded : Icons.play_arrow,
+              ),
+              // Says what it plays, not just "Play".
+              tooltip: drone.isPlaying
+                  ? l10n.stopSound(label)
+                  : l10n.playSound(label),
+              onPressed: drone.toggle,
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
