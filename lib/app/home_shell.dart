@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../audio/audio_scope.dart';
 import '../features/library/library_screen.dart';
 import '../features/metronome/metronome_screen.dart';
 import '../features/tuner/tuner_screen.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/pulsing_dot.dart';
+import 'now_playing_strip.dart';
 
 /// Main screen with bottom navigation between the app's sections.
 class HomeShell extends StatefulWidget {
@@ -21,26 +24,49 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.appTitle)),
-      body: IndexedStack(index: _index, children: _screens),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.graphic_eq),
-            label: l10n.tunerTab,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.timer_outlined),
-            label: l10n.metronomeTab,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.library_music_outlined),
-            label: l10n.libraryTab,
-          ),
-        ],
+    final language = Localizations.localeOf(context).languageCode;
+    final drone = AudioScope.of(context).drone;
+    return ListenableBuilder(
+      listenable: drone,
+      builder: (context, _) => Scaffold(
+        appBar: AppBar(title: Text(l10n.appTitle)),
+        body: IndexedStack(index: _index, children: _screens),
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            NowPlayingStrip(
+              sounds: [
+                if (drone.isPlaying)
+                  ActiveSound(
+                    icon: Icons.graphic_eq,
+                    label: l10n.droneNowPlaying(drone.note.label(language)),
+                    onStop: drone.stop,
+                  ),
+              ],
+            ),
+            NavigationBar(
+              selectedIndex: _index,
+              onDestinationSelected: (i) => setState(() => _index = i),
+              destinations: [
+                NavigationDestination(
+                  icon: ActivityIcon(
+                    icon: Icons.graphic_eq,
+                    active: drone.isPlaying,
+                  ),
+                  label: l10n.tunerTab,
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.timer_outlined),
+                  label: l10n.metronomeTab,
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.library_music_outlined),
+                  label: l10n.libraryTab,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

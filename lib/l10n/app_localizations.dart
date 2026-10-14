@@ -145,6 +145,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your PDF scores, set lists and annotations.'**
   String get libraryDescription;
+
+  /// No description provided for @tuneMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Tune'**
+  String get tuneMode;
+
+  /// No description provided for @droneMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Drone'**
+  String get droneMode;
+
+  /// No description provided for @noteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get noteLabel;
+
+  /// No description provided for @octaveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Octave'**
+  String get octaveLabel;
+
+  /// No description provided for @addFifth.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the fifth'**
+  String get addFifth;
+
+  /// No description provided for @addOctave.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the octave above'**
+  String get addOctave;
+
+  /// No description provided for @referencePitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference A'**
+  String get referencePitch;
+
+  /// No description provided for @volumeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get volumeLabel;
+
+  /// No description provided for @play.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get play;
+
+  /// No description provided for @stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get stop;
+
+  /// No description provided for @frequencyHz.
+  ///
+  /// In en, this message translates to:
+  /// **'{frequency} Hz'**
+  String frequencyHz(String frequency);
+
+  /// No description provided for @lowNoteWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone speakers can barely play notes this low. Use headphones or an external speaker.'**
+  String get lowNoteWarning;
+
+  /// No description provided for @droneNowPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Drone · {note}'**
+  String droneNowPlaying(String note);
+
+  /// No description provided for @stopSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop {name}'**
+  String stopSound(String name);
+
+  /// No description provided for @droneShortcutHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise with the drone and the click together.'**
+  String get droneShortcutHint;
+
+  /// No description provided for @audioUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound could not start on this device.'**
+  String get audioUnavailable;
 }
 
 class _AppLocalizationsDelegate
