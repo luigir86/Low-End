@@ -6,18 +6,12 @@ import '../features/tuner/tuner_screen.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/pulsing_dot.dart';
 import 'about.dart';
+import 'app_navigation.dart';
 import 'now_playing_strip.dart';
 
 /// Main screen with bottom navigation between the app's sections.
-class HomeShell extends StatefulWidget {
+class HomeShell extends StatelessWidget {
   const HomeShell({super.key});
-
-  @override
-  State<HomeShell> createState() => _HomeShellState();
-}
-
-class _HomeShellState extends State<HomeShell> {
-  int _index = 0;
 
   static const _screens = [TunerScreen(), MetronomeScreen()];
 
@@ -25,58 +19,61 @@ class _HomeShellState extends State<HomeShell> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final language = Localizations.localeOf(context).languageCode;
-    final drone = AudioScope.of(context).drone;
+    final scope = AudioScope.of(context);
+    final drone = scope.drone;
+    final navigation = scope.navigation;
     return ListenableBuilder(
-      listenable: drone,
-      builder: (context, _) => Scaffold(
-        appBar: AppBar(
-          title: Text(l10n.appTitle),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.info_outline),
-              tooltip: l10n.aboutTooltip,
-              onPressed: () => showLowEndAbout(context),
-            ),
-          ],
-        ),
-        body: IndexedStack(index: _index, children: _screens),
-        bottomNavigationBar: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            NowPlayingStrip(
-              sounds: [
-                if (drone.isPlaying)
-                  ActiveSound(
-                    icon: Icons.graphic_eq,
-                    label: l10n.droneNowPlaying(drone.note.label(language)),
-                    onStop: drone.stop,
+      listenable: Listenable.merge([drone, navigation]),
+      builder: (context, _) {
+        final index = navigation.section == AppSection.metronome ? 1 : 0;
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(l10n.appTitle),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.info_outline),
+                tooltip: l10n.aboutTooltip,
+                onPressed: () => showLowEndAbout(context),
+              ),
+            ],
+          ),
+          body: IndexedStack(index: index, children: _screens),
+          bottomNavigationBar: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              NowPlayingStrip(
+                sounds: [
+                  if (drone.isPlaying)
+                    ActiveSound(
+                      icon: Icons.graphic_eq,
+                      label: l10n.droneNowPlaying(drone.note.label(language)),
+                      onStop: drone.stop,
+                    ),
+                ],
+              ),
+              NavigationBar(
+                selectedIndex: index,
+                onDestinationSelected: (i) => i == 0
+                    ? navigation.openTunerTab()
+                    : navigation.open(AppSection.metronome),
+                destinations: [
+                  NavigationDestination(
+                    icon: ActivityIcon(
+                      icon: Icons.graphic_eq,
+                      active: drone.isPlaying,
+                    ),
+                    label: l10n.tunerTab,
                   ),
-              ],
-            ),
-            NavigationBar(
-              selectedIndex: _index,
-              onDestinationSelected: (i) {
-                // The microphone only listens while the tuner is on screen.
-                if (i != 0) AudioScope.of(context).tuner.stop();
-                setState(() => _index = i);
-              },
-              destinations: [
-                NavigationDestination(
-                  icon: ActivityIcon(
-                    icon: Icons.graphic_eq,
-                    active: drone.isPlaying,
+                  NavigationDestination(
+                    icon: const Icon(Icons.timer_outlined),
+                    label: l10n.metronomeTab,
                   ),
-                  label: l10n.tunerTab,
-                ),
-                NavigationDestination(
-                  icon: const Icon(Icons.timer_outlined),
-                  label: l10n.metronomeTab,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

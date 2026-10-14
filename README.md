@@ -22,6 +22,7 @@ While any sound plays, its tab shows a pulsing dot and a strip above the navigat
 - **Open source** under the [MIT License](LICENSE). Contributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
 - **Private**: no account, no internet, no tracking; the microphone is used only while the tuner listens. See [PRIVACY.md](PRIVACY.md).
 - **Light**: only two audio packages ([flutter_soloud](https://pub.dev/packages/flutter_soloud) for sound, [record](https://pub.dev/packages/record) for the microphone), one permission (microphone), and the audio codecs the app doesn't need are left out of the build.
+- **LLM first**: everything on screen is also an action an assistant can call, with a JSON answer, through `lowend://action/...` links. See [docs/llm.md](docs/llm.md).
 - **Accessible**: built to follow WCAG 2.1 level AA. Every control has a screen-reader label, the tuner announces the note and whether it is flat, sharp or in tune, colours keep a 3:1 contrast or better and are never the only cue, text can be enlarged, and the playing dot stops moving when the phone asks for fewer animations. `test/accessibility_test.dart` checks this automatically.
 
 ## Project structure
@@ -29,6 +30,7 @@ While any sound plays, its tab shows a pulsing dot and a strip above the navigat
 ```
 lib/
   main.dart                 entry point
+  actions/                  actions for assistants and automation (docs/llm.md)
   app/                      app setup and main navigation
   features/
     tuner/                  tuner screen and logic
