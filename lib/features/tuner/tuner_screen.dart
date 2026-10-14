@@ -18,9 +18,17 @@ class TunerScreen extends StatelessWidget {
       listenable: navigation,
       builder: (context, _) => Column(
         children: [
+          Expanded(
+            child: switch (navigation.tunerMode) {
+              AppSection.drone => const DronePanel(),
+              _ => const TunerPanel(),
+            },
+          ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+            // Next to the navigation bar, within reach of the thumb.
             child: SegmentedButton<AppSection>(
+              expandedInsets: EdgeInsets.zero,
               segments: [
                 ButtonSegment(
                   value: AppSection.tuner,
@@ -36,12 +44,6 @@ class TunerScreen extends StatelessWidget {
               selected: {navigation.tunerMode},
               onSelectionChanged: (s) => navigation.open(s.first),
             ),
-          ),
-          Expanded(
-            child: switch (navigation.tunerMode) {
-              AppSection.drone => const DronePanel(),
-              _ => const TunerPanel(),
-            },
           ),
         ],
       ),
