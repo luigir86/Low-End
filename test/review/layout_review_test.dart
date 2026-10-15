@@ -14,7 +14,10 @@ import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
 
-const _fonts = 'C:/src/flutter/bin/cache/artifacts/material_fonts';
+// The Roboto files that come with the Flutter SDK, wherever it is installed
+// (this machine or the CI runner).
+final _fonts =
+    '${Platform.environment['FLUTTER_ROOT']}/bin/cache/artifacts/material_fonts';
 
 Future<ByteData> _font(String file) async =>
     ByteData.sublistView(await File('$_fonts/$file').readAsBytes());

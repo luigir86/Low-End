@@ -49,3 +49,4 @@ app.*.map.json
 
 # Screenshots for UI review, regenerated on demand
 test_screenshots/**/goldens/
+dist/
