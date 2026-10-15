@@ -2,14 +2,21 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../../app/theme.dart';
 import '../../../audio/audio_scope.dart';
 import '../../../audio/pitch.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../widgets/dial.dart';
 import 'drone_controller.dart';
 
-/// The drone: twelve note keys round a dial, like a clock with C at the
-/// top. Touching a key plays that note and keeps it lit; touching another
-/// switches to it; touching the lit one again stops it.
+/// The twelve notes in circle-of-fifths order, C at the top and clockwise:
+/// each step is a fifth up, so the neighbours of a key are its closest
+/// relatives.
+const circleOfFifths = [0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5];
+
+/// The drone: the twelve notes as segments of the dial, round the circle of
+/// fifths. Touching a segment plays that note and keeps it lit; touching
+/// another switches to it; touching the lit one again stops it.
 class DronePanel extends StatelessWidget {
   const DronePanel({super.key});
 
@@ -23,56 +30,32 @@ class DronePanel extends StatelessWidget {
       listenable: Listenable.merge([drone, scope.settings]),
       builder: (context, _) {
         final names = scope.settings.noteNames(Localizations.localeOf(context));
-        return LayoutBuilder(
-          builder: (context, constraints) {
-            // Leave room below for the voicing controls.
-            final dial = math.min(
-              math.min(constraints.maxWidth - 32, constraints.maxHeight - 150),
-              420.0,
-            );
-            return ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              children: [
-                // Centred in the height when it fits; it scrolls when it does
-                // not (large text, landscape).
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: math.max(0, constraints.maxHeight - 16),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Center(
-                        child: SizedBox.square(
-                          dimension: math.max(dial, 260),
-                          child: _NoteDial(drone: drone, names: names),
-                        ),
-                      ),
-                      if (drone.audioFailed)
-                        Semantics(
-                          liveRegion: true,
-                          child: Text(
-                            l10n.audioUnavailable,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: theme.colorScheme.error),
-                          ),
-                        ),
-                      const SizedBox(height: 16),
-                      _VoicingControls(drone: drone),
-                    ],
+        return DialLayout(
+          dial: _FifthsDial(drone: drone, names: names),
+          upper: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _VoicingSwitch(drone: drone),
+              if (drone.audioFailed)
+                Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    l10n.audioUnavailable,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: theme.colorScheme.error),
                   ),
                 ),
-              ],
-            );
-          },
+            ],
+          ),
+          lower: _ChordMenu(drone: drone),
         );
       },
     );
   }
 }
 
-class _NoteDial extends StatelessWidget {
-  const _NoteDial({required this.drone, required this.names});
+class _FifthsDial extends StatelessWidget {
+  const _FifthsDial({required this.drone, required this.names});
 
   final DroneController drone;
   final NoteNames names;
@@ -80,48 +63,51 @@ class _NoteDial extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final playing = drone.isPlaying ? drone.note.pitchClass : null;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final size = constraints.biggest.shortestSide;
+        final size = constraints.biggest;
         // For a frame the dial can get almost no room (for instance while
         // the app rebuilds after a language change): draw nothing then.
-        if (size < 200) return const SizedBox.shrink();
-        final key = (size * 0.16).clamp(48.0, 64.0);
-        final radius = math.max(0.0, size / 2 - key / 2 - 4);
-        // The largest square inside the ring of keys.
-        final inner = math.max(0.0, radius - key / 2 - 4) * math.sqrt2;
-        final center = size / 2;
+        if (size.shortestSide < 120) return const SizedBox.shrink();
+        final dial = DialGeometry(size);
+        // A touch area per note, as wide as the ring is thick.
+        final key = math.max(48.0, dial.ringWidth);
         return Stack(
           children: [
             Positioned.fill(
               child: CustomPaint(
-                painter: _DialPainter(
-                  track: theme.colorScheme.outlineVariant,
-                  radius: radius,
+                painter: _FifthsPainter(
+                  playing: playing,
+                  colors: theme.colorScheme,
+                  disc: LowEndColors.of(context).strobeBackground,
                 ),
               ),
             ),
-            for (var pc = 0; pc < 12; pc++)
-              Positioned(
-                left: center + radius * math.sin(pc * math.pi / 6) - key / 2,
-                top: center - radius * math.cos(pc * math.pi / 6) - key / 2,
-                width: key,
-                height: key,
+            for (var i = 0; i < 12; i++)
+              Positioned.fromRect(
+                rect: Rect.fromCenter(
+                  center: dial.ringPoint(i * math.pi / 6),
+                  width: key,
+                  height: key,
+                ),
                 child: _NoteKey(
-                  name: Note(pc, DroneController.octave).name(names),
-                  playing: drone.isPlaying && drone.note.pitchClass == pc,
-                  onTap: () => drone.tapNote(pc),
+                  name: Note(
+                    circleOfFifths[i],
+                    DroneController.octave,
+                  ).name(names),
+                  playing: playing == circleOfFifths[i],
+                  onTap: () => drone.tapNote(circleOfFifths[i]),
                 ),
               ),
+            // What is sounding, in the hub; large text shrinks to fit.
             Center(
-              // Large text shrinks to fit inside the keys rather than spill
-              // over them.
               child: SizedBox.square(
-                dimension: inner,
+                dimension: dial.hub * math.sqrt2,
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: SizedBox(
-                    width: inner,
+                    width: dial.hub * math.sqrt2,
                     child: _DialCenter(drone: drone, names: names),
                   ),
                 ),
@@ -134,29 +120,42 @@ class _NoteDial extends StatelessWidget {
   }
 }
 
-class _DialPainter extends CustomPainter {
-  _DialPainter({required this.track, required this.radius});
+/// The ring of twelve segments, the one playing lit.
+class _FifthsPainter extends CustomPainter {
+  _FifthsPainter({
+    required this.playing,
+    required this.colors,
+    required this.disc,
+  });
 
-  final Color track;
-  final double radius;
+  final int? playing;
+  final ColorScheme colors;
+  final Color disc;
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.drawCircle(
-      size.center(Offset.zero),
-      radius,
-      Paint()
-        ..color = track
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5,
-    );
+    final dial = DialGeometry(size);
+    dial.paintBase(canvas, disc: disc, hub: colors.surface);
+    const step = math.pi / 6;
+    for (var i = 0; i < 12; i++) {
+      dial.paintSegment(
+        canvas,
+        startAngle: i * step - step / 2 + DialGeometry.gap / 2,
+        sweep: step - DialGeometry.gap,
+        color: playing == circleOfFifths[i]
+            ? colors.primary
+            : colors.outlineVariant,
+      );
+    }
   }
 
   @override
-  bool shouldRepaint(_DialPainter old) =>
-      old.track != track || old.radius != radius;
+  bool shouldRepaint(_FifthsPainter old) =>
+      old.playing != playing || old.colors != colors || old.disc != disc;
 }
 
+/// The touch area and label of one segment; the segment itself is painted
+/// by [_FifthsPainter].
 class _NoteKey extends StatelessWidget {
   const _NoteKey({
     required this.name,
@@ -180,12 +179,7 @@ class _NoteKey extends StatelessWidget {
       label: playing ? l10n.stopSound(name) : l10n.playSound(name),
       excludeSemantics: true,
       child: Material(
-        shape: CircleBorder(
-          side: playing
-              ? BorderSide.none
-              : BorderSide(color: colors.outline, width: 1.5),
-        ),
-        color: playing ? colors.primary : colors.surfaceContainerLow,
+        type: MaterialType.transparency,
         child: InkWell(
           customBorder: const CircleBorder(),
           onTap: onTap,
@@ -280,62 +274,64 @@ String chordSymbol(AppLocalizations l10n, ChordType chord, String note) =>
       ChordType.seventh => l10n.droneChordSeventh(note),
     };
 
-/// Root or chord and, for a chord, which one. Stacked rather than side by
-/// side, so long labels ("Fondamentale") keep the whole width with large
-/// text, and the chord menu never opens over the switch.
-class _VoicingControls extends StatelessWidget {
-  const _VoicingControls({required this.drone});
+/// Root or Chord, full width, as tall as the other sections' first row.
+class _VoicingSwitch extends StatelessWidget {
+  const _VoicingSwitch({required this.drone});
 
   final DroneController drone;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final chordMode = drone.voicing == DroneVoicing.chord;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SegmentedButton<DroneVoicing>(
-          // A tick would take room from the labels; the filled segment
-          // already shows the choice.
-          showSelectedIcon: false,
-          segments: [
-            ButtonSegment(value: DroneVoicing.root, label: Text(l10n.rootOnly)),
-            ButtonSegment(
-              value: DroneVoicing.chord,
-              label: Text(l10n.chordLabel),
-            ),
-          ],
-          selected: {drone.voicing},
-          onSelectionChanged: (s) => drone.setVoicing(s.first),
-        ),
-        // The chord menu only when a chord plays.
-        AnimatedSize(
-          duration: const Duration(milliseconds: 200),
-          alignment: Alignment.topCenter,
-          child: chordMode
-              ? Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: DropdownMenu<ChordType>(
-                    expandedInsets: EdgeInsets.zero,
-                    // Also what screen readers announce with the choice.
-                    label: Text(l10n.chordLabel),
-                    initialSelection: drone.chord,
-                    dropdownMenuEntries: [
-                      for (final chord in ChordType.values)
-                        DropdownMenuEntry(
-                          value: chord,
-                          label: chordName(l10n, chord),
-                        ),
-                    ],
-                    onSelected: (c) {
-                      if (c != null) drone.setChord(c);
-                    },
-                  ),
-                )
-              : const SizedBox(width: double.infinity),
-        ),
-      ],
+    return SizedBox(
+      width: double.infinity,
+      child: SegmentedButton<DroneVoicing>(
+        // A tick would take room from the labels; the filled segment
+        // already shows the choice.
+        showSelectedIcon: false,
+        style: SegmentedButton.styleFrom(minimumSize: const Size(0, 64)),
+        segments: [
+          ButtonSegment(value: DroneVoicing.root, label: Text(l10n.rootOnly)),
+          ButtonSegment(
+            value: DroneVoicing.chord,
+            label: Text(l10n.chordLabel),
+          ),
+        ],
+        selected: {drone.voicing},
+        onSelectionChanged: (s) => drone.setVoicing(s.first),
+      ),
+    );
+  }
+}
+
+/// Which chord: shown only when a chord plays, its place kept otherwise so
+/// the rows line up with the other sections.
+class _ChordMenu extends StatelessWidget {
+  const _ChordMenu({required this.drone});
+
+  final DroneController drone;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Visibility(
+      visible: drone.voicing == DroneVoicing.chord,
+      maintainSize: true,
+      maintainAnimation: true,
+      maintainState: true,
+      child: DropdownMenu<ChordType>(
+        expandedInsets: EdgeInsets.zero,
+        // Also what screen readers announce with the choice.
+        label: Text(l10n.chordLabel),
+        initialSelection: drone.chord,
+        dropdownMenuEntries: [
+          for (final chord in ChordType.values)
+            DropdownMenuEntry(value: chord, label: chordName(l10n, chord)),
+        ],
+        onSelected: (c) {
+          if (c != null) drone.setChord(c);
+        },
+      ),
     );
   }
 }

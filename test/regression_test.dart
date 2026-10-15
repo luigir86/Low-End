@@ -259,13 +259,18 @@ void main() {
       );
       scope.navigation.open(AppSection.drone);
       await _settle(tester);
-      expect(find.byType(DropdownMenu<ChordType>), findsNothing);
+      // Its place is kept, so the rows line up, but it cannot be seen or
+      // touched.
+      expect(
+        find.byType(DropdownMenu<ChordType>).hitTestable(),
+        findsNothing,
+      );
       await tester.tap(find.text('La'));
       await _settle(tester);
       expect(find.text('La3'), findsOneWidget);
       expect(find.text('Fondamentale'), findsOneWidget, reason: 'switch only');
 
-      await tester.tap(find.text('Accordo'));
+      await tester.tap(find.text('Accordo').first);
       await _settle(tester);
       expect(find.byType(DropdownMenu<ChordType>), findsOneWidget);
       expect(find.text('La maggiore'), findsOneWidget);

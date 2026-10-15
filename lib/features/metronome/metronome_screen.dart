@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart';
 import '../../app/theme.dart';
 import '../../audio/audio_scope.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/dial.dart';
 import 'metronome_controller.dart';
 
 /// The metronome, in 4/4: a ring of four segments lights up clockwise, one
@@ -23,44 +24,24 @@ class MetronomeScreen extends StatelessWidget {
     final theme = Theme.of(context);
     return ListenableBuilder(
       listenable: metronome,
-      builder: (context, _) => LayoutBuilder(
-        builder: (context, constraints) {
-          final ring = math.min(
-            math.min(constraints.maxWidth - 32, constraints.maxHeight - 240),
-            440.0,
-          );
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: ConstrainedBox(
-              // Centred when it all fits, scrolling with very large text.
-              constraints: BoxConstraints(
-                minHeight: math.max(0, constraints.maxHeight - 16),
+      builder: (context, _) => DialLayout(
+        dial: _BeatRing(metronome: metronome),
+        upper: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _TempoControls(metronome: metronome),
+            if (metronome.audioFailed)
+              Semantics(
+                liveRegion: true,
+                child: Text(
+                  l10n.audioUnavailable,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: theme.colorScheme.error),
+                ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox.square(
-                    dimension: math.max(ring, 220),
-                    child: _BeatRing(metronome: metronome),
-                  ),
-                  if (metronome.audioFailed)
-                    Semantics(
-                      liveRegion: true,
-                      child: Text(
-                        l10n.audioUnavailable,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: theme.colorScheme.error),
-                      ),
-                    ),
-                  const SizedBox(height: 24),
-                  _TempoControls(metronome: metronome),
-                  const SizedBox(height: 16),
-                  _TapButton(metronome: metronome),
-                ],
-              ),
-            ),
-          );
-        },
+          ],
+        ),
+        lower: _TapButton(metronome: metronome),
       ),
     );
   }
@@ -190,52 +171,36 @@ class _RingPainter extends CustomPainter {
   final Color background;
   final bool pulse;
 
-  /// The gap between segments, in radians.
-  static const _gap = 0.12;
-
   @override
   void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
-    final outer = size.shortestSide / 2;
-    final band = outer * 0.15;
-    final inset = outer * 0.03;
-    canvas.drawCircle(center, outer, Paint()..color = background);
+    final dial = DialGeometry(size);
+    dial.paintBase(canvas, disc: background, hub: colors.surface);
 
     final beat = metronome.beat;
-    final rect = Rect.fromCircle(
-      center: center,
-      radius: outer - inset - band / 2,
-    );
+    const quarter = math.pi / 2;
     for (var b = 0; b < MetronomeController.beatsPerBar; b++) {
       // Beat 0 is centred at the top, then clockwise.
-      final middle = -math.pi / 2 + b * math.pi / 2;
-      canvas.drawArc(
-        rect,
-        middle - math.pi / 4 + _gap / 2,
-        math.pi / 2 - _gap,
-        false,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = band
-          ..color = b == beat
-              ? (b == 0 ? colors.tertiary : colors.primary)
-              : colors.outlineVariant,
+      dial.paintSegment(
+        canvas,
+        startAngle: b * quarter - quarter / 2 + DialGeometry.gap / 2,
+        sweep: quarter - DialGeometry.gap,
+        color: b == beat
+            ? (b == 0 ? colors.tertiary : colors.primary)
+            : colors.outlineVariant,
       );
     }
 
-    // The hub, with the dot in it.
-    final hub = outer - inset * 2 - band;
-    canvas.drawCircle(center, hub, Paint()..color = colors.surface);
+    // The dot in the hub.
     final since = metronome.sinceBeat;
     if (beat == null || since == null) return;
-    var radius = hub * 0.3;
+    var radius = dial.hub * 0.3;
     if (pulse) {
       // Swells at once on the beat, then shrinks back before the next one.
       final decay = math.min(0.12, metronome.beatLength.inMicroseconds / 3e6);
-      radius += hub * 0.25 * math.exp(-since.inMicroseconds / 1e6 / decay);
+      radius += dial.hub * 0.25 * math.exp(-since.inMicroseconds / 1e6 / decay);
     }
     canvas.drawCircle(
-      center,
+      dial.center,
       radius,
       Paint()..color = beat == 0 ? colors.tertiary : colors.secondary,
     );

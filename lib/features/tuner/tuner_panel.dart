@@ -8,6 +8,7 @@ import '../../app/theme.dart';
 import '../../audio/audio_scope.dart';
 import '../../audio/pitch.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/dial.dart';
 import 'tuner_controller.dart';
 import 'tunings.dart';
 
@@ -70,32 +71,16 @@ class _TunerPanelState extends State<TunerPanel> {
             ? null
             : TunerReading.of(hz, tuning: _tuner.tuning, a4: settings.a4);
         final message = _statusMessage(l10n);
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (context, constraints) => Center(
-                    child: SizedBox.square(
-                      dimension: math.min(
-                        constraints.biggest.shortestSide,
-                        520,
-                      ),
-                      child: _StrobeDisc(
-                        reading: reading,
-                        listening: _tuner.isListening,
-                        names: names,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              if (message != null)
-                // Announced by screen readers, e.g. when the microphone is
-                // denied.
-                Semantics(
+        return DialLayout(
+          dial: _StrobeDisc(
+            reading: reading,
+            listening: _tuner.isListening,
+            names: names,
+          ),
+          // Announced by screen readers, e.g. when the microphone is denied.
+          upper: message == null
+              ? const SizedBox.shrink()
+              : Semantics(
                   liveRegion: true,
                   child: Text(
                     message,
@@ -107,18 +92,15 @@ class _TunerPanelState extends State<TunerPanel> {
                         : TextStyle(color: theme.colorScheme.error),
                   ),
                 ),
-              // Listening is the normal state, so pausing stays discreet.
-              TextButton.icon(
-                onPressed: _tuner.toggle,
-                icon: Icon(
-                  _tuner.isListening ? Icons.pause : Icons.mic,
-                  size: 20,
-                ),
-                label: Text(
-                  _tuner.isListening ? l10n.stopListening : l10n.startListening,
-                ),
-              ),
-            ],
+          // As wide and tall as TAP and the chord menu, but only text:
+          // listening is the normal state, so pausing stays discreet.
+          lower: TextButton.icon(
+            onPressed: _tuner.toggle,
+            style: TextButton.styleFrom(minimumSize: const Size.fromHeight(64)),
+            icon: Icon(_tuner.isListening ? Icons.pause : Icons.mic, size: 20),
+            label: Text(
+              _tuner.isListening ? l10n.stopListening : l10n.startListening,
+            ),
           ),
         );
       },
@@ -278,32 +260,31 @@ class _DiscPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
-    final outer = size.shortestSide / 2;
-    final band = outer * 0.15;
-    final gap = outer * 0.03;
-    canvas.drawCircle(center, outer, Paint()..color = background);
+    final dial = DialGeometry(size);
+    dial.paintBase(canvas, disc: background, hub: hub);
 
-    final paint = Paint()
-      ..color = segments
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = band;
+    // Two bands of segments fill the ring, the inner one turning twice as
+    // fast: the same ring the drone and the metronome use.
     const step = 2 * math.pi / _count;
-    for (var ring = 0; ring < 2; ring++) {
-      final radius = outer - gap - band / 2 - ring * (band + gap);
-      final rect = Rect.fromCircle(center: center, radius: radius);
-      final turn = stillCents == null ? phase.value * (ring + 1) * step : 0.0;
+    final split = dial.ringInner + dial.ringWidth / 2;
+    final bandGap = dial.ringWidth * 0.06;
+    for (var band = 0; band < 2; band++) {
+      final turn = stillCents == null ? phase.value * (band + 1) * step : 0.0;
       for (var i = 0; i < _count; i++) {
-        canvas.drawArc(rect, i * step + turn, step / 2, false, paint);
+        dial.paintSegment(
+          canvas,
+          startAngle: i * step + turn,
+          sweep: step / 2,
+          color: segments,
+          inner: band == 0 ? split + bandGap / 2 : dial.ringInner,
+          outer: band == 0 ? dial.ringOuter : split - bandGap / 2,
+        );
       }
     }
 
-    // The hub, where the note is written.
-    final hubRadius = outer - 2 * (band + gap) - gap;
-    canvas.drawCircle(center, hubRadius, Paint()..color = hub);
-
     if (stillCents case final cents?) {
-      // Ticks every 10 cents over the top of the rim, the marker on them.
+      // Ticks every 10 cents over the top of the hub, the marker on them.
+      final center = dial.center;
       double angle(double c) => -math.pi / 2 + c / 50 * (math.pi * 3 / 4);
       final tick = Paint()
         ..color = scale
@@ -312,16 +293,16 @@ class _DiscPainter extends CustomPainter {
         final a = angle(c.toDouble());
         final dir = Offset(math.cos(a), math.sin(a));
         canvas.drawLine(
-          center + dir * (hubRadius + gap),
-          center + dir * (hubRadius + gap * 3),
+          center + dir * (dial.hub * 0.86),
+          center + dir * (dial.hub * 0.96),
           tick,
         );
       }
       final a = angle(cents.clamp(-50, 50));
       final dir = Offset(math.cos(a), math.sin(a));
       canvas.drawLine(
-        center + dir * (hubRadius + gap),
-        center + dir * (outer - gap),
+        center + dir * (dial.hub * 0.80),
+        center + dir * dial.hub,
         Paint()
           ..color = segments
           ..strokeWidth = 6
