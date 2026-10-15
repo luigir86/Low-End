@@ -17,4 +17,7 @@ jobs:
       - run: flutter pub get
       - run: dart format --output=none --set-exit-if-changed lib test
       - run: flutter analyze
+      # The layout tests render real text with the Roboto files that come
+      # with the SDK, which a fresh runner has not downloaded yet.
+      - run: flutter precache --universal
       - run: flutter test
