@@ -71,6 +71,9 @@ class _NoteDial extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final size = constraints.biggest.shortestSide;
+        // For a frame the dial can get almost no room (for instance while
+        // the app rebuilds after a language change): draw nothing then.
+        if (size < 200) return const SizedBox.shrink();
         final key = (size * 0.16).clamp(48.0, 64.0);
         final radius = size / 2 - key / 2 - 4;
         final center = size / 2;
