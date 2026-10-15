@@ -19,61 +19,27 @@ class AppLocalizationsIt extends AppLocalizations {
   String get metronomeTab => 'Metronomo';
 
   @override
-  String get libraryTab => 'Libreria';
-
-  @override
   String get comingSoon => 'In arrivo';
-
-  @override
-  String get tunerDescription =>
-      'Accordatore per contrabbasso e basso elettrico, fino al Si grave.';
 
   @override
   String get metronomeDescription =>
       'Metronomo preciso con accenti e suddivisioni.';
 
   @override
-  String get libraryDescription =>
-      'Le tue partiture PDF, scalette e annotazioni.';
-
-  @override
-  String get tuneMode => 'Accorda';
-
-  @override
   String get droneMode => 'Drone';
-
-  @override
-  String get noteLabel => 'Nota';
-
-  @override
-  String get octaveLabel => 'Ottava';
-
-  @override
-  String get addFifth => 'Aggiungi la quinta';
-
-  @override
-  String get addOctave => 'Aggiungi l\'ottava sopra';
 
   @override
   String get referencePitch => 'La di riferimento';
 
   @override
-  String get volumeLabel => 'Volume';
-
-  @override
-  String get play => 'Suona';
-
-  @override
-  String get stop => 'Ferma';
+  String referencePitchHint(String note) {
+    return 'La frequenza di $note, per l\'accordatore e il drone.';
+  }
 
   @override
   String frequencyHz(String frequency) {
     return '$frequency Hz';
   }
-
-  @override
-  String get lowNoteWarning =>
-      'Gli altoparlanti del telefono riproducono a fatica note così gravi. Usa le cuffie o una cassa esterna.';
 
   @override
   String droneNowPlaying(String note) {
@@ -86,9 +52,119 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String get droneShortcutHint => 'Studia con drone e clic insieme.';
+  String playSound(String name) {
+    return 'Suona $name';
+  }
+
+  @override
+  String get droneShortcutHint => 'Esercitati con drone e metronomo insieme.';
+
+  @override
+  String get droneHint =>
+      'Tocca una nota per farla suonare. Toccala di nuovo per fermarla.';
+
+  @override
+  String get rootOnly => 'Fondamentale';
+
+  @override
+  String get chordLabel => 'Accordo';
+
+  @override
+  String get chordMajor => 'Maggiore';
+
+  @override
+  String get chordMinor => 'Minore';
+
+  @override
+  String get chordSeventh => '7';
+
+  @override
+  String droneChordMajor(String note) {
+    return '$note maggiore';
+  }
+
+  @override
+  String droneChordMinor(String note) {
+    return '$note minore';
+  }
+
+  @override
+  String droneChordSeventh(String note) {
+    return '${note}7';
+  }
 
   @override
   String get audioUnavailable =>
       'Non è stato possibile avviare l\'audio su questo dispositivo.';
+
+  @override
+  String get startListening => 'Ascolta';
+
+  @override
+  String get stopListening => 'Pausa';
+
+  @override
+  String get tunerIdleHint => 'In pausa';
+
+  @override
+  String get playAString => 'Suona una nota';
+
+  @override
+  String get micPermissionDenied =>
+      'Low End ha bisogno del microfono per sentire il tuo basso. Se hai risposto di no, consentilo nelle impostazioni del telefono in App › Low End › Autorizzazioni.';
+
+  @override
+  String get micUnavailable =>
+      'Non è stato possibile avviare il microfono su questo dispositivo.';
+
+  @override
+  String get inTune => 'Intonato';
+
+  @override
+  String get flat => 'Calante';
+
+  @override
+  String get sharp => 'Crescente';
+
+  @override
+  String centsValue(String cents) {
+    return '$cents cent';
+  }
+
+  @override
+  String get settingsTitle => 'Impostazioni';
+
+  @override
+  String get languageLabel => 'Lingua';
+
+  @override
+  String get languageSystem => 'Come il telefono';
+
+  @override
+  String get noteNamesLabel => 'Nomi delle note';
+
+  @override
+  String get noteNamesAuto => 'Come la lingua';
+
+  @override
+  String get noteNamesSolfege => 'Do Re Mi (La3 = 440 Hz)';
+
+  @override
+  String get noteNamesLetters => 'C D E (A4 = 440 Hz)';
+
+  @override
+  String get aboutTooltip => 'Informazioni su Low End';
+
+  @override
+  String get aboutLegalese =>
+      'Software libero e open source, distribuito con licenza MIT.';
+
+  @override
+  String get aboutDescription =>
+      'Accordatore, drone e metronomo per contrabbasso e basso elettrico. Low End funziona offline: il microfono si usa solo mentre l\'accordatore ascolta, e nessun suono o dato esce dal telefono.';
+
+  @override
+  String aboutSource(String url) {
+    return 'Codice sorgente: $url';
+  }
 }

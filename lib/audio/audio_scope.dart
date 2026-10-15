@@ -1,12 +1,30 @@
 import 'package:flutter/widgets.dart';
 
+import '../actions/app_actions.dart';
+import '../app/app_navigation.dart';
+import '../app/settings.dart';
 import '../features/tuner/drone/drone_controller.dart';
+import '../features/tuner/tuner_controller.dart';
 
-/// Makes the app's sound sources available to every screen.
+/// Makes the app's sound sources, the tuner listening to the microphone,
+/// the navigation, the action layer and the settings available to every
+/// screen.
 class AudioScope extends InheritedWidget {
-  const AudioScope({super.key, required this.drone, required super.child});
+  const AudioScope({
+    super.key,
+    required this.drone,
+    required this.tuner,
+    required this.navigation,
+    required this.actions,
+    required this.settings,
+    required super.child,
+  });
 
   final DroneController drone;
+  final TunerController tuner;
+  final AppNavigation navigation;
+  final AppActions actions;
+  final AppSettings settings;
 
   static AudioScope of(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<AudioScope>();
@@ -15,5 +33,10 @@ class AudioScope extends InheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(AudioScope oldWidget) => drone != oldWidget.drone;
+  bool updateShouldNotify(AudioScope oldWidget) =>
+      drone != oldWidget.drone ||
+      tuner != oldWidget.tuner ||
+      navigation != oldWidget.navigation ||
+      actions != oldWidget.actions ||
+      settings != oldWidget.settings;
 }

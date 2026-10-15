@@ -11,39 +11,50 @@ void main() {
     drone = DroneController(output);
   });
 
-  test('plays the selected note and stops', () async {
-    drone.setPitchClass(2); // D
-    drone.setOctave(2);
-    await drone.start();
+  test('a note key plays, switches and stops', () async {
+    await drone.tapNote(2); // D
     expect(drone.isPlaying, isTrue);
-    expect(output.frequencies.single, closeTo(73.42, 0.01));
+    // Always the middle octave: D4.
+    expect(output.frequencies.single, closeTo(293.66, 0.01));
 
-    await drone.stop();
+    await drone.tapNote(9); // Another key switches to A4.
+    expect(drone.isPlaying, isTrue);
+    expect(output.frequencies.single, closeTo(440, 0.01));
+
+    await drone.tapNote(9); // The lit key again stops it.
     expect(drone.isPlaying, isFalse);
     expect(output.frequencies, isEmpty);
   });
 
-  test('adds a pure fifth and the octave above', () async {
-    drone.setAddFifth(true);
-    drone.setAddOctave(true);
+  test('plays chords in pure intervals', () async {
+    drone.setVoicing(DroneVoicing.chord);
     await drone.start();
     final root = drone.frequency;
-    expect(output.frequencies, [root, root * 1.5, root * 2]);
+    expect(output.frequencies, [root, root * 5 / 4, root * 3 / 2]);
+
+    drone.setChord(ChordType.minor);
+    await _settle();
+    expect(output.frequencies, [root, root * 6 / 5, root * 3 / 2]);
+
+    drone.setChord(ChordType.seventh);
+    await _settle();
+    expect(output.frequencies, [
+      root,
+      root * 5 / 4,
+      root * 3 / 2,
+      root * 16 / 9,
+    ]);
+
+    drone.setVoicing(DroneVoicing.root);
+    await _settle();
+    expect(output.frequencies, [root]);
   });
 
   test('retunes while playing when the reference pitch changes', () async {
     await drone.start();
     drone.setReferencePitch(442);
-    expect(output.frequencies.single, closeTo(221, 0.001)); // A3 at 442
-  });
-
-  test('keeps the octave in range and flags notes too low for speakers', () {
-    drone.setOctave(0);
-    expect(drone.note.octave, DroneController.minOctave);
-    expect(drone.isBelowSpeakerRange, isTrue);
-    drone.setOctave(9);
-    expect(drone.note.octave, DroneController.maxOctave);
-    expect(drone.isBelowSpeakerRange, isFalse);
+    await _settle();
+    expect(output.frequencies.single, closeTo(442, 0.001)); // A4 at 442
   });
 
   test('reports when audio cannot start', () async {
@@ -59,3 +70,7 @@ class _FailingOutput extends SilentToneOutput {
   Future<void> play(List<double> f, List<double> gains, double v) =>
       Future.error(StateError('no audio device'));
 }
+
+/// Lets queued sound changes reach the output: the controller applies them
+/// one after the other (see DroneController._sync).
+Future<void> _settle() => Future<void>.delayed(Duration.zero);

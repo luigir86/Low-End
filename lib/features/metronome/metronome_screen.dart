@@ -10,16 +10,26 @@ class MetronomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Column(
-      children: [
-        Expanded(
-          child: PlaceholderSection(
-            icon: Icons.timer_outlined,
-            description: l10n.metronomeDescription,
+    // Fills the screen when it fits, and scrolls when it does not (a small
+    // phone, large text): the drone card then stays reachable below.
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Keeps the description in the middle of the free space.
+              const SizedBox.shrink(),
+              PlaceholderSection(
+                icon: Icons.timer_outlined,
+                description: l10n.metronomeDescription,
+              ),
+              const _DroneShortcut(),
+            ],
           ),
         ),
-        const _DroneShortcut(),
-      ],
+      ),
     );
   }
 }
@@ -30,24 +40,33 @@ class _DroneShortcut extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final drone = AudioScope.of(context).drone;
+    final scope = AudioScope.of(context);
+    final drone = scope.drone;
     final l10n = AppLocalizations.of(context);
-    final language = Localizations.localeOf(context).languageCode;
     return ListenableBuilder(
-      listenable: drone,
-      builder: (context, _) => Card(
-        margin: const EdgeInsets.all(16),
-        child: ListTile(
-          leading: const Icon(Icons.graphic_eq),
-          title: Text(l10n.droneNowPlaying(drone.note.label(language))),
-          subtitle: Text(l10n.droneShortcutHint),
-          trailing: IconButton.filledTonal(
-            icon: Icon(drone.isPlaying ? Icons.stop_rounded : Icons.play_arrow),
-            tooltip: drone.isPlaying ? l10n.stop : l10n.play,
-            onPressed: drone.toggle,
+      listenable: Listenable.merge([drone, scope.settings]),
+      builder: (context, _) {
+        final names = scope.settings.noteNames(Localizations.localeOf(context));
+        final label = l10n.droneNowPlaying(drone.note.label(names));
+        return Card(
+          margin: const EdgeInsets.all(16),
+          child: ListTile(
+            leading: const Icon(Icons.graphic_eq),
+            title: Text(label),
+            subtitle: Text(l10n.droneShortcutHint),
+            trailing: IconButton.filledTonal(
+              icon: Icon(
+                drone.isPlaying ? Icons.stop_rounded : Icons.play_arrow,
+              ),
+              // Says what it plays, not just "Play".
+              tooltip: drone.isPlaying
+                  ? l10n.stopSound(label)
+                  : l10n.playSound(label),
+              onPressed: drone.toggle,
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

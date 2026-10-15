@@ -116,23 +116,11 @@ abstract class AppLocalizations {
   /// **'Metronome'**
   String get metronomeTab;
 
-  /// No description provided for @libraryTab.
-  ///
-  /// In en, this message translates to:
-  /// **'Library'**
-  String get libraryTab;
-
   /// No description provided for @comingSoon.
   ///
   /// In en, this message translates to:
   /// **'Coming soon'**
   String get comingSoon;
-
-  /// No description provided for @tunerDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Tuner for double bass and electric bass, down to low B.'**
-  String get tunerDescription;
 
   /// No description provided for @metronomeDescription.
   ///
@@ -140,47 +128,11 @@ abstract class AppLocalizations {
   /// **'Precise metronome with accents and subdivisions.'**
   String get metronomeDescription;
 
-  /// No description provided for @libraryDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Your PDF scores, set lists and annotations.'**
-  String get libraryDescription;
-
-  /// No description provided for @tuneMode.
-  ///
-  /// In en, this message translates to:
-  /// **'Tune'**
-  String get tuneMode;
-
   /// No description provided for @droneMode.
   ///
   /// In en, this message translates to:
   /// **'Drone'**
   String get droneMode;
-
-  /// No description provided for @noteLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Note'**
-  String get noteLabel;
-
-  /// No description provided for @octaveLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Octave'**
-  String get octaveLabel;
-
-  /// No description provided for @addFifth.
-  ///
-  /// In en, this message translates to:
-  /// **'Add the fifth'**
-  String get addFifth;
-
-  /// No description provided for @addOctave.
-  ///
-  /// In en, this message translates to:
-  /// **'Add the octave above'**
-  String get addOctave;
 
   /// No description provided for @referencePitch.
   ///
@@ -188,35 +140,17 @@ abstract class AppLocalizations {
   /// **'Reference A'**
   String get referencePitch;
 
-  /// No description provided for @volumeLabel.
+  /// No description provided for @referencePitchHint.
   ///
   /// In en, this message translates to:
-  /// **'Volume'**
-  String get volumeLabel;
-
-  /// No description provided for @play.
-  ///
-  /// In en, this message translates to:
-  /// **'Play'**
-  String get play;
-
-  /// No description provided for @stop.
-  ///
-  /// In en, this message translates to:
-  /// **'Stop'**
-  String get stop;
+  /// **'The frequency of {note}, for the tuner and the drone.'**
+  String referencePitchHint(String note);
 
   /// No description provided for @frequencyHz.
   ///
   /// In en, this message translates to:
   /// **'{frequency} Hz'**
   String frequencyHz(String frequency);
-
-  /// No description provided for @lowNoteWarning.
-  ///
-  /// In en, this message translates to:
-  /// **'Phone speakers can barely play notes this low. Use headphones or an external speaker.'**
-  String get lowNoteWarning;
 
   /// No description provided for @droneNowPlaying.
   ///
@@ -230,17 +164,203 @@ abstract class AppLocalizations {
   /// **'Stop {name}'**
   String stopSound(String name);
 
+  /// No description provided for @playSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Play {name}'**
+  String playSound(String name);
+
   /// No description provided for @droneShortcutHint.
   ///
   /// In en, this message translates to:
   /// **'Practise with the drone and the click together.'**
   String get droneShortcutHint;
 
+  /// No description provided for @droneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Touch a note to play it. Touch it again to stop.'**
+  String get droneHint;
+
+  /// No description provided for @rootOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Root'**
+  String get rootOnly;
+
+  /// No description provided for @chordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Chord'**
+  String get chordLabel;
+
+  /// No description provided for @chordMajor.
+  ///
+  /// In en, this message translates to:
+  /// **'Major'**
+  String get chordMajor;
+
+  /// No description provided for @chordMinor.
+  ///
+  /// In en, this message translates to:
+  /// **'Minor'**
+  String get chordMinor;
+
+  /// No description provided for @chordSeventh.
+  ///
+  /// In en, this message translates to:
+  /// **'7'**
+  String get chordSeventh;
+
+  /// The chord in the middle of the drone dial, such as A major.
+  ///
+  /// In en, this message translates to:
+  /// **'{note} major'**
+  String droneChordMajor(String note);
+
+  /// No description provided for @droneChordMinor.
+  ///
+  /// In en, this message translates to:
+  /// **'{note} minor'**
+  String droneChordMinor(String note);
+
+  /// No description provided for @droneChordSeventh.
+  ///
+  /// In en, this message translates to:
+  /// **'{note}7'**
+  String droneChordSeventh(String note);
+
   /// No description provided for @audioUnavailable.
   ///
   /// In en, this message translates to:
   /// **'Sound could not start on this device.'**
   String get audioUnavailable;
+
+  /// No description provided for @startListening.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen'**
+  String get startListening;
+
+  /// No description provided for @stopListening.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get stopListening;
+
+  /// No description provided for @tunerIdleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get tunerIdleHint;
+
+  /// No description provided for @playAString.
+  ///
+  /// In en, this message translates to:
+  /// **'Play a note'**
+  String get playAString;
+
+  /// No description provided for @micPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Low End needs the microphone to hear your bass. If you said no, allow it in the phone settings under Apps › Low End › Permissions.'**
+  String get micPermissionDenied;
+
+  /// No description provided for @micUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The microphone could not start on this device.'**
+  String get micUnavailable;
+
+  /// No description provided for @inTune.
+  ///
+  /// In en, this message translates to:
+  /// **'In tune'**
+  String get inTune;
+
+  /// No description provided for @flat.
+  ///
+  /// In en, this message translates to:
+  /// **'Flat'**
+  String get flat;
+
+  /// No description provided for @sharp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharp'**
+  String get sharp;
+
+  /// No description provided for @centsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{cents} cents'**
+  String centsValue(String cents);
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @languageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageLabel;
+
+  /// No description provided for @languageSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as the phone'**
+  String get languageSystem;
+
+  /// No description provided for @noteNamesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note names'**
+  String get noteNamesLabel;
+
+  /// No description provided for @noteNamesAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow the language'**
+  String get noteNamesAuto;
+
+  /// No description provided for @noteNamesSolfege.
+  ///
+  /// In en, this message translates to:
+  /// **'Do Re Mi (La3 = 440 Hz)'**
+  String get noteNamesSolfege;
+
+  /// No description provided for @noteNamesLetters.
+  ///
+  /// In en, this message translates to:
+  /// **'C D E (A4 = 440 Hz)'**
+  String get noteNamesLetters;
+
+  /// No description provided for @aboutTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'About Low End'**
+  String get aboutTooltip;
+
+  /// No description provided for @aboutLegalese.
+  ///
+  /// In en, this message translates to:
+  /// **'Free and open-source software, released under the MIT License.'**
+  String get aboutLegalese;
+
+  /// No description provided for @aboutDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuner, drone and metronome for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.'**
+  String get aboutDescription;
+
+  /// No description provided for @aboutSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source code: {url}'**
+  String aboutSource(String url);
 }
 
 class _AppLocalizationsDelegate

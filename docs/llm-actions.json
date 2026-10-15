@@ -1,0 +1,176 @@
+[
+  {
+    "name": "get_state",
+    "description": "Returns what the app is doing now: the section on screen, the tuner (listening, last note heard and how many cents off), the drone (playing, note, root or chord) and the settings (reference A, language, note names). Loudness follows the phone's media volume.",
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "open_section",
+    "description": "Shows a section of the app.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "section": {
+          "type": "string",
+          "enum": [
+            "tuner",
+            "drone",
+            "metronome"
+          ]
+        }
+      },
+      "required": [
+        "section"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "tuner_start",
+    "description": "Opens the chromatic tuner and starts listening through the microphone: it recognises any note played. The tuner stops by itself when another section or the settings page opens, or the app goes to the background. Read the note with get_state.",
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "tuner_stop",
+    "description": "Pauses the tuner and turns the microphone off. It stays paused, also when its section or the app comes back, until tuner_start.",
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "drone_play",
+    "description": "Plays the drone, a sustained pure tone to practise intonation on. Any setting given is applied first.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "note": {
+          "type": "string",
+          "description": "Note name in English (A, Bb, F#) or Italian (La, Sib, Fa#). The drone always plays it in the middle octave (A4 = 440 Hz), so an octave number, if given, is ignored."
+        },
+        "voicing": {
+          "type": "string",
+          "enum": [
+            "root",
+            "chord"
+          ],
+          "description": "The note alone, or the chord built on it."
+        },
+        "chord": {
+          "type": "string",
+          "enum": [
+            "major",
+            "minor",
+            "seventh"
+          ],
+          "description": "The chord played when voicing is \"chord\", in pure intervals; \"seventh\" is the dominant seventh, its seventh tuned to 16/9 (the pure ratio closest to the equal-tempered minor seventh)."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "drone_stop",
+    "description": "Stops the drone.",
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "drone_set",
+    "description": "Changes the drone settings without starting or stopping it.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "note": {
+          "type": "string",
+          "description": "Note name in English (A, Bb, F#) or Italian (La, Sib, Fa#). The drone always plays it in the middle octave (A4 = 440 Hz), so an octave number, if given, is ignored."
+        },
+        "voicing": {
+          "type": "string",
+          "enum": [
+            "root",
+            "chord"
+          ],
+          "description": "The note alone, or the chord built on it."
+        },
+        "chord": {
+          "type": "string",
+          "enum": [
+            "major",
+            "minor",
+            "seventh"
+          ],
+          "description": "The chord played when voicing is \"chord\", in pure intervals; \"seventh\" is the dominant seventh, its seventh tuned to 16/9 (the pure ratio closest to the equal-tempered minor seventh)."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "set_reference_pitch",
+    "description": "Sets the frequency of A4, shared by the tuner and the drone, and saves it in the settings.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "hz": {
+          "type": "number",
+          "enum": [
+            438.0,
+            439.0,
+            440.0,
+            441.0,
+            442.0,
+            443.0,
+            444.0,
+            445.0
+          ],
+          "description": "Frequency of A4 in Hz."
+        }
+      },
+      "required": [
+        "hz"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "settings_set",
+    "description": "Changes and saves the app settings: the language of the app and how note names are written.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string",
+          "enum": [
+            "system",
+            "en",
+            "it"
+          ],
+          "description": "App language; \"system\" follows the phone."
+        },
+        "note_names": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "solfege",
+            "letters"
+          ],
+          "description": "\"solfege\" is Do Re Mi with Italian octave numbers (La3 = 440 Hz), \"letters\" is C D E (A4 = 440 Hz), \"auto\" follows the app language."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+]
