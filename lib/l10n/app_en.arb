@@ -3,9 +3,21 @@
   "appTitle": "Low End",
   "tunerTab": "Tuner",
   "metronomeTab": "Metronome",
-  "comingSoon": "Coming soon",
-  "metronomeDescription": "Precise metronome with accents and subdivisions.",
   "droneMode": "Drone",
+  "metronomeStart": "Start the metronome",
+  "metronomeStop": "Stop the metronome",
+  "metronomeHint": "Tap to start",
+  "bpmValue": "{bpm} BPM",
+  "@bpmValue": {
+    "placeholders": {
+      "bpm": {
+        "type": "String"
+      }
+    }
+  },
+  "slower": "Slower",
+  "faster": "Faster",
+  "tapTempo": "Tap the tempo",
   "referencePitch": "Reference A",
   "referencePitchHint": "The frequency of {note}, for the tuner and the drone.",
   "@referencePitchHint": {
@@ -19,14 +31,6 @@
   "@frequencyHz": {
     "placeholders": {
       "frequency": {
-        "type": "String"
-      }
-    }
-  },
-  "droneNowPlaying": "Drone · {note}",
-  "@droneNowPlaying": {
-    "placeholders": {
-      "note": {
         "type": "String"
       }
     }
@@ -47,7 +51,6 @@
       }
     }
   },
-  "droneShortcutHint": "Practise with the drone and the click together.",
   "droneHint": "Touch a note to play it. Touch it again to stop.",
   "rootOnly": "Root",
   "chordLabel": "Chord",

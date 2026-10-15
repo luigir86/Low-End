@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:low_end/audio/click_output.dart';
+import 'package:low_end/features/metronome/metronome_controller.dart';
 import 'package:low_end/actions/app_actions.dart';
 import 'package:low_end/app/app_navigation.dart';
 import 'package:low_end/app/home_shell.dart';
@@ -30,6 +32,7 @@ void main() {
     navigation = AppNavigation();
     actions = AppActions(
       drone: drone,
+      metronome: MetronomeController(SilentClickOutput()),
       tuner: TunerController(mic),
       navigation: navigation,
       settings: settings,
@@ -140,7 +143,7 @@ void main() {
       final s = _state(r);
       expect((s['tuner']! as Map)['reading'], isNull);
       expect((s['drone']! as Map)['frequency_hz'], 440.0);
-      expect(s['metronome'], {'available': false});
+      expect(s['metronome'], {'playing': false, 'bpm': 80});
     });
   });
 

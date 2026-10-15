@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:low_end/app/low_end_app.dart';
+import 'package:low_end/audio/click_output.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
 
@@ -78,7 +79,11 @@ class _Harness {
     addTearDown(tester.view.reset);
     addTearDown(tester.platformDispatcher.clearAllTestValues);
     await tester.pumpWidget(
-      LowEndApp(toneOutput: SilentToneOutput(), micInput: mic),
+      LowEndApp(
+        toneOutput: SilentToneOutput(),
+        clickOutput: SilentClickOutput(),
+        micInput: mic,
+      ),
     );
     await _settle();
   }
@@ -168,7 +173,11 @@ void main() {
         await h.tapText(h.t('Minor', 'Minore'));
         await h.shot('drone_4_minor');
         await h.tab('Metronome', 'Metronomo');
-        await h.shot('metronome_drone_on');
+        await h.shot('metronome_idle_drone_on');
+        await h.tapText(h.t('Tap to start', 'Tocca per iniziare'));
+        await h.shot('metronome_beat_1');
+        await h.tester.pump(const Duration(milliseconds: 750));
+        await h.shot('metronome_beat_2');
       });
 
       testWidgets('metronome and settings', (tester) async {

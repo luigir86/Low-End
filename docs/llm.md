@@ -14,6 +14,9 @@ The actions live in [`lib/actions/app_actions.dart`](../lib/actions/app_actions.
 | `tuner_stop` | Pauses the tuner, like the Pause button: it stays paused until `tuner_start` |
 | `drone_play` | Plays the drone in the middle octave, applying `note` (A, Bb, Sol…), `voicing` (`root` or `chord`) and `chord` (`major`, `minor`, `seventh`; the seventh is tuned to 16/9, the pure ratio closest to the minor seventh a bassist plays) |
 | `drone_stop` | Stops the drone |
+| `metronome_start` | Opens the metronome and starts it in 4/4, optionally at `bpm` (30–250) |
+| `metronome_stop` | Stops the metronome |
+| `metronome_set` | Sets the tempo, `bpm`, without starting or stopping it |
 | `drone_set` | Changes the drone settings without starting or stopping it |
 | `set_reference_pitch` | A4 from 438 to 445 Hz, saved in the settings |
 | `settings_set` | App `language` (`system`, `en`, `it`) and `note_names` (`auto`, `solfege`, `letters`) |

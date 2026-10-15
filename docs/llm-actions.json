@@ -1,7 +1,7 @@
 [
   {
     "name": "get_state",
-    "description": "Returns what the app is doing now: the section on screen, the tuner (listening, last note heard and how many cents off), the drone (playing, note, root or chord) and the settings (reference A, language, note names). Loudness follows the phone's media volume.",
+    "description": "Returns what the app is doing now: the section on screen, the tuner (listening, last note heard and how many cents off), the drone (playing, note, root or chord), the metronome (playing, tempo) and the settings (reference A, language, note names). Loudness follows the phone's media volume.",
     "input_schema": {
       "type": "object",
       "properties": {},
@@ -84,6 +84,50 @@
     "input_schema": {
       "type": "object",
       "properties": {},
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "metronome_start",
+    "description": "Opens the metronome and starts it, in 4/4, at the tempo given or the current one.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "bpm": {
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 250,
+          "description": "Beats per minute."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "metronome_stop",
+    "description": "Stops the metronome.",
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "metronome_set",
+    "description": "Changes the tempo without starting or stopping it.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "bpm": {
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 250,
+          "description": "Beats per minute."
+        }
+      },
+      "required": [
+        "bpm"
+      ],
       "additionalProperties": false
     }
   },

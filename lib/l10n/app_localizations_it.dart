@@ -19,14 +19,30 @@ class AppLocalizationsIt extends AppLocalizations {
   String get metronomeTab => 'Metronomo';
 
   @override
-  String get comingSoon => 'In arrivo';
-
-  @override
-  String get metronomeDescription =>
-      'Metronomo preciso con accenti e suddivisioni.';
-
-  @override
   String get droneMode => 'Drone';
+
+  @override
+  String get metronomeStart => 'Avvia il metronomo';
+
+  @override
+  String get metronomeStop => 'Ferma il metronomo';
+
+  @override
+  String get metronomeHint => 'Tocca per iniziare';
+
+  @override
+  String bpmValue(String bpm) {
+    return '$bpm BPM';
+  }
+
+  @override
+  String get slower => 'Più lento';
+
+  @override
+  String get faster => 'Più veloce';
+
+  @override
+  String get tapTempo => 'Batti il tempo';
 
   @override
   String get referencePitch => 'La di riferimento';
@@ -42,11 +58,6 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String droneNowPlaying(String note) {
-    return 'Drone · $note';
-  }
-
-  @override
   String stopSound(String name) {
     return 'Ferma $name';
   }
@@ -55,9 +66,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String playSound(String name) {
     return 'Suona $name';
   }
-
-  @override
-  String get droneShortcutHint => 'Esercitati con drone e metronomo insieme.';
 
   @override
   String get droneHint =>

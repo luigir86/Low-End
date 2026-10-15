@@ -3,6 +3,7 @@ import 'dart:convert';
 import '../app/app_navigation.dart';
 import '../app/settings.dart';
 import '../audio/pitch.dart';
+import '../features/metronome/metronome_controller.dart';
 import '../features/tuner/drone/drone_controller.dart';
 import '../features/tuner/tuner_controller.dart';
 import '../features/tuner/tunings.dart';
@@ -57,12 +58,14 @@ class ActionError implements Exception {
 class AppActions {
   AppActions({
     required this.drone,
+    required this.metronome,
     required this.tuner,
     required this.navigation,
     required this.settings,
   });
 
   final DroneController drone;
+  final MetronomeController metronome;
   final TunerController tuner;
   final AppNavigation navigation;
   final AppSettings settings;
@@ -81,7 +84,8 @@ class AppActions {
       description:
           'Returns what the app is doing now: the section on screen, the '
           'tuner (listening, last note heard and how many cents off), '
-          'the drone (playing, note, root or chord) and the settings '
+          'the drone (playing, note, root or chord), the metronome (playing, '
+          'tempo) and the settings '
           '(reference A, language, note names). Loudness follows the '
           "phone's media volume.",
     ),
@@ -118,6 +122,23 @@ class AppActions {
       parameters: _droneParameters,
     ),
     const AppAction(name: 'drone_stop', description: 'Stops the drone.'),
+    const AppAction(
+      name: 'metronome_start',
+      description:
+          'Opens the metronome and starts it, in 4/4, at the tempo given or '
+          'the current one.',
+      parameters: _metronomeParameters,
+    ),
+    const AppAction(
+      name: 'metronome_stop',
+      description: 'Stops the metronome.',
+    ),
+    const AppAction(
+      name: 'metronome_set',
+      description: 'Changes the tempo without starting or stopping it.',
+      parameters: _metronomeParameters,
+      required: ['bpm'],
+    ),
     const AppAction(
       name: 'drone_set',
       description:
@@ -160,6 +181,15 @@ class AppActions {
       },
     ),
   ];
+
+  static const _metronomeParameters = {
+    'bpm': {
+      'type': 'integer',
+      'minimum': MetronomeController.minBpm,
+      'maximum': MetronomeController.maxBpm,
+      'description': 'Beats per minute.',
+    },
+  };
 
   static const _droneParameters = {
     'note': _note,
@@ -218,8 +248,21 @@ class AppActions {
         // app comes back.
         await tuner.pause();
       case 'drone_play':
-        _droneChange(args)();
+        final change = _droneChange(args);
+        // Each sound plays from its own section; on the tuner it would
+        // pause again at once.
+        navigation.open(AppSection.drone);
+        change();
         if (!drone.isPlaying) await drone.start();
+      case 'metronome_start':
+        final bpm = _bpm(args);
+        navigation.open(AppSection.metronome);
+        if (bpm != null) metronome.setBpm(bpm);
+        await metronome.start();
+      case 'metronome_stop':
+        await metronome.stop();
+      case 'metronome_set':
+        metronome.setBpm(_bpm(args)!);
       case 'drone_stop':
         await drone.stop();
       case 'drone_set':
@@ -302,7 +345,7 @@ class AppActions {
         'chord': drone.chord.name,
         'audio_failed': drone.audioFailed,
       },
-      'metronome': {'available': false},
+      'metronome': {'playing': metronome.isPlaying, 'bpm': metronome.bpm},
     };
   }
 
@@ -339,6 +382,22 @@ class AppActions {
       (throw ActionError(
         '"$name" must be one of ${values.map((v) => v.name).join(', ')}.',
       ));
+
+  /// The `bpm` argument, checked, or null when not given.
+  static int? _bpm(Map<String, Object?> args) {
+    final v = args['bpm'];
+    if (v == null) return null;
+    final bpm = _number(v, 'bpm');
+    if (bpm != bpm.roundToDouble() ||
+        bpm < MetronomeController.minBpm ||
+        bpm > MetronomeController.maxBpm) {
+      throw ActionError(
+        '"bpm" must be a whole number from ${MetronomeController.minBpm} '
+        'to ${MetronomeController.maxBpm}.',
+      );
+    }
+    return bpm.round();
+  }
 
   static double _number(Object? v, String key) =>
       v is num ? v.toDouble() : (throw ActionError('"$key" must be a number.'));

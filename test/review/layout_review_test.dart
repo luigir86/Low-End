@@ -194,11 +194,10 @@ void main() {
 
   group('language switch', () {
     for (final tab in [0, 1, 2]) {
-      testWidgets('on tab $tab while the drone plays and the tuner listens', (
-        tester,
-      ) async {
+      testWidgets('on tab $tab while the drone plays', (tester) async {
         final h = _H(tester, const _Config('en', scale: 1));
         await h.start();
+        await h.tab(1);
         await h.scope.drone.tapNote(9);
         await h.tab(tab);
         for (final lang in ['it', null, 'it', 'en']) {
@@ -207,15 +206,14 @@ void main() {
         }
         h.settings.setLanguage('it');
         await h.settle('it');
-        expect(h.scope.drone.isPlaying, isTrue);
-        expect(h.output.frequencies.single, closeTo(440, 1e-9));
+        // The tuner pauses the drone, the other tabs leave it playing.
+        expect(h.scope.drone.isPlaying, tab != 0);
+        if (tab != 0) {
+          expect(h.output.frequencies.single, closeTo(440, 1e-9));
+        }
         expect((h.mic as FakeMicInput).isCapturing, tab == 0);
         expect(h.scope.navigation.section, AppSection.values[tab]);
-        if (tab != 1) {
-          expect(find.textContaining('La3'), findsWidgets);
-        } else {
-          expect(find.text('La3'), findsOneWidget);
-        }
+        if (tab == 1) expect(find.text('La3'), findsOneWidget);
         h.expectClean();
       });
     }
@@ -223,6 +221,7 @@ void main() {
     testWidgets('from the settings page while the drone plays', (tester) async {
       final h = _H(tester, const _Config('en', scale: 2));
       await h.start();
+      await h.tab(1);
       await h.scope.drone.tapNote(9);
       await tester.tap(find.byIcon(Icons.settings_outlined));
       await h.settle('open settings');
@@ -232,7 +231,7 @@ void main() {
       await tester.tap(find.byType(BackButton));
       await h.settle('back');
       expect(h.scope.drone.isPlaying, isTrue);
-      expect((h.mic as FakeMicInput).isCapturing, isTrue);
+      expect((h.mic as FakeMicInput).isCapturing, isFalse);
       h.expectClean();
     });
   });

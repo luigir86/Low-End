@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:low_end/audio/click_output.dart';
+import 'package:low_end/features/metronome/metronome_controller.dart';
 import 'package:low_end/actions/app_actions.dart';
 import 'package:low_end/app/app_navigation.dart';
 import 'package:low_end/app/home_shell.dart';
@@ -24,6 +26,7 @@ void main() {
     settings = AppSettings();
     actions = AppActions(
       drone: DroneController(output),
+      metronome: MetronomeController(SilentClickOutput()),
       tuner: TunerController(mic),
       navigation: AppNavigation(),
       settings: settings,
@@ -141,7 +144,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     expect(output.frequencies.single, closeTo(329.63, 0.1)); // E4
-    expect(find.byTooltip('Stop Drone · E4'), findsOneWidget);
+    // It opens the Drone tab, with the key lit.
+    expect(find.bySemanticsLabel('Stop E'), findsOneWidget);
 
     await tester.binding.handlePushRoute('/open_section?section=drone');
     await tester.pump(const Duration(milliseconds: 300));

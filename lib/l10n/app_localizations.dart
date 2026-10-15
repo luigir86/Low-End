@@ -116,23 +116,53 @@ abstract class AppLocalizations {
   /// **'Metronome'**
   String get metronomeTab;
 
-  /// No description provided for @comingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Coming soon'**
-  String get comingSoon;
-
-  /// No description provided for @metronomeDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Precise metronome with accents and subdivisions.'**
-  String get metronomeDescription;
-
   /// No description provided for @droneMode.
   ///
   /// In en, this message translates to:
   /// **'Drone'**
   String get droneMode;
+
+  /// No description provided for @metronomeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the metronome'**
+  String get metronomeStart;
+
+  /// No description provided for @metronomeStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop the metronome'**
+  String get metronomeStop;
+
+  /// No description provided for @metronomeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to start'**
+  String get metronomeHint;
+
+  /// No description provided for @bpmValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{bpm} BPM'**
+  String bpmValue(String bpm);
+
+  /// No description provided for @slower.
+  ///
+  /// In en, this message translates to:
+  /// **'Slower'**
+  String get slower;
+
+  /// No description provided for @faster.
+  ///
+  /// In en, this message translates to:
+  /// **'Faster'**
+  String get faster;
+
+  /// No description provided for @tapTempo.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the tempo'**
+  String get tapTempo;
 
   /// No description provided for @referencePitch.
   ///
@@ -152,12 +182,6 @@ abstract class AppLocalizations {
   /// **'{frequency} Hz'**
   String frequencyHz(String frequency);
 
-  /// No description provided for @droneNowPlaying.
-  ///
-  /// In en, this message translates to:
-  /// **'Drone · {note}'**
-  String droneNowPlaying(String note);
-
   /// No description provided for @stopSound.
   ///
   /// In en, this message translates to:
@@ -169,12 +193,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Play {name}'**
   String playSound(String name);
-
-  /// No description provided for @droneShortcutHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Practise with the drone and the click together.'**
-  String get droneShortcutHint;
 
   /// No description provided for @droneHint.
   ///

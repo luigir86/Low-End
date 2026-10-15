@@ -7,7 +7,6 @@ import '../features/tuner/tuner_panel.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/pulsing_dot.dart';
 import 'app_navigation.dart';
-import 'now_playing_strip.dart';
 import 'settings_page.dart';
 
 /// Main screen with bottom navigation between the app's sections.
@@ -41,11 +40,11 @@ class _HomeShellState extends State<HomeShell> {
     final l10n = AppLocalizations.of(context);
     final scope = AudioScope.of(context);
     final drone = scope.drone;
+    final metronome = scope.metronome;
     final navigation = scope.navigation;
     return ListenableBuilder(
-      listenable: Listenable.merge([drone, navigation, scope.settings]),
+      listenable: Listenable.merge([drone, metronome, navigation]),
       builder: (context, _) {
-        final names = scope.settings.noteNames(Localizations.localeOf(context));
         final section = navigation.section;
         return Scaffold(
           appBar: AppBar(
@@ -61,42 +60,29 @@ class _HomeShellState extends State<HomeShell> {
             ],
           ),
           body: IndexedStack(index: section.index, children: _screens),
-          bottomNavigationBar: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              NowPlayingStrip(
-                sounds: [
-                  // The Drone tab (the lit key) and the Metronome tab (its
-                  // drone card) already show it.
-                  if (drone.isPlaying && section == AppSection.tuner)
-                    ActiveSound(
-                      icon: Icons.graphic_eq,
-                      label: l10n.droneNowPlaying(drone.note.label(names)),
-                      onStop: drone.stop,
-                    ),
-                ],
+          // Each section starts and stops its own sound; the pulsing dot on
+          // a tab says which ones are playing.
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: section.index,
+            onDestinationSelected: (i) => navigation.open(AppSection.values[i]),
+            destinations: [
+              NavigationDestination(
+                icon: const Icon(Icons.tune),
+                label: l10n.tunerTab,
               ),
-              NavigationBar(
-                selectedIndex: section.index,
-                onDestinationSelected: (i) =>
-                    navigation.open(AppSection.values[i]),
-                destinations: [
-                  NavigationDestination(
-                    icon: const Icon(Icons.tune),
-                    label: l10n.tunerTab,
-                  ),
-                  NavigationDestination(
-                    icon: ActivityIcon(
-                      icon: Icons.graphic_eq,
-                      active: drone.isPlaying,
-                    ),
-                    label: l10n.droneMode,
-                  ),
-                  NavigationDestination(
-                    icon: const Icon(Icons.timer_outlined),
-                    label: l10n.metronomeTab,
-                  ),
-                ],
+              NavigationDestination(
+                icon: ActivityIcon(
+                  icon: Icons.graphic_eq,
+                  active: drone.isPlaying,
+                ),
+                label: l10n.droneMode,
+              ),
+              NavigationDestination(
+                icon: ActivityIcon(
+                  icon: Icons.timer_outlined,
+                  active: metronome.isPlaying,
+                ),
+                label: l10n.metronomeTab,
               ),
             ],
           ),

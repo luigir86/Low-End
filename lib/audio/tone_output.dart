@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 
+import 'soloud_engine.dart';
+
 /// Plays one or more sustained sine tones at once.
 ///
 /// Kept behind an interface so the rest of the app can be tested without a
@@ -44,7 +46,7 @@ class SoLoudToneOutput implements ToneOutput {
   });
 
   Future<void> _init() async {
-    if (!_soloud.isInitialized) await _soloud.init();
+    await ensureSoLoud();
     while (_sources.length < _maxVoices) {
       _sources.add(await _soloud.loadWaveform(WaveForm.sin, false, 1, 0));
     }
