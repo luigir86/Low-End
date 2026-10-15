@@ -1,11 +1,13 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
 import '../../../audio/audio_scope.dart';
 import '../../../audio/pitch.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../widgets/balance_slider.dart';
 import '../../../widgets/dial.dart';
 import 'drone_controller.dart';
 
@@ -48,6 +50,7 @@ class DronePanel extends StatelessWidget {
             ],
           ),
           lower: _ChordMenu(drone: drone),
+          footer: const BalanceSlider(),
         );
       },
     );
@@ -63,7 +66,10 @@ class _FifthsDial extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final playing = drone.isPlaying ? drone.note.pitchClass : null;
+    // The rest of the chord, lit in a second colour while it sounds.
+    final chord = drone.isPlaying ? drone.chordTones : const <int>{};
     return LayoutBuilder(
       builder: (context, constraints) {
         final size = constraints.biggest;
@@ -79,6 +85,7 @@ class _FifthsDial extends StatelessWidget {
               child: CustomPaint(
                 painter: _FifthsPainter(
                   playing: playing,
+                  chord: chord,
                   colors: theme.colorScheme,
                   disc: LowEndColors.of(context).strobeBackground,
                 ),
@@ -97,18 +104,39 @@ class _FifthsDial extends StatelessWidget {
                     DroneController.octave,
                   ).name(names),
                   playing: playing == circleOfFifths[i],
+                  inChord: chord.contains(circleOfFifths[i]),
                   onTap: () => drone.tapNote(circleOfFifths[i]),
                 ),
               ),
             // What is sounding, in the hub; large text shrinks to fit.
+            // Touching the hub stops the drone, or plays the last note
+            // again, like the metronome's ring.
             Center(
               child: SizedBox.square(
-                dimension: dial.hub * math.sqrt2,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: SizedBox(
-                    width: dial.hub * math.sqrt2,
-                    child: _DialCenter(drone: drone, names: names),
+                dimension: dial.hub * 2,
+                child: Semantics(
+                  button: true,
+                  label: drone.isPlaying
+                      ? l10n.droneStop
+                      : l10n.playSound(drone.note.name(names)),
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: drone.toggle,
+                      child: Center(
+                        child: SizedBox.square(
+                          dimension: dial.hub * math.sqrt2,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: SizedBox(
+                              width: dial.hub * math.sqrt2,
+                              child: _DialCenter(drone: drone, names: names),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -120,15 +148,18 @@ class _FifthsDial extends StatelessWidget {
   }
 }
 
-/// The ring of twelve segments, the one playing lit.
+/// The ring of twelve segments: the root playing lit, the rest of a chord
+/// in a second colour.
 class _FifthsPainter extends CustomPainter {
   _FifthsPainter({
     required this.playing,
+    required this.chord,
     required this.colors,
     required this.disc,
   });
 
   final int? playing;
+  final Set<int> chord;
   final ColorScheme colors;
   final Color disc;
 
@@ -144,6 +175,8 @@ class _FifthsPainter extends CustomPainter {
         sweep: step - DialGeometry.gap,
         color: playing == circleOfFifths[i]
             ? colors.primary
+            : chord.contains(circleOfFifths[i])
+            ? colors.secondary
             : colors.outlineVariant,
       );
     }
@@ -151,7 +184,10 @@ class _FifthsPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_FifthsPainter old) =>
-      old.playing != playing || old.colors != colors || old.disc != disc;
+      old.playing != playing ||
+      !setEquals(old.chord, chord) ||
+      old.colors != colors ||
+      old.disc != disc;
 }
 
 /// The touch area and label of one segment; the segment itself is painted
@@ -160,11 +196,15 @@ class _NoteKey extends StatelessWidget {
   const _NoteKey({
     required this.name,
     required this.playing,
+    required this.inChord,
     required this.onTap,
   });
 
   final String name;
   final bool playing;
+
+  /// Sounding as part of the chord built on the note playing.
+  final bool inChord;
   final VoidCallback onTap;
 
   @override
@@ -190,8 +230,14 @@ class _NoteKey extends StatelessWidget {
                 child: Text(
                   name,
                   style: theme.textTheme.titleMedium?.copyWith(
-                    color: playing ? colors.onPrimary : colors.onSurface,
-                    fontWeight: playing ? FontWeight.w700 : FontWeight.w500,
+                    color: playing
+                        ? colors.onPrimary
+                        : inChord
+                        ? colors.onSecondary
+                        : colors.onSurface,
+                    // Bold for the root, so it stands out by more than
+                    // colour alone.
+                    fontWeight: playing ? FontWeight.w800 : FontWeight.w500,
                   ),
                 ),
               ),

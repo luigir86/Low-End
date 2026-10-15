@@ -113,6 +113,33 @@ void main() {
     },
   );
 
+  testWidgets('touching the middle of the drone dial stops and restarts it', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.625;
+    addTearDown(tester.view.reset);
+    final tone = SilentToneOutput();
+    await tester.pumpWidget(
+      LowEndApp(toneOutput: tone, micInput: FakeMicInput()),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Drone'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('D'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tone.frequencies, isNotEmpty);
+
+    await tester.tap(find.bySemanticsLabel(RegExp('^Stop the drone')));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tone.frequencies, isEmpty);
+
+    // Again: the last note plays again.
+    await tester.tap(find.bySemanticsLabel(RegExp('^Play D')).last);
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tone.frequencies.single, closeTo(293.66, 0.01));
+  });
+
   testWidgets('settings change the language, note names and reference A', (
     tester,
   ) async {

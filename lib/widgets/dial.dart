@@ -79,6 +79,7 @@ class DialLayout extends StatelessWidget {
     required this.dial,
     required this.upper,
     required this.lower,
+    required this.footer,
   });
 
   final Widget dial;
@@ -90,6 +91,10 @@ class DialLayout extends StatelessWidget {
   /// The second row: TAP, the chord, Pause.
   final Widget lower;
 
+  /// The third row: the metronome / drone balance, or the reference A on
+  /// the tuner.
+  final Widget footer;
+
   /// Largest dial, on tablets.
   static const _maxSize = 420.0;
 
@@ -97,7 +102,8 @@ class DialLayout extends StatelessWidget {
   /// spacing; with large text a row grows and the screen scrolls.
   static const upperHeight = 88.0;
   static const lowerHeight = 64.0;
-  static const _controlsRoom = upperHeight + lowerHeight + 72;
+  static const footerHeight = 56.0;
+  static const _controlsRoom = upperHeight + lowerHeight + footerHeight + 88;
 
   @override
   Widget build(BuildContext context) {
@@ -138,6 +144,14 @@ class DialLayout extends StatelessWidget {
                     maxWidth: _maxSize,
                   ),
                   child: Center(child: lower),
+                ),
+                const SizedBox(height: 16),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: footerHeight,
+                    maxWidth: _maxSize,
+                  ),
+                  child: Center(child: footer),
                 ),
               ],
             ),

@@ -7,17 +7,20 @@ import '../../../audio/tone_output.dart';
 enum DroneVoicing { root, chord }
 
 enum ChordType {
-  major([1, 5 / 4, 3 / 2]),
-  minor([1, 6 / 5, 3 / 2]),
-  seventh([1, 5 / 4, 3 / 2, 16 / 9]);
+  major([1, 5 / 4, 3 / 2], [4, 7]),
+  minor([1, 6 / 5, 3 / 2], [3, 7]),
+  seventh([1, 5 / 4, 3 / 2, 16 / 9], [4, 7, 10]);
 
-  const ChordType(this.ratios);
+  const ChordType(this.ratios, this.semitones);
 
   /// Pure (just) ratios to the root: they do not beat against each other,
   /// which is what you want when checking intonation. The seventh is 16/9
   /// (996 cents), the pure ratio closest to the minor seventh a bassist
   /// plays: the harmonic seventh, 7/4, would sound 31 cents flat of it.
   final List<double> ratios;
+
+  /// The notes above the root, in semitones: what they are called.
+  final List<int> semitones;
 }
 
 /// State and playback of the drone: a sustained pure tone to practise on.
@@ -30,8 +33,14 @@ class DroneController extends ChangeNotifier {
   /// for any phone speaker, and easy to hear against a bass.
   static const octave = 4;
 
-  /// Fixed: the phone's volume buttons set how loud it is.
-  static const _volume = 0.8;
+  /// Loudness at full level.
+  static const _fullVolume = 0.8;
+
+  /// Set by the metronome / drone balance; the phone's volume buttons set
+  /// how loud it all is.
+  double _level = 1;
+
+  double get _volume => _fullVolume * _level;
 
   bool _playing = false;
   bool _audioFailed = false;
@@ -57,6 +66,12 @@ class DroneController extends ChangeNotifier {
   double get frequency => _note.frequency(a4: _a4);
 
   /// Frequencies currently sounding: the root, then the rest of the chord.
+  /// The pitch classes of the other notes of the chord, when a chord is
+  /// chosen.
+  Set<int> get chordTones => _voicing == DroneVoicing.chord
+      ? {for (final s in _chord.semitones) (_note.pitchClass + s) % 12}
+      : const {};
+
   List<double> get frequencies => [
     for (final ratio in _voicing == DroneVoicing.root ? [1.0] : _chord.ratios)
       frequency * ratio,
@@ -103,6 +118,20 @@ class DroneController extends ChangeNotifier {
   void setChord(ChordType chord) {
     if (chord == _chord) return;
     _update(() => _chord = chord);
+  }
+
+  /// Sets the level from the metronome / drone balance, 0 to 1.
+  void setLevel(double level) {
+    final value = level.clamp(0.0, 1.0);
+    if (value == _level) return;
+    _level = value;
+    if (_playing && !_disposed) {
+      try {
+        _output.setVolume(_volume);
+      } catch (error) {
+        debugPrint('Drone level could not change: $error');
+      }
+    }
   }
 
   void setReferencePitch(double a4) {

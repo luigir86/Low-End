@@ -13,6 +13,9 @@ abstract class ClickOutput {
   Future<void> play(Uint8List barWav, Duration startAt);
 
   Future<void> stop();
+
+  /// Sets the level, 0 to 1, of the clicks now and of later bars.
+  void setVolume(double volume);
 }
 
 /// [ClickOutput] backed by the SoLoud audio engine.
@@ -22,6 +25,7 @@ abstract class ClickOutput {
 class SoLoudClickOutput implements ClickOutput {
   AudioSource? _source;
   SoundHandle? _handle;
+  double _volume = 1;
 
   SoLoud get _soloud => SoLoud.instance;
 
@@ -31,7 +35,12 @@ class SoLoudClickOutput implements ClickOutput {
     final source = await _soloud.loadMem('metronome-bar.wav', barWav);
     // Start the new bar where the old one was, then drop the old one: a
     // tempo change keeps the beat going instead of restarting the bar.
-    final handle = _soloud.play(source, paused: true, looping: true);
+    final handle = _soloud.play(
+      source,
+      paused: true,
+      looping: true,
+      volume: _volume,
+    );
     if (startAt > Duration.zero) _soloud.seek(handle, startAt);
     _soloud.setPause(handle, false);
     await _release();
@@ -41,6 +50,13 @@ class SoLoudClickOutput implements ClickOutput {
 
   @override
   Future<void> stop() => _release();
+
+  @override
+  void setVolume(double volume) {
+    _volume = volume;
+    final handle = _handle;
+    if (handle != null) _soloud.setVolume(handle, volume);
+  }
 
   Future<void> _release() async {
     final handle = _handle, source = _source;
@@ -68,4 +84,9 @@ class SilentClickOutput implements ClickOutput {
 
   @override
   Future<void> stop() async => bar = null;
+
+  double volume = 1;
+
+  @override
+  void setVolume(double volume) => this.volume = volume;
 }

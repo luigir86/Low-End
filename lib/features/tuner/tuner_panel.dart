@@ -9,6 +9,7 @@ import '../../audio/audio_scope.dart';
 import '../../audio/pitch.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/dial.dart';
+import '../../widgets/reference_pitch_row.dart';
 import 'tuner_controller.dart';
 import 'tunings.dart';
 
@@ -94,6 +95,7 @@ class _TunerPanelState extends State<TunerPanel> {
                 ),
           // As wide and tall as TAP and the chord menu, but only text:
           // listening is the normal state, so pausing stays discreet.
+          footer: const ReferencePitchRow(),
           lower: TextButton.icon(
             onPressed: _tuner.toggle,
             style: TextButton.styleFrom(minimumSize: const Size.fromHeight(64)),

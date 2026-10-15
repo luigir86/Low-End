@@ -57,6 +57,17 @@ void main() {
     expect(output.frequencies.single, closeTo(442, 0.001)); // A4 at 442
   });
 
+  test('names the other notes of the chord', () {
+    drone.setPitchClass(9); // A
+    expect(drone.chordTones, isEmpty, reason: 'root only');
+    drone.setVoicing(DroneVoicing.chord);
+    expect(drone.chordTones, {1, 4}); // C# and E
+    drone.setChord(ChordType.minor);
+    expect(drone.chordTones, {0, 4}); // C and E
+    drone.setChord(ChordType.seventh);
+    expect(drone.chordTones, {1, 4, 7}); // C#, E and G
+  });
+
   test('reports when audio cannot start', () async {
     final failing = DroneController(_FailingOutput());
     await failing.start();

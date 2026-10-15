@@ -64,6 +64,8 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     super.initState();
     // The drone plays at the reference A chosen in the settings.
     _drone.setReferencePitch(_droneA4);
+    _drone.setLevel(_settings.droneLevel);
+    _metronome.setLevel(_settings.metronomeLevel);
     _settings.addListener(_onSettingsChanged);
     _navigation.addListener(_onNavigationChanged);
     _lifecycle; // Starts listening to the app going to the background.
@@ -80,6 +82,9 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
   }
 
   void _onSettingsChanged() {
+    // Both only act when their value really changed.
+    _drone.setLevel(_settings.droneLevel);
+    _metronome.setLevel(_settings.metronomeLevel);
     if (_settings.a4 == _droneA4) return;
     _droneA4 = _settings.a4;
     _drone.setReferencePitch(_droneA4);

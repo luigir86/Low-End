@@ -23,6 +23,10 @@ class AppSettings extends ChangeNotifier {
         NoteNaming.auto;
     final a4 = _read<num>(prefs, _a4Key)?.toDouble();
     _a4 = referencePitches.contains(a4) ? a4! : 440;
+    final balance = _read<num>(prefs, _balanceKey)?.toDouble();
+    _balance = balance != null && balance.isFinite
+        ? balance.clamp(-1.0, 1.0)
+        : 0;
   }
 
   /// Reads the saved settings.
@@ -33,6 +37,7 @@ class AppSettings extends ChangeNotifier {
   static const _languageKey = 'language';
   static const _namingKey = 'note_names';
   static const _a4Key = 'reference_pitch';
+  static const _balanceKey = 'balance';
 
   final SharedPreferences? _prefs;
   String? _languageCode;
@@ -93,6 +98,27 @@ class AppSettings extends ChangeNotifier {
     assert(referencePitches.contains(hz));
     _a4 = hz;
     _save(_prefs?.setDouble(_a4Key, hz));
+    notifyListeners();
+  }
+
+  double _balance = 0;
+
+  /// The balance between the metronome and the drone, from -1 (only the
+  /// metronome) through 0 (both at full level) to 1 (only the drone), like
+  /// a mixer's crossfader. How loud both are overall is the phone's volume.
+  double get balance => _balance;
+
+  /// Level of the metronome from the balance, 0 to 1.
+  double get metronomeLevel => _balance <= 0 ? 1 : 1 - _balance;
+
+  /// Level of the drone from the balance, 0 to 1.
+  double get droneLevel => _balance >= 0 ? 1 : 1 + _balance;
+
+  void setBalance(double balance) {
+    final value = balance.clamp(-1.0, 1.0);
+    if (value == _balance) return;
+    _balance = value;
+    _save(_prefs?.setDouble(_balanceKey, value));
     notifyListeners();
   }
 }

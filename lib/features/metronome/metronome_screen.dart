@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart';
 import '../../app/theme.dart';
 import '../../audio/audio_scope.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/balance_slider.dart';
 import '../../widgets/dial.dart';
 import 'metronome_controller.dart';
 
@@ -42,6 +43,7 @@ class MetronomeScreen extends StatelessWidget {
           ],
         ),
         lower: _TapButton(metronome: metronome),
+        footer: const BalanceSlider(),
       ),
     );
   }

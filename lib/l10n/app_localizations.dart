@@ -164,6 +164,24 @@ abstract class AppLocalizations {
   /// **'Tap the tempo'**
   String get tapTempo;
 
+  /// No description provided for @droneStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop the drone'**
+  String get droneStop;
+
+  /// No description provided for @balanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Metronome and drone balance'**
+  String get balanceLabel;
+
+  /// No description provided for @balanceValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Metronome {metronome}%, drone {drone}%'**
+  String balanceValue(String metronome, String drone);
+
   /// No description provided for @referencePitch.
   ///
   /// In en, this message translates to:

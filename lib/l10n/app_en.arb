@@ -18,6 +18,19 @@
   "slower": "Slower",
   "faster": "Faster",
   "tapTempo": "Tap the tempo",
+  "droneStop": "Stop the drone",
+  "balanceLabel": "Metronome and drone balance",
+  "balanceValue": "Metronome {metronome}%, drone {drone}%",
+  "@balanceValue": {
+    "placeholders": {
+      "metronome": {
+        "type": "String"
+      },
+      "drone": {
+        "type": "String"
+      }
+    }
+  },
   "referencePitch": "Reference A",
   "referencePitchHint": "The frequency of {note}, for the tuner and the drone.",
   "@referencePitchHint": {

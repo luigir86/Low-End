@@ -1,9 +1,12 @@
+import 'dart:isolate';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 
+import 'drone_sound.dart';
 import 'soloud_engine.dart';
 
-/// Plays one or more sustained sine tones at once.
+/// Plays one or more sustained tones at once, as one sound.
 ///
 /// Kept behind an interface so the rest of the app can be tested without a
 /// real audio device.
@@ -24,33 +27,18 @@ abstract class ToneOutput {
 
 /// [ToneOutput] backed by the SoLoud audio engine.
 ///
-/// Calls are expected one at a time (DroneController waits for each one to
-/// finish before the next); the checks below only keep a stray overlap from
-/// leaving voices nobody can stop.
+/// Plays the tone made by DroneSound as a seamless loop. Calls are expected
+/// one at a time (DroneController waits for each one to finish before the
+/// next).
 class SoLoudToneOutput implements ToneOutput {
-  static const _maxVoices = 4;
-  static const _fade = Duration(milliseconds: 60);
+  static const _fade = Duration(milliseconds: 80);
 
-  final _sources = <AudioSource>[];
-  final _handles = <SoundHandle>[];
-  var _gains = <double>[];
-  Future<void>? _ready;
+  AudioSource? _source;
+  SoundHandle? _handle;
+  List<double> _frequencies = const [];
+  List<double> _gains = const [];
 
   SoLoud get _soloud => SoLoud.instance;
-
-  /// Starts the engine and loads the voices, once; tried again on the next
-  /// call if it failed.
-  Future<void> _ensureReady() => _ready ??= _init().catchError((Object error) {
-    _ready = null;
-    throw error;
-  });
-
-  Future<void> _init() async {
-    await ensureSoLoud();
-    while (_sources.length < _maxVoices) {
-      _sources.add(await _soloud.loadWaveform(WaveForm.sin, false, 1, 0));
-    }
-  }
 
   @override
   Future<void> play(
@@ -58,53 +46,52 @@ class SoLoudToneOutput implements ToneOutput {
     List<double> gains,
     double volume,
   ) async {
-    assert(frequencies.length <= _maxVoices);
     assert(gains.length == frequencies.length);
-    await _ensureReady();
-    final retune = _handles.length == frequencies.length;
-    if (!retune) {
-      await stop();
-      // Another call may have started voices while this one waited.
-      if (_handles.isNotEmpty) _stopNow();
+    await ensureSoLoud();
+    if (_handle != null &&
+        listEquals(frequencies, _frequencies) &&
+        listEquals(gains, _gains)) {
+      setVolume(volume);
+      return;
     }
-    _gains = gains;
-    for (var i = 0; i < frequencies.length; i++) {
-      _soloud.setWaveformFreq(_sources[i], frequencies[i]);
-      if (!retune) {
-        final handle = _soloud.play(_sources[i], volume: 0, looping: true);
-        _handles.add(handle);
-      }
-    }
-    setVolume(volume);
+    // Building the tone takes a moment: away from the screen's thread.
+    final wav = await Isolate.run(() => DroneSound.loopWav(frequencies, gains));
+    final source = await _soloud.loadMem('drone.wav', wav);
+    final handle = _soloud.play(source, volume: 0, looping: true);
+    // The new tone fades in while the old one fades out: no click, no gap.
+    _soloud.fadeVolume(handle, volume, _fade);
+    final oldHandle = _handle, oldSource = _source;
+    _handle = handle;
+    _source = source;
+    _frequencies = List.of(frequencies);
+    _gains = List.of(gains);
+    await _release(oldHandle, oldSource);
   }
 
   @override
   void setVolume(double volume) {
-    // Divide by the number of voices so stacked tones never clip.
-    final perVoice = _handles.isEmpty ? 0.0 : volume / _handles.length;
-    for (var i = 0; i < _handles.length; i++) {
-      final gain = i < _gains.length ? _gains[i] : 1.0;
-      _soloud.fadeVolume(_handles[i], perVoice * gain, _fade);
-    }
+    final handle = _handle;
+    if (handle != null) _soloud.fadeVolume(handle, volume, _fade);
   }
 
   @override
   Future<void> stop() async {
-    if (_stopNow() > 0) {
+    final handle = _handle, source = _source;
+    _handle = null;
+    _source = null;
+    _frequencies = const [];
+    await _release(handle, source);
+  }
+
+  /// Fades [handle] out, then stops it and frees [source].
+  Future<void> _release(SoundHandle? handle, AudioSource? source) async {
+    if (handle != null) {
+      _soloud.fadeVolume(handle, 0, _fade);
+      _soloud.scheduleStop(handle, _fade);
       // Let the fade finish so stopping does not click.
       await Future<void>.delayed(_fade);
     }
-  }
-
-  /// Fades out and forgets every voice; returns how many there were.
-  int _stopNow() {
-    final handles = List.of(_handles);
-    _handles.clear();
-    for (final h in handles) {
-      _soloud.fadeVolume(h, 0, _fade);
-      _soloud.scheduleStop(h, _fade);
-    }
-    return handles.length;
+    if (source != null) await _soloud.disposeSource(source);
   }
 }
 

@@ -147,6 +147,7 @@ void main() {
       testWidgets('tuner', (tester) async {
         final h = _Harness(tester, config);
         await h.start();
+        await h.tab('Tuner', 'Accordatore');
         await h.shot('tuner_1_listening');
         // E1 about 20 cents flat.
         await h.play(41.2 * math.pow(2, -20 / 1200));

@@ -45,6 +45,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tapTempo => 'Tap the tempo';
 
   @override
+  String get droneStop => 'Stop the drone';
+
+  @override
+  String get balanceLabel => 'Metronome and drone balance';
+
+  @override
+  String balanceValue(String metronome, String drone) {
+    return 'Metronome $metronome%, drone $drone%';
+  }
+
+  @override
   String get referencePitch => 'Reference A';
 
   @override

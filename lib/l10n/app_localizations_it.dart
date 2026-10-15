@@ -45,6 +45,17 @@ class AppLocalizationsIt extends AppLocalizations {
   String get tapTempo => 'Batti il tempo';
 
   @override
+  String get droneStop => 'Ferma il drone';
+
+  @override
+  String get balanceLabel => 'Bilanciamento tra metronomo e drone';
+
+  @override
+  String balanceValue(String metronome, String drone) {
+    return 'Metronomo $metronome%, drone $drone%';
+  }
+
+  @override
   String get referencePitch => 'La di riferimento';
 
   @override

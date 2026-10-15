@@ -11,6 +11,7 @@ import 'package:low_end/app/app_navigation.dart';
 import 'package:low_end/app/home_shell.dart';
 import 'package:low_end/app/low_end_app.dart';
 import 'package:low_end/app/settings.dart';
+import 'package:low_end/app/settings_page.dart';
 import 'package:low_end/audio/audio_scope.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
@@ -291,7 +292,14 @@ void main() {
       await _pumpApp(tester);
       await tester.tap(find.byTooltip('Settings'));
       await _settle(tester);
-      expect(find.text('Reference A'), findsOneWidget);
+      // On the settings page (the tuner below it shows the same row).
+      expect(
+        find.descendant(
+          of: find.byType(SettingsPage),
+          matching: find.text('Reference A'),
+        ),
+        findsOneWidget,
+      );
       expect(
         find.text('The frequency of A4, for the tuner and the drone.'),
         findsOneWidget,
