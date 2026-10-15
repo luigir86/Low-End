@@ -1,30 +1,32 @@
 import 'package:flutter/foundation.dart';
 
-/// The places the app can show: the two tuner modes and the metronome.
+/// The sections of the app, one per tab, in tab order.
 enum AppSection { tuner, drone, metronome }
 
 /// Which section is on screen. Kept outside the widgets so that taps and
 /// actions from an assistant (see `lib/actions/`) move the app the same way.
 class AppNavigation extends ChangeNotifier {
   AppSection _section = AppSection.tuner;
-
-  /// The tuner mode last shown, kept while the metronome is open so the
-  /// Tuner tab comes back to it.
-  AppSection _tunerMode = AppSection.tuner;
+  bool _covered = false;
 
   AppSection get section => _section;
-  AppSection get tunerMode => _tunerMode;
+
+  /// True while another page (the settings, a dialog) is on top of the
+  /// sections, hiding them.
+  bool get covered => _covered;
 
   /// The microphone may only listen while the tuner itself is on screen.
-  bool get tunerVisible => _section == AppSection.tuner;
+  bool get tunerVisible => _section == AppSection.tuner && !_covered;
 
   void open(AppSection section) {
     if (section == _section) return;
     _section = section;
-    if (section != AppSection.metronome) _tunerMode = section;
     notifyListeners();
   }
 
-  /// Opens the Tuner tab in whichever mode it was last in.
-  void openTunerTab() => open(_tunerMode);
+  void setCovered(bool covered) {
+    if (covered == _covered) return;
+    _covered = covered;
+    notifyListeners();
+  }
 }

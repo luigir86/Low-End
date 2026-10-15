@@ -47,4 +47,22 @@ void main() {
     ]);
     expect(detector.detect(noise), isNull);
   });
+
+  test('keeps following a fading string through the noise', () {
+    // A quiet A string, as it rings out, under room noise.
+    final random = math.Random(2);
+    final string = _string(55, n);
+    final fading = Float64List.fromList([
+      for (var i = 0; i < n; i++)
+        string[i] * 0.12 + (random.nextDouble() - 0.5) * 0.06,
+    ]);
+    expect(detector.detect(fading), isNull);
+    expect(detector.detect(fading, expected: 55), closeTo(55, 0.5));
+    // But it does not invent a note that was not there.
+    expect(detector.detect(fading, expected: 82.4), isNull);
+  });
+
+  test('ignores sounds above the bass range', () {
+    expect(detector.detect(_string(880, n, harmonics: [1])), isNull);
+  });
 }

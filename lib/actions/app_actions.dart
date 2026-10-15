@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../app/app_navigation.dart';
+import '../app/settings.dart';
 import '../audio/pitch.dart';
 import '../features/tuner/drone/drone_controller.dart';
 import '../features/tuner/tuner_controller.dart';
@@ -58,17 +59,20 @@ class AppActions {
     required this.drone,
     required this.tuner,
     required this.navigation,
+    required this.settings,
   });
 
   final DroneController drone;
   final TunerController tuner;
   final AppNavigation navigation;
+  final AppSettings settings;
 
   static const _note = {
     'type': 'string',
     'description':
-        'Note name in English (A, Bb, F#) or Italian (La, Sib, Fa#), '
-        'optionally with the octave (A2, Sol1). E1 is the double bass low E.',
+        'Note name in English (A, Bb, F#) or Italian (La, Sib, Fa#). The '
+        'drone always plays it in the middle octave (A4 = 440 Hz), so an '
+        'octave number, if given, is ignored.',
   };
 
   static final catalog = <AppAction>[
@@ -77,8 +81,9 @@ class AppActions {
       description:
           'Returns what the app is doing now: the section on screen, the '
           'tuner (listening, last note heard and how many cents off), '
-          'the drone (playing, note, added intervals, volume) and the '
-          'reference A.',
+          'the drone (playing, note, root or chord) and the settings '
+          '(reference A, language, note names). Loudness follows the '
+          "phone's media volume.",
     ),
     const AppAction(
       name: 'open_section',
@@ -96,12 +101,14 @@ class AppActions {
       description:
           'Opens the chromatic tuner and starts listening through the '
           'microphone: it recognises any note played. The tuner stops by '
-          'itself when another section opens or the app goes to the '
-          'background. Read the note with get_state.',
+          'itself when another section or the settings page opens, or the '
+          'app goes to the background. Read the note with get_state.',
     ),
     const AppAction(
       name: 'tuner_stop',
-      description: 'Stops the tuner and turns the microphone off.',
+      description:
+          'Pauses the tuner and turns the microphone off. It stays paused, '
+          'also when its section or the app comes back, until tuner_start.',
     ),
     const AppAction(
       name: 'drone_play',
@@ -120,7 +127,8 @@ class AppActions {
     AppAction(
       name: 'set_reference_pitch',
       description:
-          'Sets the frequency of A4, shared by the tuner and the drone.',
+          'Sets the frequency of A4, shared by the tuner and the drone, '
+          'and saves it in the settings.',
       parameters: {
         'hz': {
           'type': 'number',
@@ -130,24 +138,44 @@ class AppActions {
       },
       required: ['hz'],
     ),
+    const AppAction(
+      name: 'settings_set',
+      description:
+          'Changes and saves the app settings: the language of the app and '
+          'how note names are written.',
+      parameters: {
+        'language': {
+          'type': 'string',
+          'enum': ['system', 'en', 'it'],
+          'description': 'App language; "system" follows the phone.',
+        },
+        'note_names': {
+          'type': 'string',
+          'enum': ['auto', 'solfege', 'letters'],
+          'description':
+              '"solfege" is Do Re Mi with Italian octave numbers (La3 = 440 '
+              'Hz), "letters" is C D E (A4 = 440 Hz), "auto" follows the '
+              'app language.',
+        },
+      },
+    ),
   ];
 
   static const _droneParameters = {
     'note': _note,
-    'octave': {
-      'type': 'integer',
-      'minimum': DroneController.minOctave,
-      'maximum': DroneController.maxOctave,
+    'voicing': {
+      'type': 'string',
+      'enum': ['root', 'chord'],
+      'description': 'The note alone, or the chord built on it.',
     },
-    'add_fifth': {
-      'type': 'boolean',
-      'description': 'Adds a pure fifth above the note.',
+    'chord': {
+      'type': 'string',
+      'enum': ['major', 'minor', 'seventh'],
+      'description':
+          'The chord played when voicing is "chord", in pure intervals; '
+          '"seventh" is the dominant seventh, its seventh tuned to 16/9 (the '
+          'pure ratio closest to the equal-tempered minor seventh).',
     },
-    'add_octave': {
-      'type': 'boolean',
-      'description': 'Adds the octave above the note.',
-    },
-    'volume': {'type': 'number', 'minimum': 0, 'maximum': 1},
   };
 
   /// Runs the action [name] and returns `{ok: true, state: …}`, or
@@ -182,55 +210,63 @@ class AppActions {
         navigation.open(_enum(AppSection.values, args['section']));
       case 'tuner_start':
         navigation.open(AppSection.tuner);
+        // Opening the tab already starts the tuner; waiting for that start
+        // means the answer says "listening" (or why not), not "starting".
         await tuner.start();
       case 'tuner_stop':
-        await tuner.stop();
+        // Like the Pause button: the tuner stays paused when its tab or the
+        // app comes back.
+        await tuner.pause();
       case 'drone_play':
-        _setDrone(args);
+        _droneChange(args)();
         if (!drone.isPlaying) await drone.start();
       case 'drone_stop':
         await drone.stop();
       case 'drone_set':
-        _setDrone(args);
+        _droneChange(args)();
       case 'set_reference_pitch':
         final hz = _number(args['hz'], 'hz');
         if (!referencePitches.contains(hz)) {
           throw ActionError('"hz" must be one of $referencePitches.');
         }
-        drone.setReferencePitch(hz);
+        settings.setReferencePitch(hz);
+      case 'settings_set':
+        // Everything is checked before anything changes, so a call refused
+        // for one argument leaves the others as they were.
+        final language = args['language'];
+        final code = switch (language) {
+          null || 'system' => null,
+          'en' || 'it' => language as String,
+          _ => throw ActionError('"language" must be system, en or it.'),
+        };
+        final naming = args['note_names'] == null
+            ? null
+            : _enum(NoteNaming.values, args['note_names']);
+        if (language != null) settings.setLanguage(code);
+        if (naming != null) settings.setNaming(naming);
     }
   }
 
-  void _setDrone(Map<String, Object?> args) {
+  /// Checks the drone arguments and returns the change they ask for, to be
+  /// made only once all of them are known to be good.
+  void Function() _droneChange(Map<String, Object?> args) {
+    int? pitchClass;
     if (args['note'] case final Object note) {
-      final parsed = parseNote('$note');
-      if (parsed == null) throw ActionError('Unknown note "$note".');
-      drone.setPitchClass(parsed.pitchClass);
-      if (parsed.octave case final octave?) _setOctave(octave);
+      pitchClass =
+          parseNote('$note')?.pitchClass ??
+          (throw ActionError('Unknown note "$note".'));
     }
-    if (args['octave'] case final Object octave) {
-      _setOctave(_number(octave, 'octave').round());
-    }
-    if (args['add_fifth'] case final Object v) {
-      drone.setAddFifth(_bool(v, 'add_fifth'));
-    }
-    if (args['add_octave'] case final Object v) {
-      drone.setAddOctave(_bool(v, 'add_octave'));
-    }
-    if (args['volume'] case final Object v) {
-      drone.setVolume(_number(v, 'volume'));
-    }
-  }
-
-  void _setOctave(int octave) {
-    if (octave < DroneController.minOctave ||
-        octave > DroneController.maxOctave) {
-      throw ActionError(
-        'The drone octave goes from ${DroneController.minOctave} '
-        'to ${DroneController.maxOctave}.',
-      );
-    }
-    drone.setOctave(octave);
+    final voicing = args['voicing'] == null
+        ? null
+        : _enum(DroneVoicing.values, args['voicing']);
+    final chord = args['chord'] == null
+        ? null
+        : _enum(ChordType.values, args['chord']);
+    return () {
+      if (pitchClass != null) drone.setPitchClass(pitchClass);
+      if (voicing != null) drone.setVoicing(voicing);
+      if (chord != null) drone.setChord(chord);
+    };
   }
 
   /// Everything an assistant needs to know about the app right now.
@@ -238,10 +274,14 @@ class AppActions {
     final hz = tuner.frequency;
     final reading = hz == null
         ? null
-        : TunerReading.of(hz, tuning: tuner.tuning, a4: drone.a4);
+        : TunerReading.of(hz, tuning: tuner.tuning, a4: settings.a4);
     return {
       'section': navigation.section.name,
-      'reference_pitch_hz': drone.a4,
+      'settings': {
+        'reference_pitch_hz': settings.a4,
+        'language': settings.languageCode ?? 'system',
+        'note_names': settings.naming.name,
+      },
       'tuner': {
         'status': tuner.status.name,
         'reading': reading == null
@@ -258,17 +298,16 @@ class AppActions {
         'playing': drone.isPlaying,
         'note': noteId(drone.note),
         'frequency_hz': _round(drone.frequency),
-        'add_fifth': drone.addFifth,
-        'add_octave': drone.addOctave,
-        'volume': drone.volume,
+        'voicing': drone.voicing.name,
+        'chord': drone.chord.name,
         'audio_failed': drone.audioFailed,
       },
       'metronome': {'available': false},
     };
   }
 
-  /// Turns `lowend://action/drone_play?note=A&octave=2` (or just its path,
-  /// `/drone_play?note=A&octave=2`, as Flutter hands deep links over) into an
+  /// Turns `lowend://action/drone_play?note=A` (or just its path,
+  /// `/drone_play?note=A`, as Flutter hands deep links over) into an
   /// action name and its arguments, or null when it isn't an action link.
   static (String, Map<String, Object?>)? parseLink(Uri uri) {
     final segments = uri.pathSegments.where((s) => s.isNotEmpty).toList();
@@ -303,9 +342,6 @@ class AppActions {
 
   static double _number(Object? v, String key) =>
       v is num ? v.toDouble() : (throw ActionError('"$key" must be a number.'));
-
-  static bool _bool(Object? v, String key) =>
-      v is bool ? v : (throw ActionError('"$key" must be true or false.'));
 }
 
 const _sharpNames = [

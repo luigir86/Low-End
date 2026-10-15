@@ -1,7 +1,7 @@
 [
   {
     "name": "get_state",
-    "description": "Returns what the app is doing now: the section on screen, the tuner (listening, last note heard and how many cents off), the drone (playing, note, added intervals, volume) and the reference A.",
+    "description": "Returns what the app is doing now: the section on screen, the tuner (listening, last note heard and how many cents off), the drone (playing, note, root or chord) and the settings (reference A, language, note names). Loudness follows the phone's media volume.",
     "input_schema": {
       "type": "object",
       "properties": {},
@@ -31,7 +31,7 @@
   },
   {
     "name": "tuner_start",
-    "description": "Opens the chromatic tuner and starts listening through the microphone: it recognises any note played. The tuner stops by itself when another section opens or the app goes to the background. Read the note with get_state.",
+    "description": "Opens the chromatic tuner and starts listening through the microphone: it recognises any note played. The tuner stops by itself when another section or the settings page opens, or the app goes to the background. Read the note with get_state.",
     "input_schema": {
       "type": "object",
       "properties": {},
@@ -40,7 +40,7 @@
   },
   {
     "name": "tuner_stop",
-    "description": "Stops the tuner and turns the microphone off.",
+    "description": "Pauses the tuner and turns the microphone off. It stays paused, also when its section or the app comes back, until tuner_start.",
     "input_schema": {
       "type": "object",
       "properties": {},
@@ -55,25 +55,24 @@
       "properties": {
         "note": {
           "type": "string",
-          "description": "Note name in English (A, Bb, F#) or Italian (La, Sib, Fa#), optionally with the octave (A2, Sol1). E1 is the double bass low E."
+          "description": "Note name in English (A, Bb, F#) or Italian (La, Sib, Fa#). The drone always plays it in the middle octave (A4 = 440 Hz), so an octave number, if given, is ignored."
         },
-        "octave": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 5
+        "voicing": {
+          "type": "string",
+          "enum": [
+            "root",
+            "chord"
+          ],
+          "description": "The note alone, or the chord built on it."
         },
-        "add_fifth": {
-          "type": "boolean",
-          "description": "Adds a pure fifth above the note."
-        },
-        "add_octave": {
-          "type": "boolean",
-          "description": "Adds the octave above the note."
-        },
-        "volume": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 1
+        "chord": {
+          "type": "string",
+          "enum": [
+            "major",
+            "minor",
+            "seventh"
+          ],
+          "description": "The chord played when voicing is \"chord\", in pure intervals; \"seventh\" is the dominant seventh, its seventh tuned to 16/9 (the pure ratio closest to the equal-tempered minor seventh)."
         }
       },
       "additionalProperties": false
@@ -96,25 +95,24 @@
       "properties": {
         "note": {
           "type": "string",
-          "description": "Note name in English (A, Bb, F#) or Italian (La, Sib, Fa#), optionally with the octave (A2, Sol1). E1 is the double bass low E."
+          "description": "Note name in English (A, Bb, F#) or Italian (La, Sib, Fa#). The drone always plays it in the middle octave (A4 = 440 Hz), so an octave number, if given, is ignored."
         },
-        "octave": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 5
+        "voicing": {
+          "type": "string",
+          "enum": [
+            "root",
+            "chord"
+          ],
+          "description": "The note alone, or the chord built on it."
         },
-        "add_fifth": {
-          "type": "boolean",
-          "description": "Adds a pure fifth above the note."
-        },
-        "add_octave": {
-          "type": "boolean",
-          "description": "Adds the octave above the note."
-        },
-        "volume": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 1
+        "chord": {
+          "type": "string",
+          "enum": [
+            "major",
+            "minor",
+            "seventh"
+          ],
+          "description": "The chord played when voicing is \"chord\", in pure intervals; \"seventh\" is the dominant seventh, its seventh tuned to 16/9 (the pure ratio closest to the equal-tempered minor seventh)."
         }
       },
       "additionalProperties": false
@@ -122,17 +120,21 @@
   },
   {
     "name": "set_reference_pitch",
-    "description": "Sets the frequency of A4, shared by the tuner and the drone.",
+    "description": "Sets the frequency of A4, shared by the tuner and the drone, and saves it in the settings.",
     "input_schema": {
       "type": "object",
       "properties": {
         "hz": {
           "type": "number",
           "enum": [
+            438.0,
+            439.0,
             440.0,
             441.0,
             442.0,
-            443.0
+            443.0,
+            444.0,
+            445.0
           ],
           "description": "Frequency of A4 in Hz."
         }
@@ -140,6 +142,34 @@
       "required": [
         "hz"
       ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "settings_set",
+    "description": "Changes and saves the app settings: the language of the app and how note names are written.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string",
+          "enum": [
+            "system",
+            "en",
+            "it"
+          ],
+          "description": "App language; \"system\" follows the phone."
+        },
+        "note_names": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "solfege",
+            "letters"
+          ],
+          "description": "\"solfege\" is Do Re Mi with Italian octave numbers (La3 = 440 Hz), \"letters\" is C D E (A4 = 440 Hz), \"auto\" follows the app language."
+        }
+      },
       "additionalProperties": false
     }
   }

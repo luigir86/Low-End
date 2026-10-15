@@ -1,10 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- The tuner listens to the instrument through the microphone. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- No backup to the cloud: the settings stay on this phone only, as
+         PRIVACY.md promises. -->
     <application
         android:label="Low End"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -27,7 +30,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
             <!-- Action links for assistants, shortcuts and automation apps, such
-                 as lowend://action/drone_play?note=A&octave=2. They do only
+                 as lowend://action/drone_play?note=A. They do only
                  what the on-screen buttons do; see docs/llm.md. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>

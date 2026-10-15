@@ -20,9 +20,9 @@ class TunerController extends ChangeNotifier {
   /// One reading every 50 ms.
   late final _hop = sampleRate ~/ 20;
 
-  /// Readings in a row without a note before the display clears (about
-  /// half a second), so the needle does not flicker as a note decays.
-  static const _holdReadings = 10;
+  /// Readings in a row without a note before the display clears (about a
+  /// second and a half), so the note stays up while the string dies away.
+  static const _holdReadings = 30;
 
   late final _window = Float64List(_detector.windowSize);
   var _filled = 0;
@@ -31,6 +31,14 @@ class TunerController extends ChangeNotifier {
   var _missed = 0;
 
   StreamSubscription<Float64List>? _subscription;
+  Future<void>? _starting;
+  // Counts starts and stops, so a start that finishes late can tell it is
+  // out of date.
+  var _generation = 0;
+  // Whether the microphone may be capturing, so it is stopped exactly once.
+  var _micOn = false;
+  var _userPaused = false;
+  var _disposed = false;
   var _status = TunerStatus.idle;
   double? _frequency;
   // Chromatic by default: the tuner names whatever note it hears.
@@ -46,50 +54,95 @@ class TunerController extends ChangeNotifier {
   /// The chosen tuning, or null for chromatic mode (any note).
   Tuning? get tuning => _tuning;
 
+  /// True when the player paused the tuner: coming back to the tab or to
+  /// the app then leaves it paused (see [resume]). It always starts out
+  /// false, so the app opens listening.
+  bool get userPaused => _userPaused;
+
   void setTuning(Tuning? tuning) {
     _tuning = tuning;
-    notifyListeners();
+    _notify();
   }
 
-  Future<void> start() async {
-    if (isListening) return;
+  /// Starts listening, also after a pause by the player. While a start is
+  /// already under way, returns that one, so the caller can wait until the
+  /// tuner is listening (or has failed).
+  Future<void> start() {
+    _userPaused = false;
+    if (_disposed || _status == TunerStatus.listening) return Future.value();
+    if (_status == TunerStatus.starting) return _starting ?? Future.value();
+    return _starting = _start(++_generation);
+  }
+
+  /// Starts listening unless the player paused the tuner: used when the
+  /// tuner comes back on screen by itself.
+  Future<void> resume() => _userPaused ? Future.value() : start();
+
+  /// Stops listening at the player's request, and remembers it.
+  Future<void> pause() {
+    _userPaused = true;
+    return stop();
+  }
+
+  Future<void> _start(int generation) async {
+    // A stop, a newer start or dispose while this one waits makes it stale:
+    // it must then leave the microphone and the status alone.
+    bool stale() => _disposed || generation != _generation;
     _status = TunerStatus.starting;
-    notifyListeners();
+    _notify();
     try {
-      if (!await _mic.requestPermission()) {
+      final allowed = await _mic.requestPermission();
+      if (stale()) return;
+      if (!allowed) {
         _status = TunerStatus.permissionDenied;
-        notifyListeners();
+        _notify();
         return;
       }
       final samples = await _mic.start(sampleRate);
-      if (_status != TunerStatus.starting) {
-        // Stopped while waiting for the microphone.
-        await _mic.stop();
+      _micOn = true;
+      if (stale()) {
+        // A newer start already waiting for the microphone takes it over;
+        // otherwise nobody wants it any more.
+        if (_disposed || _status != TunerStatus.starting) await _stopMic();
         return;
       }
       _subscription = samples.listen(_onSamples);
       _status = TunerStatus.listening;
     } catch (error) {
+      if (stale()) return;
       debugPrint('Tuner could not start: $error');
       _status = TunerStatus.failed;
+      await _stopMic();
     }
-    notifyListeners();
+    _notify();
   }
 
+  /// Stops listening, without counting as a pause by the player: used when
+  /// the tuner leaves the screen.
   Future<void> stop() async {
+    // Whatever start is still waiting is no longer wanted.
+    _generation++;
     if (_status == TunerStatus.idle) return;
     final subscription = _subscription;
     _subscription = null;
     _status = TunerStatus.idle;
     _reset();
-    notifyListeners();
-    if (subscription != null) {
-      await _mic.stop();
-      await subscription.cancel();
-    }
+    _notify();
+    await _stopMic();
+    await subscription?.cancel();
   }
 
-  Future<void> toggle() => isListening ? stop() : start();
+  Future<void> toggle() => isListening ? pause() : start();
+
+  Future<void> _stopMic() async {
+    if (!_micOn) return;
+    _micOn = false;
+    await _mic.stop();
+  }
+
+  void _notify() {
+    if (!_disposed) notifyListeners();
+  }
 
   void _reset() {
     _filled = 0;
@@ -114,7 +167,7 @@ class TunerController extends ChangeNotifier {
     _sinceReading += samples.length;
     if (_filled < size || _sinceReading < _hop) return;
     _sinceReading = 0;
-    _addReading(_detector.detect(_window));
+    _addReading(_detector.detect(_window, expected: _frequency));
   }
 
   void _addReading(double? hz) {
@@ -132,13 +185,16 @@ class TunerController extends ChangeNotifier {
       final sorted = List.of(_recent)..sort();
       _frequency = sorted[sorted.length ~/ 2];
     }
-    if (_frequency != previous) notifyListeners();
+    if (_frequency != previous) _notify();
   }
 
   @override
   void dispose() {
+    _disposed = true;
+    _generation++;
     _subscription?.cancel();
-    if (_status != TunerStatus.idle) _mic.stop();
+    _subscription = null;
+    _stopMic();
     super.dispose();
   }
 }
