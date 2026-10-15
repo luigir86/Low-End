@@ -261,10 +261,7 @@ void main() {
       await _settle(tester);
       // Its place is kept, so the rows line up, but it cannot be seen or
       // touched.
-      expect(
-        find.byType(DropdownMenu<ChordType>).hitTestable(),
-        findsNothing,
-      );
+      expect(find.byType(DropdownMenu<ChordType>).hitTestable(), findsNothing);
       await tester.tap(find.text('La'));
       await _settle(tester);
       expect(find.text('La3'), findsOneWidget);
