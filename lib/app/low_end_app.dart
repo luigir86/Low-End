@@ -67,8 +67,8 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     _settings.addListener(_onSettingsChanged);
     _navigation.addListener(_onNavigationChanged);
     _lifecycle; // Starts listening to the app going to the background.
-    // The app opens on the tuner: start listening once the first frame is
-    // up, so the microphone never delays it.
+    // If the app opens on the tuner (a link), start listening once the first
+    // frame is up, so the microphone never delays it.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_navigation.tunerVisible) _tuner.resume();
     });

@@ -107,9 +107,9 @@ class _H {
     await settle('play $hz');
   }
 
-  Future<void> tab(int index) async {
-    scope.navigation.open(AppSection.values[index]);
-    await settle('tab $index');
+  Future<void> tab(AppSection section) async {
+    scope.navigation.open(section);
+    await settle('tab ${section.name}');
   }
 
   void expectClean() => expect(problems, isEmpty, reason: problems.join('\n'));
@@ -132,6 +132,7 @@ void main() {
       testWidgets('tuner: listening, flat note, paused', (tester) async {
         final h = _H(tester, c);
         await h.start();
+        await h.tab(AppSection.tuner);
         await h.play(41.2 * math.pow(2, -20 / 1200));
         await h.play(30.87);
         await tester.tap(find.byIcon(Icons.pause));
@@ -158,7 +159,7 @@ void main() {
       testWidgets('drone: idle, root, seventh chord', (tester) async {
         final h = _H(tester, c);
         await h.start();
-        await h.tab(1);
+        await h.tab(AppSection.drone);
         final drone = h.scope.drone;
         await drone.tapNote(1);
         await h.settle('play C#');
@@ -174,7 +175,7 @@ void main() {
         final h = _H(tester, c);
         await h.start();
         await h.scope.drone.tapNote(8);
-        await h.tab(2);
+        await h.tab(AppSection.metronome);
         h.expectClean();
       });
 
@@ -193,11 +194,13 @@ void main() {
   }
 
   group('language switch', () {
-    for (final tab in [0, 1, 2]) {
-      testWidgets('on tab $tab while the drone plays', (tester) async {
+    for (final tab in AppSection.values) {
+      testWidgets('on the ${tab.name} tab while the drone plays', (
+        tester,
+      ) async {
         final h = _H(tester, const _Config('en', scale: 1));
         await h.start();
-        await h.tab(1);
+        await h.tab(AppSection.drone);
         await h.scope.drone.tapNote(9);
         await h.tab(tab);
         for (final lang in ['it', null, 'it', 'en']) {
@@ -207,13 +210,13 @@ void main() {
         h.settings.setLanguage('it');
         await h.settle('it');
         // The tuner pauses the drone, the other tabs leave it playing.
-        expect(h.scope.drone.isPlaying, tab != 0);
-        if (tab != 0) {
+        expect(h.scope.drone.isPlaying, tab != AppSection.tuner);
+        if (tab != AppSection.tuner) {
           expect(h.output.frequencies.single, closeTo(440, 1e-9));
         }
-        expect((h.mic as FakeMicInput).isCapturing, tab == 0);
-        expect(h.scope.navigation.section, AppSection.values[tab]);
-        if (tab == 1) expect(find.text('La3'), findsOneWidget);
+        expect((h.mic as FakeMicInput).isCapturing, tab == AppSection.tuner);
+        expect(h.scope.navigation.section, tab);
+        if (tab == AppSection.drone) expect(find.text('La3'), findsOneWidget);
         h.expectClean();
       });
     }
@@ -221,7 +224,7 @@ void main() {
     testWidgets('from the settings page while the drone plays', (tester) async {
       final h = _H(tester, const _Config('en', scale: 2));
       await h.start();
-      await h.tab(1);
+      await h.tab(AppSection.drone);
       await h.scope.drone.tapNote(9);
       await tester.tap(find.byIcon(Icons.settings_outlined));
       await h.settle('open settings');

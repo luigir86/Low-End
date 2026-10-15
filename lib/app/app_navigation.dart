@@ -1,12 +1,13 @@
 import 'package:flutter/foundation.dart';
 
 /// The sections of the app, one per tab, in tab order.
-enum AppSection { tuner, drone, metronome }
+enum AppSection { metronome, drone, tuner }
 
 /// Which section is on screen. Kept outside the widgets so that taps and
 /// actions from an assistant (see `lib/actions/`) move the app the same way.
 class AppNavigation extends ChangeNotifier {
-  AppSection _section = AppSection.tuner;
+  // The app opens on the metronome, the section used most.
+  AppSection _section = AppSection.metronome;
   bool _covered = false;
 
   AppSection get section => _section;

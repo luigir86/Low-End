@@ -90,7 +90,11 @@ Future<AudioScope> _pumpApp(
     ),
   );
   await _settle(tester);
-  return AudioScope.of(tester.element(find.byType(HomeShell)));
+  final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
+  // The app opens on the metronome; these checks are about the tuner.
+  scope.navigation.open(AppSection.tuner);
+  await _settle(tester);
+  return scope;
 }
 
 /// The strobe and the now-playing dot move for ever, so pumpAndSettle would

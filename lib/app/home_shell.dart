@@ -19,7 +19,7 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   /// One per [AppSection], in the same order.
-  static const _screens = [TunerPanel(), DronePanel(), MetronomeScreen()];
+  static const _screens = [MetronomeScreen(), DronePanel(), TunerPanel()];
 
   @override
   void didChangeDependencies() {
@@ -65,10 +65,14 @@ class _HomeShellState extends State<HomeShell> {
           bottomNavigationBar: NavigationBar(
             selectedIndex: section.index,
             onDestinationSelected: (i) => navigation.open(AppSection.values[i]),
+            // In the order of AppSection.
             destinations: [
               NavigationDestination(
-                icon: const Icon(Icons.tune),
-                label: l10n.tunerTab,
+                icon: ActivityIcon(
+                  icon: Icons.timer_outlined,
+                  active: metronome.isPlaying,
+                ),
+                label: l10n.metronomeTab,
               ),
               NavigationDestination(
                 icon: ActivityIcon(
@@ -78,11 +82,8 @@ class _HomeShellState extends State<HomeShell> {
                 label: l10n.droneMode,
               ),
               NavigationDestination(
-                icon: ActivityIcon(
-                  icon: Icons.timer_outlined,
-                  active: metronome.isPlaying,
-                ),
-                label: l10n.metronomeTab,
+                icon: const Icon(Icons.tune),
+                label: l10n.tunerTab,
               ),
             ],
           ),
