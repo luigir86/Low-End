@@ -18,10 +18,9 @@ import 'package:low_end/app/low_end_app.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
 
-// The Roboto files that come with the Flutter SDK, wherever it is installed
-// (this machine or the CI runner).
-final _fonts =
-    '${Platform.environment['FLUTTER_ROOT']}/bin/cache/artifacts/material_fonts';
+// Roboto and the Material icons, copied from the Flutter SDK into the repo
+// (Apache 2.0, licences beside them) so the tests find them on any machine.
+const _fonts = 'test/fonts';
 
 Future<ByteData> _font(String file) async =>
     ByteData.sublistView(await File('$_fonts/$file').readAsBytes());
