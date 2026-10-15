@@ -46,7 +46,7 @@ void main() {
     // The tuner on screen starts listening by itself, but only once the
     // first frame has been drawn.
     expect(mic.askedDuring, SchedulerPhase.postFrameCallbacks);
-    expect(find.text('Stop listening'), findsOneWidget);
+    expect(find.text('Pause'), findsOneWidget);
     expect(output.used, isFalse);
   });
 }

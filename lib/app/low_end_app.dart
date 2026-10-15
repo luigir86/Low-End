@@ -8,17 +8,21 @@ import '../features/tuner/drone/drone_controller.dart';
 import '../features/tuner/tuner_controller.dart';
 import '../l10n/app_localizations.dart';
 import 'app_navigation.dart';
+import 'settings.dart';
 import 'home_shell.dart';
 import 'theme.dart';
 
 class LowEndApp extends StatefulWidget {
-  const LowEndApp({super.key, this.toneOutput, this.micInput});
+  const LowEndApp({super.key, this.toneOutput, this.micInput, this.settings});
 
   /// Audio output for the drone; defaults to the device's speakers.
   final ToneOutput? toneOutput;
 
   /// Audio input for the tuner; defaults to the device's microphone.
   final MicInput? micInput;
+
+  /// Saved preferences (see [AppSettings.load]); unsaved defaults if null.
+  final AppSettings? settings;
 
   @override
   State<LowEndApp> createState() => _LowEndAppState();
@@ -28,15 +32,20 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
   late final _drone = DroneController(widget.toneOutput ?? SoLoudToneOutput());
   late final _tuner = TunerController(widget.micInput ?? RecordMicInput());
   final _navigation = AppNavigation();
+  late final _settings = widget.settings ?? AppSettings();
   late final _actions = AppActions(
     drone: _drone,
     tuner: _tuner,
     navigation: _navigation,
+    settings: _settings,
   );
 
   @override
   void initState() {
     super.initState();
+    // The drone plays at the reference A chosen in the settings.
+    _drone.setReferencePitch(_settings.a4);
+    _settings.addListener(() => _drone.setReferencePitch(_settings.a4));
     // The tuner listens whenever it is on screen, and only then.
     _navigation.addListener(() {
       _navigation.tunerVisible ? _tuner.start() : _tuner.stop();
@@ -80,6 +89,7 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     _drone.dispose();
     _tuner.dispose();
     _navigation.dispose();
+    if (widget.settings == null) _settings.dispose();
     super.dispose();
   }
 
@@ -90,20 +100,28 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
       tuner: _tuner,
       navigation: _navigation,
       actions: _actions,
-      child: MaterialApp(
-        onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        theme: LowEndTheme.light,
-        darkTheme: LowEndTheme.dark,
-        // Always start on the main screen: a launch link is an action, not a
-        // page (see _runLink).
-        onGenerateRoute: (_) =>
-            MaterialPageRoute<void>(builder: (_) => const HomeShell()),
-        onGenerateInitialRoutes: (_) => [
-          MaterialPageRoute<void>(builder: (_) => const HomeShell()),
-        ],
+      settings: _settings,
+      child: ListenableBuilder(
+        listenable: _settings,
+        builder: (context, _) => _app(),
       ),
     );
   }
+
+  Widget _app() => MaterialApp(
+    // Null follows the phone's language.
+    locale: _settings.locale,
+    onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    theme: LowEndTheme.light,
+    darkTheme: LowEndTheme.dark,
+    // Always start on the main screen: a launch link is an action, not a
+    // page (see _runLink).
+    onGenerateRoute: (_) =>
+        MaterialPageRoute<void>(builder: (_) => const HomeShell()),
+    onGenerateInitialRoutes: (_) => [
+      MaterialPageRoute<void>(builder: (_) => const HomeShell()),
+    ],
+  );
 }

@@ -8,9 +8,10 @@ class PitchDetector {
   PitchDetector({
     required this.sampleRate,
     this.minFrequency = 28,
-    this.maxFrequency = 1000,
+    this.maxFrequency = 700,
     this.threshold = 0.15,
-    this.minLevel = 0.005,
+    this.minLevel = 0.003,
+    this.holdThreshold = 0.35,
   });
 
   final int sampleRate;
@@ -18,10 +19,17 @@ class PitchDetector {
   /// Lowest frequency it can find; 28 Hz leaves room below the low B
   /// (30.9 Hz) of five-string basses.
   final double minFrequency;
+
+  /// Highest frequency it can find; 700 Hz covers the top of the neck and
+  /// the harmonics bassists tune with, and leaves out voices and hiss.
   final double maxFrequency;
 
   /// How periodic the sound must be, 0 to 1: lower is stricter.
   final double threshold;
+
+  /// How periodic the sound must be to keep following a note already heard
+  /// (see [detect]): a fading string is less clean than a fresh one.
+  final double holdThreshold;
 
   /// Quieter sounds (root mean square, samples from -1 to 1) are ignored.
   final double minLevel;
@@ -34,7 +42,12 @@ class PitchDetector {
 
   /// Returns the frequency in Hz, or null when [samples] hold no clear note
   /// (silence or noise). [samples] should be [windowSize] long.
-  double? detect(Float64List samples) {
+  ///
+  /// [expected] is the note heard just before, if any: when nothing passes
+  /// the strict [threshold], a dip within a semitone of it that passes
+  /// [holdThreshold] still counts, so a ringing string is followed until it
+  /// has really faded.
+  double? detect(Float64List samples, {double? expected}) {
     final n = samples.length;
     final maxLag = math.min(_maxLag, n ~/ 2);
     final width = n - maxLag;
@@ -60,15 +73,28 @@ class PitchDetector {
     }
 
     // The first dip under the threshold is the period; later dips are
-    // multiples of it.
-    for (var lag = math.max(_minLag, 2); lag < maxLag; lag++) {
+    // multiples of it. A first dip above [maxFrequency] means a sound too
+    // high for a bass (a voice, a whistle): its multiples would pass for a
+    // lower note, so it is dropped whole.
+    for (var lag = 2; lag < maxLag; lag++) {
       if (d[lag] >= threshold) continue;
       while (lag + 1 < maxLag && d[lag + 1] < d[lag]) {
         lag++;
       }
+      if (lag < _minLag) break;
       return sampleRate / _refine(d, lag);
     }
-    return null;
+
+    if (expected == null) return null;
+    final period = sampleRate / expected;
+    final from = math.max((period / 1.06).floor(), math.max(_minLag, 2));
+    final to = math.min((period * 1.06).ceil(), maxLag - 1);
+    var best = -1;
+    for (var lag = from; lag <= to; lag++) {
+      if (best < 0 || d[lag] < d[best]) best = lag;
+    }
+    if (best < 0 || d[best] >= holdThreshold) return null;
+    return sampleRate / _refine(d, best);
   }
 
   /// Places the minimum between samples with a parabola through its

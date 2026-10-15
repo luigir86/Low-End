@@ -86,16 +86,23 @@ void main() {
     handle.dispose();
   });
 
-  testWidgets('octave buttons and the reference pitch are labelled', (
+  testWidgets('drone keys and the reference pitch are labelled', (
     tester,
   ) async {
     final handle = tester.ensureSemantics();
     await pumpApp(tester);
     await tester.tap(find.text('Drone').first);
     await tester.pumpAndSettle();
-    expect(find.byTooltip('Octave down'), findsOneWidget);
-    expect(find.byTooltip('Octave up'), findsOneWidget);
+    // Each key says what a touch does.
+    expect(find.bySemanticsLabel('Play A'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel('Play A'));
+    await tester.pump();
+    expect(find.bySemanticsLabel('Stop A'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Settings'));
+    await tester.pumpAndSettle();
     expect(find.bySemanticsLabel(RegExp('Reference A')), findsWidgets);
+    await expectAccessible(tester);
     handle.dispose();
   });
 
@@ -105,7 +112,7 @@ void main() {
     await tester.tap(find.text('Drone').first);
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
-    await tester.tap(find.text('Play'));
+    await tester.tap(find.text('A'));
     await tester.pump(const Duration(milliseconds: 300));
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('Metronome'));

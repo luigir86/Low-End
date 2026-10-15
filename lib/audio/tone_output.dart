@@ -22,7 +22,7 @@ abstract class ToneOutput {
 
 /// [ToneOutput] backed by the SoLoud audio engine.
 class SoLoudToneOutput implements ToneOutput {
-  static const _maxVoices = 3;
+  static const _maxVoices = 4;
   static const _fade = Duration(milliseconds: 60);
 
   final _sources = <AudioSource>[];

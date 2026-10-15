@@ -1,7 +1,20 @@
 import 'dart:math' as math;
 
-/// Reference pitches for A4 that orchestras commonly tune to.
-const referencePitches = [440.0, 441.0, 442.0, 443.0];
+/// Reference pitches for A4 offered in the settings, around the 440 to 443
+/// Hz that most orchestras tune to.
+const referencePitches = [
+  438.0, 439.0, 440.0, 441.0, 442.0, 443.0, 444.0, 445.0, //
+];
+
+/// How note names are written.
+enum NoteNames {
+  /// C, D, E… with scientific octave numbers: A4 = 440 Hz.
+  letters,
+
+  /// Do, Re, Mi… with the octave numbers used in Italy and France, one lower
+  /// than the scientific ones: La3 = 440 Hz.
+  solfege,
+}
 
 /// Names of the 12 pitch classes, starting from C, in the spelling a bassist
 /// usually reads (flats for E♭, A♭ and B♭).
@@ -40,12 +53,17 @@ class Note {
   double centsOf(double frequency, {double a4 = 440}) =>
       1200 * math.log(frequency / this.frequency(a4: a4)) / math.ln2;
 
-  /// The note name without octave, for the given language code.
-  String name(String languageCode) =>
-      (languageCode == 'it' ? _italianNames : _englishNames)[pitchClass];
+  /// The note name without octave.
+  String name(NoteNames names) =>
+      (names == NoteNames.solfege ? _italianNames : _englishNames)[pitchClass];
 
-  /// The note name with its octave number, such as "A2" or "La2".
-  String label(String languageCode) => '${name(languageCode)}$octave';
+  /// The octave number as written with [names].
+  int octaveIn(NoteNames names) =>
+      names == NoteNames.solfege ? octave - 1 : octave;
+
+  /// The note name with its octave number, such as "A4" or "La3" (the same
+  /// note, 440 Hz).
+  String label(NoteNames names) => '${name(names)}${octaveIn(names)}';
 
   @override
   bool operator ==(Object other) =>

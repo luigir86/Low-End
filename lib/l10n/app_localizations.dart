@@ -128,41 +128,11 @@ abstract class AppLocalizations {
   /// **'Precise metronome with accents and subdivisions.'**
   String get metronomeDescription;
 
-  /// No description provided for @tuneMode.
-  ///
-  /// In en, this message translates to:
-  /// **'Tune'**
-  String get tuneMode;
-
   /// No description provided for @droneMode.
   ///
   /// In en, this message translates to:
   /// **'Drone'**
   String get droneMode;
-
-  /// No description provided for @noteLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Note'**
-  String get noteLabel;
-
-  /// No description provided for @octaveLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Octave'**
-  String get octaveLabel;
-
-  /// No description provided for @addFifth.
-  ///
-  /// In en, this message translates to:
-  /// **'Add the fifth'**
-  String get addFifth;
-
-  /// No description provided for @addOctave.
-  ///
-  /// In en, this message translates to:
-  /// **'Add the octave above'**
-  String get addOctave;
 
   /// No description provided for @referencePitch.
   ///
@@ -170,35 +140,17 @@ abstract class AppLocalizations {
   /// **'Reference A'**
   String get referencePitch;
 
-  /// No description provided for @volumeLabel.
+  /// No description provided for @referencePitchHint.
   ///
   /// In en, this message translates to:
-  /// **'Volume'**
-  String get volumeLabel;
-
-  /// No description provided for @play.
-  ///
-  /// In en, this message translates to:
-  /// **'Play'**
-  String get play;
-
-  /// No description provided for @stop.
-  ///
-  /// In en, this message translates to:
-  /// **'Stop'**
-  String get stop;
+  /// **'The frequency of {note}, for the tuner and the drone.'**
+  String referencePitchHint(String note);
 
   /// No description provided for @frequencyHz.
   ///
   /// In en, this message translates to:
   /// **'{frequency} Hz'**
   String frequencyHz(String frequency);
-
-  /// No description provided for @lowNoteWarning.
-  ///
-  /// In en, this message translates to:
-  /// **'Phone speakers can barely play notes this low. Use headphones or an external speaker.'**
-  String get lowNoteWarning;
 
   /// No description provided for @droneNowPlaying.
   ///
@@ -212,11 +164,53 @@ abstract class AppLocalizations {
   /// **'Stop {name}'**
   String stopSound(String name);
 
+  /// No description provided for @playSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Play {name}'**
+  String playSound(String name);
+
   /// No description provided for @droneShortcutHint.
   ///
   /// In en, this message translates to:
   /// **'Practise with the drone and the click together.'**
   String get droneShortcutHint;
+
+  /// No description provided for @droneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Touch a note to play it. Touch it again to stop.'**
+  String get droneHint;
+
+  /// No description provided for @rootOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Root'**
+  String get rootOnly;
+
+  /// No description provided for @chordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Chord'**
+  String get chordLabel;
+
+  /// No description provided for @chordMajor.
+  ///
+  /// In en, this message translates to:
+  /// **'Major'**
+  String get chordMajor;
+
+  /// No description provided for @chordMinor.
+  ///
+  /// In en, this message translates to:
+  /// **'Minor'**
+  String get chordMinor;
+
+  /// No description provided for @chordSeventh.
+  ///
+  /// In en, this message translates to:
+  /// **'Seventh'**
+  String get chordSeventh;
 
   /// No description provided for @audioUnavailable.
   ///
@@ -227,19 +221,19 @@ abstract class AppLocalizations {
   /// No description provided for @startListening.
   ///
   /// In en, this message translates to:
-  /// **'Start listening'**
+  /// **'Listen'**
   String get startListening;
 
   /// No description provided for @stopListening.
   ///
   /// In en, this message translates to:
-  /// **'Stop listening'**
+  /// **'Pause'**
   String get stopListening;
 
   /// No description provided for @tunerIdleHint.
   ///
   /// In en, this message translates to:
-  /// **'Tap Start listening, then play one note at a time.'**
+  /// **'Paused. Tap Listen to carry on.'**
   String get tunerIdleHint;
 
   /// No description provided for @playAString.
@@ -284,23 +278,47 @@ abstract class AppLocalizations {
   /// **'{cents} cents'**
   String centsValue(String cents);
 
-  /// No description provided for @playSound.
+  /// No description provided for @settingsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Play {name}'**
-  String playSound(String name);
+  /// **'Settings'**
+  String get settingsTitle;
 
-  /// No description provided for @octaveDown.
+  /// No description provided for @languageLabel.
   ///
   /// In en, this message translates to:
-  /// **'Octave down'**
-  String get octaveDown;
+  /// **'Language'**
+  String get languageLabel;
 
-  /// No description provided for @octaveUp.
+  /// No description provided for @languageSystem.
   ///
   /// In en, this message translates to:
-  /// **'Octave up'**
-  String get octaveUp;
+  /// **'Same as the phone'**
+  String get languageSystem;
+
+  /// No description provided for @noteNamesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note names'**
+  String get noteNamesLabel;
+
+  /// No description provided for @noteNamesAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow the language'**
+  String get noteNamesAuto;
+
+  /// No description provided for @noteNamesSolfege.
+  ///
+  /// In en, this message translates to:
+  /// **'Do Re Mi (La3 = 440 Hz)'**
+  String get noteNamesSolfege;
+
+  /// No description provided for @noteNamesLetters.
+  ///
+  /// In en, this message translates to:
+  /// **'C D E (A4 = 440 Hz)'**
+  String get noteNamesLetters;
 
   /// No description provided for @aboutTooltip.
   ///

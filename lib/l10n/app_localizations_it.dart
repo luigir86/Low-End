@@ -26,43 +26,20 @@ class AppLocalizationsIt extends AppLocalizations {
       'Metronomo preciso con accenti e suddivisioni.';
 
   @override
-  String get tuneMode => 'Accorda';
-
-  @override
   String get droneMode => 'Drone';
-
-  @override
-  String get noteLabel => 'Nota';
-
-  @override
-  String get octaveLabel => 'Ottava';
-
-  @override
-  String get addFifth => 'Aggiungi la quinta';
-
-  @override
-  String get addOctave => 'Aggiungi l\'ottava sopra';
 
   @override
   String get referencePitch => 'La di riferimento';
 
   @override
-  String get volumeLabel => 'Volume';
-
-  @override
-  String get play => 'Suona';
-
-  @override
-  String get stop => 'Ferma';
+  String referencePitchHint(String note) {
+    return 'La frequenza di $note, per l\'accordatore e il drone.';
+  }
 
   @override
   String frequencyHz(String frequency) {
     return '$frequency Hz';
   }
-
-  @override
-  String get lowNoteWarning =>
-      'Gli altoparlanti del telefono riproducono a fatica note così gravi. Usa le cuffie o una cassa esterna.';
 
   @override
   String droneNowPlaying(String note) {
@@ -75,7 +52,31 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
+  String playSound(String name) {
+    return 'Suona $name';
+  }
+
+  @override
   String get droneShortcutHint => 'Studia con drone e clic insieme.';
+
+  @override
+  String get droneHint =>
+      'Tocca una nota per farla suonare. Toccala di nuovo per fermarla.';
+
+  @override
+  String get rootOnly => 'Fondamentale';
+
+  @override
+  String get chordLabel => 'Accordo';
+
+  @override
+  String get chordMajor => 'Maggiore';
+
+  @override
+  String get chordMinor => 'Minore';
+
+  @override
+  String get chordSeventh => 'Settima';
 
   @override
   String get audioUnavailable =>
@@ -85,10 +86,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get startListening => 'Ascolta';
 
   @override
-  String get stopListening => 'Smetti di ascoltare';
+  String get stopListening => 'Pausa';
 
   @override
-  String get tunerIdleHint => 'Tocca Ascolta, poi suona una nota alla volta.';
+  String get tunerIdleHint => 'In pausa. Tocca Ascolta per riprendere.';
 
   @override
   String get playAString => 'Suona una nota';
@@ -116,15 +117,25 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String playSound(String name) {
-    return 'Suona $name';
-  }
+  String get settingsTitle => 'Impostazioni';
 
   @override
-  String get octaveDown => 'Ottava sotto';
+  String get languageLabel => 'Lingua';
 
   @override
-  String get octaveUp => 'Ottava sopra';
+  String get languageSystem => 'Come il telefono';
+
+  @override
+  String get noteNamesLabel => 'Nomi delle note';
+
+  @override
+  String get noteNamesAuto => 'Come la lingua';
+
+  @override
+  String get noteNamesSolfege => 'Do Re Mi (La3 = 440 Hz)';
+
+  @override
+  String get noteNamesLetters => 'C D E (A4 = 440 Hz)';
 
   @override
   String get aboutTooltip => 'Informazioni su Low End';

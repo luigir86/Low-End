@@ -20,9 +20,9 @@ class TunerController extends ChangeNotifier {
   /// One reading every 50 ms.
   late final _hop = sampleRate ~/ 20;
 
-  /// Readings in a row without a note before the display clears (about
-  /// half a second), so the needle does not flicker as a note decays.
-  static const _holdReadings = 10;
+  /// Readings in a row without a note before the display clears (about a
+  /// second and a half), so the note stays up while the string dies away.
+  static const _holdReadings = 30;
 
   late final _window = Float64List(_detector.windowSize);
   var _filled = 0;
@@ -114,7 +114,7 @@ class TunerController extends ChangeNotifier {
     _sinceReading += samples.length;
     if (_filled < size || _sinceReading < _hop) return;
     _sinceReading = 0;
-    _addReading(_detector.detect(_window));
+    _addReading(_detector.detect(_window, expected: _frequency));
   }
 
   void _addReading(double? hz) {

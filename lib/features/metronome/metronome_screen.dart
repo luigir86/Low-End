@@ -30,13 +30,14 @@ class _DroneShortcut extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final drone = AudioScope.of(context).drone;
+    final scope = AudioScope.of(context);
+    final drone = scope.drone;
     final l10n = AppLocalizations.of(context);
-    final language = Localizations.localeOf(context).languageCode;
     return ListenableBuilder(
-      listenable: drone,
+      listenable: Listenable.merge([drone, scope.settings]),
       builder: (context, _) {
-        final label = l10n.droneNowPlaying(drone.note.label(language));
+        final names = scope.settings.noteNames(Localizations.localeOf(context));
+        final label = l10n.droneNowPlaying(drone.note.label(names));
         return Card(
           margin: const EdgeInsets.all(16),
           child: ListTile(

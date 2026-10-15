@@ -3,52 +3,63 @@ import 'package:flutter/foundation.dart';
 import '../../../audio/pitch.dart';
 import '../../../audio/tone_output.dart';
 
+/// What the drone plays on its note: the note alone, or a chord built on it.
+enum DroneVoicing { root, chord }
+
+enum ChordType {
+  major([1, 5 / 4, 3 / 2]),
+  minor([1, 6 / 5, 3 / 2]),
+  seventh([1, 5 / 4, 3 / 2, 7 / 4]);
+
+  const ChordType(this.ratios);
+
+  /// Pure (just) ratios to the root: they do not beat against each other,
+  /// which is what you want when checking intonation.
+  final List<double> ratios;
+}
+
 /// State and playback of the drone: a sustained pure tone to practise on.
 class DroneController extends ChangeNotifier {
   DroneController(this._output);
 
   final ToneOutput _output;
 
-  /// Lowest and highest octave offered. Octave 1 holds the double bass
-  /// open strings E1 and A1.
-  static const minOctave = 1;
-  static const maxOctave = 5;
+  /// The drone always plays in the middle octave (A4 = 440 Hz): high enough
+  /// for any phone speaker, and easy to hear against a bass.
+  static const octave = 4;
 
-  /// Octaves at or below this are too low for most phone speakers.
-  static const lowOctaveWarning = 2;
+  /// Fixed: the phone's volume buttons set how loud it is.
+  static const _volume = 0.8;
 
   bool _playing = false;
   bool _audioFailed = false;
-  Note _note = const Note(9, 3); // A3, 220 Hz at A4 = 440.
-  bool _addFifth = false;
-  bool _addOctave = false;
+  Note _note = const Note(9, octave);
+  DroneVoicing _voicing = DroneVoicing.root;
+  ChordType _chord = ChordType.major;
   double _a4 = 440;
-  double _volume = 0.7;
 
   bool get isPlaying => _playing;
 
   /// True when the last attempt to start sound failed on this device.
   bool get audioFailed => _audioFailed;
   Note get note => _note;
-  bool get addFifth => _addFifth;
-  bool get addOctave => _addOctave;
+  DroneVoicing get voicing => _voicing;
+  ChordType get chord => _chord;
   double get a4 => _a4;
-  double get volume => _volume;
-  bool get isBelowSpeakerRange => _note.octave <= lowOctaveWarning;
 
-  /// Frequency of the main note, in Hz.
+  /// Frequency of the root note, in Hz.
   double get frequency => _note.frequency(a4: _a4);
 
-  /// Frequencies currently sounding: the note, then the optional fifth and
-  /// octave. They use pure ratios (3:2 and 2:1) so they do not beat against
-  /// the note, which is what you want when checking intonation.
+  /// Frequencies currently sounding: the root, then the rest of the chord.
   List<double> get frequencies => [
-    frequency,
-    if (_addFifth) frequency * 3 / 2,
-    if (_addOctave) frequency * 2,
+    for (final ratio in _voicing == DroneVoicing.root ? [1.0] : _chord.ratios)
+      frequency * ratio,
   ];
 
-  List<double> get _gains => [1, if (_addFifth) 0.7, if (_addOctave) 0.6];
+  /// The root a little louder than the notes above it.
+  List<double> get _gains => [
+    for (var i = 0; i < frequencies.length; i++) i == 0 ? 1.0 : 0.7,
+  ];
 
   Future<void> start() async {
     _playing = true;
@@ -72,24 +83,22 @@ class DroneController extends ChangeNotifier {
 
   Future<void> toggle() => _playing ? stop() : start();
 
+  /// What a note key does: plays [pitchClass], switches to it if another
+  /// note is playing, or stops it if it is the one already playing.
+  Future<void> tapNote(int pitchClass) {
+    if (_playing && _note.pitchClass == pitchClass) return stop();
+    setPitchClass(pitchClass);
+    return _playing ? Future.value() : start();
+  }
+
   void setPitchClass(int pitchClass) =>
-      _update(() => _note = Note(pitchClass, _note.octave));
+      _update(() => _note = Note(pitchClass, octave));
 
-  void setOctave(int octave) => _update(
-    () => _note = Note(_note.pitchClass, octave.clamp(minOctave, maxOctave)),
-  );
+  void setVoicing(DroneVoicing voicing) => _update(() => _voicing = voicing);
 
-  void setAddFifth(bool value) => _update(() => _addFifth = value);
-
-  void setAddOctave(bool value) => _update(() => _addOctave = value);
+  void setChord(ChordType chord) => _update(() => _chord = chord);
 
   void setReferencePitch(double a4) => _update(() => _a4 = a4);
-
-  void setVolume(double volume) {
-    _volume = volume.clamp(0.0, 1.0);
-    notifyListeners();
-    if (_playing) _output.setVolume(_volume);
-  }
 
   void _update(VoidCallback change) {
     change();

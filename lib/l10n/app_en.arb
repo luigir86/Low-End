@@ -5,16 +5,16 @@
   "metronomeTab": "Metronome",
   "comingSoon": "Coming soon",
   "metronomeDescription": "Precise metronome with accents and subdivisions.",
-  "tuneMode": "Tune",
   "droneMode": "Drone",
-  "noteLabel": "Note",
-  "octaveLabel": "Octave",
-  "addFifth": "Add the fifth",
-  "addOctave": "Add the octave above",
   "referencePitch": "Reference A",
-  "volumeLabel": "Volume",
-  "play": "Play",
-  "stop": "Stop",
+  "referencePitchHint": "The frequency of {note}, for the tuner and the drone.",
+  "@referencePitchHint": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
   "frequencyHz": "{frequency} Hz",
   "@frequencyHz": {
     "placeholders": {
@@ -23,7 +23,6 @@
       }
     }
   },
-  "lowNoteWarning": "Phone speakers can barely play notes this low. Use headphones or an external speaker.",
   "droneNowPlaying": "Drone · {note}",
   "@droneNowPlaying": {
     "placeholders": {
@@ -40,11 +39,25 @@
       }
     }
   },
+  "playSound": "Play {name}",
+  "@playSound": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "droneShortcutHint": "Practise with the drone and the click together.",
+  "droneHint": "Touch a note to play it. Touch it again to stop.",
+  "rootOnly": "Root",
+  "chordLabel": "Chord",
+  "chordMajor": "Major",
+  "chordMinor": "Minor",
+  "chordSeventh": "Seventh",
   "audioUnavailable": "Sound could not start on this device.",
-  "startListening": "Start listening",
-  "stopListening": "Stop listening",
-  "tunerIdleHint": "Tap Start listening, then play one note at a time.",
+  "startListening": "Listen",
+  "stopListening": "Pause",
+  "tunerIdleHint": "Paused. Tap Listen to carry on.",
   "playAString": "Play a note",
   "micPermissionDenied": "Low End needs the microphone to hear your bass. If you said no, allow it in the phone settings under Apps › Low End › Permissions.",
   "micUnavailable": "The microphone could not start on this device.",
@@ -59,16 +72,13 @@
       }
     }
   },
-  "playSound": "Play {name}",
-  "@playSound": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "octaveDown": "Octave down",
-  "octaveUp": "Octave up",
+  "settingsTitle": "Settings",
+  "languageLabel": "Language",
+  "languageSystem": "Same as the phone",
+  "noteNamesLabel": "Note names",
+  "noteNamesAuto": "Follow the language",
+  "noteNamesSolfege": "Do Re Mi (La3 = 440 Hz)",
+  "noteNamesLetters": "C D E (A4 = 440 Hz)",
   "aboutTooltip": "About Low End",
   "aboutLegalese": "Free and open-source software, released under the MIT License.",
   "aboutDescription": "Tuner, drone and metronome for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.",

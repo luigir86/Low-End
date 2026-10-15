@@ -5,6 +5,7 @@ import 'package:low_end/actions/app_actions.dart';
 import 'package:low_end/app/app_navigation.dart';
 import 'package:low_end/app/home_shell.dart';
 import 'package:low_end/app/low_end_app.dart';
+import 'package:low_end/app/settings.dart';
 import 'package:low_end/audio/audio_scope.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
@@ -14,15 +15,18 @@ import 'package:low_end/features/tuner/tuner_controller.dart';
 void main() {
   late SilentToneOutput output;
   late FakeMicInput mic;
+  late AppSettings settings;
   late AppActions actions;
 
   setUp(() {
     output = SilentToneOutput();
     mic = FakeMicInput();
+    settings = AppSettings();
     actions = AppActions(
       drone: DroneController(output),
       tuner: TunerController(mic),
       navigation: AppNavigation(),
+      settings: settings,
     );
   });
 
@@ -45,19 +49,36 @@ void main() {
 
   test('plays and stops the drone with its settings', () async {
     final result = await actions.call('drone_play', {
-      'note': 'D2',
-      'add_fifth': true,
-      'volume': 0.5,
+      'note': 'D',
+      'voicing': 'chord',
+      'chord': 'minor',
     });
     expect(result['ok'], isTrue);
     final drone = (result['state']! as Map)['drone'] as Map;
     expect(drone['playing'], isTrue);
-    expect(drone['note'], 'D2');
-    expect(drone['add_fifth'], isTrue);
-    expect(output.frequencies, hasLength(2));
+    expect(drone['note'], 'D4');
+    expect(drone['voicing'], 'chord');
+    expect(drone['chord'], 'minor');
+    expect(output.frequencies, hasLength(3));
 
     await actions.call('drone_stop');
     expect(output.frequencies, isEmpty);
+  });
+
+  test('changes and reports the settings', () async {
+    await actions.call('set_reference_pitch', {'hz': 438});
+    final result = await actions.call('settings_set', {
+      'language': 'it',
+      'note_names': 'letters',
+    });
+    expect((result['state']! as Map)['settings'], {
+      'reference_pitch_hz': 438.0,
+      'language': 'it',
+      'note_names': 'letters',
+    });
+    expect(settings.a4, 438);
+    await actions.call('settings_set', {'language': 'system'});
+    expect(settings.languageCode, isNull);
   });
 
   test('starting the tuner shows it, leaving it turns the mic off', () async {
@@ -82,21 +103,27 @@ void main() {
       contains('must be one of'),
     );
     expect(
-      (await actions.call('drone_set', {'octave': 9}))['error'],
-      contains('octave'),
+      (await actions.call('drone_set', {'chord': 'ninth'}))['error'],
+      contains('must be one of'),
     );
     expect(
-      (await actions.call('drone_set', {'colour': 'red'}))['error'],
+      (await actions.call('drone_set', {'octave': 2}))['error'],
       contains('no parameter'),
     );
   });
 
   test('turns links into actions with typed arguments', () {
     final (name, args) = AppActions.parseLink(
-      Uri.parse('lowend://action/drone_play?note=A&octave=2&add_fifth=true'),
+      Uri.parse('lowend://action/drone_play?note=A&voicing=chord'),
     )!;
     expect(name, 'drone_play');
-    expect(args, {'note': 'A', 'octave': 2, 'add_fifth': true});
+    expect(args, {'note': 'A', 'voicing': 'chord'});
+    expect(
+      AppActions.parseLink(
+        Uri.parse('lowend://action/set_reference_pitch?hz=442'),
+      )?.$2,
+      {'hz': 442},
+    );
     expect(AppActions.parseLink(Uri.parse('/tuner_stop'))?.$1, 'tuner_stop');
     expect(AppActions.parseLink(Uri.parse('/settings')), isNull);
   });
@@ -110,11 +137,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.binding.handlePushRoute('/drone_play?note=E&octave=1');
+    await tester.binding.handlePushRoute('/drone_play?note=E');
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    expect(output.frequencies.single, closeTo(41.2, 0.1));
-    expect(find.byTooltip('Stop Drone · E1'), findsOneWidget);
+    expect(output.frequencies.single, closeTo(329.63, 0.1)); // E4
+    expect(find.byTooltip('Stop Drone · E4'), findsOneWidget);
 
     await tester.binding.handlePushRoute('/open_section?section=drone');
     await tester.pump(const Duration(milliseconds: 300));
