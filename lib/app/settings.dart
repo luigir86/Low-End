@@ -13,12 +13,15 @@ class AppSettings extends ChangeNotifier {
 
   AppSettings._(this._prefs) {
     final prefs = _prefs!;
-    final language = prefs.getString(_languageKey);
+    // Each value is checked for its type as well: one saved by another
+    // build or edited by hand must fall back to the default, not stop the
+    // app from opening.
+    final language = _read<String>(prefs, _languageKey);
     _languageCode = supportedLanguages.contains(language) ? language : null;
     _naming =
-        NoteNaming.values.asNameMap()[prefs.getString(_namingKey)] ??
+        NoteNaming.values.asNameMap()[_read<String>(prefs, _namingKey)] ??
         NoteNaming.auto;
-    final a4 = prefs.getDouble(_a4Key);
+    final a4 = _read<num>(prefs, _a4Key)?.toDouble();
     _a4 = referencePitches.contains(a4) ? a4! : 440;
   }
 
@@ -35,6 +38,21 @@ class AppSettings extends ChangeNotifier {
   String? _languageCode;
   NoteNaming _naming = NoteNaming.auto;
   double _a4 = 440;
+
+  /// The value saved under [key] if it has type [T], otherwise null.
+  static T? _read<T>(SharedPreferences prefs, String key) {
+    final value = prefs.get(key);
+    return value is T ? value : null;
+  }
+
+  /// Saves in the background: the setting already applies, and a failed
+  /// write only means it is forgotten at the next launch.
+  void _save(Future<bool>? write) {
+    write?.catchError((Object error) {
+      debugPrint('Settings could not be saved: $error');
+      return false;
+    });
+  }
 
   /// 'en' or 'it', or null to follow the phone.
   String? get languageCode => _languageCode;
@@ -57,22 +75,24 @@ class AppSettings extends ChangeNotifier {
   void setLanguage(String? code) {
     assert(code == null || supportedLanguages.contains(code));
     _languageCode = code;
-    code == null
-        ? _prefs?.remove(_languageKey)
-        : _prefs?.setString(_languageKey, code);
+    _save(
+      code == null
+          ? _prefs?.remove(_languageKey)
+          : _prefs?.setString(_languageKey, code),
+    );
     notifyListeners();
   }
 
   void setNaming(NoteNaming naming) {
     _naming = naming;
-    _prefs?.setString(_namingKey, naming.name);
+    _save(_prefs?.setString(_namingKey, naming.name));
     notifyListeners();
   }
 
   void setReferencePitch(double hz) {
     assert(referencePitches.contains(hz));
     _a4 = hz;
-    _prefs?.setDouble(_a4Key, hz);
+    _save(_prefs?.setDouble(_a4Key, hz));
     notifyListeners();
   }
 }

@@ -101,12 +101,14 @@ class AppActions {
       description:
           'Opens the chromatic tuner and starts listening through the '
           'microphone: it recognises any note played. The tuner stops by '
-          'itself when another section opens or the app goes to the '
-          'background. Read the note with get_state.',
+          'itself when another section or the settings page opens, or the '
+          'app goes to the background. Read the note with get_state.',
     ),
     const AppAction(
       name: 'tuner_stop',
-      description: 'Stops the tuner and turns the microphone off.',
+      description:
+          'Pauses the tuner and turns the microphone off. It stays paused, '
+          'also when its section or the app comes back, until tuner_start.',
     ),
     const AppAction(
       name: 'drone_play',
@@ -171,7 +173,8 @@ class AppActions {
       'enum': ['major', 'minor', 'seventh'],
       'description':
           'The chord played when voicing is "chord", in pure intervals; '
-          '"seventh" is the dominant seventh.',
+          '"seventh" is the dominant seventh, its seventh tuned to 16/9 (the '
+          'pure ratio closest to the equal-tempered minor seventh).',
     },
   };
 
@@ -207,16 +210,20 @@ class AppActions {
         navigation.open(_enum(AppSection.values, args['section']));
       case 'tuner_start':
         navigation.open(AppSection.tuner);
+        // Opening the tab already starts the tuner; waiting for that start
+        // means the answer says "listening" (or why not), not "starting".
         await tuner.start();
       case 'tuner_stop':
-        await tuner.stop();
+        // Like the Pause button: the tuner stays paused when its tab or the
+        // app comes back.
+        await tuner.pause();
       case 'drone_play':
-        _setDrone(args);
+        _droneChange(args)();
         if (!drone.isPlaying) await drone.start();
       case 'drone_stop':
         await drone.stop();
       case 'drone_set':
-        _setDrone(args);
+        _droneChange(args)();
       case 'set_reference_pitch':
         final hz = _number(args['hz'], 'hz');
         if (!referencePitches.contains(hz)) {
@@ -224,32 +231,42 @@ class AppActions {
         }
         settings.setReferencePitch(hz);
       case 'settings_set':
-        if (args['language'] case final Object language) {
-          final code = switch (language) {
-            'system' => null,
-            'en' || 'it' => language as String,
-            _ => throw ActionError('"language" must be system, en or it.'),
-          };
-          settings.setLanguage(code);
-        }
-        if (args['note_names'] case final Object naming) {
-          settings.setNaming(_enum(NoteNaming.values, naming));
-        }
+        // Everything is checked before anything changes, so a call refused
+        // for one argument leaves the others as they were.
+        final language = args['language'];
+        final code = switch (language) {
+          null || 'system' => null,
+          'en' || 'it' => language as String,
+          _ => throw ActionError('"language" must be system, en or it.'),
+        };
+        final naming = args['note_names'] == null
+            ? null
+            : _enum(NoteNaming.values, args['note_names']);
+        if (language != null) settings.setLanguage(code);
+        if (naming != null) settings.setNaming(naming);
     }
   }
 
-  void _setDrone(Map<String, Object?> args) {
+  /// Checks the drone arguments and returns the change they ask for, to be
+  /// made only once all of them are known to be good.
+  void Function() _droneChange(Map<String, Object?> args) {
+    int? pitchClass;
     if (args['note'] case final Object note) {
-      final parsed = parseNote('$note');
-      if (parsed == null) throw ActionError('Unknown note "$note".');
-      drone.setPitchClass(parsed.pitchClass);
+      pitchClass =
+          parseNote('$note')?.pitchClass ??
+          (throw ActionError('Unknown note "$note".'));
     }
-    if (args['voicing'] case final Object voicing) {
-      drone.setVoicing(_enum(DroneVoicing.values, voicing));
-    }
-    if (args['chord'] case final Object chord) {
-      drone.setChord(_enum(ChordType.values, chord));
-    }
+    final voicing = args['voicing'] == null
+        ? null
+        : _enum(DroneVoicing.values, args['voicing']);
+    final chord = args['chord'] == null
+        ? null
+        : _enum(ChordType.values, args['chord']);
+    return () {
+      if (pitchClass != null) drone.setPitchClass(pitchClass);
+      if (voicing != null) drone.setVoicing(voicing);
+      if (chord != null) drone.setChord(chord);
+    };
   }
 
   /// Everything an assistant needs to know about the app right now.
@@ -289,8 +306,8 @@ class AppActions {
     };
   }
 
-  /// Turns `lowend://action/drone_play?note=A&octave=2` (or just its path,
-  /// `/drone_play?note=A&octave=2`, as Flutter hands deep links over) into an
+  /// Turns `lowend://action/drone_play?note=A` (or just its path,
+  /// `/drone_play?note=A`, as Flutter hands deep links over) into an
   /// action name and its arguments, or null when it isn't an action link.
   static (String, Map<String, Object?>)? parseLink(Uri uri) {
     final segments = uri.pathSegments.where((s) => s.isNotEmpty).toList();

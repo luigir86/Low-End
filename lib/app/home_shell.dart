@@ -11,11 +11,30 @@ import 'now_playing_strip.dart';
 import 'settings_page.dart';
 
 /// Main screen with bottom navigation between the app's sections.
-class HomeShell extends StatelessWidget {
+class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
 
+  @override
+  State<HomeShell> createState() => _HomeShellState();
+}
+
+class _HomeShellState extends State<HomeShell> {
   /// One per [AppSection], in the same order.
   static const _screens = [TunerPanel(), DronePanel(), MetronomeScreen()];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // The settings page or a dialog on top hides the tuner, and the
+    // microphone must stop with it (see AppNavigation.tunerVisible).
+    final route = ModalRoute.of(context);
+    final navigation = AudioScope.of(context).navigation;
+    // Not while building, since the tuner's own widgets listen to the
+    // change; read again then, in case the page came and went meanwhile.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) navigation.setCovered(!(route?.isCurrent ?? true));
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,8 +66,9 @@ class HomeShell extends StatelessWidget {
             children: [
               NowPlayingStrip(
                 sounds: [
-                  // On the Drone tab the lit key already says it.
-                  if (drone.isPlaying && section != AppSection.drone)
+                  // The Drone tab (the lit key) and the Metronome tab (its
+                  // drone card) already show it.
+                  if (drone.isPlaying && section == AppSection.tuner)
                     ActiveSound(
                       icon: Icons.graphic_eq,
                       label: l10n.droneNowPlaying(drone.note.label(names)),

@@ -70,8 +70,14 @@ void main() {
     await tester.tap(find.byTooltip('Play Drone · A4'));
     await tester.pump();
     expect(output.frequencies, isNotEmpty);
-    // On the shortcut itself and in the now-playing strip.
-    expect(find.byTooltip('Stop Drone · A4'), findsNWidgets(2));
+    // On the shortcut only: the Metronome tab hides the now-playing strip,
+    // since the shortcut card already shows the drone.
+    expect(find.byTooltip('Stop Drone · A4'), findsOneWidget);
+    // Back on the tuner, the strip offers to stop it.
+    await tester.tap(find.text('Tuner'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byTooltip('Stop Drone · A4'), findsOneWidget);
   });
 
   testWidgets('settings change the language, note names and reference A', (

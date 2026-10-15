@@ -13,7 +13,7 @@ Low End is a mobile app for double bass and electric bass players, built with [F
 
 The app is available in English and Italian.
 
-The tuner starts listening as soon as it is on screen (you can pause it), and stops as soon as you leave it or the app goes to the background. It finds the note with the YIN algorithm (`lib/audio/pitch_detector.dart`), down to the low B of five-string basses. It listens from 28 to 700 Hz, the range of the bass, and keeps following a note as it rings out.
+The tuner starts listening as soon as it is on screen (you can pause it, and it stays paused until you tap Listen), and stops as soon as you leave it or the app goes to the background. It finds the note with the YIN algorithm (`lib/audio/pitch_detector.dart`), down to the low B of five-string basses. It listens from 28 to 700 Hz, the range of the bass, and keeps following a note as it rings out.
 
 The gear at the top opens the **settings**: app language (English or Italian, or the phone's), note names (Do Re Mi with Italian octave numbers, La3 = 440 Hz, or C D E, A4 = 440 Hz) and the reference A, from 438 to 445 Hz. They are kept on the phone.
 

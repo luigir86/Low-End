@@ -21,6 +21,10 @@ abstract class ToneOutput {
 }
 
 /// [ToneOutput] backed by the SoLoud audio engine.
+///
+/// Calls are expected one at a time (DroneController waits for each one to
+/// finish before the next); the checks below only keep a stray overlap from
+/// leaving voices nobody can stop.
 class SoLoudToneOutput implements ToneOutput {
   static const _maxVoices = 4;
   static const _fade = Duration(milliseconds: 60);
@@ -28,10 +32,18 @@ class SoLoudToneOutput implements ToneOutput {
   final _sources = <AudioSource>[];
   final _handles = <SoundHandle>[];
   var _gains = <double>[];
+  Future<void>? _ready;
 
   SoLoud get _soloud => SoLoud.instance;
 
-  Future<void> _ensureReady() async {
+  /// Starts the engine and loads the voices, once; tried again on the next
+  /// call if it failed.
+  Future<void> _ensureReady() => _ready ??= _init().catchError((Object error) {
+    _ready = null;
+    throw error;
+  });
+
+  Future<void> _init() async {
     if (!_soloud.isInitialized) await _soloud.init();
     while (_sources.length < _maxVoices) {
       _sources.add(await _soloud.loadWaveform(WaveForm.sin, false, 1, 0));
@@ -45,9 +57,14 @@ class SoLoudToneOutput implements ToneOutput {
     double volume,
   ) async {
     assert(frequencies.length <= _maxVoices);
+    assert(gains.length == frequencies.length);
     await _ensureReady();
     final retune = _handles.length == frequencies.length;
-    if (!retune) await stop();
+    if (!retune) {
+      await stop();
+      // Another call may have started voices while this one waited.
+      if (_handles.isNotEmpty) _stopNow();
+    }
     _gains = gains;
     for (var i = 0; i < frequencies.length; i++) {
       _soloud.setWaveformFreq(_sources[i], frequencies[i]);
@@ -64,22 +81,28 @@ class SoLoudToneOutput implements ToneOutput {
     // Divide by the number of voices so stacked tones never clip.
     final perVoice = _handles.isEmpty ? 0.0 : volume / _handles.length;
     for (var i = 0; i < _handles.length; i++) {
-      _soloud.fadeVolume(_handles[i], perVoice * _gains[i], _fade);
+      final gain = i < _gains.length ? _gains[i] : 1.0;
+      _soloud.fadeVolume(_handles[i], perVoice * gain, _fade);
     }
   }
 
   @override
   Future<void> stop() async {
+    if (_stopNow() > 0) {
+      // Let the fade finish so stopping does not click.
+      await Future<void>.delayed(_fade);
+    }
+  }
+
+  /// Fades out and forgets every voice; returns how many there were.
+  int _stopNow() {
     final handles = List.of(_handles);
     _handles.clear();
     for (final h in handles) {
       _soloud.fadeVolume(h, 0, _fade);
       _soloud.scheduleStop(h, _fade);
     }
-    if (handles.isNotEmpty) {
-      // Let the fade finish so stopping does not click.
-      await Future<void>.delayed(_fade);
-    }
+    return handles.length;
   }
 }
 

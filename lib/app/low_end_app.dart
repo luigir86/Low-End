@@ -40,26 +40,39 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     settings: _settings,
   );
 
+  // The reference A last given to the drone: the settings also change for
+  // the language and the note names, which must not retune it.
+  late double _droneA4 = _settings.a4;
+
   @override
   void initState() {
     super.initState();
     // The drone plays at the reference A chosen in the settings.
-    _drone.setReferencePitch(_settings.a4);
-    _settings.addListener(() => _drone.setReferencePitch(_settings.a4));
-    // The tuner listens whenever it is on screen, and only then.
-    _navigation.addListener(() {
-      _navigation.tunerVisible ? _tuner.start() : _tuner.stop();
-    });
+    _drone.setReferencePitch(_droneA4);
+    _settings.addListener(_onSettingsChanged);
+    _navigation.addListener(_onNavigationChanged);
     // The app opens on the tuner: start listening once the first frame is
     // up, so the microphone never delays it.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_navigation.tunerVisible) _tuner.start();
+      if (_navigation.tunerVisible) _tuner.resume();
     });
     // Registered before MaterialApp's own observer, so action links are
     // handled here instead of being treated as pages to open.
     WidgetsBinding.instance.addObserver(this);
     final initial = WidgetsBinding.instance.platformDispatcher.defaultRouteName;
     if (initial != '/') _runLink(Uri.parse(initial));
+  }
+
+  void _onSettingsChanged() {
+    if (_settings.a4 == _droneA4) return;
+    _droneA4 = _settings.a4;
+    _drone.setReferencePitch(_droneA4);
+  }
+
+  /// The tuner listens whenever it is on screen, and only then; coming back
+  /// it listens again, unless the player paused it.
+  void _onNavigationChanged() {
+    _navigation.tunerVisible ? _tuner.resume() : _tuner.stop();
   }
 
   @override
@@ -86,6 +99,9 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    // The settings may come from main() and outlive this state.
+    _settings.removeListener(_onSettingsChanged);
+    _navigation.removeListener(_onNavigationChanged);
     _drone.dispose();
     _tuner.dispose();
     _navigation.dispose();

@@ -57,7 +57,7 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String get droneShortcutHint => 'Studia con drone e clic insieme.';
+  String get droneShortcutHint => 'Esercitati con drone e metronomo insieme.';
 
   @override
   String get droneHint =>
@@ -76,7 +76,22 @@ class AppLocalizationsIt extends AppLocalizations {
   String get chordMinor => 'Minore';
 
   @override
-  String get chordSeventh => 'Settima';
+  String get chordSeventh => '7';
+
+  @override
+  String droneChordMajor(String note) {
+    return '$note maggiore';
+  }
+
+  @override
+  String droneChordMinor(String note) {
+    return '$note minore';
+  }
+
+  @override
+  String droneChordSeventh(String note) {
+    return '${note}7';
+  }
 
   @override
   String get audioUnavailable =>
@@ -89,7 +104,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get stopListening => 'Pausa';
 
   @override
-  String get tunerIdleHint => 'In pausa. Tocca Ascolta per riprendere.';
+  String get tunerIdleHint => 'In pausa';
 
   @override
   String get playAString => 'Suona una nota';

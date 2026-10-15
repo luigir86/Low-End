@@ -76,7 +76,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chordMinor => 'Minor';
 
   @override
-  String get chordSeventh => 'Seventh';
+  String get chordSeventh => '7';
+
+  @override
+  String droneChordMajor(String note) {
+    return '$note major';
+  }
+
+  @override
+  String droneChordMinor(String note) {
+    return '$note minor';
+  }
+
+  @override
+  String droneChordSeventh(String note) {
+    return '${note}7';
+  }
 
   @override
   String get audioUnavailable => 'Sound could not start on this device.';
@@ -88,7 +103,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stopListening => 'Pause';
 
   @override
-  String get tunerIdleHint => 'Paused. Tap Listen to carry on.';
+  String get tunerIdleHint => 'Paused';
 
   @override
   String get playAString => 'Play a note';

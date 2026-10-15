@@ -53,11 +53,36 @@
   "chordLabel": "Chord",
   "chordMajor": "Major",
   "chordMinor": "Minor",
-  "chordSeventh": "Seventh",
+  "chordSeventh": "7",
+  "droneChordMajor": "{note} major",
+  "@droneChordMajor": {
+    "description": "The chord in the middle of the drone dial, such as A major.",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "droneChordMinor": "{note} minor",
+  "@droneChordMinor": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "droneChordSeventh": "{note}7",
+  "@droneChordSeventh": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
   "audioUnavailable": "Sound could not start on this device.",
   "startListening": "Listen",
   "stopListening": "Pause",
-  "tunerIdleHint": "Paused. Tap Listen to carry on.",
+  "tunerIdleHint": "Paused",
   "playAString": "Play a note",
   "micPermissionDenied": "Low End needs the microphone to hear your bass. If you said no, allow it in the phone settings under Apps › Low End › Permissions.",
   "micUnavailable": "The microphone could not start on this device.",

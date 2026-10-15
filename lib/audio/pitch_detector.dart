@@ -75,13 +75,14 @@ class PitchDetector {
     // The first dip under the threshold is the period; later dips are
     // multiples of it. A first dip above [maxFrequency] means a sound too
     // high for a bass (a voice, a whistle): its multiples would pass for a
-    // lower note, so it is dropped whole.
+    // lower note, so it is dropped whole, also when a note was heard just
+    // before (the hold search below would otherwise find such a multiple).
     for (var lag = 2; lag < maxLag; lag++) {
       if (d[lag] >= threshold) continue;
       while (lag + 1 < maxLag && d[lag + 1] < d[lag]) {
         lag++;
       }
-      if (lag < _minLag) break;
+      if (lag < _minLag) return null;
       return sampleRate / _refine(d, lag);
     }
 
@@ -94,15 +95,22 @@ class PitchDetector {
       if (best < 0 || d[lag] < d[best]) best = lag;
     }
     if (best < 0 || d[best] >= holdThreshold) return null;
-    return sampleRate / _refine(d, best);
+    // The lowest point of the search range may sit on its edge, on the
+    // slope of a dip outside it: only a real dip is worth placing finely.
+    final isDip = d[best - 1] >= d[best] && d[best] <= d[best + 1];
+    final hz = sampleRate / (isDip ? _refine(d, best) : best.toDouble());
+    if (!hz.isFinite || hz < minFrequency || hz > maxFrequency) return null;
+    return hz;
   }
 
   /// Places the minimum between samples with a parabola through its
-  /// neighbours, for sub-sample precision.
+  /// neighbours, for sub-sample precision. The shift is kept within one
+  /// sample, where a flat or noisy curve could otherwise throw it far off.
   double _refine(Float64List d, int lag) {
     final a = d[lag - 1], b = d[lag], c = d[lag + 1];
     final curvature = a - 2 * b + c;
     if (curvature == 0) return lag.toDouble();
-    return lag + (a - c) / (2 * curvature);
+    final shift = (a - c) / (2 * curvature);
+    return lag + (shift.isFinite ? shift.clamp(-1.0, 1.0) : 0.0);
   }
 }

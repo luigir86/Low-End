@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+import '../../app/app_navigation.dart';
 import '../../app/theme.dart';
 import '../../audio/audio_scope.dart';
 import '../../audio/pitch.dart';
@@ -22,17 +23,20 @@ class TunerPanel extends StatefulWidget {
 
 class _TunerPanelState extends State<TunerPanel> {
   late TunerController _tuner;
+  late AppNavigation _navigation;
   late final AppLifecycleListener _lifecycle;
 
   @override
   void initState() {
     super.initState();
     // Stop listening when the app goes to the background, and listen again
-    // when it comes back with the tuner on screen.
+    // when it comes back with the tuner on screen, unless the player paused
+    // it. The callbacks use the controllers saved below: the context must
+    // not be looked up from outside a build.
     _lifecycle = AppLifecycleListener(
       onHide: () => _tuner.stop(),
       onShow: () {
-        if (AudioScope.of(context).navigation.tunerVisible) _tuner.start();
+        if (_navigation.tunerVisible) _tuner.resume();
       },
     );
   }
@@ -40,7 +44,9 @@ class _TunerPanelState extends State<TunerPanel> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _tuner = AudioScope.of(context).tuner;
+    final scope = AudioScope.of(context);
+    _tuner = scope.tuner;
+    _navigation = scope.navigation;
   }
 
   @override
@@ -74,7 +80,7 @@ class _TunerPanelState extends State<TunerPanel> {
                     child: SizedBox.square(
                       dimension: math.min(
                         constraints.biggest.shortestSide,
-                        440,
+                        520,
                       ),
                       child: _StrobeDisc(
                         reading: reading,
@@ -376,7 +382,10 @@ class _NoteDisplay extends StatelessWidget {
     final direction = r.inTune
         ? l10n.inTune
         : (cents < 0 ? l10n.flat : l10n.sharp);
-    final centsText = l10n.centsValue('${cents > 0 ? '+' : ''}$cents');
+    // A real minus sign: the hyphen is too short next to the plus.
+    final centsText = l10n.centsValue(
+      cents > 0 ? '+$cents' : (cents < 0 ? '−${-cents}' : '$cents'),
+    );
     final color = _centsColor(theme, r.cents);
     // Screen readers hear the note and whether it is flat, sharp or in tune,
     // only when that changes: reading every cent aloud would never stop.

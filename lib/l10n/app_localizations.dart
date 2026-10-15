@@ -209,8 +209,26 @@ abstract class AppLocalizations {
   /// No description provided for @chordSeventh.
   ///
   /// In en, this message translates to:
-  /// **'Seventh'**
+  /// **'7'**
   String get chordSeventh;
+
+  /// The chord in the middle of the drone dial, such as A major.
+  ///
+  /// In en, this message translates to:
+  /// **'{note} major'**
+  String droneChordMajor(String note);
+
+  /// No description provided for @droneChordMinor.
+  ///
+  /// In en, this message translates to:
+  /// **'{note} minor'**
+  String droneChordMinor(String note);
+
+  /// No description provided for @droneChordSeventh.
+  ///
+  /// In en, this message translates to:
+  /// **'{note}7'**
+  String droneChordSeventh(String note);
 
   /// No description provided for @audioUnavailable.
   ///
@@ -233,7 +251,7 @@ abstract class AppLocalizations {
   /// No description provided for @tunerIdleHint.
   ///
   /// In en, this message translates to:
-  /// **'Paused. Tap Listen to carry on.'**
+  /// **'Paused'**
   String get tunerIdleHint;
 
   /// No description provided for @playAString.

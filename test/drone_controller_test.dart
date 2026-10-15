@@ -33,23 +33,27 @@ void main() {
     expect(output.frequencies, [root, root * 5 / 4, root * 3 / 2]);
 
     drone.setChord(ChordType.minor);
+    await _settle();
     expect(output.frequencies, [root, root * 6 / 5, root * 3 / 2]);
 
     drone.setChord(ChordType.seventh);
+    await _settle();
     expect(output.frequencies, [
       root,
       root * 5 / 4,
       root * 3 / 2,
-      root * 7 / 4,
+      root * 16 / 9,
     ]);
 
     drone.setVoicing(DroneVoicing.root);
+    await _settle();
     expect(output.frequencies, [root]);
   });
 
   test('retunes while playing when the reference pitch changes', () async {
     await drone.start();
     drone.setReferencePitch(442);
+    await _settle();
     expect(output.frequencies.single, closeTo(442, 0.001)); // A4 at 442
   });
 
@@ -66,3 +70,7 @@ class _FailingOutput extends SilentToneOutput {
   Future<void> play(List<double> f, List<double> gains, double v) =>
       Future.error(StateError('no audio device'));
 }
+
+/// Lets queued sound changes reach the output: the controller applies them
+/// one after the other (see DroneController._sync).
+Future<void> _settle() => Future<void>.delayed(Duration.zero);

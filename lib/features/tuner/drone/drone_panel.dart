@@ -33,23 +33,35 @@ class DronePanel extends StatelessWidget {
             return ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               children: [
-                Center(
-                  child: SizedBox.square(
-                    dimension: math.max(dial, 260),
-                    child: _NoteDial(drone: drone, names: names),
+                // Centred in the height when it fits; it scrolls when it does
+                // not (large text, landscape).
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: math.max(0, constraints.maxHeight - 16),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: SizedBox.square(
+                          dimension: math.max(dial, 260),
+                          child: _NoteDial(drone: drone, names: names),
+                        ),
+                      ),
+                      if (drone.audioFailed)
+                        Semantics(
+                          liveRegion: true,
+                          child: Text(
+                            l10n.audioUnavailable,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: theme.colorScheme.error),
+                          ),
+                        ),
+                      const SizedBox(height: 16),
+                      _VoicingControls(drone: drone),
+                    ],
                   ),
                 ),
-                if (drone.audioFailed)
-                  Semantics(
-                    liveRegion: true,
-                    child: Text(
-                      l10n.audioUnavailable,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: theme.colorScheme.error),
-                    ),
-                  ),
-                const SizedBox(height: 16),
-                _VoicingControls(drone: drone),
               ],
             );
           },
@@ -75,7 +87,9 @@ class _NoteDial extends StatelessWidget {
         // the app rebuilds after a language change): draw nothing then.
         if (size < 200) return const SizedBox.shrink();
         final key = (size * 0.16).clamp(48.0, 64.0);
-        final radius = size / 2 - key / 2 - 4;
+        final radius = math.max(0.0, size / 2 - key / 2 - 4);
+        // The largest square inside the ring of keys.
+        final inner = math.max(0.0, radius - key / 2 - 4) * math.sqrt2;
         final center = size / 2;
         return Stack(
           children: [
@@ -100,9 +114,17 @@ class _NoteDial extends StatelessWidget {
                 ),
               ),
             Center(
-              child: SizedBox(
-                width: radius * 1.3,
-                child: _DialCenter(drone: drone, names: names),
+              // Large text shrinks to fit inside the keys rather than spill
+              // over them.
+              child: SizedBox.square(
+                dimension: inner,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: SizedBox(
+                    width: inner,
+                    child: _DialCenter(drone: drone, names: names),
+                  ),
+                ),
               ),
             ),
           ],
@@ -187,7 +209,8 @@ class _NoteKey extends StatelessWidget {
   }
 }
 
-/// What is sounding, in the middle of the dial.
+/// What is sounding, in the middle of the dial: the note with its octave
+/// small beside it, as on the tuner, then the chord if one is played.
 class _DialCenter extends StatelessWidget {
   const _DialCenter({required this.drone, required this.names});
 
@@ -204,24 +227,34 @@ class _DialCenter extends StatelessWidget {
     if (!drone.isPlaying) {
       return Text(l10n.droneHint, textAlign: TextAlign.center, style: muted);
     }
-    final what = drone.voicing == DroneVoicing.root
-        ? l10n.rootOnly
-        : chordName(l10n, drone.chord);
+    final noteStyle = theme.textTheme.displayMedium?.copyWith(
+      fontWeight: FontWeight.w600,
+      color: theme.colorScheme.primary,
+    );
     return Semantics(
       liveRegion: true,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FittedBox(
-            child: Text(
-              drone.note.label(names),
-              style: theme.textTheme.displayMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.primary,
-              ),
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(text: drone.note.name(names)),
+                TextSpan(
+                  text: '${drone.note.octaveIn(names)}',
+                  style: TextStyle(fontSize: (noteStyle?.fontSize ?? 45) * 0.4),
+                ),
+              ],
             ),
+            style: noteStyle,
+            textAlign: TextAlign.center,
           ),
-          Text(what, style: theme.textTheme.titleMedium),
+          if (drone.voicing == DroneVoicing.chord)
+            Text(
+              chordSymbol(l10n, drone.chord, drone.note.name(names)),
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium,
+            ),
           Text(
             l10n.frequencyHz(drone.frequency.toStringAsFixed(1)),
             style: muted,
@@ -232,13 +265,24 @@ class _DialCenter extends StatelessWidget {
   }
 }
 
+/// The name of a kind of chord, as listed in the chord menu.
 String chordName(AppLocalizations l10n, ChordType chord) => switch (chord) {
   ChordType.major => l10n.chordMajor,
   ChordType.minor => l10n.chordMinor,
   ChordType.seventh => l10n.chordSeventh,
 };
 
-/// Root or chord, and which chord.
+/// A chord on [note], as musicians write it: "A major", "La minore", "A7".
+String chordSymbol(AppLocalizations l10n, ChordType chord, String note) =>
+    switch (chord) {
+      ChordType.major => l10n.droneChordMajor(note),
+      ChordType.minor => l10n.droneChordMinor(note),
+      ChordType.seventh => l10n.droneChordSeventh(note),
+    };
+
+/// Root or chord and, for a chord, which one. Stacked rather than side by
+/// side, so long labels ("Fondamentale") keep the whole width with large
+/// text, and the chord menu never opens over the switch.
 class _VoicingControls extends StatelessWidget {
   const _VoicingControls({required this.drone});
 
@@ -248,39 +292,48 @@ class _VoicingControls extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final chordMode = drone.voicing == DroneVoicing.chord;
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          child: SegmentedButton<DroneVoicing>(
-            segments: [
-              ButtonSegment(
-                value: DroneVoicing.root,
-                label: Text(l10n.rootOnly),
-              ),
-              ButtonSegment(
-                value: DroneVoicing.chord,
-                label: Text(l10n.chordLabel),
-              ),
-            ],
-            selected: {drone.voicing},
-            onSelectionChanged: (s) => drone.setVoicing(s.first),
-          ),
+        SegmentedButton<DroneVoicing>(
+          // A tick would take room from the labels; the filled segment
+          // already shows the choice.
+          showSelectedIcon: false,
+          segments: [
+            ButtonSegment(value: DroneVoicing.root, label: Text(l10n.rootOnly)),
+            ButtonSegment(
+              value: DroneVoicing.chord,
+              label: Text(l10n.chordLabel),
+            ),
+          ],
+          selected: {drone.voicing},
+          onSelectionChanged: (s) => drone.setVoicing(s.first),
         ),
-        const SizedBox(width: 12),
-        // Screen readers would otherwise announce only "Major".
-        Semantics(
-          label: l10n.chordLabel,
-          child: DropdownButton<ChordType>(
-            value: drone.chord,
-            items: [
-              for (final chord in ChordType.values)
-                DropdownMenuItem(
-                  value: chord,
-                  child: Text(chordName(l10n, chord)),
-                ),
-            ],
-            onChanged: chordMode ? (c) => drone.setChord(c!) : null,
-          ),
+        // The chord menu only when a chord plays.
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          alignment: Alignment.topCenter,
+          child: chordMode
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: DropdownMenu<ChordType>(
+                    expandedInsets: EdgeInsets.zero,
+                    // Also what screen readers announce with the choice.
+                    label: Text(l10n.chordLabel),
+                    initialSelection: drone.chord,
+                    dropdownMenuEntries: [
+                      for (final chord in ChordType.values)
+                        DropdownMenuEntry(
+                          value: chord,
+                          label: chordName(l10n, chord),
+                        ),
+                    ],
+                    onSelected: (c) {
+                      if (c != null) drone.setChord(c);
+                    },
+                  ),
+                )
+              : const SizedBox(width: double.infinity),
         ),
       ],
     );

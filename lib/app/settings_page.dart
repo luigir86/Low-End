@@ -73,9 +73,9 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
               const Divider(),
+              _Section(title: l10n.referencePitch),
               ListTile(
-                title: Text(l10n.referencePitch),
-                subtitle: Text(l10n.referencePitchHint(example)),
+                title: Text(l10n.referencePitchHint(example)),
                 // Screen readers would otherwise announce only "440 Hz".
                 trailing: Semantics(
                   label: l10n.referencePitch,

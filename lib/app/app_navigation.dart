@@ -7,15 +7,26 @@ enum AppSection { tuner, drone, metronome }
 /// actions from an assistant (see `lib/actions/`) move the app the same way.
 class AppNavigation extends ChangeNotifier {
   AppSection _section = AppSection.tuner;
+  bool _covered = false;
 
   AppSection get section => _section;
 
+  /// True while another page (the settings, a dialog) is on top of the
+  /// sections, hiding them.
+  bool get covered => _covered;
+
   /// The microphone may only listen while the tuner itself is on screen.
-  bool get tunerVisible => _section == AppSection.tuner;
+  bool get tunerVisible => _section == AppSection.tuner && !_covered;
 
   void open(AppSection section) {
     if (section == _section) return;
     _section = section;
+    notifyListeners();
+  }
+
+  void setCovered(bool covered) {
+    if (covered == _covered) return;
+    _covered = covered;
     notifyListeners();
   }
 }

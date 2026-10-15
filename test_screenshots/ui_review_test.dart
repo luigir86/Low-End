@@ -1,0 +1,186 @@
+// Screenshots for UI review, not regression tests.
+//
+// Regenerate with:
+//   flutter test test_screenshots --update-goldens
+// then look at the PNGs in test_screenshots/goldens/. They live outside
+// test/ so that a plain `flutter test` skips them, and are not committed.
+@Tags(['ui_review'])
+library;
+
+import 'dart:io';
+import 'dart:math' as math;
+import 'dart:typed_data';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:low_end/app/low_end_app.dart';
+import 'package:low_end/audio/mic_input.dart';
+import 'package:low_end/audio/tone_output.dart';
+
+const _fonts = 'C:/src/flutter/bin/cache/artifacts/material_fonts';
+
+Future<ByteData> _font(String file) async =>
+    ByteData.sublistView(await File('$_fonts/$file').readAsBytes());
+
+/// One screen configuration.
+class _Config {
+  const _Config(
+    this.id, {
+    this.lang = 'en',
+    this.dark = false,
+    this.scale = 1.0,
+    this.size = const Size(1080, 2400),
+  });
+
+  final String id;
+  final String lang;
+  final bool dark;
+  final double scale;
+  final Size size;
+
+  bool get it => lang == 'it';
+}
+
+const _configs = [
+  _Config('en_light'),
+  _Config('it_dark', lang: 'it', dark: true),
+  _Config('it_light', lang: 'it'),
+  _Config('en_light_x1.5', scale: 1.5),
+  _Config('it_dark_x1.5', lang: 'it', dark: true, scale: 1.5),
+  // 360x640 dp at the same density.
+  _Config('it_small', lang: 'it', size: Size(945, 1680)),
+  _Config('en_small_x1.5', scale: 1.5, size: Size(945, 1680)),
+];
+
+class _Harness {
+  _Harness(this.tester, this.config);
+
+  final WidgetTester tester;
+  final _Config config;
+  final mic = FakeMicInput();
+  var _chunk = 0;
+
+  Future<void> start() async {
+    // The debug banner would hide the settings gear.
+    WidgetsApp.debugAllowBannerOverride = false;
+    addTearDown(() => WidgetsApp.debugAllowBannerOverride = true);
+    tester.view.physicalSize = config.size;
+    tester.view.devicePixelRatio = 2.625;
+    tester.platformDispatcher.localesTestValue = [Locale(config.lang)];
+    tester.platformDispatcher.localeTestValue = Locale(config.lang);
+    tester.platformDispatcher.platformBrightnessTestValue = config.dark
+        ? Brightness.dark
+        : Brightness.light;
+    tester.platformDispatcher.textScaleFactorTestValue = config.scale;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearAllTestValues);
+    await tester.pumpWidget(
+      LowEndApp(toneOutput: SilentToneOutput(), micInput: mic),
+    );
+    await _settle();
+  }
+
+  /// The strobe animates forever, so pumpAndSettle would never return.
+  Future<void> _settle() async {
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+  }
+
+  /// A second of a continuous sine at [hz].
+  Future<void> play(double hz) async {
+    for (var i = 0; i < 20; i++) {
+      mic.add(
+        Float64List.fromList([
+          for (var s = _chunk * 1600; s < (_chunk + 1) * 1600; s++)
+            0.3 * math.sin(2 * math.pi * hz * s / 16000),
+        ]),
+      );
+      _chunk++;
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await tester.pump(const Duration(milliseconds: 300));
+  }
+
+  String t(String en, String it) => config.it ? it : en;
+
+  Future<void> tab(String en, String it) async {
+    await tester.tap(find.text(t(en, it)).last);
+    await _settle();
+  }
+
+  Future<void> tapText(String text) async {
+    await tester.tap(find.text(text).first);
+    await _settle();
+  }
+
+  Future<void> shot(String name) async {
+    await expectLater(
+      find.byType(LowEndApp),
+      matchesGoldenFile('goldens/${config.id}/$name.png'),
+    );
+  }
+}
+
+void main() {
+  setUpAll(() async {
+    final roboto = FontLoader('Roboto')
+      ..addFont(_font('roboto-regular.ttf'))
+      ..addFont(_font('roboto-medium.ttf'))
+      ..addFont(_font('roboto-bold.ttf'));
+    await roboto.load();
+    final icons = FontLoader('MaterialIcons')
+      ..addFont(_font('materialicons-regular.otf'));
+    await icons.load();
+  });
+
+  for (final config in _configs) {
+    group(config.id, () {
+      testWidgets('tuner', (tester) async {
+        final h = _Harness(tester, config);
+        await h.start();
+        await h.shot('tuner_1_listening');
+        // E1 about 20 cents flat.
+        await h.play(41.2 * math.pow(2, -20 / 1200));
+        await h.shot('tuner_2_flat');
+        await h.play(55);
+        await h.shot('tuner_3_in_tune');
+        await h.tapText(h.t('Pause', 'Pausa'));
+        await h.shot('tuner_4_paused');
+      });
+
+      testWidgets('drone', (tester) async {
+        final h = _Harness(tester, config);
+        await h.start();
+        await h.tab('Drone', 'Drone');
+        await h.shot('drone_1_idle');
+        await h.tapText(h.t('A', 'La'));
+        await h.shot('drone_2_root');
+        await h.tapText(h.t('Chord', 'Accordo'));
+        await h.tester.tap(
+          find.byWidgetPredicate((w) => w is DropdownMenu).first,
+        );
+        await h._settle();
+        await h.shot('drone_3_chord_dropdown');
+        await h.tapText(h.t('Minor', 'Minore'));
+        await h.shot('drone_4_minor');
+        await h.tab('Metronome', 'Metronomo');
+        await h.shot('metronome_drone_on');
+      });
+
+      testWidgets('metronome and settings', (tester) async {
+        final h = _Harness(tester, config);
+        await h.start();
+        await h.tab('Metronome', 'Metronomo');
+        await h.shot('metronome_idle');
+        await h.tester.tap(find.byTooltip(h.t('Settings', 'Impostazioni')));
+        await h._settle();
+        await h.shot('settings_1_top');
+        await h.tester.drag(find.byType(ListView).last, const Offset(0, -800));
+        await h._settle();
+        await h.shot('settings_2_scrolled');
+      });
+    });
+  }
+}
