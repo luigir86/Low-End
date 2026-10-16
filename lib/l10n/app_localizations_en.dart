@@ -79,9 +79,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get balanceTitle => 'Balance';
-
-  @override
   String get balanceLabel => 'Balance between the metronome and the harmony';
 
   @override
@@ -162,7 +159,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get micPermissionDenied =>
-      'Low End needs the microphone to hear your bass. If you said no, allow it in the phone settings under Apps › Low End › Permissions.';
+      'Low End needs the microphone to hear your instrument. If you said no, allow it in the phone settings under Apps › Low End › Permissions.';
 
   @override
   String get micUnavailable => 'The microphone could not start on this device.';
@@ -220,7 +217,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutDescription =>
-      'Metronome, harmony and tuner for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.';
+      'Metronome, harmony and tuner for musicians. Made by an amateur double bass player with the friends from the orchestra in mind, and useful to everyone. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.';
 
   @override
   String get aboutPiano =>

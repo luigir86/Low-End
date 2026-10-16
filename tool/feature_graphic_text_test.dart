@@ -1,7 +1,7 @@
 // Sets the title and the line under it of the feature graphics in Edwin,
-// the app's own font, over the same ebony and glow as the picture. Run after
-// recolor_store_graphics_test.dart: it wipes the old text (right of the
-// lion) and writes it again.
+// the app's own font, over the same ebony and glow as the picture. It wipes
+// the old text (right of the lion) and writes it again, so it can be run as
+// often as the text changes.
 //   flutter test tool/feature_graphic_text_test.dart
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -17,9 +17,8 @@ const _cx = 285.0, _cy = 240.0, _radius = 330.0;
 const _textLeft = 480;
 
 const _tagline = {
-  'en-US': 'Metronome, piano harmony and tuner for double bass and bass.',
-  'it-IT':
-      'Metronomo, armonia al piano e accordatore per contrabbasso e basso.',
+  'en-US': 'Metronome, piano harmony and tuner for every musician.',
+  'it-IT': 'Metronomo, armonia al piano e accordatore per ogni musicista.',
 };
 
 void main() {

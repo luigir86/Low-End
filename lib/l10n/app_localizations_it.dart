@@ -79,9 +79,6 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String get balanceTitle => 'Bilanciamento';
-
-  @override
   String get balanceLabel => 'Bilanciamento tra metronomo e armonia';
 
   @override
@@ -164,7 +161,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get micPermissionDenied =>
-      'Low End ha bisogno del microfono per sentire il tuo basso. Se hai risposto di no, consentilo nelle impostazioni del telefono in App › Low End › Autorizzazioni.';
+      'Low End ha bisogno del microfono per sentire il tuo strumento. Se hai risposto di no, consentilo nelle impostazioni del telefono in App › Low End › Autorizzazioni.';
 
   @override
   String get micUnavailable =>
@@ -223,7 +220,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get aboutDescription =>
-      'Metronomo, armonia e accordatore per contrabbasso e basso elettrico. Low End funziona offline: il microfono si usa solo mentre l\'accordatore ascolta, e nessun suono o dato esce dal telefono.';
+      'Metronomo, armonia e accordatore per musicisti. Realizzata da un contrabbassista amatoriale pensando agli amici dell\'orchestra, ma utile a tutti. Low End funziona offline: il microfono si usa solo mentre l\'accordatore ascolta, e nessun suono o dato esce dal telefono.';
 
   @override
   String get aboutPiano =>

@@ -6,7 +6,7 @@ Everything the Play Console asks for, ready to copy. Nothing here is built into 
 store/
   listing/en-US, it-IT   title, short and full description, release notes
   graphics/icon-512.png  app icon (512 × 512)
-  graphics/<locale>/feature-graphic-1024x500.png
+  graphics/<locale>/feature-graphic-1024x500.png  (text: tool/feature_graphic_text_test.dart)
   graphics/phone/<locale>/*.png   phone screenshots (1156 × 2312)
 ```
 
@@ -56,3 +56,10 @@ New personal developer accounts must run a **closed test with at least 12 tester
 - Known vulnerabilities (OSV database): none in the 108 Dart packages or the 88 external Android libraries.
 - Manifest: no `INTERNET`, backup off, only the launcher activity, the `lowend://` action link, the media service and its button receiver are exported.
 - The `lowend://action/...` links can start the sound or bring up the tuner from any web page or app. They do only what the buttons do, the microphone needs the permission the player gave and a visible tuner screen, and nothing leaves the phone, so this is documented rather than blocked (docs/llm.md).
+
+## Updating the listing
+
+- Texts are in `store/listing/<locale>/`: title, short description (80 characters at most), full description, release notes. They describe the app for every musician; the double bass appears only in the line saying who made it.
+- Feature graphics: change the line in `tool/feature_graphic_text_test.dart` and run `flutter test tool/feature_graphic_text_test.dart`.
+- Phone screenshots (1156 × 2312): `flutter test test_screenshots/store_screenshots_test.dart --update-goldens` writes them into `store/graphics/phone/<locale>/`.
+- The proof that the app needs no internet is in [docs/offline.md](../docs/offline.md); the privacy policy URL above points to [PRIVACY.md](../PRIVACY.md), which is also in Italian.

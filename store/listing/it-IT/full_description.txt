@@ -1,4 +1,4 @@
-Low End è un compagno di studio per contrabbassisti e bassisti: un metronomo, una sezione di armonia al pianoforte e un accordatore in un'unica app leggera. È gratuita, senza pubblicità, non richiede un account e funziona del tutto offline.
+Low End è un compagno di studio per musicisti: un metronomo, una sezione di armonia al pianoforte e un accordatore in un'unica app leggera. Realizzata da un contrabbassista amatoriale pensando agli amici dell'orchestra, è utile a tutti. È gratuita, senza pubblicità, non richiede un account e funziona del tutto offline.
 
 METRONOMO
 • Tempo da 30 a 250 BPM: tocca il numero per scriverlo, tieni premuto − o + per muoverti a scatti, oppure usa TAP.
@@ -13,8 +13,7 @@ ARMONIA
 
 ACCORDATORE
 • Cromatico, con uno strobo rotondo e la nota al centro: suona una nota qualsiasi e compare, senza dover scegliere prima la corda.
-• Pensato per le note gravi, fino al Si basso dei bassi a cinque corde.
-• Accordature per contrabbasso orchestrale e solista, con estensione al Do, a cinque corde, e per basso elettrico a quattro, cinque e sei corde, più drop D.
+• Sente note gravi e acute, da 28 a 700 Hz (dal Si basso di un basso a cinque corde alle note alte di un violino).
 • La di riferimento da 438 a 445 Hz. Il suono è analizzato sul telefono e non viene mai registrato.
 
 PENSATA PER SUONARE

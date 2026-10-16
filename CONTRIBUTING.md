@@ -1,10 +1,10 @@
 # Contributing to Low End
 
-Thanks for helping! Low End is a small, free app for double bass and electric bass players. Bug reports, translations and code are all welcome.
+Thanks for helping! Low End is a small, free app for musicians. Bug reports, translations and code are all welcome.
 
 ## Reporting a problem or an idea
 
-Open an issue at https://github.com/luigir86/Low-End/issues. For tuner problems, say which phone you use, which instrument and string, and whether you used the phone's microphone or an external one.
+Open an issue at https://github.com/luigir86/Low-End/issues. For tuner problems, say which phone you use, which instrument and note, and whether you used the phone's microphone or an external one.
 
 ## Changing the code
 

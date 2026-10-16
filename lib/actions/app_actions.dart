@@ -7,7 +7,7 @@ import '../features/metronome/metronome_controller.dart';
 import '../features/tuner/drone/drone_controller.dart';
 import '../features/tuner/drone/harmony.dart';
 import '../features/tuner/tuner_controller.dart';
-import '../features/tuner/tunings.dart';
+import '../features/tuner/tuner_reading.dart';
 
 /// One thing the app can do, described so a language model (or any other
 /// program) can find it, call it and understand the answer.
@@ -364,9 +364,7 @@ class AppActions {
   /// Everything an assistant needs to know about the app right now.
   Map<String, Object?> state() {
     final hz = tuner.frequency;
-    final reading = hz == null
-        ? null
-        : TunerReading.of(hz, tuning: tuner.tuning, a4: settings.a4);
+    final reading = hz == null ? null : TunerReading.of(hz, a4: settings.a4);
     return {
       'section': navigation.section.name,
       'settings': {

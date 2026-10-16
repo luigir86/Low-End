@@ -8,7 +8,7 @@ import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/pitch.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/features/tuner/tuner_controller.dart';
-import 'package:low_end/features/tuner/tunings.dart';
+import 'package:low_end/features/tuner/tuner_reading.dart';
 
 /// Chunk number [chunk] of a continuous sine, as the microphone would send it.
 Float64List _sine(double hz, int length, {int chunk = 0, int rate = 16000}) =>
@@ -30,25 +30,22 @@ void main() {
   });
 
   group('TunerReading', () {
-    final orchestral = tunings.firstWhere((t) => t.id == 'orchestral');
-
-    test('aims at the nearest open string, even when far off', () {
-      // F1 is a semitone above E1: still closest to the E string.
-      final r = TunerReading.of(43.65, tuning: orchestral);
-      expect(r.target, const Note(4, 1));
-      expect(r.played, const Note(5, 1));
-      expect(r.cents, closeTo(100, 1));
-      expect(r.inTune, isFalse);
-    });
-
-    test('in chromatic mode aims at the note played', () {
+    test('names the nearest note, even when far off', () {
       final r = TunerReading.of(43.65);
       expect(r.target, const Note(5, 1));
+      expect(r.played, const Note(5, 1));
       expect(r.inTune, isTrue);
     });
 
+    test('measures the distance in cents', () {
+      final r = TunerReading.of(44.5);
+      expect(r.target, const Note(5, 1));
+      expect(r.cents, closeTo(33, 2));
+      expect(r.inTune, isFalse);
+    });
+
     test('follows the reference pitch', () {
-      final r = TunerReading.of(55.25, tuning: orchestral, a4: 442);
+      final r = TunerReading.of(55.25, a4: 442);
       expect(r.target, const Note(9, 1));
       expect(r.inTune, isTrue);
     });

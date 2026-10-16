@@ -12,11 +12,11 @@ import '../../l10n/app_localizations.dart';
 import '../../widgets/dial.dart';
 import '../../widgets/reference_pitch_row.dart';
 import 'tuner_controller.dart';
-import 'tunings.dart';
+import 'tuner_reading.dart';
 
 /// The tuner: listens to the microphone, names whatever note it hears (no
 /// tuning to choose) and shows how far off it is on a round strobe, like
-/// the Peterson tuners many bassists know, with the note in the middle.
+/// the Peterson tuners, with the note in the middle.
 class TunerPanel extends StatefulWidget {
   const TunerPanel({super.key});
 
@@ -71,7 +71,7 @@ class _TunerPanelState extends State<TunerPanel> {
         final hz = _tuner.frequency;
         final reading = hz == null
             ? null
-            : TunerReading.of(hz, tuning: _tuner.tuning, a4: settings.a4);
+            : TunerReading.of(hz, a4: settings.a4);
         final message = _statusMessage(l10n);
         return DialLayout(
           compact: true,

@@ -224,12 +224,6 @@ abstract class AppLocalizations {
   /// **'{note} diminished'**
   String droneChordDiminished(String note);
 
-  /// No description provided for @balanceTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Balance'**
-  String get balanceTitle;
-
   /// No description provided for @balanceLabel.
   ///
   /// In en, this message translates to:
@@ -359,7 +353,7 @@ abstract class AppLocalizations {
   /// No description provided for @micPermissionDenied.
   ///
   /// In en, this message translates to:
-  /// **'Low End needs the microphone to hear your bass. If you said no, allow it in the phone settings under Apps › Low End › Permissions.'**
+  /// **'Low End needs the microphone to hear your instrument. If you said no, allow it in the phone settings under Apps › Low End › Permissions.'**
   String get micPermissionDenied;
 
   /// No description provided for @micUnavailable.
@@ -467,7 +461,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutDescription.
   ///
   /// In en, this message translates to:
-  /// **'Metronome, harmony and tuner for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.'**
+  /// **'Metronome, harmony and tuner for musicians. Made by an amateur double bass player with the friends from the orchestra in mind, and useful to everyone. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.'**
   String get aboutDescription;
 
   /// No description provided for @aboutPiano.

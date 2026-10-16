@@ -201,10 +201,9 @@ abstract final class LowEndTheme {
     );
     return ThemeData(
       // Edwin (SIL OFL), the text font of MuseScore, bundled in assets/fonts;
-      // it has the ♭ and ♯. Barlow fills the few characters it lacks, and
-      // the ♩ comes from Noto Music.
+      // it has the ♭ and ♯. The ♩, which it lacks, comes from Noto Music.
       fontFamily: 'Edwin',
-      fontFamilyFallback: const ['Barlow', 'NotoMusic'],
+      fontFamilyFallback: const ['NotoMusic'],
       colorScheme: scheme,
       scaffoldBackgroundColor: scheme.surface,
       extensions: [colors],
@@ -214,6 +213,8 @@ abstract final class LowEndTheme {
         surfaceTintColor: Colors.transparent,
         centerTitle: false,
         titleTextStyle: Typography.material2021().black.titleLarge?.copyWith(
+          fontFamily: 'Edwin',
+          fontFamilyFallback: const ['NotoMusic'],
           color: scheme.onSurface,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.2,

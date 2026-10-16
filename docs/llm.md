@@ -27,7 +27,7 @@ Every answer is `{"ok": true, "state": {...}}` or `{"ok": false, "error": "..."}
 
 ## Calling them today: action links
 
-On Android and iPhone the app opens links of the form
+On Android the app opens links of the form
 
 ```
 lowend://action/<action>?<argument>=<value>&...
@@ -40,9 +40,8 @@ Links can only do what the buttons do. The microphone still listens only while t
 ## Next steps
 
 1. **Android App Functions** (Android 16 and later): publish the same actions to the system so Gemini and other assistants can call them and read the answer, through a small Kotlin layer that forwards to the Dart actions.
-2. **iPhone App Intents**: the same for Siri and Shortcuts.
-3. **MCP server** (optional, for desktop assistants such as Claude): only if someone needs it, since it would need a network connection, which the app avoids today.
+2. **MCP server** (optional, for desktop assistants such as Claude): only if someone needs it, since it would need a network connection, which the app avoids today.
 
 ## AI Act
 
-Exposing actions to an assistant does not make Low End an AI system: the assistant (Gemini, Siri, Claude…) is the AI system and its provider carries the obligations. Low End would change category only if it shipped its own model, for example a built-in chatbot. Then it would have to tell users they are talking to an AI (Article 50), an obligation that applies to free and open-source software too.
+Exposing actions to an assistant does not make Low End an AI system: the assistant (Gemini, Claude…) is the AI system and its provider carries the obligations. Low End would change category only if it shipped its own model, for example a built-in chatbot. Then it would have to tell users they are talking to an AI (Article 50), an obligation that applies to free and open-source software too.

@@ -45,7 +45,6 @@
       }
     }
   },
-  "balanceTitle": "Balance",
   "balanceLabel": "Balance between the metronome and the harmony",
   "balanceValue": "Metronome {metronome}%, harmony {drone}%",
   "@balanceValue": {
@@ -127,7 +126,7 @@
   "stopListening": "Pause",
   "tunerIdleHint": "Tuner paused: tap Listen",
   "playAString": "Play a note",
-  "micPermissionDenied": "Low End needs the microphone to hear your bass. If you said no, allow it in the phone settings under Apps › Low End › Permissions.",
+  "micPermissionDenied": "Low End needs the microphone to hear your instrument. If you said no, allow it in the phone settings under Apps › Low End › Permissions.",
   "micUnavailable": "The microphone could not start on this device.",
   "inTune": "In tune",
   "flat": "Flat",
@@ -152,7 +151,7 @@
   "circleLayoutChromatic": "In semitones (C, C♯, D…)",
   "aboutTooltip": "About Low End",
   "aboutLegalese": "Free and open-source software, released under the MIT License.",
-  "aboutDescription": "Metronome, harmony and tuner for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.",
+  "aboutDescription": "Metronome, harmony and tuner for musicians. Made by an amateur double bass player with the friends from the orchestra in mind, and useful to everyone. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.",
   "aboutPiano": "Piano sounds: Salamander Grand Piano by Alexander Holm (public domain).",
   "styleLabel": "Style",
   "styleHeld": "Chord every bar",

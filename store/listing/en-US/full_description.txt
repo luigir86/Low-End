@@ -1,4 +1,4 @@
-Low End is a practice companion for double bass and electric bass players: a metronome, a piano harmony section and a tuner in one light app. It is free, has no ads, needs no account and works fully offline.
+Low End is a practice companion for musicians: a metronome, a piano harmony section and a tuner in one light app. Made by an amateur double bass player with the friends from the orchestra in mind, it is useful to everyone. It is free, has no ads, needs no account and works fully offline.
 
 METRONOME
 • Tempo from 30 to 250 BPM: tap the number to type it, hold − or + to move in steps, or use TAP.
@@ -13,8 +13,7 @@ HARMONY
 
 TUNER
 • Chromatic, with a round strobe and the note in the middle: play any note and it shows up, no string to choose first.
-• Made for the low register, down to the low B of five-string basses.
-• Tunings for orchestral and solo double bass, C extension, five strings, and four-, five- and six-string electric bass, plus drop D.
+• Hears low and high notes alike, from 28 to 700 Hz (a low B on a five-string bass up to a high violin note).
 • Reference A from 438 to 445 Hz. The sound is analysed on the phone and never recorded.
 
 MADE FOR PLAYING
