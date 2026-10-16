@@ -74,7 +74,6 @@ class _TunerPanelState extends State<TunerPanel> {
             : TunerReading.of(hz, a4: settings.a4);
         final message = _statusMessage(l10n);
         return DialLayout(
-          compact: true,
           dial: _StrobeDisc(
             reading: reading,
             listening: _tuner.isListening,
