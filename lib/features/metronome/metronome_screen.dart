@@ -10,6 +10,7 @@ import '../../audio/audio_scope.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/balance_slider.dart';
 import '../../widgets/dial.dart';
+import '../../widgets/row_controls.dart';
 import 'feel.dart';
 import 'metronome_controller.dart';
 import 'tempo_dialog.dart';
@@ -20,8 +21,8 @@ import 'time_signature.dart';
 /// in its own colour, and the tempo in the middle. In bars felt in groups
 /// (6/8) wider gaps split the groups, and a bar of one beat is a single
 /// segment that flashes. Touching the ring starts and stops it; below it,
-/// the feel (straight, swing, shuffle), and a row with the time signature,
-/// TAP, − + and a pencil to type the tempo.
+/// the feel (straight, swing, shuffle), and a row like the harmony's with
+/// the time signature, TAP, − + and a pencil to type the tempo.
 class MetronomeScreen extends StatelessWidget {
   const MetronomeScreen({super.key});
 
@@ -36,24 +37,41 @@ class MetronomeScreen extends StatelessWidget {
         dial: _BeatRing(metronome: metronome),
         // How the beat is felt, as Root, Chord and Progression are chosen
         // on the harmony tab; and under it, in the row of the chord menu,
-        // the time signature, TAP (in the middle, it matters most) and the
-        // tempo: - + and the pencil. All the same height.
+        // the time signature, TAP and the tempo: - + and the pencil.
         upper: _FeelSwitch(metronome: metronome),
         lower: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // The same pieces as the chord row of the harmony tab: a field
+            // with its name on the border, chips, an icon button.
             Row(
               children: [
-                // They share the row, so large text shrinks them instead of
-                // pushing the buttons out of the screen.
-                Expanded(
-                  flex: 6,
-                  child: _SignatureButton(metronome: metronome),
+                Expanded(child: _SignatureButton(metronome: metronome)),
+                const SizedBox(width: 6),
+                _TapButton(metronome: metronome),
+                const SizedBox(width: 4),
+                _StepButton(
+                  icon: Icons.remove,
+                  tooltip: l10n.slower,
+                  onStep: metronome.bpm > MetronomeController.minBpm
+                      ? () => metronome.step(-1)
+                      : null,
+                  onHold: (unit) => metronome.nudge(-1, unit),
                 ),
-                const SizedBox(width: 6),
-                Expanded(flex: 4, child: _TapButton(metronome: metronome)),
-                const SizedBox(width: 6),
-                _TempoControls(metronome: metronome),
+                const SizedBox(width: 4),
+                _StepButton(
+                  icon: Icons.add,
+                  tooltip: l10n.faster,
+                  onStep: metronome.bpm < metronome.maxTempo
+                      ? () => metronome.step(1)
+                      : null,
+                  onHold: (unit) => metronome.nudge(1, unit),
+                ),
+                RowIconButton(
+                  icon: Icons.edit_outlined,
+                  tooltip: l10n.setTempo,
+                  onPressed: () => showTempoDialog(context, metronome),
+                ),
               ],
             ),
             if (metronome.audioFailed)
@@ -359,73 +377,6 @@ String beatUnitName(AppLocalizations l10n, BeatUnit unit) => switch (unit) {
   BeatUnit.eighth => l10n.beatUnitEighth,
 };
 
-/// − + (repeating while held) and a pencil that opens the keyboard to type
-/// the tempo: three cells of one outlined group, as tall as the buttons
-/// beside them.
-class _TempoControls extends StatelessWidget {
-  const _TempoControls({required this.metronome});
-
-  final MetronomeController metronome;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _RepeatButton(
-          icon: Icons.remove,
-          tooltip: l10n.slower,
-          side: _Side.left,
-          onStep: metronome.bpm > MetronomeController.minBpm
-              ? () => metronome.step(-1)
-              : null,
-          onHold: (unit) => metronome.nudge(-1, unit),
-        ),
-        _RepeatButton(
-          icon: Icons.add,
-          tooltip: l10n.faster,
-          side: _Side.middle,
-          onStep: metronome.bpm < metronome.maxTempo
-              ? () => metronome.step(1)
-              : null,
-          onHold: (unit) => metronome.nudge(1, unit),
-        ),
-        IconButton.outlined(
-          iconSize: 24,
-          constraints: _cellSize,
-          style: _cellStyle(_Side.right),
-          icon: const Icon(Icons.edit_outlined),
-          tooltip: l10n.setTempo,
-          onPressed: () => showTempoDialog(context, metronome),
-        ),
-      ],
-    );
-  }
-}
-
-/// Where a button sits in the − + pencil group: rounded on its outer side
-/// only.
-enum _Side { left, middle, right }
-
-const _cellSize = BoxConstraints.tightFor(
-  width: LowEndShape.control,
-  height: LowEndShape.row,
-);
-
-ButtonStyle _cellStyle(_Side side) {
-  const round = Radius.circular(LowEndShape.radius);
-  const flat = Radius.circular(4);
-  return IconButton.styleFrom(
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.horizontal(
-        left: side == _Side.left ? round : flat,
-        right: side == _Side.right ? round : flat,
-      ),
-    ),
-  );
-}
-
 /// How the beat is felt: straight, swing or shuffle, chosen as Root, Chord
 /// and Progression are on the harmony tab. Bars counted in eighths are
 /// always straight, so it is off there.
@@ -473,21 +424,18 @@ class _FeelSwitch extends StatelessWidget {
   }
 }
 
-/// A button of the − + pair that steps by one when tapped, and when held keeps going
-/// by fives (to the next multiple of 5), then by tens after a couple of
-/// seconds.
-class _RepeatButton extends StatefulWidget {
-  const _RepeatButton({
+/// A chip of the − + pair that steps by one when tapped, and when held
+/// keeps going by fives (to the next multiple of 5), then by tens after a
+/// couple of seconds.
+class _StepButton extends StatefulWidget {
+  const _StepButton({
     required this.icon,
     required this.tooltip,
-    required this.side,
     required this.onStep,
     required this.onHold,
   });
 
   final IconData icon;
-
-  final _Side side;
   final String tooltip;
   final VoidCallback? onStep;
 
@@ -499,10 +447,10 @@ class _RepeatButton extends StatefulWidget {
   static const _every = Duration(milliseconds: 220);
 
   @override
-  State<_RepeatButton> createState() => _RepeatButtonState();
+  State<_StepButton> createState() => _StepButtonState();
 }
 
-class _RepeatButtonState extends State<_RepeatButton> {
+class _StepButtonState extends State<_StepButton> {
   Timer? _timer;
   final _held = Stopwatch();
 
@@ -516,8 +464,8 @@ class _RepeatButtonState extends State<_RepeatButton> {
 
   void _tick() {
     if (widget.onStep == null) return _stopRepeat();
-    widget.onHold(_held.elapsed < _RepeatButton._tensAfter ? 5 : 10);
-    _timer = Timer(_RepeatButton._every, _tick);
+    widget.onHold(_held.elapsed < _StepButton._tensAfter ? 5 : 10);
+    _timer = Timer(_StepButton._every, _tick);
   }
 
   void _stopRepeat() {
@@ -535,16 +483,13 @@ class _RepeatButtonState extends State<_RepeatButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      // The IconButton below speaks for it; holding is a shortcut.
+      // The chip below speaks for it; holding is a shortcut.
       excludeFromSemantics: true,
       onLongPressStart: widget.onStep == null ? null : (_) => _startRepeat(),
       onLongPressEnd: (_) => _stopRepeat(),
       onLongPressCancel: _stopRepeat,
-      child: IconButton.outlined(
-        iconSize: 24,
-        constraints: _cellSize,
-        style: _cellStyle(widget.side),
-        icon: Icon(widget.icon),
+      child: RowChip(
+        label: Icon(widget.icon, size: 24),
         tooltip: widget.tooltip,
         onPressed: widget.onStep,
       ),
@@ -562,34 +507,10 @@ class _SignatureButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final signature = metronome.signature;
-    return Semantics(
+    return LabeledField(
       label: l10n.timeSignature,
       value: signature.label,
-      button: true,
-      excludeSemantics: true,
       onTap: () => _choose(context),
-      child: OutlinedButton(
-        onPressed: () => _choose(context),
-        style: OutlinedButton.styleFrom(
-          minimumSize: const Size(0, LowEndShape.row),
-          textStyle: Theme.of(context).textTheme.titleLarge
-              ?.copyWith(fontWeight: FontWeight.w700),
-        ),
-        // The name of the button above the bar, "Time signature" over 4/4.
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                l10n.timeSignature,
-                style: Theme.of(context).textTheme.labelMedium,
-              ),
-            ),
-            FittedBox(fit: BoxFit.scaleDown, child: Text(signature.label)),
-          ],
-        ),
-      ),
     );
   }
 
@@ -653,21 +574,12 @@ class _TapButtonState extends State<_TapButton> {
       child: Listener(
         // On touch down, not on release: the tap lands with the hand.
         onPointerDown: (_) => tap(),
-        child: SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            // The tap is counted by the Listener; this only shows the ripple.
-            onPressed: () {},
-            style: FilledButton.styleFrom(
-              // The container colour of the theme: clearly a button, a step
-              // below the primary one that starts the metronome.
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-              minimumSize: const Size.fromHeight(LowEndShape.row),
-              textStyle: Theme.of(context).textTheme.titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w700, letterSpacing: 2),
-            ),
-            child: const FittedBox(fit: BoxFit.scaleDown, child: Text('TAP')),
+        child: RowChip(
+          // The tap is counted by the Listener; this only shows the ripple.
+          onPressed: () {},
+          label: Text(
+            'TAP',
+            style: rowChipStyle(context)?.copyWith(letterSpacing: 1),
           ),
         ),
       ),

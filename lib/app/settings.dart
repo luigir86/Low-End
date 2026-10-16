@@ -3,6 +3,9 @@ import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../audio/pitch.dart';
+import '../features/metronome/feel.dart';
+import '../features/metronome/metronome_controller.dart';
+import '../features/metronome/time_signature.dart';
 
 /// How note names are chosen: from the app language, or fixed.
 enum NoteNaming { auto, solfege, letters }
@@ -43,6 +46,21 @@ class AppSettings extends ChangeNotifier {
         CircleLayout.fifths;
     _keepScreenOn = _read<bool>(prefs, _keepScreenOnKey) ?? true;
     _seenGuide = _read<bool>(prefs, _seenGuideKey) ?? false;
+    final label = _read<String>(prefs, _signatureKey);
+    _signature = TimeSignature.all.firstWhere(
+      (s) => s.label == label,
+      orElse: () => TimeSignature.fourFour,
+    );
+    _feel =
+        MetronomeFeel.values.asNameMap()[_read<String>(prefs, _feelKey)] ??
+        MetronomeFeel.straight;
+    final bpm = _read<num>(prefs, _bpmKey);
+    _bpm = bpm != null && bpm.isFinite
+        ? bpm.round().clamp(
+            MetronomeController.minBpm,
+            MetronomeController.maxBpmFor(_signature),
+          )
+        : MetronomeController.startBpm;
   }
 
   /// Reads the saved settings.
@@ -58,6 +76,9 @@ class AppSettings extends ChangeNotifier {
   static const _keepScreenOnKey = 'keep_screen_on';
   static const _seenGuideKey = 'seen_guide';
   static const _circleLayoutKey = 'circle_layout';
+  static const _bpmKey = 'metronome_bpm';
+  static const _signatureKey = 'time_signature';
+  static const _feelKey = 'metronome_feel';
 
   final SharedPreferences? _prefs;
   String? _languageCode;
@@ -168,6 +189,36 @@ class AppSettings extends ChangeNotifier {
     _keepScreenOn = value;
     _save(_prefs?.setBool(_keepScreenOnKey, value));
     notifyListeners();
+  }
+
+  var _bpm = MetronomeController.startBpm;
+  var _signature = TimeSignature.fourFour;
+  var _feel = MetronomeFeel.straight;
+
+  /// The tempo, time signature and feel the metronome had last time.
+  int get metronomeBpm => _bpm;
+  TimeSignature get metronomeSignature => _signature;
+  MetronomeFeel get metronomeFeel => _feel;
+
+  /// Keeps the metronome's tempo, time signature and feel for the next
+  /// launch. Nothing on screen listens to them, so nobody is told.
+  void rememberMetronome({
+    required int bpm,
+    required TimeSignature signature,
+    required MetronomeFeel feel,
+  }) {
+    if (bpm != _bpm) {
+      _bpm = bpm;
+      _save(_prefs?.setInt(_bpmKey, bpm));
+    }
+    if (signature != _signature) {
+      _signature = signature;
+      _save(_prefs?.setString(_signatureKey, signature.label));
+    }
+    if (feel != _feel) {
+      _feel = feel;
+      _save(_prefs?.setString(_feelKey, feel.name));
+    }
   }
 
   double _balance = 0;

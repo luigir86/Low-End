@@ -20,6 +20,7 @@ Il volume è quello del telefono: usa i suoi tasti. Il cursore in basso, in Metr
 - **Avvio e stop**: tocca l'anello o il numero al centro. L'anello si accende movimento per movimento, con il primo tempo in evidenza, e il suono di un piatto ride jazz tiene il tempo, con la campana sul primo tempo.
 - **Tempo**: da 30 a 250 BPM. Tocca la matita per scriverlo; tocca **+** o **−** per spostarti di uno, oppure tienili premuti per andare a passi di 5 e 10; oppure batti **TAP** al ritmo che vuoi.
 - **Dritto / Swing / Shuffle**: come viene suonato il tempo. Lo swing aggiunge la nota di passaggio dopo il 2 e il 4 (lunga, breve) e l'hi-hat sul 2 e sul 4, come un batterista jazz; lo shuffle suona ogni battito in due metà diseguali. Nelle misure in ottavi (6/8, 7/8, 9/8, 12/8) è sempre dritto.
+- Tempo, misura e andamento restano salvati quando chiudi l'app.
 - **Misura**: 1/1 (un solo click a battuta, per tenere un tempo senza contare), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 e 12/8. In 6/8, 9/8 e 12/8 il tempo conta le semiminime puntate (♩.), come si dirige; in 7/8 conta le crome.
 - Se cambi tempo o misura mentre suona, il cambio è immediato e senza stacchi.
 
@@ -37,6 +38,7 @@ Dodici tasti intorno a un quadrante (di norma nel cerchio delle quinte; nelle im
 ## Accordatore
 
 - L'accordatore ascolta da solo quando apri la sezione (la prima volta Android chiede il permesso per il **microfono**). Suona una nota: il suo nome compare al centro dello strobo rotondo. Gli anelli dello strobo girano in senso antiorario se la nota è **calante** e orario se è **crescente**, più veloci quanto più sei lontano, e restano fermi quando sei **intonato** (entro 5 cent). Sono scritte anche le parole *Calante*, *Intonato* e *Crescente* e il numero di cent, e un lettore di schermo le legge ad alta voce.
+- Il La di riferimento è sotto il cerchio: **−** e **+** scorrono i valori, la matita sceglie uno di quelli standard (415, 432, 440, 442 Hz).
 - Sente le note da 28 Hz a 700 Hz e riconosce qualsiasi nota, senza dover scegliere prima la corda.
 - **Ascolta / Pausa**: tocca il centro del cerchio per metterlo in pausa quando vuoi; resta in pausa finché non lo tocchi di nuovo.
 - Mentre sei nell'accordatore, **metronomo e armonia vanno in pausa**, così il microfono sente solo il tuo strumento; riprendono quando esci.

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import '../../../app/settings.dart';
 import '../../../app/style.dart';
+import '../../../widgets/row_controls.dart';
 import '../../../app/theme.dart';
 import '../../../audio/audio_scope.dart';
 import '../../../audio/pitch.dart';
@@ -434,13 +435,13 @@ class _DialCenter extends StatelessWidget {
               style: theme.textTheme.titleMedium,
             ),
           if (inProgression) ...[
-            Text(
-              l10n.degreeOf(
-                drone.progression.steps[drone.step].numeral,
-                spell(drone.note.pitchClass, drone.keyLetter, names),
+            // The chord written out: Si Re Fa♯.
+            if (chord != null)
+              Text(
+                _chordNotes(chord, drone.rootLetter, names).join(' '),
+                textAlign: TextAlign.center,
+                style: muted,
               ),
-              style: muted,
-            ),
             const SizedBox(height: 6),
             _StepDots(
               count: drone.progression.steps.length,
@@ -640,6 +641,9 @@ class _ChordMenu extends StatelessWidget {
                     ),
                     selected: drone.sevenths,
                     onSelected: drone.setSevenths,
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 12,
@@ -651,12 +655,8 @@ class _ChordMenu extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        // At least 48 dp wide and high, to be touched with a thumb.
-        IconButton(
-          iconSize: 28,
-          constraints: const BoxConstraints.tightFor(width: 52, height: 52),
-          color: Theme.of(context).colorScheme.primary,
-          icon: const Icon(Icons.tune),
+        RowIconButton(
+          icon: Icons.tune,
           tooltip: l10n.optionsLabel,
           onPressed: () => _showOptions(context, drone),
         ),
@@ -684,6 +684,14 @@ String _shapeName(AppLocalizations l10n, ChordShape shape) => switch (shape) {
   ChordShape.close => l10n.shapeClose,
   ChordShape.rootless => l10n.shapeRootless,
 };
+
+/// The notes of [chord], root first, spelled by thirds from the letter of the
+/// root: C E G, D♭ F A♭.
+List<String> _chordNotes(DroneChord chord, int rootLetter, NoteNames names) => [
+  spell(chord.root, rootLetter, names),
+  for (final (i, s) in chord.quality.semitones(seventh: chord.seventh).indexed)
+    spell((chord.root + s) % 12, (rootLetter + 2 * (i + 1)) % 7, names),
+];
 
 /// The sound options: how the chord or the progression is played (held, on
 /// every beat or as an arpeggio, at the metronome's tempo), where its notes

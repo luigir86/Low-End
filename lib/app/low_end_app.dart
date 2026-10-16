@@ -103,6 +103,12 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     _drone.setReferencePitch(_droneA4);
     _drone.setLevel(_settings.droneLevel);
     _metronome.setLevel(_settings.metronomeLevel);
+    // The metronome comes back as it was left: time signature first, since
+    // the fastest tempo depends on it.
+    _metronome.setSignature(_settings.metronomeSignature);
+    _metronome.setBpm(_settings.metronomeBpm);
+    _metronome.setFeel(_settings.metronomeFeel);
+    _metronome.addListener(_rememberMetronome);
     // The drone opens on the piano: the chord on every beat (set before it
     // plays, so nothing starts yet).
     if (_drone.hasPiano) _drone.setVoicing(DroneVoicing.chord);
@@ -124,6 +130,12 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     final initial = WidgetsBinding.instance.platformDispatcher.defaultRouteName;
     if (initial != '/') _runLink(Uri.parse(initial));
   }
+
+  void _rememberMetronome() => _settings.rememberMetronome(
+    bpm: _metronome.bpm,
+    signature: _metronome.signature,
+    feel: _metronome.feel,
+  );
 
   void _onSettingsChanged() {
     _keepScreenOn();
@@ -309,6 +321,7 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     _navigation.removeListener(_onNavigationChanged);
     _drone.removeListener(_onPlayingChanged);
     _metronome.removeListener(_onPlayingChanged);
+    _metronome.removeListener(_rememberMetronome);
     _tuner.removeListener(_keepScreenOn);
     _commands?.cancel();
     _background.show(MediaState.off, title: '');

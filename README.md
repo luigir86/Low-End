@@ -50,7 +50,7 @@ With the screen off or the app in the background the metronome and the harmony k
 
 Nothing here is promised.
 
-- Metronome: accents on 2 and 4, subdivisions, more time signatures, a tempo trainer, remembering tempo and time signature, latency compensation, landscape layout.
+- Metronome: subdivisions, more time signatures, a tempo trainer, latency compensation, landscape layout.
 - Harmony: more progressions and chords, just intonation.
 - More languages (Spanish, German, French, Portuguese, Japanese).
 - A PDF library for sheet music, set lists and annotations, and later PDF to MusicXML and MIDI playback.
