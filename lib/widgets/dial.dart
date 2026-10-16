@@ -112,6 +112,7 @@ class DialLayout extends StatelessWidget {
     required this.upper,
     required this.lower,
     required this.footer,
+    this.compact = false,
   });
 
   final Widget dial;
@@ -127,6 +128,11 @@ class DialLayout extends StatelessWidget {
   /// the tuner.
   final Widget footer;
 
+  /// Tighter rows with less room reserved for the first one, for a section
+  /// whose upper row is mostly empty (the tuner): the dial takes the room
+  /// that is saved.
+  final bool compact;
+
   /// Largest dial, on tablets.
   static const _maxSize = 420.0;
 
@@ -137,15 +143,24 @@ class DialLayout extends StatelessWidget {
   static const footerHeight = 68.0;
   static const _controlsRoom = upperHeight + lowerHeight + footerHeight + 88;
 
+  /// The same for [compact]: shorter first and last rows, closer together.
+  static const _compactUpperHeight = 32.0;
+  static const _compactFooterHeight = 56.0;
+  static const _compactRoom =
+      _compactUpperHeight + lowerHeight + _compactFooterHeight + 56;
+
   @override
   Widget build(BuildContext context) {
+    final upperMin = compact ? _compactUpperHeight : upperHeight;
+    final footerMin = compact ? _compactFooterHeight : footerHeight;
+    final gap = SizedBox(height: compact ? 4 : 16);
     return LayoutBuilder(
       builder: (context, constraints) {
         final size = math.max(
           200.0,
           math.min(
             math.min(constraints.maxWidth - 32, _maxSize),
-            constraints.maxHeight - _controlsRoom,
+            constraints.maxHeight - (compact ? _compactRoom : _controlsRoom),
           ),
         );
         return SingleChildScrollView(
@@ -161,15 +176,15 @@ class DialLayout extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox.square(dimension: size, child: dial),
-                const SizedBox(height: 24),
+                SizedBox(height: compact ? 8 : 24),
                 ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minHeight: upperHeight,
+                  constraints: BoxConstraints(
+                    minHeight: upperMin,
                     maxWidth: _maxSize,
                   ),
                   child: Center(child: upper),
                 ),
-                const SizedBox(height: 16),
+                gap,
                 ConstrainedBox(
                   constraints: const BoxConstraints(
                     minHeight: lowerHeight,
@@ -177,10 +192,10 @@ class DialLayout extends StatelessWidget {
                   ),
                   child: Center(child: lower),
                 ),
-                const SizedBox(height: 16),
+                gap,
                 ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minHeight: footerHeight,
+                  constraints: BoxConstraints(
+                    minHeight: footerMin,
                     maxWidth: _maxSize,
                   ),
                   child: Center(child: footer),

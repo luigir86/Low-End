@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 /// Small dot that pulses gently, shown on a tab whose section is playing.
 class PulsingDot extends StatefulWidget {
-  const PulsingDot({super.key, this.size = 11});
+  const PulsingDot({super.key, this.size = 11, this.pulse = true});
 
   final double size;
+
+  /// False for a dot that stays at full strength (see [ActivityIcon.pulse]).
+  final bool pulse;
 
   @override
   State<PulsingDot> createState() => _PulsingDotState();
@@ -22,7 +25,7 @@ class _PulsingDotState extends State<PulsingDot>
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Stays still when the phone asks to remove animations.
-    if (MediaQuery.disableAnimationsOf(context)) {
+    if (!widget.pulse || MediaQuery.disableAnimationsOf(context)) {
       _controller.value = 1;
     } else if (!_controller.isAnimating) {
       _controller.repeat(reverse: true);
@@ -63,11 +66,16 @@ class ActivityIcon extends StatelessWidget {
     required this.icon,
     required this.active,
     this.activeIcon,
+    this.pulse = true,
   });
 
   final IconData icon;
   final IconData? activeIcon;
   final bool active;
+
+  /// False for the tuner: its dot stays still, and the screen keeps its
+  /// strobe as the only thing moving.
+  final bool pulse;
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +83,8 @@ class ActivityIcon extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Icon(active ? (activeIcon ?? icon) : icon),
-        if (active) const Positioned(top: -3, right: -5, child: PulsingDot()),
+        if (active)
+          Positioned(top: -3, right: -5, child: PulsingDot(pulse: pulse)),
       ],
     );
   }

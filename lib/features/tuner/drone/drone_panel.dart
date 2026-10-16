@@ -222,16 +222,26 @@ class _FifthsPainter extends CustomPainter {
         );
       }
       if (tonic == pc) {
-        // A dot by the inner edge, in a colour that shows on the segment.
+        // A dot by the inner edge and a notch by the outer one, in a colour
+        // that shows on the segment: the key is told by shape, not only by
+        // hue.
+        final mark = Paint()
+          ..color = lit
+              ? colors.onPrimary
+              : inChord
+              ? colors.onSecondary
+              : colors.primary;
         canvas.drawCircle(
-          dial.pointAt(i * step, dial.ringInner + dial.ringWidth * 0.14),
-          dial.ringWidth * 0.06,
-          Paint()
-            ..color = lit
-                ? colors.onPrimary
-                : inChord
-                ? colors.onSecondary
-                : colors.primary,
+          dial.pointAt(i * step, dial.ringInner + dial.ringWidth * 0.16),
+          dial.ringWidth * 0.09,
+          mark,
+        );
+        canvas.drawLine(
+          dial.pointAt(i * step, dial.ringOuter - dial.ringWidth * 0.20),
+          dial.pointAt(i * step, dial.ringOuter - dial.ringWidth * 0.04),
+          mark
+            ..strokeWidth = 4
+            ..strokeCap = StrokeCap.round,
         );
       }
     }

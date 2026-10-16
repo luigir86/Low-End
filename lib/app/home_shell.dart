@@ -101,7 +101,10 @@ class _HomeShellState extends State<HomeShell> {
 
   Widget _tab(AppSection section, Widget destination, {required bool active}) {
     final l10n = AppLocalizations.of(context);
-    if (section == AppSection.tuner) return destination;
+    if (section == AppSection.tuner) {
+      // Holding does nothing here, but the tab still says it is listening.
+      return Semantics(value: active ? l10n.playing : null, child: destination);
+    }
     return Semantics(
       onLongPressHint: l10n.holdToToggle,
       // Screen readers hear it too, with the tab's name.
@@ -146,7 +149,7 @@ class _HomeShellState extends State<HomeShell> {
     final metronome = scope.metronome;
     final navigation = scope.navigation;
     return ListenableBuilder(
-      listenable: Listenable.merge([drone, metronome, navigation]),
+      listenable: Listenable.merge([drone, metronome, navigation, scope.tuner]),
       builder: (context, _) {
         final section = navigation.section;
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -215,11 +218,20 @@ class _HomeShellState extends State<HomeShell> {
                   tooltip: '',
                 ),
               ),
-              NavigationDestination(
-                // It listens: the microphone says what the tab does.
-                icon: const Icon(Icons.mic_none),
-                selectedIcon: const Icon(Icons.mic),
-                label: l10n.tunerTab,
+              _tab(
+                AppSection.tuner,
+                active: scope.tuner.isListening,
+                NavigationDestination(
+                  // It listens: the microphone says what the tab does, and
+                  // the dot, as on the others, that it is on now.
+                  icon: ActivityIcon(
+                    icon: Icons.mic_none,
+                    activeIcon: Icons.mic,
+                    active: scope.tuner.isListening,
+                    pulse: false,
+                  ),
+                  label: l10n.tunerTab,
+                ),
               ),
             ],
           ),

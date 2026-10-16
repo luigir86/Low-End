@@ -47,9 +47,11 @@ class MetronomeScreen extends StatelessWidget {
         ),
         lower: Row(
           children: [
-            _SignatureButton(metronome: metronome),
+            // Both share the row, so large text shrinks them instead of
+            // pushing TAP out of the screen.
+            Flexible(flex: 2, child: _SignatureButton(metronome: metronome)),
             const SizedBox(width: 12),
-            Expanded(child: _TapButton(metronome: metronome)),
+            Expanded(flex: 3, child: _TapButton(metronome: metronome)),
           ],
         ),
         footer: const BalanceSlider(),
@@ -333,7 +335,9 @@ class _TempoControls extends StatelessWidget {
                         child: Text(
                           '${metronome.bpm}',
                           style: theme.textTheme.displayMedium?.copyWith(
+                            fontSize: 68,
                             fontWeight: FontWeight.w600,
+                            fontFeatures: const [FontFeature.tabularFigures()],
                           ),
                         ),
                       ),
@@ -476,7 +480,7 @@ class _SignatureButton extends StatelessWidget {
                 style: Theme.of(context).textTheme.labelSmall,
               ),
             ),
-            Text(signature.label),
+            FittedBox(fit: BoxFit.scaleDown, child: Text(signature.label)),
           ],
         ),
       ),
@@ -545,10 +549,14 @@ class _TapButtonState extends State<_TapButton> {
         onPointerDown: (_) => tap(),
         child: SizedBox(
           width: double.infinity,
-          child: FilledButton.tonal(
+          child: FilledButton(
             // The tap is counted by the Listener; this only shows the ripple.
             onPressed: () {},
             style: FilledButton.styleFrom(
+              // The container colour of the theme: clearly a button, a step
+              // below the primary one that starts the metronome.
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
               minimumSize: const Size.fromHeight(64),
               textStyle: Theme.of(context).textTheme.titleLarge
                   ?.copyWith(fontWeight: FontWeight.w700, letterSpacing: 2),

@@ -74,6 +74,7 @@ class _TunerPanelState extends State<TunerPanel> {
             : TunerReading.of(hz, tuning: _tuner.tuning, a4: settings.a4);
         final message = _statusMessage(l10n);
         return DialLayout(
+          compact: true,
           dial: _StrobeDisc(
             reading: reading,
             listening: _tuner.isListening,
@@ -304,6 +305,34 @@ class _DiscPainter extends CustomPainter {
       }
     }
 
+    // A fixed reference at 12 o'clock across both bands, with a pointer
+    // above the hub: the segments stand still against it when in tune.
+    final top = dial.center.dx;
+    final y0 = dial.center.dy - dial.ringOuter;
+    final y1 = dial.center.dy - dial.ringInner;
+    canvas.drawLine(
+      Offset(top, y0),
+      Offset(top, y1),
+      Paint()
+        ..color = hub
+        ..strokeWidth = 5,
+    );
+    canvas.drawLine(
+      Offset(top, y0),
+      Offset(top, y1),
+      Paint()
+        ..color = scale
+        ..strokeWidth = 2,
+    );
+    canvas.drawPath(
+      Path()
+        ..moveTo(top - dial.ringWidth * 0.14, y1)
+        ..lineTo(top + dial.ringWidth * 0.14, y1)
+        ..lineTo(top, y1 + dial.ringWidth * 0.26)
+        ..close(),
+      Paint()..color = scale,
+    );
+
     if (stillCents case final cents?) {
       // Ticks every 10 cents over the top of the hub, the marker on them.
       final center = dial.center;
@@ -314,10 +343,16 @@ class _DiscPainter extends CustomPainter {
       for (var c = -50; c <= 50; c += 10) {
         final a = angle(c.toDouble());
         final dir = Offset(math.cos(a), math.sin(a));
+        // The tick for "in tune" is longer and thicker: told by shape.
+        final zero = c == 0;
         canvas.drawLine(
-          center + dir * (dial.hub * 0.86),
-          center + dir * (dial.hub * 0.96),
-          tick,
+          center + dir * (dial.hub * (zero ? 0.72 : 0.86)),
+          center + dir * (dial.hub * (zero ? 1.0 : 0.96)),
+          zero
+              ? (Paint()
+                  ..color = scale
+                  ..strokeWidth = 4)
+              : tick,
         );
       }
       final a = angle(cents.clamp(-50, 50));

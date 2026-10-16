@@ -11,7 +11,65 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// The background of the logo, also the background layer of the adaptive
 /// icon (see android/app/src/main/res/values/ic_launcher_background.xml).
-const _background = Color(0xFF22262A);
+const _background = Color(0xFF1B1411); // Palette.ebony
+
+/// A slightly lighter glow behind the lion (Palette.walnutDeep).
+const _glow = Color(0xFF2B1D16);
+
+/// The cold slate of the original picture, which is swapped for the warm
+/// background above.
+const _oldBackground = (34.0, 38.0, 42.0);
+
+/// The warm background with a soft glow in the middle, [s] pixels wide.
+/// With [withBackground] false only the glow is drawn (adaptive foreground).
+void _backdrop(Canvas canvas, double s, {bool withBackground = true}) {
+  if (withBackground) {
+    canvas.drawRect(Offset.zero & Size(s, s), Paint()..color = _background);
+  }
+  canvas.drawRect(
+    Offset.zero & Size(s, s),
+    Paint()
+      ..shader = ui.Gradient.radial(
+        Offset(s / 2, s / 2),
+        s * 0.55,
+        const [_glow, Color(0x002B1D16)],
+        const [0, 1],
+      ),
+  );
+}
+
+/// Takes the cold background out of the picture (it becomes transparent,
+/// the lion's colours are unmixed from it), so any background fits behind.
+Future<ui.Image> _unmix(ui.Image image) async {
+  final w = image.width, h = image.height;
+  final data = (await image.toByteData())!;
+  final out = Uint8List(w * h * 4);
+  for (var i = 0; i < w * h; i++) {
+    final px = [
+      data.getUint8(i * 4).toDouble(),
+      data.getUint8(i * 4 + 1).toDouble(),
+      data.getUint8(i * 4 + 2).toDouble(),
+    ];
+    final luma = 0.299 * px[0] + 0.587 * px[1] + 0.114 * px[2];
+    final t = ((luma - 44) / 28).clamp(0.0, 1.0);
+    final a = t * t * (3 - 2 * t);
+    final bg = [_oldBackground.$1, _oldBackground.$2, _oldBackground.$3];
+    for (var k = 0; k < 3; k++) {
+      final v = a < 0.02 ? 0.0 : (px[k] - (1 - a) * bg[k]) / a;
+      out[i * 4 + k] = v.clamp(0.0, 255.0).round();
+    }
+    out[i * 4 + 3] = (a * 255).round();
+  }
+  final buffer = await ui.ImmutableBuffer.fromUint8List(out);
+  final descriptor = ui.ImageDescriptor.raw(
+    buffer,
+    width: w,
+    height: h,
+    pixelFormat: ui.PixelFormat.rgba8888,
+  );
+  final codec = await descriptor.instantiateCodec();
+  return (await codec.getNextFrame()).image;
+}
 
 /// Where the lion sits in the 1024-pixel picture: its box is x 294 to 730
 /// and y 101 to 879, so its centre is at (512, 490).
@@ -21,7 +79,7 @@ const _lionHeight = 778.0;
 Future<ui.Image> _load() async {
   final bytes = File('design/lion-logo.jpg').readAsBytesSync();
   final codec = await ui.instantiateImageCodec(bytes);
-  return (await codec.getNextFrame()).image;
+  return _unmix((await codec.getNextFrame()).image);
 }
 
 /// Draws the lion at [size] pixels with its head and neck [fill] of the
@@ -133,17 +191,20 @@ void main() {
                 Radius.circular(s * 0.22),
               ),
             );
-            c.drawRect(Offset.zero & Size(s, s), Paint()..color = _background);
+            _backdrop(c, s);
             _lion(c, picture, s, 0.80);
           }),
         );
         // Adaptive icons: only the middle 66 of the 108 dp always shows.
         await _save(
           '$res/mipmap-${e.key}/ic_launcher_foreground.png',
-          await _render(layer, (c, s) => _lion(c, picture, s, 0.60)),
+          await _render(layer, (c, s) {
+            _backdrop(c, s, withBackground: false);
+            _lion(c, picture, s, 0.60);
+          }),
         );
         final lion = await _render(layer, (c, s) {
-          c.drawRect(Offset.zero & Size(s, s), Paint()..color = _background);
+          _backdrop(c, s);
           _lion(c, picture, s, 0.60);
         });
         await _save(
@@ -161,7 +222,7 @@ void main() {
               Radius.circular(s * 0.22),
             ),
           );
-          c.drawRect(Offset.zero & Size(s, s), Paint()..color = _background);
+          _backdrop(c, s);
           _lion(c, picture, s, 0.82);
         }),
       );
@@ -169,10 +230,11 @@ void main() {
       await _save(
         'design/icon-512.png',
         await _render(512, (c, s) {
-          c.drawRect(Offset.zero & Size(s, s), Paint()..color = _background);
+          _backdrop(c, s);
           _lion(c, picture, s, 0.80);
         }),
       );
+      File('design/icon-512.png').copySync('store/graphics/icon-512.png');
       expect(math.min(picture.width, picture.height), 1024);
     });
   });

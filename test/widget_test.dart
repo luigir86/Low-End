@@ -172,7 +172,8 @@ void main() {
     expect(tone.frequencies, isEmpty);
     expect(click.bar, isNull);
     expect(mic.isCapturing, isTrue);
-    expect(find.byType(PulsingDot), findsNothing);
+    // Only the tuner's own dot: listening, and the other two stopped.
+    expect(find.byType(PulsingDot), findsOneWidget);
     expect(find.text('Paused while you tune'), findsOneWidget);
     // Listening keeps the screen on too.
     expect(awake.on, isTrue);
@@ -574,8 +575,8 @@ void main() {
       LowEndApp(toneOutput: SilentToneOutput(), micInput: FakeMicInput()),
     );
     await tester.pumpAndSettle();
-    // Under the slider the same names as the tabs, and what it is for.
-    expect(find.text('Balance'), findsOneWidget);
+    // Under the slider the same names as the tabs; the slider itself is named for screen readers.
+    expect(find.text('Balance'), findsNothing);
     expect(find.text('Metronome'), findsNWidgets(2));
     expect(find.text('Harmony'), findsNWidgets(2));
     // The time signature button says what it is.

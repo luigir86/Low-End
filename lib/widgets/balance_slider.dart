@@ -90,19 +90,9 @@ class BalanceSlider extends StatelessWidget {
             side(Icons.graphic_eq, l10n.harmonyTab),
           ],
         );
-        // Says what the slider does: it balances, it is not a volume.
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ExcludeSemantics(
-              child: Text(
-                l10n.balanceTitle,
-                style: theme.textTheme.labelSmall?.copyWith(color: muted),
-              ),
-            ),
-            row,
-          ],
-        );
+        // The two icons and names say what it balances; the Semantics label
+        // above speaks for screen readers.
+        return row;
       },
     );
   }
