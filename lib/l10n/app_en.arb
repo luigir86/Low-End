@@ -22,21 +22,14 @@
   "faster": "Faster",
   "tapTempo": "Tap the tempo",
   "droneStop": "Stop the harmony",
+  "feelLabel": "Feel",
+  "feelStraight": "Straight",
+  "feelSwing": "Swing",
+  "feelShuffle": "Shuffle",
   "progressionLabel": "Progression",
   "progressionMinorTwoFiveOne": "II–V–I minor",
   "progressionBlues": "12-bar blues",
   "addSevenths": "Add the seventh to the chords",
-  "degreeOf": "{degree} of {key}",
-  "@degreeOf": {
-    "placeholders": {
-      "degree": {
-        "type": "String"
-      },
-      "key": {
-        "type": "String"
-      }
-    }
-  },
   "droneChordDiminished": "{note} diminished",
   "@droneChordDiminished": {
     "placeholders": {
@@ -58,6 +51,13 @@
     }
   },
   "referencePitch": "Reference A",
+  "lowerPitch": "Lower the reference A",
+  "higherPitch": "Raise the reference A",
+  "choosePitch": "Choose a standard reference A",
+  "pitchBaroque": "Baroque",
+  "pitchVerdi": "Verdi",
+  "pitchConcert": "Concert pitch",
+  "pitchOrchestras": "Orchestras",
   "referencePitchHint": "The frequency of {note}, for the tuner and the harmony.",
   "@referencePitchHint": {
     "placeholders": {

@@ -188,6 +188,30 @@ abstract class AppLocalizations {
   /// **'Stop the harmony'**
   String get droneStop;
 
+  /// No description provided for @feelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Feel'**
+  String get feelLabel;
+
+  /// No description provided for @feelStraight.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight'**
+  String get feelStraight;
+
+  /// No description provided for @feelSwing.
+  ///
+  /// In en, this message translates to:
+  /// **'Swing'**
+  String get feelSwing;
+
+  /// No description provided for @feelShuffle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shuffle'**
+  String get feelShuffle;
+
   /// No description provided for @progressionLabel.
   ///
   /// In en, this message translates to:
@@ -212,12 +236,6 @@ abstract class AppLocalizations {
   /// **'Add the seventh to the chords'**
   String get addSevenths;
 
-  /// No description provided for @degreeOf.
-  ///
-  /// In en, this message translates to:
-  /// **'{degree} of {key}'**
-  String degreeOf(String degree, String key);
-
   /// No description provided for @droneChordDiminished.
   ///
   /// In en, this message translates to:
@@ -241,6 +259,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reference A'**
   String get referencePitch;
+
+  /// No description provided for @lowerPitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Lower the reference A'**
+  String get lowerPitch;
+
+  /// No description provided for @higherPitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Raise the reference A'**
+  String get higherPitch;
+
+  /// No description provided for @choosePitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a standard reference A'**
+  String get choosePitch;
+
+  /// No description provided for @pitchBaroque.
+  ///
+  /// In en, this message translates to:
+  /// **'Baroque'**
+  String get pitchBaroque;
+
+  /// No description provided for @pitchVerdi.
+  ///
+  /// In en, this message translates to:
+  /// **'Verdi'**
+  String get pitchVerdi;
+
+  /// No description provided for @pitchConcert.
+  ///
+  /// In en, this message translates to:
+  /// **'Concert pitch'**
+  String get pitchConcert;
+
+  /// No description provided for @pitchOrchestras.
+  ///
+  /// In en, this message translates to:
+  /// **'Orchestras'**
+  String get pitchOrchestras;
 
   /// No description provided for @referencePitchHint.
   ///

@@ -208,6 +208,11 @@ abstract final class LowEndTheme {
       fontFamilyFallback: const ['NotoMusic'],
       colorScheme: scheme,
       textTheme: LowEndType.textTheme,
+      // The name written on the border of a field is never under the
+      // smallest size: it is drawn at three quarters of this.
+      inputDecorationTheme: InputDecorationTheme(
+        floatingLabelStyle: TextStyle(fontSize: LowEndType.small / 0.75),
+      ),
       scaffoldBackgroundColor: scheme.surface,
       extensions: [colors],
       appBarTheme: AppBarTheme(

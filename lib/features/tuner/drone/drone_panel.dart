@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import '../../../app/settings.dart';
 import '../../../app/style.dart';
+import '../../../widgets/row_controls.dart';
 import '../../../app/theme.dart';
 import '../../../audio/audio_scope.dart';
 import '../../../audio/pitch.dart';
@@ -93,13 +94,13 @@ class _FifthsDial extends StatelessWidget {
     final playing = drone.isPlaying ? drone.rootPitchClass : null;
     // The rest of the chord, lit in a second colour while it sounds.
     final chord = drone.isPlaying ? drone.chordTones : const <int>{};
-    // With a progression selected: the key, marked and with its seven notes
-    // in front of the rest; while it plays, where it goes next.
+    // With a progression selected: the key's seven notes in front of the
+    // rest.
     final tonic = drone.showsKey ? drone.note.pitchClass : null;
     final keyNotes = drone.keyNotes;
-    final next = drone.isPlaying && drone.showsKey
-        ? drone.nextChord?.root
-        : null;
+    // The Roman numerals of the progression, written small on the notes
+    // they stand on, and not moving: you read II, then go to V.
+    final degrees = drone.degreeLabels;
     // A note in the key is written as the key writes it (C♭ in G♭ major);
     // the others as chosen, and a hold on C♯ or F♯ writes them the other way.
     String nameOf(int pc, {bool flat = false}) {
@@ -131,7 +132,6 @@ class _FifthsDial extends StatelessWidget {
                   chord: chord,
                   keyNotes: keyNotes,
                   tonic: tonic,
-                  next: next,
                   colors: theme.colorScheme,
                   disc: LowEndColors.of(context).strobeBackground,
                 ),
@@ -148,6 +148,7 @@ class _FifthsDial extends StatelessWidget {
                   name: nameOf(order[i], flat: drone.spelledFlat(order[i])),
                   playing: playing == order[i],
                   inChord: chord.contains(order[i]),
+                  degree: degrees[order[i]],
                   outOfKey: keyNotes.isNotEmpty && !keyNotes.contains(order[i]),
                   onTap: () => drone.tapNote(order[i]),
                   // C♯ or D♭, F♯ or G♭: the other name is written small
@@ -205,8 +206,8 @@ class _FifthsDial extends StatelessWidget {
 }
 
 /// The ring of twelve segments: the root playing lit, the rest of a chord
-/// in a second colour; in a progression, a thin arc on the inner edge of the
-/// key and a soft tint with a thin outer arc on the root that comes next.
+/// in a second colour. The Roman numerals of a progression are written on
+/// the keys themselves ([_NoteKey]), not painted here.
 class _FifthsPainter extends CustomPainter {
   _FifthsPainter({
     required this.order,
@@ -214,7 +215,6 @@ class _FifthsPainter extends CustomPainter {
     required this.chord,
     required this.keyNotes,
     required this.tonic,
-    required this.next,
     required this.colors,
     required this.disc,
   });
@@ -227,7 +227,6 @@ class _FifthsPainter extends CustomPainter {
   /// recede into the disc (still there to be touched).
   final Set<int> keyNotes;
   final int? tonic;
-  final int? next;
   final ColorScheme colors;
   final Color disc;
 
@@ -256,41 +255,6 @@ class _FifthsPainter extends CustomPainter {
             : colors.outlineVariant,
         border: lit || inChord || outOfKey ? null : colors.outline,
       );
-      final width = dial.ringWidth;
-      if (next == pc && !lit) {
-        // Where it goes next, softly: a faint tint, and a thin arc on the
-        // outer edge. Nothing like the full colour of the note playing.
-        dial.paintSegment(
-          canvas,
-          startAngle: start,
-          sweep: sweep,
-          color: colors.primary.withValues(alpha: 0.14),
-        );
-        dial.paintSegment(
-          canvas,
-          startAngle: start + 0.05,
-          sweep: sweep - 0.1,
-          inner: dial.ringOuter - width * 0.14,
-          outer: dial.ringOuter - width * 0.05,
-          color: colors.primary.withValues(alpha: 0.65),
-        );
-      }
-      if (tonic == pc) {
-        // The key, as one thin arc along the inner edge: below the name,
-        // never across it, in a colour that shows on the segment.
-        dial.paintSegment(
-          canvas,
-          startAngle: start + 0.05,
-          sweep: sweep - 0.1,
-          inner: dial.ringInner + width * 0.05,
-          outer: dial.ringInner + width * 0.15,
-          color: lit
-              ? colors.onPrimary
-              : inChord
-              ? colors.onSecondary
-              : colors.primary,
-        );
-      }
     }
   }
 
@@ -301,7 +265,6 @@ class _FifthsPainter extends CustomPainter {
       !setEquals(old.chord, chord) ||
       !setEquals(old.keyNotes, keyNotes) ||
       old.tonic != tonic ||
-      old.next != next ||
       old.colors != colors ||
       old.disc != disc;
 }
@@ -313,6 +276,7 @@ class _NoteKey extends StatelessWidget {
     required this.name,
     required this.playing,
     required this.inChord,
+    required this.degree,
     required this.outOfKey,
     required this.onTap,
     required this.respelling,
@@ -328,6 +292,9 @@ class _NoteKey extends StatelessWidget {
   /// Sounding as part of the chord built on the note playing.
   final bool inChord;
   final VoidCallback onTap;
+
+  /// The Roman numeral of the progression on this note ("V"), or null.
+  final String? degree;
 
   /// The other way to write the note (D♭ for C♯), or null if there is none.
   final String? respelling;
@@ -364,6 +331,19 @@ class _NoteKey extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // The function in the progression, small and still.
+                    if (degree != null)
+                      Text(
+                        degree!,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: playing
+                              ? colors.onPrimary
+                              : inChord
+                              ? colors.onSecondary
+                              : colors.onSurfaceVariant,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     Text(
                       name,
                       style: theme.textTheme.titleMedium?.copyWith(
@@ -455,13 +435,13 @@ class _DialCenter extends StatelessWidget {
               style: theme.textTheme.titleMedium,
             ),
           if (inProgression) ...[
-            Text(
-              l10n.degreeOf(
-                drone.progression.steps[drone.step].numeral,
-                spell(drone.note.pitchClass, drone.keyLetter, names),
+            // The chord written out: Si Re Fa♯.
+            if (chord != null)
+              Text(
+                _chordNotes(chord, drone.rootLetter, names).join(' '),
+                textAlign: TextAlign.center,
+                style: muted,
               ),
-              style: muted,
-            ),
             const SizedBox(height: 6),
             _StepDots(
               count: drone.progression.steps.length,
@@ -661,6 +641,9 @@ class _ChordMenu extends StatelessWidget {
                     ),
                     selected: drone.sevenths,
                     onSelected: drone.setSevenths,
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 12,
@@ -672,12 +655,8 @@ class _ChordMenu extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        // At least 48 dp wide and high, to be touched with a thumb.
-        IconButton(
-          iconSize: 28,
-          constraints: const BoxConstraints.tightFor(width: 52, height: 52),
-          color: Theme.of(context).colorScheme.primary,
-          icon: const Icon(Icons.tune),
+        RowIconButton(
+          icon: Icons.tune,
           tooltip: l10n.optionsLabel,
           onPressed: () => _showOptions(context, drone),
         ),
@@ -705,6 +684,14 @@ String _shapeName(AppLocalizations l10n, ChordShape shape) => switch (shape) {
   ChordShape.close => l10n.shapeClose,
   ChordShape.rootless => l10n.shapeRootless,
 };
+
+/// The notes of [chord], root first, spelled by thirds from the letter of the
+/// root: C E G, D♭ F A♭.
+List<String> _chordNotes(DroneChord chord, int rootLetter, NoteNames names) => [
+  spell(chord.root, rootLetter, names),
+  for (final (i, s) in chord.quality.semitones(seventh: chord.seventh).indexed)
+    spell((chord.root + s) % 12, (rootLetter + 2 * (i + 1)) % 7, names),
+];
 
 /// The sound options: how the chord or the progression is played (held, on
 /// every beat or as an arpeggio, at the metronome's tempo), where its notes

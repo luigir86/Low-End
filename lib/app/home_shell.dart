@@ -99,6 +99,28 @@ class _HomeShellState extends State<HomeShell> {
     _hints[section]?.currentState?.ensureTooltipVisible();
   }
 
+  /// A tap on the tab of the section on screen starts or stops what it
+  /// plays (the tuner: listens or pauses), like the middle of its dial; a
+  /// tap on another tab only goes there, and holding it starts or stops
+  /// that section from here.
+  void _onDestination(int i) {
+    final navigation = AudioScope.of(context).navigation;
+    final section = AppSection.values[i];
+    if (navigation.section != section) {
+      navigation.open(section);
+      return;
+    }
+    final scope = AudioScope.of(context);
+    switch (section) {
+      case AppSection.metronome:
+        scope.metronome.toggle();
+      case AppSection.drone:
+        scope.drone.toggle();
+      case AppSection.tuner:
+        scope.tuner.toggle();
+    }
+  }
+
   Widget _tab(AppSection section, Widget destination, {required bool active}) {
     final l10n = AppLocalizations.of(context);
     if (section == AppSection.tuner) {
@@ -189,7 +211,7 @@ class _HomeShellState extends State<HomeShell> {
           // a tab says which ones are playing.
           bottomNavigationBar: NavigationBar(
             selectedIndex: section.index,
-            onDestinationSelected: (i) => navigation.open(AppSection.values[i]),
+            onDestinationSelected: _onDestination,
             // In the order of AppSection.
             destinations: [
               _tab(

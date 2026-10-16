@@ -55,7 +55,8 @@ void main() {
       _sounds([_hz(2), _hz(2) * 6 / 5, _hz(2) * 3 / 2]),
     );
     expect(drone.chordTones, {5, 9}); // F and A
-    expect(drone.nextChord?.root, 7);
+    // The numerals stay on their notes while it plays.
+    expect(drone.degreeLabels, {2: 'II', 7: 'V', 0: 'I'});
     // Every chord is made ready at the start.
     expect(output.prepared, hasLength(3));
 

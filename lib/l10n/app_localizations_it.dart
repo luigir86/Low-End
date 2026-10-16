@@ -57,6 +57,18 @@ class AppLocalizationsIt extends AppLocalizations {
   String get droneStop => 'Ferma l\'armonia';
 
   @override
+  String get feelLabel => 'Andamento';
+
+  @override
+  String get feelStraight => 'Dritto';
+
+  @override
+  String get feelSwing => 'Swing';
+
+  @override
+  String get feelShuffle => 'Shuffle';
+
+  @override
   String get progressionLabel => 'Progressione';
 
   @override
@@ -67,11 +79,6 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get addSevenths => 'Aggiungi la settima agli accordi';
-
-  @override
-  String degreeOf(String degree, String key) {
-    return '$degree di $key';
-  }
 
   @override
   String droneChordDiminished(String note) {
@@ -88,6 +95,27 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get referencePitch => 'La di riferimento';
+
+  @override
+  String get lowerPitch => 'Abbassa il La di riferimento';
+
+  @override
+  String get higherPitch => 'Alza il La di riferimento';
+
+  @override
+  String get choosePitch => 'Scegli un La di riferimento standard';
+
+  @override
+  String get pitchBaroque => 'Barocco';
+
+  @override
+  String get pitchVerdi => 'Verdi';
+
+  @override
+  String get pitchConcert => 'Diapason standard';
+
+  @override
+  String get pitchOrchestras => 'Orchestre';
 
   @override
   String referencePitchHint(String note) {

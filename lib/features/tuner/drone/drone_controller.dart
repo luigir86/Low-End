@@ -199,10 +199,20 @@ class DroneController extends ChangeNotifier {
   /// The chord sounding (or that would sound), or null for the note alone.
   DroneChord? get currentChord => _chordAt(_step);
 
-  /// The next chord of the progression, or null outside a progression.
-  DroneChord? get nextChord => _voicing == DroneVoicing.progression
-      ? _chordAt((_step + 1) % _progression.steps.length)
-      : null;
+  /// The Roman numerals of the progression by the pitch class of the root
+  /// they stand on ("II" on E in D, or "I · IV" where two chords share a
+  /// root); empty outside a progression. They stay put while it plays: the
+  /// circle shows where to go, not what is coming.
+  Map<int, String> get degreeLabels {
+    if (_voicing != DroneVoicing.progression) return const {};
+    final labels = <int, List<String>>{};
+    for (final step in _progression.steps) {
+      final root = (_note.pitchClass + step.offset) % 12;
+      final list = labels.putIfAbsent(root, () => []);
+      if (!list.contains(step.numeral)) list.add(step.numeral);
+    }
+    return {for (final e in labels.entries) e.key: e.value.join(' · ')};
+  }
 
   DroneChord? _chordAt(int step) => switch (_voicing) {
     DroneVoicing.root => null,

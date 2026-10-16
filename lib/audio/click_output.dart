@@ -36,7 +36,33 @@ class SoLoudClickOutput implements ClickOutput {
       microseconds:
           (barWav.length - 44) ~/ 2 * 1000000 ~/ ClickSound.sampleRate,
     );
-    return _player.play(barWav, bar, startAt: startAt);
+    return _player.play(
+      barWav,
+      bar,
+      startAt: startAt,
+      preRoll: preRollFor(barWav),
+    );
+  }
+
+  /// How long of the silence at the end of the bar to play before its first
+  /// stroke when starting: the phone's speaker takes a moment to come up at
+  /// the start of a sound, and a first beat that begins at once is
+  /// sometimes too soft. At most 120 ms, and never into a stroke.
+  @visibleForTesting
+  static Duration preRollFor(Uint8List barWav) {
+    var silent = 0;
+    // 16-bit samples, from the end; the first bytes are the header.
+    for (var i = barWav.length - 2; i >= 44; i -= 2) {
+      if (barWav[i] != 0 || barWav[i + 1] != 0) break;
+      silent++;
+    }
+    final room = Duration(
+      microseconds: silent * 1000000 ~/ ClickSound.sampleRate,
+    );
+    final usable = room - const Duration(milliseconds: 20);
+    const most = Duration(milliseconds: 120);
+    if (usable <= Duration.zero) return Duration.zero;
+    return usable < most ? usable : most;
   }
 
   @override

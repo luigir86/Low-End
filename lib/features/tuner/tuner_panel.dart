@@ -111,9 +111,10 @@ class _TunerPanelState extends State<TunerPanel> {
                   ],
                 ),
           // Listening starts and stops from the middle of the dial, like the
-          // other two tabs: nothing to put in this row.
-          lower: const SizedBox.shrink(),
-          footer: const ReferencePitchRow(),
+          // other two tabs; the row below is the reference A, in the same
+          // pieces as the rows of the metronome and the harmony.
+          lower: const ReferencePitchRow(),
+          footer: const SizedBox.shrink(),
         );
       },
     );
