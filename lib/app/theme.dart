@@ -200,9 +200,11 @@ abstract final class LowEndTheme {
       borderRadius: BorderRadius.circular(radius),
     );
     return ThemeData(
-      // Barlow (SIL OFL), bundled in assets/fonts. Symbols it lacks (♩ ♭ ♯)
-      // fall back to the system fonts.
+      // Barlow (SIL OFL), bundled in assets/fonts. It lacks the symbols ♩ ♭ ♯.
       fontFamily: 'Barlow',
+      // Roboto is on every Android phone and has them, so the accidentals
+      // look the same everywhere.
+      fontFamilyFallback: const ['Roboto'],
       colorScheme: scheme,
       scaffoldBackgroundColor: scheme.surface,
       extensions: [colors],

@@ -7,6 +7,10 @@ import '../audio/pitch.dart';
 /// How note names are chosen: from the app language, or fixed.
 enum NoteNaming { auto, solfege, letters }
 
+/// How the twelve notes are laid round the harmony circle: by fifths, or in
+/// semitones, as on the fingerboard.
+enum CircleLayout { fifths, chromatic }
+
 /// The player's preferences, kept on the phone between launches.
 class AppSettings extends ChangeNotifier {
   /// Settings that are not saved anywhere; used in tests.
@@ -31,6 +35,12 @@ class AppSettings extends ChangeNotifier {
     _themeMode =
         ThemeMode.values.asNameMap()[_read<String>(prefs, _themeKey)] ??
         ThemeMode.system;
+    _circleLayout =
+        CircleLayout.values.asNameMap()[_read<String>(
+          prefs,
+          _circleLayoutKey,
+        )] ??
+        CircleLayout.fifths;
     _keepScreenOn = _read<bool>(prefs, _keepScreenOnKey) ?? true;
     _seenGuide = _read<bool>(prefs, _seenGuideKey) ?? false;
   }
@@ -47,6 +57,7 @@ class AppSettings extends ChangeNotifier {
   static const _themeKey = 'theme';
   static const _keepScreenOnKey = 'keep_screen_on';
   static const _seenGuideKey = 'seen_guide';
+  static const _circleLayoutKey = 'circle_layout';
 
   final SharedPreferences? _prefs;
   String? _languageCode;
@@ -110,6 +121,7 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
   }
 
+  CircleLayout _circleLayout = CircleLayout.fifths;
   ThemeMode _themeMode = ThemeMode.system;
   bool _keepScreenOn = true;
 
@@ -138,6 +150,16 @@ class AppSettings extends ChangeNotifier {
     if (mode == _themeMode) return;
     _themeMode = mode;
     _save(_prefs?.setString(_themeKey, mode.name));
+    notifyListeners();
+  }
+
+  /// The order of the notes on the harmony circle.
+  CircleLayout get circleLayout => _circleLayout;
+
+  void setCircleLayout(CircleLayout layout) {
+    if (layout == _circleLayout) return;
+    _circleLayout = layout;
+    _save(_prefs?.setString(_circleLayoutKey, layout.name));
     notifyListeners();
   }
 

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../app/settings.dart';
 import '../../../app/theme.dart';
 import '../../../audio/audio_scope.dart';
 import '../../../audio/pitch.dart';
@@ -18,6 +19,15 @@ import 'harmony.dart';
 /// each step is a fifth up, so the neighbours of a key are its closest
 /// relatives.
 const circleOfFifths = [0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5];
+
+/// The same twelve notes in semitones, C at the top: the order of the frets.
+const chromaticCircle = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+
+/// The notes round the dial, clockwise from the top, as the player chose.
+List<int> circleOrder(CircleLayout layout) => switch (layout) {
+  CircleLayout.fifths => circleOfFifths,
+  CircleLayout.chromatic => chromaticCircle,
+};
 
 /// The drone: the twelve notes as segments of the dial, round the circle of
 /// fifths. Touching a segment plays that note and keeps it lit; touching
@@ -36,7 +46,11 @@ class DronePanel extends StatelessWidget {
       builder: (context, _) {
         final names = scope.settings.noteNames(Localizations.localeOf(context));
         return DialLayout(
-          dial: _FifthsDial(drone: drone, names: names),
+          dial: _FifthsDial(
+            drone: drone,
+            names: names,
+            order: circleOrder(scope.settings.circleLayout),
+          ),
           upper: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -61,10 +75,15 @@ class DronePanel extends StatelessWidget {
 }
 
 class _FifthsDial extends StatelessWidget {
-  const _FifthsDial({required this.drone, required this.names});
+  const _FifthsDial({
+    required this.drone,
+    required this.names,
+    required this.order,
+  });
 
   final DroneController drone;
   final NoteNames names;
+  final List<int> order;
 
   @override
   Widget build(BuildContext context) {
@@ -73,11 +92,25 @@ class _FifthsDial extends StatelessWidget {
     final playing = drone.isPlaying ? drone.rootPitchClass : null;
     // The rest of the chord, lit in a second colour while it sounds.
     final chord = drone.isPlaying ? drone.chordTones : const <int>{};
-    // In a progression: the key, always marked, and where it goes next.
-    final inProgression =
-        drone.isPlaying && drone.voicing == DroneVoicing.progression;
-    final tonic = inProgression ? drone.note.pitchClass : null;
-    final next = inProgression ? drone.nextChord?.root : null;
+    // With a progression selected: the key, marked and with its seven notes
+    // in front of the rest; while it plays, where it goes next.
+    final tonic = drone.showsKey ? drone.note.pitchClass : null;
+    final keyNotes = drone.keyNotes;
+    final next = drone.isPlaying && drone.showsKey
+        ? drone.nextChord?.root
+        : null;
+    // A note in the key is written as the key writes it (C♭ in G♭ major);
+    // the others as chosen, and a hold on C♯ or F♯ writes them the other way.
+    String nameOf(int pc, {bool flat = false}) {
+      final letter = drone.keyLetterOf(pc);
+      return letter != null
+          ? spell(pc, letter, names)
+          : Note(pc, drone.octave).name(names, flat: flat);
+    }
+
+    bool canRespell(int pc) =>
+        DroneController.respellable.contains(pc) &&
+        (drone.keyLetterOf(pc) == null || pc == tonic);
     return LayoutBuilder(
       builder: (context, constraints) {
         final size = constraints.biggest;
@@ -92,8 +125,10 @@ class _FifthsDial extends StatelessWidget {
             Positioned.fill(
               child: CustomPaint(
                 painter: _FifthsPainter(
+                  order: order,
                   playing: playing,
                   chord: chord,
+                  keyNotes: keyNotes,
                   tonic: tonic,
                   next: next,
                   colors: theme.colorScheme,
@@ -109,23 +144,21 @@ class _FifthsDial extends StatelessWidget {
                   height: key,
                 ),
                 child: _NoteKey(
-                  name: Note(
-                    circleOfFifths[i],
-                    drone.octave,
-                  ).name(names, flat: drone.spelledFlat(circleOfFifths[i])),
-                  playing: playing == circleOfFifths[i],
-                  inChord: chord.contains(circleOfFifths[i]),
-                  onTap: () => drone.tapNote(circleOfFifths[i]),
-                  // C♯ or D♭, F♯ or G♭: holding the key writes it the
-                  // other way, and the chords of its key with it.
-                  respelling:
-                      DroneController.respellable.contains(circleOfFifths[i])
-                      ? Note(circleOfFifths[i], drone.octave).name(
-                          names,
-                          flat: !drone.spelledFlat(circleOfFifths[i]),
-                        )
+                  name: nameOf(order[i], flat: drone.spelledFlat(order[i])),
+                  playing: playing == order[i],
+                  inChord: chord.contains(order[i]),
+                  outOfKey: keyNotes.isNotEmpty && !keyNotes.contains(order[i]),
+                  onTap: () => drone.tapNote(order[i]),
+                  // C♯ or D♭, F♯ or G♭: the other name is written small
+                  // under it, and holding the key switches to it, with the
+                  // chords of its key.
+                  respelling: canRespell(order[i])
+                      ? Note(
+                          order[i],
+                          drone.octave,
+                        ).name(names, flat: !drone.spelledFlat(order[i]))
                       : null,
-                  onLongPress: () => drone.toggleSpelling(circleOfFifths[i]),
+                  onLongPress: () => drone.toggleSpelling(order[i]),
                 ),
               ),
             // What is sounding, in the hub; large text shrinks to fit.
@@ -175,16 +208,23 @@ class _FifthsDial extends StatelessWidget {
 /// on the root that comes next.
 class _FifthsPainter extends CustomPainter {
   _FifthsPainter({
+    required this.order,
     required this.playing,
     required this.chord,
+    required this.keyNotes,
     required this.tonic,
     required this.next,
     required this.colors,
     required this.disc,
   });
 
+  final List<int> order;
   final int? playing;
   final Set<int> chord;
+
+  /// The seven notes of the key, or empty when none is shown: the others
+  /// recede into the disc (still there to be touched).
+  final Set<int> keyNotes;
   final int? tonic;
   final int? next;
   final ColorScheme colors;
@@ -196,9 +236,10 @@ class _FifthsPainter extends CustomPainter {
     dial.paintBase(canvas, disc: disc, hub: colors.surface);
     const step = math.pi / 6;
     for (var i = 0; i < 12; i++) {
-      final pc = circleOfFifths[i];
+      final pc = order[i];
       final lit = playing == pc;
       final inChord = chord.contains(pc);
+      final outOfKey = keyNotes.isNotEmpty && !keyNotes.contains(pc);
       final start = i * step - step / 2 + DialGeometry.gap / 2;
       const sweep = step - DialGeometry.gap;
       dial.paintSegment(
@@ -209,8 +250,14 @@ class _FifthsPainter extends CustomPainter {
             ? colors.primary
             : inChord
             ? colors.secondary
+            : outOfKey
+            ? disc
             : colors.outlineVariant,
-        border: lit || inChord ? null : colors.outline,
+        border: lit || inChord
+            ? null
+            : outOfKey
+            ? colors.outline.withValues(alpha: 0.5)
+            : colors.outline,
       );
       if (next == pc && !lit) {
         dial.paintSegment(
@@ -249,8 +296,10 @@ class _FifthsPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_FifthsPainter old) =>
+      !listEquals(old.order, order) ||
       old.playing != playing ||
       !setEquals(old.chord, chord) ||
+      !setEquals(old.keyNotes, keyNotes) ||
       old.tonic != tonic ||
       old.next != next ||
       old.colors != colors ||
@@ -264,6 +313,7 @@ class _NoteKey extends StatelessWidget {
     required this.name,
     required this.playing,
     required this.inChord,
+    required this.outOfKey,
     required this.onTap,
     required this.respelling,
     required this.onLongPress,
@@ -271,6 +321,9 @@ class _NoteKey extends StatelessWidget {
 
   final String name;
   final bool playing;
+
+  /// A key is shown and the note is not in it.
+  final bool outOfKey;
 
   /// Sounding as part of the chord built on the note playing.
   final bool inChord;
@@ -308,18 +361,37 @@ class _NoteKey extends StatelessWidget {
             child: FittedBox(
               child: Padding(
                 padding: const EdgeInsets.all(4),
-                child: Text(
-                  name,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: playing
-                        ? colors.onPrimary
-                        : inChord
-                        ? colors.onSecondary
-                        : colors.onSurface,
-                    // Bold for the root, so it stands out by more than
-                    // colour alone.
-                    fontWeight: playing ? FontWeight.w800 : FontWeight.w500,
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      name,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: playing
+                            ? colors.onPrimary
+                            : inChord
+                            ? colors.onSecondary
+                            : outOfKey
+                            ? colors.onSurfaceVariant
+                            : colors.onSurface,
+                        // Bold for the root, so it stands out by more than
+                        // colour alone.
+                        fontWeight: playing ? FontWeight.w800 : FontWeight.w500,
+                      ),
+                    ),
+                    // The other way to write it, small: F♯ over G♭.
+                    if (respelling != null)
+                      Text(
+                        respelling,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: playing
+                              ? colors.onPrimary
+                              : inChord
+                              ? colors.onSecondary
+                              : colors.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),

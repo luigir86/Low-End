@@ -1,8 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:low_end/features/tuner/drone/harmony.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
 
 void main() {
+  keyTests();
   late SilentToneOutput output;
   late DroneController drone;
 
@@ -85,3 +87,30 @@ class _FailingOutput extends SilentToneOutput {
 /// Lets queued sound changes reach the output: the controller applies them
 /// one after the other (see DroneController._sync).
 Future<void> _settle() => Future<void>.delayed(Duration.zero);
+
+void keyTests() {
+  late DroneController drone;
+  setUp(() => drone = DroneController(SilentToneOutput()));
+
+  test('only a progression shows a key, with its seven notes', () async {
+    expect(drone.keyNotes, isEmpty);
+    drone.setVoicing(DroneVoicing.progression);
+    await drone.tapNote(0); // C major: the white keys.
+    expect(drone.keyNotes, {0, 2, 4, 5, 7, 9, 11});
+    await drone.tapNote(9); // A minor would share them, but it is major here.
+    expect(drone.keyNotes, {9, 11, 1, 2, 4, 6, 8});
+    drone.setProgression(Progression.minorTwoFiveOne);
+    expect(drone.keyNotes, {9, 11, 0, 2, 4, 5, 7}); // A natural minor.
+  });
+
+  test('the notes of the key are written with a letter each', () async {
+    drone.setVoicing(DroneVoicing.progression);
+    drone.toggleSpelling(6); // G♭ rather than F♯.
+    await drone.tapNote(6);
+    // G♭ major has C♭ (letter 0) and not B, and F (3) and not E♯.
+    expect(drone.keyLetterOf(6), 4); // G
+    expect(drone.keyLetterOf(11), 0); // C♭
+    expect(drone.keyLetterOf(5), 3); // F
+    expect(drone.keyLetterOf(0), isNull); // C is not in the key
+  });
+}

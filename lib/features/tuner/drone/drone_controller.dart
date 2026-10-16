@@ -252,6 +252,36 @@ class DroneController extends ChangeNotifier {
     _notify();
   }
 
+  static const _majorScale = [0, 2, 4, 5, 7, 9, 11];
+  static const _minorScale = [0, 2, 3, 5, 7, 8, 10];
+
+  /// Whether the circle shows the key: with a progression selected, the
+  /// note chosen is its key, playing or not.
+  bool get showsKey => _voicing == DroneVoicing.progression;
+
+  /// The key is minor: the minor II–V–I (the other progressions are major).
+  bool get keyIsMinor => _progression == Progression.minorTwoFiveOne;
+
+  /// The seven notes of the key (natural minor for a minor key), as pitch
+  /// classes; empty when the circle shows no key.
+  Set<int> get keyNotes => showsKey
+      ? {
+          for (final s in keyIsMinor ? _minorScale : _majorScale)
+            (_note.pitchClass + s) % 12,
+        }
+      : const {};
+
+  /// The letter (0 = C … 6 = B) [pitchClass] is written with in the key, so
+  /// that each letter is used once (G♭ major has C♭, not B), or null if the
+  /// note is not in the key.
+  int? keyLetterOf(int pitchClass) {
+    if (!showsKey) return null;
+    final degree = (keyIsMinor ? _minorScale : _majorScale).indexOf(
+      (pitchClass - _note.pitchClass + 12) % 12,
+    );
+    return degree < 0 ? null : (keyLetter + degree) % 7;
+  }
+
   /// The root sounding now: the note, or the root of the current chord.
   int get rootPitchClass => currentChord?.root ?? _note.pitchClass;
 

@@ -434,6 +434,24 @@ abstract class AppLocalizations {
   /// **'C D E (A4 = 440 Hz)'**
   String get noteNamesLetters;
 
+  /// No description provided for @circleLayoutLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Harmony circle'**
+  String get circleLayoutLabel;
+
+  /// No description provided for @circleLayoutFifths.
+  ///
+  /// In en, this message translates to:
+  /// **'Circle of fifths'**
+  String get circleLayoutFifths;
+
+  /// No description provided for @circleLayoutChromatic.
+  ///
+  /// In en, this message translates to:
+  /// **'In semitones (C, C♯, D…)'**
+  String get circleLayoutChromatic;
+
   /// No description provided for @aboutTooltip.
   ///
   /// In en, this message translates to:

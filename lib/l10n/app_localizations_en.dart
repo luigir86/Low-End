@@ -203,6 +203,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noteNamesLetters => 'C D E (A4 = 440 Hz)';
 
   @override
+  String get circleLayoutLabel => 'Harmony circle';
+
+  @override
+  String get circleLayoutFifths => 'Circle of fifths';
+
+  @override
+  String get circleLayoutChromatic => 'In semitones (C, C♯, D…)';
+
+  @override
   String get aboutTooltip => 'About Low End';
 
   @override
