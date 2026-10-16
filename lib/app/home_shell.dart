@@ -153,24 +153,34 @@ class _HomeShellState extends State<HomeShell> {
           if (mounted) _showSection(navigation.section);
         });
         return Scaffold(
-          appBar: AppBar(
-            title: Text(l10n.appTitle),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.settings_outlined),
-                tooltip: l10n.settingsTitle,
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => const SettingsPage()),
+          // No title bar: the three sections share the whole height, and the
+          // name lives in About. Settings is the one button left, in the corner.
+          body: SafeArea(
+            bottom: false,
+            child: Stack(
+              children: [
+                PageView(
+                  controller: _pages,
+                  onPageChanged: (i) {
+                    if (!_sliding) navigation.open(AppSection.values[i]);
+                  },
+                  children: [for (final s in _screens) _KeepAlive(child: s)],
                 ),
-              ),
-            ],
-          ),
-          body: PageView(
-            controller: _pages,
-            onPageChanged: (i) {
-              if (!_sliding) navigation.open(AppSection.values[i]);
-            },
-            children: [for (final s in _screens) _KeepAlive(child: s)],
+                PositionedDirectional(
+                  top: 0,
+                  end: 4,
+                  child: IconButton(
+                    icon: const Icon(Icons.settings_outlined),
+                    tooltip: l10n.settingsTitle,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const SettingsPage(),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           // Each section starts and stops its own sound; the pulsing dot on
           // a tab says which ones are playing.
