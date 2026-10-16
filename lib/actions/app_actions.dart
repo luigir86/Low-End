@@ -5,6 +5,7 @@ import '../app/settings.dart';
 import '../audio/pitch.dart';
 import '../features/metronome/metronome_controller.dart';
 import '../features/tuner/drone/drone_controller.dart';
+import '../features/tuner/drone/harmony.dart';
 import '../features/tuner/tuner_controller.dart';
 import '../features/tuner/tunings.dart';
 
@@ -195,8 +196,10 @@ class AppActions {
     'note': _note,
     'voicing': {
       'type': 'string',
-      'enum': ['root', 'chord'],
-      'description': 'The note alone, or the chord built on it.',
+      'enum': ['root', 'chord', 'progression'],
+      'description':
+          'The note alone, the chord built on it, or a progression in its '
+          'key (one chord per bar, at the metronome tempo).',
     },
     'chord': {
       'type': 'string',
@@ -205,6 +208,25 @@ class AppActions {
           'The chord played when voicing is "chord", in pure intervals; '
           '"seventh" is the dominant seventh, its seventh tuned to 16/9 (the '
           'pure ratio closest to the equal-tempered minor seventh).',
+    },
+    'progression': {
+      'type': 'string',
+      'enum': [
+        'twoFiveOne',
+        'minorTwoFiveOne',
+        'oneFourFive',
+        'oneSixFourFive',
+        'blues',
+      ],
+      'description':
+          'The progression played when voicing is "progression": II-V-I, '
+          'minor II-V-I, I-IV-V, I-VI-IV-V or 12-bar blues.',
+    },
+    'sevenths': {
+      'type': 'boolean',
+      'description':
+          'Adds the seventh to the chords and progressions (maj7, m7, 7, '
+          'm7b5).',
     },
   };
 
@@ -302,6 +324,14 @@ class AppActions {
     final voicing = args['voicing'] == null
         ? null
         : _enum(DroneVoicing.values, args['voicing']);
+    final progression = args['progression'] == null
+        ? null
+        : _enum(Progression.values, args['progression']);
+    final sevenths = switch (args['sevenths']) {
+      null => null,
+      final bool b => b,
+      _ => throw ActionError('"sevenths" must be true or false.'),
+    };
     final chord = args['chord'] == null
         ? null
         : _enum(ChordType.values, args['chord']);
@@ -309,6 +339,8 @@ class AppActions {
       if (pitchClass != null) drone.setPitchClass(pitchClass);
       if (voicing != null) drone.setVoicing(voicing);
       if (chord != null) drone.setChord(chord);
+      if (progression != null) drone.setProgression(progression);
+      if (sevenths != null) drone.setSevenths(sevenths);
     };
   }
 
@@ -343,6 +375,11 @@ class AppActions {
         'frequency_hz': _round(drone.frequency),
         'voicing': drone.voicing.name,
         'chord': drone.chord.name,
+        'progression': drone.progression.name,
+        'sevenths': drone.sevenths,
+        'progression_step': drone.voicing == DroneVoicing.progression
+            ? drone.step
+            : null,
         'audio_failed': drone.audioFailed,
       },
       'metronome': {'playing': metronome.isPlaying, 'bpm': metronome.bpm},

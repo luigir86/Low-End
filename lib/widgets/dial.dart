@@ -43,6 +43,7 @@ class DialGeometry {
     required Color color,
     double? inner,
     double? outer,
+    double? stroke,
   }) {
     final rIn = inner ?? ringInner, rOut = outer ?? ringOuter;
     final start = startAngle - math.pi / 2;
@@ -55,8 +56,21 @@ class DialGeometry {
         false,
       )
       ..close();
-    canvas.drawPath(path, Paint()..color = color);
+    final paint = Paint()..color = color;
+    // With a [stroke] width, only the outline.
+    if (stroke != null) {
+      paint
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = stroke
+        ..strokeJoin = StrokeJoin.round;
+    }
+    canvas.drawPath(path, paint);
   }
+
+  /// A point at [radius] from the centre, at [angle] (0 is the top,
+  /// clockwise).
+  Offset pointAt(double angle, double radius) =>
+      center + Offset(math.sin(angle), -math.cos(angle)) * radius;
 
   /// Where the middle of a segment centred on [angle] sits (0 is the top,
   /// clockwise).

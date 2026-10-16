@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:low_end/app/app_navigation.dart';
+import 'package:low_end/app/home_shell.dart';
 import 'package:low_end/app/low_end_app.dart';
+import 'package:low_end/audio/audio_scope.dart';
 import 'package:low_end/audio/click_output.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
@@ -27,6 +30,48 @@ void main() {
     expect(find.text('TAP'), findsOneWidget);
   });
 
+  testWidgets('swiping moves between the sections', (tester) async {
+    await tester.pumpWidget(
+      LowEndApp(toneOutput: SilentToneOutput(), micInput: FakeMicInput()),
+    );
+    await tester.pumpAndSettle();
+    final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
+    expect(scope.navigation.section, AppSection.metronome);
+
+    // Swipe on the empty top of the page, away from the dial.
+    await tester.fling(find.byType(PageView), const Offset(-400, 0), 1000);
+    await tester.pumpAndSettle();
+    expect(scope.navigation.section, AppSection.drone);
+    await tester.fling(find.byType(PageView), const Offset(-400, 0), 1000);
+    await tester.pumpAndSettle();
+    expect(scope.navigation.section, AppSection.tuner);
+    await tester.fling(find.byType(PageView), const Offset(400, 0), 1000);
+    await tester.pumpAndSettle();
+    expect(scope.navigation.section, AppSection.drone);
+  });
+
+  testWidgets('holding a tab starts and stops its sound', (tester) async {
+    final tone = SilentToneOutput();
+    final click = SilentClickOutput();
+    await tester.pumpWidget(
+      LowEndApp(toneOutput: tone, clickOutput: click, micInput: FakeMicInput()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.longPress(find.text('Metronome'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(click.bar, isNotNull);
+    await tester.longPress(find.text('Metronome'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(click.bar, isNull);
+
+    await tester.longPress(find.text('Drone'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tone.frequencies, isNotEmpty);
+    // Still on the Metronome tab: holding does not switch.
+    expect(find.text('Tap to start'), findsOneWidget);
+  });
+
   testWidgets('drone and metronome play together, pause on the tuner and '
       'carry on after', (tester) async {
     final tone = SilentToneOutput();
@@ -44,9 +89,12 @@ void main() {
     // pumpAndSettle would wait forever on the pulsing dots.
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
     expect(tone.frequencies.single, closeTo(440, 0.01));
 
     await tester.tap(find.text('Metronome'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(find.text('Tap to start'));
     await tester.pump(const Duration(milliseconds: 300));
@@ -57,6 +105,8 @@ void main() {
 
     // The tuner pauses both, so the microphone hears only the bass.
     await tester.tap(find.text('Tuner'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 300));
     expect(tone.frequencies, isEmpty);
     expect(click.bar, isNull);
@@ -65,6 +115,8 @@ void main() {
 
     // Leaving it, they carry on.
     await tester.tap(find.text('Drone'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 300));
     expect(tone.frequencies.single, closeTo(440, 0.01));
     expect(click.bar, isNotNull);

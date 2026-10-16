@@ -15,10 +15,36 @@
       }
     }
   },
+  "timeSignature": "Time signature",
+  "backgroundPlaying": "Playing in the background",
+  "holdToToggle": "Hold to start or stop",
   "slower": "Slower",
   "faster": "Faster",
   "tapTempo": "Tap the tempo",
   "droneStop": "Stop the drone",
+  "progressionLabel": "Progression",
+  "progressionMinorTwoFiveOne": "II–V–I minor",
+  "progressionBlues": "12-bar blues",
+  "addSevenths": "Add the seventh to the chords",
+  "degreeOf": "{degree} of {key}",
+  "@degreeOf": {
+    "placeholders": {
+      "degree": {
+        "type": "String"
+      },
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "droneChordDiminished": "{note} diminished",
+  "@droneChordDiminished": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
   "balanceLabel": "Metronome and drone balance",
   "balanceValue": "Metronome {metronome}%, drone {drone}%",
   "@balanceValue": {

@@ -1,33 +1,58 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../../../audio/pitch.dart';
 import '../../../audio/tone_output.dart';
+import 'harmony.dart';
 
-/// What the drone plays on its note: the note alone, or a chord built on it.
-enum DroneVoicing { root, chord }
+/// What the drone plays on its note: the note alone, a chord built on it,
+/// or a progression in its key.
+enum DroneVoicing { root, chord, progression }
 
+/// The chords offered in Chord mode.
 enum ChordType {
-  major([1, 5 / 4, 3 / 2], [4, 7]),
-  minor([1, 6 / 5, 3 / 2], [3, 7]),
-  seventh([1, 5 / 4, 3 / 2, 16 / 9], [4, 7, 10]);
+  major(ChordQuality.major),
+  minor(ChordQuality.minor),
 
-  const ChordType(this.ratios, this.semitones);
+  /// The dominant seventh: always with its seventh, which names it.
+  seventh(ChordQuality.dominant);
 
-  /// Pure (just) ratios to the root: they do not beat against each other,
-  /// which is what you want when checking intonation. The seventh is 16/9
-  /// (996 cents), the pure ratio closest to the minor seventh a bassist
-  /// plays: the harmonic seventh, 7/4, would sound 31 cents flat of it.
-  final List<double> ratios;
+  const ChordType(this.quality);
 
-  /// The notes above the root, in semitones: what they are called.
-  final List<int> semitones;
+  final ChordQuality quality;
 }
 
-/// State and playback of the drone: a sustained pure tone to practise on.
+/// The length and position of the bar a progression follows: the
+/// metronome's, so chords change on its "one".
+abstract interface class BarClock {
+  Duration get barLength;
+
+  /// How far into the bar it is, 0 to 1, or null when not counting.
+  double? get barPhase;
+}
+
+/// 4/4 at 80 BPM, for when nothing else keeps time.
+class _FixedBar implements BarClock {
+  const _FixedBar();
+
+  @override
+  Duration get barLength => const Duration(seconds: 3);
+
+  @override
+  double? get barPhase => null;
+}
+
+/// A chord as the drone plays it.
+typedef DroneChord = ({int root, ChordQuality quality, bool seventh});
+
+/// State and playback of the drone: a sustained tone to practise on.
 class DroneController extends ChangeNotifier {
-  DroneController(this._output);
+  DroneController(this._output, {BarClock? clock})
+    : _clock = clock ?? const _FixedBar();
 
   final ToneOutput _output;
+  final BarClock _clock;
 
   /// The drone always plays in the middle octave (A4 = 440 Hz): high enough
   /// for any phone speaker, and easy to hear against a bass.
@@ -47,6 +72,10 @@ class DroneController extends ChangeNotifier {
   Note _note = const Note(9, octave);
   DroneVoicing _voicing = DroneVoicing.root;
   ChordType _chord = ChordType.major;
+  Progression _progression = Progression.twoFiveOne;
+  bool _sevenths = false;
+  int _step = 0;
+  Timer? _barTimer;
   double _a4 = 440;
   var _disposed = false;
 
@@ -57,40 +86,85 @@ class DroneController extends ChangeNotifier {
 
   /// True when the last attempt to start sound failed on this device.
   bool get audioFailed => _audioFailed;
+
+  /// The note touched: the root, or the key of a progression.
   Note get note => _note;
   DroneVoicing get voicing => _voicing;
   ChordType get chord => _chord;
+  Progression get progression => _progression;
+
+  /// Whether chords and progressions add the seventh to their triads.
+  bool get sevenths => _sevenths;
+
+  /// The chord of the progression playing now, 0 for the first.
+  int get step => _step;
   double get a4 => _a4;
 
-  /// Frequency of the root note, in Hz.
-  double get frequency => _note.frequency(a4: _a4);
+  /// The chord sounding (or that would sound), or null for the note alone.
+  DroneChord? get currentChord => _chordAt(_step);
+
+  /// The next chord of the progression, or null outside a progression.
+  DroneChord? get nextChord => _voicing == DroneVoicing.progression
+      ? _chordAt((_step + 1) % _progression.steps.length)
+      : null;
+
+  DroneChord? _chordAt(int step) => switch (_voicing) {
+    DroneVoicing.root => null,
+    DroneVoicing.chord => (
+      root: _note.pitchClass,
+      quality: _chord.quality,
+      seventh: _sevenths || _chord == ChordType.seventh,
+    ),
+    DroneVoicing.progression => (
+      root: (_note.pitchClass + _progression.steps[step].offset) % 12,
+      quality: _progression.steps[step].quality,
+      seventh: _sevenths,
+    ),
+  };
+
+  /// The root sounding now: the note, or the root of the current chord.
+  int get rootPitchClass => currentChord?.root ?? _note.pitchClass;
+
+  /// Frequency of the root sounding, in Hz.
+  double get frequency => Note(rootPitchClass, octave).frequency(a4: _a4);
+
+  /// The pitch classes of the other notes of the chord sounding.
+  Set<int> get chordTones {
+    final c = currentChord;
+    if (c == null) return const {};
+    return {
+      for (final s in c.quality.semitones(seventh: c.seventh))
+        (c.root + s) % 12,
+    };
+  }
 
   /// Frequencies currently sounding: the root, then the rest of the chord.
-  /// The pitch classes of the other notes of the chord, when a chord is
-  /// chosen.
-  Set<int> get chordTones => _voicing == DroneVoicing.chord
-      ? {for (final s in _chord.semitones) (_note.pitchClass + s) % 12}
-      : const {};
+  List<double> get frequencies => _frequenciesOf(currentChord);
 
-  List<double> get frequencies => [
-    for (final ratio in _voicing == DroneVoicing.root ? [1.0] : _chord.ratios)
-      frequency * ratio,
-  ];
+  List<double> _frequenciesOf(DroneChord? c) {
+    final root = Note(c?.root ?? _note.pitchClass, octave).frequency(a4: _a4);
+    final ratios = c == null ? [1.0] : c.quality.ratios(seventh: c.seventh);
+    return [for (final r in ratios) root * r];
+  }
 
   /// The root a little louder than the notes above it.
-  List<double> get _gains => [
-    for (var i = 0; i < frequencies.length; i++) i == 0 ? 1.0 : 0.7,
+  static List<double> _gainsFor(int voices) => [
+    for (var i = 0; i < voices; i++) i == 0 ? 1.0 : 0.7,
   ];
 
   Future<void> start() {
     _playing = true;
     _audioFailed = false;
+    _step = 0;
     _notify();
+    _prepareProgression();
+    _scheduleBar();
     return _sync();
   }
 
   Future<void> stop() {
     _playing = false;
+    _barTimer?.cancel();
     _notify();
     return _sync();
   }
@@ -107,17 +181,27 @@ class DroneController extends ChangeNotifier {
 
   void setPitchClass(int pitchClass) {
     if (pitchClass == _note.pitchClass) return;
-    _update(() => _note = Note(pitchClass, octave));
+    _update(() => _note = Note(pitchClass, octave), restart: true);
   }
 
   void setVoicing(DroneVoicing voicing) {
     if (voicing == _voicing) return;
-    _update(() => _voicing = voicing);
+    _update(() => _voicing = voicing, restart: true);
   }
 
   void setChord(ChordType chord) {
     if (chord == _chord) return;
     _update(() => _chord = chord);
+  }
+
+  void setProgression(Progression progression) {
+    if (progression == _progression) return;
+    _update(() => _progression = progression, restart: true);
+  }
+
+  void setSevenths(bool sevenths) {
+    if (sevenths == _sevenths) return;
+    _update(() => _sevenths = sevenths);
   }
 
   /// Sets the level from the metronome / drone balance, 0 to 1.
@@ -139,10 +223,51 @@ class DroneController extends ChangeNotifier {
     _update(() => _a4 = a4);
   }
 
-  void _update(VoidCallback change) {
+  /// Applies [change]; with [restart], a progression starts again from its
+  /// first chord.
+  void _update(VoidCallback change, {bool restart = false}) {
     change();
+    if (restart) _step = 0;
     _notify();
-    if (_playing) _sync();
+    if (!_playing) return;
+    _prepareProgression();
+    if (restart) _scheduleBar();
+    _sync();
+  }
+
+  /// Gets every chord of the progression ready, so each change of chord
+  /// sounds on time.
+  void _prepareProgression() {
+    if (_voicing != DroneVoicing.progression) return;
+    final chords = [
+      for (var i = 0; i < _progression.steps.length; i++)
+        _frequenciesOf(_chordAt(i)),
+    ];
+    _output
+        .prepare([for (final f in chords) (f, _gainsFor(f.length))])
+        .catchError((Object error) {
+          debugPrint('Drone could not prepare the progression: $error');
+        });
+  }
+
+  /// Moves to the next chord at the next bar line: the metronome's "one"
+  /// when it is counting, otherwise a bar of its tempo from now.
+  void _scheduleBar() {
+    _barTimer?.cancel();
+    if (!_playing || _voicing != DroneVoicing.progression) return;
+    final bar = _clock.barLength;
+    final phase = _clock.barPhase;
+    var wait = phase == null ? bar : bar * (1 - phase);
+    // Just after a bar line, wait for the next one rather than cut short
+    // the chord that has only just started.
+    if (wait < const Duration(milliseconds: 150)) wait += bar;
+    _barTimer = Timer(wait, () {
+      if (!_playing || _disposed) return;
+      _step = (_step + 1) % _progression.steps.length;
+      _notify();
+      _sync();
+      _scheduleBar();
+    });
   }
 
   /// Brings the sound in line with [isPlaying] and the current settings.
@@ -167,11 +292,13 @@ class DroneController extends ChangeNotifier {
   Future<void> _play() async {
     if (!_playing || _disposed) return;
     try {
-      await _output.play(frequencies, _gains, _volume);
+      final f = frequencies;
+      await _output.play(f, _gainsFor(f.length), _volume);
     } catch (error) {
       debugPrint('Drone could not start: $error');
       _playing = false;
       _audioFailed = true;
+      _barTimer?.cancel();
       _notify();
     }
     // Stopped (or failed) while starting: voices that only started now
@@ -195,6 +322,7 @@ class DroneController extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _playing = false;
+    _barTimer?.cancel();
     _sync();
     super.dispose();
   }

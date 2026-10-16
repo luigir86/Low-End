@@ -38,6 +38,9 @@ class _GatedOutput implements ToneOutput {
   var mostAtOnce = 0;
 
   @override
+  Future<void> prepare(List<(List<double>, List<double>)> sounds) async {}
+
+  @override
   Future<void> play(List<double> f, List<double> gains, double v) async {
     running++;
     mostAtOnce = math.max(mostAtOnce, running);

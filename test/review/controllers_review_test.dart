@@ -73,6 +73,9 @@ class SlowToneOutput implements ToneOutput {
   bool failNextPlay = false;
 
   @override
+  Future<void> prepare(List<(List<double>, List<double>)> sounds) async {}
+
+  @override
   Future<void> play(List<double> f, List<double> gains, double v) async {
     playCalls++;
     if (failNextPlay) {

@@ -19,6 +19,10 @@ abstract class ToneOutput {
     double volume,
   );
 
+  /// Gets [sounds] (frequencies and gains, as for [play]) ready to play at
+  /// once later, such as the chords of a progression.
+  Future<void> prepare(List<(List<double>, List<double>)> sounds);
+
   /// Changes the overall volume, 0 to 1, of the tones already playing.
   void setVolume(double volume);
 
@@ -27,18 +31,38 @@ abstract class ToneOutput {
 
 /// [ToneOutput] backed by the SoLoud audio engine.
 ///
-/// Plays the tone made by DroneSound as a seamless loop. Calls are expected
-/// one at a time (DroneController waits for each one to finish before the
-/// next).
+/// Plays the tone made by DroneSound as a seamless loop. Calls to [play]
+/// are expected one at a time (DroneController waits for each one to
+/// finish before the next).
 class SoLoudToneOutput implements ToneOutput {
   static const _fade = Duration(milliseconds: 80);
 
-  AudioSource? _source;
+  /// The tones built and loaded so far, by [_key].
+  final _sources = <String, Future<AudioSource>>{};
   SoundHandle? _handle;
-  List<double> _frequencies = const [];
-  List<double> _gains = const [];
+  String? _playing;
 
   SoLoud get _soloud => SoLoud.instance;
+
+  static String _key(List<double> frequencies, List<double> gains) =>
+      '$frequencies $gains';
+
+  /// Static, so that the closure sent to the isolate cannot capture `this`
+  /// (and with it the futures of [_sources], which cannot be sent).
+  static Future<Uint8List> _build(
+    List<double> frequencies,
+    List<double> gains,
+  ) => Isolate.run(() => DroneSound.loopWav(frequencies, gains));
+
+  /// The loaded tone for these frequencies, built the first time it is
+  /// asked for.
+  Future<AudioSource> _source(List<double> frequencies, List<double> gains) =>
+      _sources.putIfAbsent(_key(frequencies, gains), () async {
+        await ensureSoLoud();
+        // Building the tone takes a moment: away from the screen's thread.
+        final wav = await _build(frequencies, gains);
+        return _soloud.loadMem('drone.wav', wav);
+      });
 
   @override
   Future<void> play(
@@ -47,25 +71,36 @@ class SoLoudToneOutput implements ToneOutput {
     double volume,
   ) async {
     assert(gains.length == frequencies.length);
-    await ensureSoLoud();
-    if (_handle != null &&
-        listEquals(frequencies, _frequencies) &&
-        listEquals(gains, _gains)) {
+    final key = _key(frequencies, gains);
+    if (_handle != null && key == _playing) {
       setVolume(volume);
       return;
     }
-    // Building the tone takes a moment: away from the screen's thread.
-    final wav = await Isolate.run(() => DroneSound.loopWav(frequencies, gains));
-    final source = await _soloud.loadMem('drone.wav', wav);
+    final AudioSource source;
+    try {
+      source = await _source(frequencies, gains);
+    } catch (_) {
+      // Let the next call try again.
+      _sources.remove(key);
+      rethrow;
+    }
     final handle = _soloud.play(source, volume: 0, looping: true);
     // The new tone fades in while the old one fades out: no click, no gap.
     _soloud.fadeVolume(handle, volume, _fade);
-    final oldHandle = _handle, oldSource = _source;
+    final old = _handle;
     _handle = handle;
-    _source = source;
-    _frequencies = List.of(frequencies);
-    _gains = List.of(gains);
-    await _release(oldHandle, oldSource);
+    _playing = key;
+    await _fadeOut(old);
+  }
+
+  @override
+  Future<void> prepare(List<(List<double>, List<double>)> sounds) async {
+    final keep = {for (final (f, g) in sounds) _key(f, g), ?_playing};
+    // Free the tones no longer needed, such as another key's chords.
+    for (final key in _sources.keys.toList()) {
+      if (!keep.contains(key)) _dispose(key);
+    }
+    await Future.wait([for (final (f, g) in sounds) _source(f, g)]);
   }
 
   @override
@@ -76,22 +111,26 @@ class SoLoudToneOutput implements ToneOutput {
 
   @override
   Future<void> stop() async {
-    final handle = _handle, source = _source;
+    final handle = _handle;
     _handle = null;
-    _source = null;
-    _frequencies = const [];
-    await _release(handle, source);
+    _playing = null;
+    await _fadeOut(handle);
+    for (final key in _sources.keys.toList()) {
+      _dispose(key);
+    }
   }
 
-  /// Fades [handle] out, then stops it and frees [source].
-  Future<void> _release(SoundHandle? handle, AudioSource? source) async {
-    if (handle != null) {
-      _soloud.fadeVolume(handle, 0, _fade);
-      _soloud.scheduleStop(handle, _fade);
-      // Let the fade finish so stopping does not click.
-      await Future<void>.delayed(_fade);
-    }
-    if (source != null) await _soloud.disposeSource(source);
+  /// Fades [handle] out and stops it, without a click.
+  Future<void> _fadeOut(SoundHandle? handle) async {
+    if (handle == null) return;
+    _soloud.fadeVolume(handle, 0, _fade);
+    _soloud.scheduleStop(handle, _fade);
+    await Future<void>.delayed(_fade);
+  }
+
+  void _dispose(String key) {
+    final source = _sources.remove(key);
+    source?.then(_soloud.disposeSource).catchError((Object _) {});
   }
 }
 
@@ -101,11 +140,18 @@ class SilentToneOutput implements ToneOutput {
   List<double> frequencies = const [];
   double volume = 0;
 
+  /// What [prepare] was last asked for.
+  List<(List<double>, List<double>)> prepared = const [];
+
   @override
   Future<void> play(List<double> f, List<double> gains, double v) async {
     frequencies = f;
     volume = v;
   }
+
+  @override
+  Future<void> prepare(List<(List<double>, List<double>)> sounds) async =>
+      prepared = sounds;
 
   @override
   void setVolume(double v) => volume = v;

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:low_end/audio/click_output.dart';
 import 'package:low_end/audio/click_sound.dart';
 import 'package:low_end/features/metronome/metronome_controller.dart';
+import 'package:low_end/features/metronome/time_signature.dart';
 
 /// Number of samples in the WAV data of [wav] (16-bit mono).
 int _samples(Uint8List wav) => (wav.length - 44) ~/ 2;
@@ -113,6 +114,54 @@ void main() {
       expect(_samples(slow.bar!), ClickSound.sampleRate * 60 * 4 ~/ 100);
     },
   );
+
+  test(
+    'always starts from the first beat, even if the screen ran ahead',
+    () async {
+      final slow = _SlowClickOutput();
+      final m = MetronomeController(slow);
+      await m.start();
+      expect(slow.startAt, Duration.zero);
+    },
+  );
+
+  test('holding + or − lands on multiples of 5, then 10', () {
+    metronome.setBpm(83);
+    metronome.nudge(1, 5);
+    expect(metronome.bpm, 85);
+    metronome.nudge(1, 5);
+    expect(metronome.bpm, 90);
+    metronome.nudge(-1, 10);
+    expect(metronome.bpm, 80);
+    metronome.setBpm(33);
+    metronome.nudge(-1, 5);
+    expect(metronome.bpm, 30);
+    metronome.nudge(-1, 5);
+    expect(metronome.bpm, 30);
+  });
+
+  test('a bar follows the time signature', () async {
+    metronome.setBpm(60);
+    await metronome.start();
+    metronome.setSignature(TimeSignature.sixEight);
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    // Six pulses of one second.
+    expect(metronome.beatsPerBar, 6);
+    expect(_samples(output.bar!), 6 * ClickSound.sampleRate);
+    // A new bar starts from its "one".
+    expect(output.startAt, Duration.zero);
+  });
+
+  test('6/8 and 3/4 differ in where the strong pulses fall', () {
+    List<int> accents(TimeSignature s) => [
+      for (var b = 0; b < s.beats; b++) s.accent(b),
+    ];
+    expect(accents(TimeSignature.threeFour), [0, 2, 2]);
+    expect(accents(TimeSignature.sixEight), [0, 2, 2, 1, 2, 2]);
+    expect(accents(TimeSignature.sevenEight), [0, 2, 1, 2, 1, 2, 2]);
+    expect(TimeSignature.sixEight.feel, '3 + 3');
+    expect(TimeSignature.threeFour.feel, '3');
+  });
 
   test('a failure to start is reported, not thrown', () async {
     final m = MetronomeController(_FailingClickOutput());

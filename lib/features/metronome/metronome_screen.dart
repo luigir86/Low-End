@@ -10,11 +10,13 @@ import '../../l10n/app_localizations.dart';
 import '../../widgets/balance_slider.dart';
 import '../../widgets/dial.dart';
 import 'metronome_controller.dart';
+import 'time_signature.dart';
 
-/// The metronome, in 4/4: a ring of four segments lights up clockwise, one
-/// per beat (top, right, bottom, left), with the "one" at the top in its
-/// own colour, and a dot in the middle swells on every beat. Touching the
-/// ring starts and stops it; the tempo sits below, with − and + and TAP.
+/// The metronome: a ring with one segment per beat of the bar (4 in 4/4,
+/// 6 in 6/8, and so on) lights up clockwise from 12 o'clock, with the "one"
+/// in its own colour, and a dot in the middle swells on every beat. In
+/// bars felt in groups (6/8) wider gaps split the groups. Touching the ring
+/// starts and stops it; the tempo sits below, with − and + and TAP.
 class MetronomeScreen extends StatelessWidget {
   const MetronomeScreen({super.key});
 
@@ -42,7 +44,13 @@ class MetronomeScreen extends StatelessWidget {
               ),
           ],
         ),
-        lower: _TapButton(metronome: metronome),
+        lower: Row(
+          children: [
+            _SignatureButton(metronome: metronome),
+            const SizedBox(width: 12),
+            Expanded(child: _TapButton(metronome: metronome)),
+          ],
+        ),
         footer: const BalanceSlider(),
       ),
     );
@@ -179,16 +187,34 @@ class _RingPainter extends CustomPainter {
     dial.paintBase(canvas, disc: background, hub: colors.surface);
 
     final beat = metronome.beat;
-    const quarter = math.pi / 2;
-    for (var b = 0; b < MetronomeController.beatsPerBar; b++) {
-      // Beat 0 is centred at the top, then clockwise.
+    final signature = metronome.signature;
+    final count = signature.beats;
+    final slice = 2 * math.pi / count;
+    // Wider gaps between the groups of a bar such as 6/8, so that it does
+    // not look like 3/4 with twice the segments.
+    const groupGap = 0.14;
+    for (var b = 0; b < count; b++) {
+      final opens = signature.grouped && signature.accent(b) < 2;
+      final closes = signature.grouped && signature.accent((b + 1) % count) < 2;
+      final start = DialGeometry.gap / 2 + (opens ? groupGap / 2 : 0);
+      final end = DialGeometry.gap / 2 + (closes ? groupGap / 2 : 0);
+      // Beat 0 starts at 12 o'clock, then clockwise.
+      final Color color;
+      if (b != beat) {
+        color = colors.outlineVariant;
+      } else if (b == 0) {
+        color = colors.tertiary;
+      } else if (signature.grouped && !opens) {
+        // The weak pulses of a group are softer than its first.
+        color = colors.primary.withValues(alpha: 0.6);
+      } else {
+        color = colors.primary;
+      }
       dial.paintSegment(
         canvas,
-        startAngle: b * quarter - quarter / 2 + DialGeometry.gap / 2,
-        sweep: quarter - DialGeometry.gap,
-        color: b == beat
-            ? (b == 0 ? colors.tertiary : colors.primary)
-            : colors.outlineVariant,
+        startAngle: b * slice + start,
+        sweep: slice - start - end,
+        color: color,
       );
     }
 
@@ -235,6 +261,7 @@ class _TempoControls extends StatelessWidget {
           onStep: metronome.bpm > MetronomeController.minBpm
               ? () => metronome.step(-1)
               : null,
+          onHold: (unit) => metronome.nudge(-1, unit),
         ),
         Flexible(
           child: ConstrainedBox(
@@ -268,24 +295,34 @@ class _TempoControls extends StatelessWidget {
           onStep: metronome.bpm < MetronomeController.maxBpm
               ? () => metronome.step(1)
               : null,
+          onHold: (unit) => metronome.nudge(1, unit),
         ),
       ],
     );
   }
 }
 
-/// A round button that steps once when tapped, and keeps stepping, faster
-/// and faster, while held.
+/// A round button that steps by one when tapped, and when held keeps going
+/// by fives (to the next multiple of 5), then by tens after a couple of
+/// seconds.
 class _RepeatButton extends StatefulWidget {
   const _RepeatButton({
     required this.icon,
     required this.tooltip,
     required this.onStep,
+    required this.onHold,
   });
 
   final IconData icon;
   final String tooltip;
   final VoidCallback? onStep;
+
+  /// Called again and again while held, with the size of the step.
+  final void Function(int unit) onHold;
+
+  /// How long the steps of 5 last before they become steps of 10.
+  static const _tensAfter = Duration(seconds: 2);
+  static const _every = Duration(milliseconds: 220);
 
   @override
   State<_RepeatButton> createState() => _RepeatButtonState();
@@ -293,28 +330,26 @@ class _RepeatButton extends StatefulWidget {
 
 class _RepeatButtonState extends State<_RepeatButton> {
   Timer? _timer;
-  var _steps = 0;
+  final _held = Stopwatch();
 
   void _startRepeat() {
-    _steps = 0;
-    _schedule();
+    _held
+      ..reset()
+      ..start();
+    // The first step comes at once, as the hold is recognised.
+    _tick();
   }
 
-  void _schedule() {
-    // 6 steps a second at first, then 20.
-    final delay = Duration(milliseconds: _steps < 8 ? 160 : 50);
-    _timer = Timer(delay, () {
-      final step = widget.onStep;
-      if (step == null) return _stopRepeat();
-      step();
-      _steps++;
-      _schedule();
-    });
+  void _tick() {
+    if (widget.onStep == null) return _stopRepeat();
+    widget.onHold(_held.elapsed < _RepeatButton._tensAfter ? 5 : 10);
+    _timer = Timer(_RepeatButton._every, _tick);
   }
 
   void _stopRepeat() {
     _timer?.cancel();
     _timer = null;
+    _held.stop();
   }
 
   @override
@@ -339,6 +374,69 @@ class _RepeatButtonState extends State<_RepeatButton> {
         onPressed: widget.onStep,
       ),
     );
+  }
+}
+
+/// Shows the time signature and opens the list to choose another.
+class _SignatureButton extends StatelessWidget {
+  const _SignatureButton({required this.metronome});
+
+  final MetronomeController metronome;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final signature = metronome.signature;
+    return Semantics(
+      label: l10n.timeSignature,
+      value: signature.label,
+      button: true,
+      excludeSemantics: true,
+      onTap: () => _choose(context),
+      child: OutlinedButton(
+        onPressed: () => _choose(context),
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(88, 64),
+          textStyle: Theme.of(context).textTheme.titleLarge
+              ?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        child: Text(signature.label),
+      ),
+    );
+  }
+
+  Future<void> _choose(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final picked = await showModalBottomSheet<TimeSignature>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                l10n.timeSignature,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              for (final s in TimeSignature.all)
+                ListTile(
+                  title: Text(s.label),
+                  // How the bar is felt: 3/4 is "3", 6/8 is "3 + 3".
+                  subtitle: Text(s.feel),
+                  selected: s == metronome.signature,
+                  trailing: s == metronome.signature
+                      ? const Icon(Icons.check)
+                      : null,
+                  onTap: () => Navigator.of(context).pop(s),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (picked != null) metronome.setSignature(picked);
   }
 }
 

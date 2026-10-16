@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import '../features/metronome/time_signature.dart';
+
 /// The metronome click, made in code: a short, dry woodblock-like tick, the
 /// kind DAWs use, pitched in the middle so it cuts through without tiring
 /// the ear. The first beat of the bar is a little higher, to hear the "one".
@@ -11,11 +13,14 @@ abstract final class ClickSound {
   static const plainHz = 800.0;
   static const accentHz = 1000.0;
 
+  /// Pitch of the first pulse of each group, in 6/8 and the like.
+  static const groupHz = 900.0;
+
   static const _length = Duration(milliseconds: 60);
 
   /// One click, samples from -1 to 1.
-  static Float64List click({required bool accent}) {
-    final f = accent ? accentHz : plainHz;
+  static Float64List click({required bool accent, double? hz}) {
+    final f = hz ?? (accent ? accentHz : plainHz);
     final n = _length.inMicroseconds * sampleRate ~/ 1000000;
     final random = math.Random(accent ? 1 : 2);
     return Float64List.fromList([
@@ -38,12 +43,21 @@ abstract final class ClickSound {
   /// One whole bar at [bpm], a click at the start of each beat, as a WAV
   /// file: the audio engine loops it, so the beats stay exactly in time
   /// however busy the phone is.
-  static Uint8List bar({required int bpm, int beats = 4}) {
+  static Uint8List bar({
+    required int bpm,
+    TimeSignature signature = TimeSignature.fourFour,
+  }) {
+    final beats = signature.beats;
     final beatLength = (sampleRate * 60 / bpm).round();
     final samples = Float64List(beatLength * beats);
     final plain = click(accent: false), accent = click(accent: true);
+    final group = click(accent: false, hz: groupHz);
     for (var b = 0; b < beats; b++) {
-      final tick = b == 0 ? accent : plain;
+      final tick = switch (signature.accent(b)) {
+        0 => accent,
+        1 => group,
+        _ => plain,
+      };
       samples.setRange(b * beatLength, b * beatLength + tick.length, tick);
     }
     return wav(samples);

@@ -146,6 +146,24 @@ abstract class AppLocalizations {
   /// **'{bpm} BPM'**
   String bpmValue(String bpm);
 
+  /// No description provided for @timeSignature.
+  ///
+  /// In en, this message translates to:
+  /// **'Time signature'**
+  String get timeSignature;
+
+  /// No description provided for @backgroundPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing in the background'**
+  String get backgroundPlaying;
+
+  /// No description provided for @holdToToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold to start or stop'**
+  String get holdToToggle;
+
   /// No description provided for @slower.
   ///
   /// In en, this message translates to:
@@ -169,6 +187,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop the drone'**
   String get droneStop;
+
+  /// No description provided for @progressionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Progression'**
+  String get progressionLabel;
+
+  /// No description provided for @progressionMinorTwoFiveOne.
+  ///
+  /// In en, this message translates to:
+  /// **'II–V–I minor'**
+  String get progressionMinorTwoFiveOne;
+
+  /// No description provided for @progressionBlues.
+  ///
+  /// In en, this message translates to:
+  /// **'12-bar blues'**
+  String get progressionBlues;
+
+  /// No description provided for @addSevenths.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the seventh to the chords'**
+  String get addSevenths;
+
+  /// No description provided for @degreeOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{degree} of {key}'**
+  String degreeOf(String degree, String key);
+
+  /// No description provided for @droneChordDiminished.
+  ///
+  /// In en, this message translates to:
+  /// **'{note} diminished'**
+  String droneChordDiminished(String note);
 
   /// No description provided for @balanceLabel.
   ///

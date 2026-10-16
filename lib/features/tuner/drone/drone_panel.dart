@@ -10,6 +10,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../widgets/balance_slider.dart';
 import '../../../widgets/dial.dart';
 import 'drone_controller.dart';
+import 'harmony.dart';
 
 /// The twelve notes in circle-of-fifths order, C at the top and clockwise:
 /// each step is a fifth up, so the neighbours of a key are its closest
@@ -67,9 +68,14 @@ class _FifthsDial extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final playing = drone.isPlaying ? drone.note.pitchClass : null;
+    final playing = drone.isPlaying ? drone.rootPitchClass : null;
     // The rest of the chord, lit in a second colour while it sounds.
     final chord = drone.isPlaying ? drone.chordTones : const <int>{};
+    // In a progression: the key, always marked, and where it goes next.
+    final inProgression =
+        drone.isPlaying && drone.voicing == DroneVoicing.progression;
+    final tonic = inProgression ? drone.note.pitchClass : null;
+    final next = inProgression ? drone.nextChord?.root : null;
     return LayoutBuilder(
       builder: (context, constraints) {
         final size = constraints.biggest;
@@ -86,6 +92,8 @@ class _FifthsDial extends StatelessWidget {
                 painter: _FifthsPainter(
                   playing: playing,
                   chord: chord,
+                  tonic: tonic,
+                  next: next,
                   colors: theme.colorScheme,
                   disc: LowEndColors.of(context).strobeBackground,
                 ),
@@ -149,17 +157,22 @@ class _FifthsDial extends StatelessWidget {
 }
 
 /// The ring of twelve segments: the root playing lit, the rest of a chord
-/// in a second colour.
+/// in a second colour; in a progression, a dot on the key and an outline
+/// on the root that comes next.
 class _FifthsPainter extends CustomPainter {
   _FifthsPainter({
     required this.playing,
     required this.chord,
+    required this.tonic,
+    required this.next,
     required this.colors,
     required this.disc,
   });
 
   final int? playing;
   final Set<int> chord;
+  final int? tonic;
+  final int? next;
   final ColorScheme colors;
   final Color disc;
 
@@ -169,16 +182,43 @@ class _FifthsPainter extends CustomPainter {
     dial.paintBase(canvas, disc: disc, hub: colors.surface);
     const step = math.pi / 6;
     for (var i = 0; i < 12; i++) {
+      final pc = circleOfFifths[i];
+      final lit = playing == pc;
+      final inChord = chord.contains(pc);
+      final start = i * step - step / 2 + DialGeometry.gap / 2;
+      const sweep = step - DialGeometry.gap;
       dial.paintSegment(
         canvas,
-        startAngle: i * step - step / 2 + DialGeometry.gap / 2,
-        sweep: step - DialGeometry.gap,
-        color: playing == circleOfFifths[i]
+        startAngle: start,
+        sweep: sweep,
+        color: lit
             ? colors.primary
-            : chord.contains(circleOfFifths[i])
+            : inChord
             ? colors.secondary
             : colors.outlineVariant,
       );
+      if (next == pc && !lit) {
+        dial.paintSegment(
+          canvas,
+          startAngle: start,
+          sweep: sweep,
+          color: colors.primary,
+          stroke: 3,
+        );
+      }
+      if (tonic == pc) {
+        // A dot by the inner edge, in a colour that shows on the segment.
+        canvas.drawCircle(
+          dial.pointAt(i * step, dial.ringInner + dial.ringWidth * 0.14),
+          dial.ringWidth * 0.06,
+          Paint()
+            ..color = lit
+                ? colors.onPrimary
+                : inChord
+                ? colors.onSecondary
+                : colors.primary,
+        );
+      }
     }
   }
 
@@ -186,6 +226,8 @@ class _FifthsPainter extends CustomPainter {
   bool shouldRepaint(_FifthsPainter old) =>
       old.playing != playing ||
       !setEquals(old.chord, chord) ||
+      old.tonic != tonic ||
+      old.next != next ||
       old.colors != colors ||
       old.disc != disc;
 }
@@ -249,8 +291,9 @@ class _NoteKey extends StatelessWidget {
   }
 }
 
-/// What is sounding, in the middle of the dial: the note with its octave
-/// small beside it, as on the tuner, then the chord if one is played.
+/// What is sounding, in the middle of the dial: the root with its octave
+/// small beside it, as on the tuner, then the chord, and in a progression
+/// its degree in the key and how far through it is.
 class _DialCenter extends StatelessWidget {
   const _DialCenter({required this.drone, required this.names});
 
@@ -271,6 +314,9 @@ class _DialCenter extends StatelessWidget {
       fontWeight: FontWeight.w600,
       color: theme.colorScheme.primary,
     );
+    final root = Note(drone.rootPitchClass, DroneController.octave);
+    final chord = drone.currentChord;
+    final inProgression = drone.voicing == DroneVoicing.progression;
     return Semantics(
       liveRegion: true,
       child: Column(
@@ -279,9 +325,9 @@ class _DialCenter extends StatelessWidget {
           Text.rich(
             TextSpan(
               children: [
-                TextSpan(text: drone.note.name(names)),
+                TextSpan(text: root.name(names)),
                 TextSpan(
-                  text: '${drone.note.octaveIn(names)}',
+                  text: '${root.octaveIn(names)}',
                   style: TextStyle(fontSize: (noteStyle?.fontSize ?? 45) * 0.4),
                 ),
               ],
@@ -289,16 +335,63 @@ class _DialCenter extends StatelessWidget {
             style: noteStyle,
             textAlign: TextAlign.center,
           ),
-          if (drone.voicing == DroneVoicing.chord)
+          if (chord != null)
             Text(
-              chordSymbol(l10n, drone.chord, drone.note.name(names)),
+              chordSymbol(l10n, chord, root.name(names)),
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium,
             ),
-          Text(
-            l10n.frequencyHz(drone.frequency.toStringAsFixed(1)),
-            style: muted,
-          ),
+          if (inProgression) ...[
+            Text(
+              l10n.degreeOf(
+                drone.progression.steps[drone.step].numeral,
+                drone.note.name(names),
+              ),
+              style: muted,
+            ),
+            const SizedBox(height: 6),
+            _StepDots(
+              count: drone.progression.steps.length,
+              current: drone.step,
+            ),
+          ] else
+            Text(
+              l10n.frequencyHz(drone.frequency.toStringAsFixed(1)),
+              style: muted,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One dot per chord of the progression, the one playing filled.
+class _StepDots extends StatelessWidget {
+  const _StepDots({required this.count, required this.current});
+
+  final int count;
+  final int current;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    // Twelve bars of blues need smaller dots to fit.
+    final size = count > 6 ? 7.0 : 10.0;
+    return ExcludeSemantics(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < count; i++)
+            Container(
+              width: size,
+              height: size,
+              margin: EdgeInsets.symmetric(horizontal: size / 3),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: i == current ? colors.primary : null,
+                border: Border.all(color: colors.outline, width: 1.2),
+              ),
+            ),
         ],
       ),
     );
@@ -312,15 +405,35 @@ String chordName(AppLocalizations l10n, ChordType chord) => switch (chord) {
   ChordType.seventh => l10n.chordSeventh,
 };
 
-/// A chord on [note], as musicians write it: "A major", "La minore", "A7".
-String chordSymbol(AppLocalizations l10n, ChordType chord, String note) =>
-    switch (chord) {
-      ChordType.major => l10n.droneChordMajor(note),
-      ChordType.minor => l10n.droneChordMinor(note),
-      ChordType.seventh => l10n.droneChordSeventh(note),
+/// A chord on [note], as musicians write it: "A major", "La minore", "A7",
+/// "Rem7", "Domaj7".
+String chordSymbol(AppLocalizations l10n, DroneChord chord, String note) {
+  if (chord.seventh) {
+    return switch (chord.quality) {
+      ChordQuality.major => '${note}maj7',
+      ChordQuality.minor => '${note}m7',
+      ChordQuality.dominant => l10n.droneChordSeventh(note),
+      ChordQuality.halfDiminished => '${note}m7♭5',
     };
+  }
+  return switch (chord.quality) {
+    ChordQuality.major || ChordQuality.dominant => l10n.droneChordMajor(note),
+    ChordQuality.minor => l10n.droneChordMinor(note),
+    ChordQuality.halfDiminished => l10n.droneChordDiminished(note),
+  };
+}
 
-/// Root or Chord, full width, as tall as the other sections' first row.
+/// The name of a progression, as listed in its menu.
+String progressionName(AppLocalizations l10n, Progression p) => switch (p) {
+  Progression.twoFiveOne => 'II–V–I',
+  Progression.minorTwoFiveOne => l10n.progressionMinorTwoFiveOne,
+  Progression.oneFourFive => 'I–IV–V',
+  Progression.oneSixFourFive => 'I–VI–IV–V',
+  Progression.blues => l10n.progressionBlues,
+};
+
+/// Root, Chord or Progression, full width, as tall as the other sections'
+/// first row.
 class _VoicingSwitch extends StatelessWidget {
   const _VoicingSwitch({required this.drone});
 
@@ -329,6 +442,9 @@ class _VoicingSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    // Long words ("Progressione") shrink rather than break mid-word.
+    Widget label(String text) =>
+        FittedBox(fit: BoxFit.scaleDown, child: Text(text, maxLines: 1));
     return SizedBox(
       width: double.infinity,
       child: SegmentedButton<DroneVoicing>(
@@ -337,10 +453,14 @@ class _VoicingSwitch extends StatelessWidget {
         showSelectedIcon: false,
         style: SegmentedButton.styleFrom(minimumSize: const Size(0, 64)),
         segments: [
-          ButtonSegment(value: DroneVoicing.root, label: Text(l10n.rootOnly)),
+          ButtonSegment(value: DroneVoicing.root, label: label(l10n.rootOnly)),
           ButtonSegment(
             value: DroneVoicing.chord,
-            label: Text(l10n.chordLabel),
+            label: label(l10n.chordLabel),
+          ),
+          ButtonSegment(
+            value: DroneVoicing.progression,
+            label: label(l10n.progressionLabel),
           ),
         ],
         selected: {drone.voicing},
@@ -350,8 +470,9 @@ class _VoicingSwitch extends StatelessWidget {
   }
 }
 
-/// Which chord: shown only when a chord plays, its place kept otherwise so
-/// the rows line up with the other sections.
+/// Which chord or which progression, and whether to add sevenths: hidden
+/// for the root alone, its place kept so the rows line up with the other
+/// sections.
 class _ChordMenu extends StatelessWidget {
   const _ChordMenu({required this.drone});
 
@@ -360,23 +481,72 @@ class _ChordMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final progression = drone.voicing == DroneVoicing.progression;
     return Visibility(
-      visible: drone.voicing == DroneVoicing.chord,
+      visible: drone.voicing != DroneVoicing.root,
       maintainSize: true,
       maintainAnimation: true,
       maintainState: true,
-      child: DropdownMenu<ChordType>(
-        expandedInsets: EdgeInsets.zero,
-        // Also what screen readers announce with the choice.
-        label: Text(l10n.chordLabel),
-        initialSelection: drone.chord,
-        dropdownMenuEntries: [
-          for (final chord in ChordType.values)
-            DropdownMenuEntry(value: chord, label: chordName(l10n, chord)),
+      child: Row(
+        children: [
+          Expanded(
+            child: progression
+                ? DropdownMenu<Progression>(
+                    key: const ValueKey('progression'),
+                    expandedInsets: EdgeInsets.zero,
+                    // Also what screen readers announce with the choice.
+                    label: Text(l10n.progressionLabel),
+                    initialSelection: drone.progression,
+                    dropdownMenuEntries: [
+                      for (final p in Progression.values)
+                        DropdownMenuEntry(
+                          value: p,
+                          label: progressionName(l10n, p),
+                        ),
+                    ],
+                    onSelected: (p) {
+                      if (p != null) drone.setProgression(p);
+                    },
+                  )
+                : DropdownMenu<ChordType>(
+                    key: const ValueKey('chord'),
+                    expandedInsets: EdgeInsets.zero,
+                    label: Text(l10n.chordLabel),
+                    initialSelection: drone.chord,
+                    dropdownMenuEntries: [
+                      for (final chord in ChordType.values)
+                        DropdownMenuEntry(
+                          value: chord,
+                          label: chordName(l10n, chord),
+                        ),
+                    ],
+                    onSelected: (c) {
+                      if (c != null) drone.setChord(c);
+                    },
+                  ),
+          ),
+          const SizedBox(width: 12),
+          // Adds the seventh to every chord: maj7, m7, 7, m7♭5.
+          Tooltip(
+            message: l10n.addSevenths,
+            child: FilterChip(
+              // The digit says it all; a tick would crowd it.
+              showCheckmark: false,
+              label: Text(
+                '7',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: drone.sevenths
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              selected: drone.sevenths,
+              onSelected: drone.setSevenths,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            ),
+          ),
         ],
-        onSelected: (c) {
-          if (c != null) drone.setChord(c);
-        },
       ),
     );
   }

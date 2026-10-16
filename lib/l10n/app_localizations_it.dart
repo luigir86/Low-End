@@ -36,6 +36,15 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
+  String get timeSignature => 'Misura';
+
+  @override
+  String get backgroundPlaying => 'In riproduzione in background';
+
+  @override
+  String get holdToToggle => 'Tieni premuto per avviare o fermare';
+
+  @override
   String get slower => 'Più lento';
 
   @override
@@ -46,6 +55,28 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get droneStop => 'Ferma il drone';
+
+  @override
+  String get progressionLabel => 'Progressione';
+
+  @override
+  String get progressionMinorTwoFiveOne => 'II–V–I minore';
+
+  @override
+  String get progressionBlues => 'Blues in 12 battute';
+
+  @override
+  String get addSevenths => 'Aggiungi la settima agli accordi';
+
+  @override
+  String degreeOf(String degree, String key) {
+    return '$degree di $key';
+  }
+
+  @override
+  String droneChordDiminished(String note) {
+    return '$note diminuito';
+  }
 
   @override
   String get balanceLabel => 'Bilanciamento tra metronomo e drone';

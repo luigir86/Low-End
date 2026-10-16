@@ -173,6 +173,8 @@ void main() {
         await h.shot('drone_3_chord_dropdown');
         await h.tapText(h.t('Minor', 'Minore'));
         await h.shot('drone_4_minor');
+        await h.tapText(h.t('Progression', 'Progressione'));
+        await h.shot('drone_5_progression');
         await h.tab('Metronome', 'Metronomo');
         await h.shot('metronome_idle_drone_on');
         await h.tapText(h.t('Tap to start', 'Tocca per iniziare'));

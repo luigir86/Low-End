@@ -143,7 +143,11 @@ void main() {
     await tester.binding.handlePushRoute('/drone_play?note=E');
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
     expect(output.frequencies.single, closeTo(329.63, 0.1)); // E4
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
     // It opens the Drone tab, with the key lit.
     expect(find.bySemanticsLabel('Stop E'), findsOneWidget);
 

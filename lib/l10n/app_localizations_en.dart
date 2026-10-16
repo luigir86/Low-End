@@ -36,6 +36,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get timeSignature => 'Time signature';
+
+  @override
+  String get backgroundPlaying => 'Playing in the background';
+
+  @override
+  String get holdToToggle => 'Hold to start or stop';
+
+  @override
   String get slower => 'Slower';
 
   @override
@@ -46,6 +55,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get droneStop => 'Stop the drone';
+
+  @override
+  String get progressionLabel => 'Progression';
+
+  @override
+  String get progressionMinorTwoFiveOne => 'II–V–I minor';
+
+  @override
+  String get progressionBlues => '12-bar blues';
+
+  @override
+  String get addSevenths => 'Add the seventh to the chords';
+
+  @override
+  String degreeOf(String degree, String key) {
+    return '$degree of $key';
+  }
+
+  @override
+  String droneChordDiminished(String note) {
+    return '$note diminished';
+  }
 
   @override
   String get balanceLabel => 'Metronome and drone balance';

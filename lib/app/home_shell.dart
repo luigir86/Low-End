@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../audio/audio_scope.dart';
 import '../features/metronome/metronome_screen.dart';
@@ -20,6 +21,65 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   /// One per [AppSection], in the same order.
   static const _screens = [MetronomeScreen(), DronePanel(), TunerPanel()];
+
+  /// Swiping moves between the sections; a tap on a tab or an action link
+  /// moves the page to match.
+  final _pages = PageController();
+
+  /// True while the page slides to a section chosen elsewhere, so that the
+  /// sections it crosses are not opened one after the other.
+  var _sliding = false;
+
+  @override
+  void dispose() {
+    _pages.dispose();
+    super.dispose();
+  }
+
+  Future<void> _showSection(AppSection section) async {
+    if (!_pages.hasClients) return;
+    final page = _pages.page?.round() ?? 0;
+    if (page == section.index) return;
+    _sliding = true;
+    try {
+      await _pages.animateToPage(
+        section.index,
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    } finally {
+      _sliding = false;
+    }
+  }
+
+  /// Starts or stops what a tab plays, on a long press.
+  void _toggle(AppSection section) {
+    final scope = AudioScope.of(context);
+    HapticFeedback.mediumImpact();
+    switch (section) {
+      case AppSection.metronome:
+        scope.metronome.toggle();
+      case AppSection.drone:
+        scope.drone.toggle();
+      case AppSection.tuner:
+        break;
+    }
+  }
+
+  Widget _tab(AppSection section, Widget destination) {
+    final l10n = AppLocalizations.of(context);
+    if (section == AppSection.tuner) return destination;
+    return Semantics(
+      onLongPressHint: l10n.holdToToggle,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onLongPress: () => _toggle(section),
+        child: destination,
+      ),
+    );
+  }
 
   @override
   void didChangeDependencies() {
@@ -46,6 +106,9 @@ class _HomeShellState extends State<HomeShell> {
       listenable: Listenable.merge([drone, metronome, navigation]),
       builder: (context, _) {
         final section = navigation.section;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _showSection(navigation.section);
+        });
         return Scaffold(
           appBar: AppBar(
             title: Text(l10n.appTitle),
@@ -59,7 +122,13 @@ class _HomeShellState extends State<HomeShell> {
               ),
             ],
           ),
-          body: IndexedStack(index: section.index, children: _screens),
+          body: PageView(
+            controller: _pages,
+            onPageChanged: (i) {
+              if (!_sliding) navigation.open(AppSection.values[i]);
+            },
+            children: [for (final s in _screens) _KeepAlive(child: s)],
+          ),
           // Each section starts and stops its own sound; the pulsing dot on
           // a tab says which ones are playing.
           bottomNavigationBar: NavigationBar(
@@ -67,19 +136,28 @@ class _HomeShellState extends State<HomeShell> {
             onDestinationSelected: (i) => navigation.open(AppSection.values[i]),
             // In the order of AppSection.
             destinations: [
-              NavigationDestination(
-                icon: ActivityIcon(
-                  icon: Icons.timer_outlined,
-                  active: metronome.isPlaying,
+              _tab(
+                AppSection.metronome,
+                NavigationDestination(
+                  icon: ActivityIcon(
+                    icon: Icons.timer_outlined,
+                    active: metronome.isPlaying,
+                  ),
+                  label: l10n.metronomeTab,
+                  // No tooltip: holding the tab starts and stops it instead.
+                  tooltip: '',
                 ),
-                label: l10n.metronomeTab,
               ),
-              NavigationDestination(
-                icon: ActivityIcon(
-                  icon: Icons.graphic_eq,
-                  active: drone.isPlaying,
+              _tab(
+                AppSection.drone,
+                NavigationDestination(
+                  icon: ActivityIcon(
+                    icon: Icons.graphic_eq,
+                    active: drone.isPlaying,
+                  ),
+                  label: l10n.droneMode,
+                  tooltip: '',
                 ),
-                label: l10n.droneMode,
               ),
               NavigationDestination(
                 icon: const Icon(Icons.tune),
@@ -90,5 +168,28 @@ class _HomeShellState extends State<HomeShell> {
         );
       },
     );
+  }
+}
+
+/// Keeps a section alive while it is off screen (its state, and the
+/// microphone and sound it manages, must not restart on every swipe).
+class _KeepAlive extends StatefulWidget {
+  const _KeepAlive({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_KeepAlive> createState() => _KeepAliveState();
+}
+
+class _KeepAliveState extends State<_KeepAlive>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
   }
 }

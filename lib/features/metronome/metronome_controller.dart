@@ -2,9 +2,11 @@ import 'package:flutter/foundation.dart';
 
 import '../../audio/click_output.dart';
 import '../../audio/click_sound.dart';
+import '../tuner/drone/drone_controller.dart';
+import 'time_signature.dart';
 
-/// State and playback of the metronome, in 4/4.
-class MetronomeController extends ChangeNotifier {
+/// State and playback of the metronome.
+class MetronomeController extends ChangeNotifier implements BarClock {
   MetronomeController(this._output, {Stopwatch? clock})
     : _clock = clock ?? Stopwatch();
 
@@ -17,7 +19,6 @@ class MetronomeController extends ChangeNotifier {
   static const minBpm = 30;
   static const maxBpm = 250;
   static const startBpm = 80;
-  static const beatsPerBar = 4;
 
   /// Taps further apart than this start a new count.
   static const _tapTimeout = Duration(seconds: 2);
@@ -27,6 +28,7 @@ class MetronomeController extends ChangeNotifier {
   static const _tapsKept = 4;
 
   int _bpm = startBpm;
+  TimeSignature _signature = TimeSignature.fourFour;
   double _level = 1;
   bool _playing = false;
   bool _audioFailed = false;
@@ -37,27 +39,36 @@ class MetronomeController extends ChangeNotifier {
 
   final _taps = <Duration>[];
 
+  /// True when the next bar must start from its "one", because the sound
+  /// has just started or the bar has changed shape.
+  bool _fresh = false;
+
   bool _syncing = false;
   bool _syncAgain = false;
 
   int get bpm => _bpm;
+  TimeSignature get signature => _signature;
+  int get beatsPerBar => _signature.beats;
   bool get isPlaying => _playing;
 
   /// True when the last attempt to start sound failed on this device.
   bool get audioFailed => _audioFailed;
 
   Duration get beatLength => Duration(microseconds: 60000000 ~/ _bpm);
+  @override
   Duration get barLength => beatLength * beatsPerBar;
 
   /// How far into the bar the metronome is, from 0 to just under 1, or null
   /// when stopped.
+  @override
   double? get barPhase {
     if (!_playing) return null;
     final at = _startedAt + _clock.elapsed;
     return at.inMicroseconds / barLength.inMicroseconds % 1;
   }
 
-  /// The beat now sounding, 0 (the "one") to 3, or null when stopped.
+  /// The beat now sounding, 0 (the "one") to the last of the bar, or null
+  /// when stopped.
   int? get beat {
     final phase = barPhase;
     return phase == null ? null : (phase * beatsPerBar).floor();
@@ -75,6 +86,7 @@ class MetronomeController extends ChangeNotifier {
     if (_playing) return Future.value();
     _playing = true;
     _audioFailed = false;
+    _fresh = true;
     _restartClock(Duration.zero);
     _notify();
     return _sync();
@@ -115,8 +127,30 @@ class MetronomeController extends ChangeNotifier {
     }
   }
 
+  /// Changes the time signature. While playing, the bar starts again from
+  /// its "one": the old position means nothing in the new bar.
+  void setSignature(TimeSignature signature) {
+    if (signature == _signature) return;
+    _signature = signature;
+    if (_playing) {
+      _fresh = true;
+      _restartClock(Duration.zero);
+    }
+    _notify();
+    if (_playing) _sync();
+  }
+
   /// Moves the tempo up or down by [delta] BPM.
   void step(int delta) => setBpm(_bpm + delta);
+
+  /// Moves the tempo to the next multiple of [unit] above ([direction] > 0)
+  /// or below it, so that holding + or − lands on round numbers.
+  void nudge(int direction, int unit) {
+    final target = direction > 0
+        ? (_bpm ~/ unit + 1) * unit
+        : (_bpm - 1) ~/ unit * unit;
+    setBpm(target);
+  }
 
   /// One tap of the TAP button: after two taps or more, sets the tempo to
   /// the average of the latest intervals.
@@ -162,8 +196,11 @@ class MetronomeController extends ChangeNotifier {
         await _output.stop();
         return;
       }
-      final at = barLength * (barPhase ?? 0);
-      await _output.play(ClickSound.bar(bpm: _bpm), at);
+      // The first beat always sounds from its start: the screen's clock has
+      // already moved on while the sound was being made.
+      final at = _fresh ? Duration.zero : barLength * (barPhase ?? 0);
+      _fresh = false;
+      await _output.play(ClickSound.bar(bpm: _bpm, signature: _signature), at);
       // The sound starts now: line the screen up with it.
       _restartClock(at);
     } catch (error) {
