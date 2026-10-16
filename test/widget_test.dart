@@ -18,6 +18,17 @@ import 'package:low_end/audio/tone_output.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:low_end/widgets/pulsing_dot.dart';
 
+/// The Harmony and Metronome tabs: their names are also under the balance
+/// slider.
+final _harmonyTab = find.descendant(
+  of: find.byType(NavigationBar),
+  matching: find.text('Harmony'),
+);
+final _metronomeTab = find.descendant(
+  of: find.byType(NavigationBar),
+  matching: find.text('Metronome'),
+);
+
 void main() {
   testWidgets('shows the three main sections and switches between them', (
     tester,
@@ -28,11 +39,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Tuner'), findsOneWidget);
-    expect(find.text('Drone'), findsOneWidget);
-    expect(find.text('Metronome'), findsOneWidget);
+    expect(_harmonyTab, findsOneWidget);
+    expect(_metronomeTab, findsOneWidget);
     expect(find.text('Library'), findsNothing);
 
-    await tester.tap(find.text('Metronome'));
+    await tester.tap(_metronomeTab);
     await tester.pumpAndSettle();
     expect(find.text('Tap to start'), findsOneWidget);
     expect(find.text('80'), findsOneWidget);
@@ -98,14 +109,14 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.longPress(find.text('Metronome'));
+    await tester.longPress(_metronomeTab);
     await tester.pump(const Duration(milliseconds: 300));
     expect(click.bar, isNotNull);
-    await tester.longPress(find.text('Metronome'));
+    await tester.longPress(_metronomeTab);
     await tester.pump(const Duration(milliseconds: 300));
     expect(click.bar, isNull);
 
-    await tester.longPress(find.text('Drone'));
+    await tester.longPress(_harmonyTab);
     await tester.pump(const Duration(milliseconds: 300));
     expect(tone.frequencies, isNotEmpty);
     // Still on the Metronome tab: holding does not switch.
@@ -129,7 +140,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(awake.on, isFalse);
 
-    await tester.tap(find.text('Drone'));
+    await tester.tap(_harmonyTab);
     await tester.pumpAndSettle();
     expect(find.byType(PulsingDot), findsNothing);
     await tester.tap(find.text('A'));
@@ -139,7 +150,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     expect(tone.frequencies.single, closeTo(440, 0.01));
 
-    await tester.tap(find.text('Metronome'));
+    await tester.tap(_metronomeTab);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 300));
@@ -148,7 +159,7 @@ void main() {
     expect(click.bar, isNotNull);
     // A dot on each playing tab, and no strip to stop them from elsewhere.
     expect(find.byType(PulsingDot), findsNWidgets(2));
-    expect(find.byTooltip('Stop Drone · A4'), findsNothing);
+    expect(find.byTooltip('Stop Harmony · A4'), findsNothing);
     // The screen stays on while they play.
     expect(awake.on, isTrue);
 
@@ -168,7 +179,7 @@ void main() {
 
     // Leaving it, nothing starts by itself: a swipe too far must not bring
     // the click back unasked.
-    await tester.tap(find.text('Drone'));
+    await tester.tap(_harmonyTab);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 300));
@@ -260,25 +271,25 @@ void main() {
     await tester.tap(find.text('Tuner'));
     await tester.pumpAndSettle();
     expect(mic.isCapturing, isTrue);
-    await tester.longPress(find.text('Metronome'));
+    await tester.longPress(_metronomeTab);
     await tester.pump(const Duration(milliseconds: 300));
     expect(click.bar, isNull);
     // Still a hint for screen readers, and the tab says when it plays.
     final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
     final handle = tester.ensureSemantics();
     expect(
-      tester.getSemantics(find.text('Metronome')),
+      tester.getSemantics(_metronomeTab),
       isSemantics(onLongPressHint: 'Hold to start or stop'),
     );
-    expect(tester.getSemantics(find.text('Metronome')).value, isEmpty);
+    expect(tester.getSemantics(_metronomeTab).value, isEmpty);
     // Paused, the tuner lets a hold start it.
     await tester.tap(find.text('Pause'));
     await tester.pump(const Duration(milliseconds: 300));
     expect(scope.tuner.isListening, isFalse);
-    await tester.longPress(find.text('Metronome'));
+    await tester.longPress(_metronomeTab);
     await tester.pump(const Duration(milliseconds: 300));
     expect(click.bar, isNotNull);
-    expect(tester.getSemantics(find.text('Metronome')).value, 'Playing');
+    expect(tester.getSemantics(_metronomeTab).value, 'Playing');
     handle.dispose();
     await scope.metronome.stop();
   });
@@ -298,7 +309,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Metronome'));
+      await tester.tap(_metronomeTab);
       await tester.pumpAndSettle();
 
       await tester.tap(find.byTooltip('Faster'));
@@ -335,13 +346,13 @@ void main() {
       LowEndApp(toneOutput: tone, micInput: FakeMicInput()),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Drone'));
+    await tester.tap(_harmonyTab);
     await tester.pumpAndSettle();
     await tester.tap(find.text('D'));
     await tester.pump(const Duration(milliseconds: 300));
     expect(tone.frequencies, isNotEmpty);
 
-    await tester.tap(find.bySemanticsLabel(RegExp('^Stop the drone')));
+    await tester.tap(find.bySemanticsLabel(RegExp('^Stop the harmony')));
     await tester.pump(const Duration(milliseconds: 300));
     expect(tone.frequencies, isEmpty);
 
@@ -384,7 +395,12 @@ void main() {
     // The app is in Italian now, so the back button says "Indietro".
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Drone'));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Armonia'),
+      ),
+    );
     await tester.pumpAndSettle();
     // Italian app, but letter names as chosen; the drone follows 442 Hz.
     await tester.tap(find.text('A'));
@@ -439,11 +455,11 @@ void main() {
     expect(audio.text, 'Metronome 100 BPM · 4/4');
     await scope.drone.start();
     await tester.pump();
-    expect(audio.text, 'Metronome 100 BPM · 4/4 · Drone A');
+    expect(audio.text, 'Metronome 100 BPM · 4/4 · Harmony A');
 
     await scope.metronome.stop();
     await tester.pump();
-    expect(audio.text, 'Drone A');
+    expect(audio.text, 'Harmony A');
     await scope.drone.stop();
     await tester.pump();
     expect(audio.state, MediaState.off);
@@ -531,6 +547,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Gestures and shortcuts'), findsOneWidget);
     expect(settings.seenGuide, isTrue);
+    await tester.ensureVisible(find.text('Got it'));
     await tester.tap(find.text('Got it'));
     await tester.pumpAndSettle();
     expect(find.text('Gestures and shortcuts'), findsNothing);
@@ -557,8 +574,10 @@ void main() {
       LowEndApp(toneOutput: SilentToneOutput(), micInput: FakeMicInput()),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Click'), findsOneWidget);
-    expect(find.text('Piano'), findsOneWidget);
+    // Under the slider the same names as the tabs, and what it is for.
+    expect(find.text('Balance'), findsOneWidget);
+    expect(find.text('Metronome'), findsNWidgets(2));
+    expect(find.text('Harmony'), findsNWidgets(2));
     // The time signature button says what it is.
     expect(find.text('Time signature'), findsOneWidget);
     // The tuner tab is a microphone.
@@ -581,7 +600,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
-    await tester.tap(find.text('Drone'));
+    await tester.tap(_harmonyTab);
     await tester.pumpAndSettle();
     scope.drone.setVoicing(DroneVoicing.chord);
     await tester.pumpAndSettle();

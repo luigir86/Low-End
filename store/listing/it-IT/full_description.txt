@@ -1,15 +1,15 @@
-Low End è un compagno di studio per contrabbassisti e bassisti: un metronomo, un drone al pianoforte e un accordatore in un'unica app leggera. È gratuita, senza pubblicità, non richiede un account e funziona del tutto offline.
+Low End è un compagno di studio per contrabbassisti e bassisti: un metronomo, una sezione di armonia al pianoforte e un accordatore in un'unica app leggera. È gratuita, senza pubblicità, non richiede un account e funziona del tutto offline.
 
 METRONOMO
 • Tempo da 30 a 250 BPM: tocca il numero per scriverlo, tieni premuto − o + per muoverti a scatti, oppure usa TAP.
 • Tempi 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 e 12/8, con i movimenti raggruppati come si contano.
 • Un anello che si accende movimento per movimento, con il primo tempo in evidenza, e un click di woodblock sempre stabile.
 
-DRONE
+ARMONIA
 • Dodici tasti su un quadrante: tocca una nota e suona su un vero pianoforte, a tempo con il metronomo.
 • La nota da sola, oppure un accordo maggiore, minore o di settima, battuto una volta a battuta, a ogni movimento o arpeggiato.
 • Progressioni su cui studiare, un accordo per battuta: II–V–I (maggiore e minore), I–IV–V, I–VI–IV–V e il blues di dodici battute, in qualunque tonalità.
-• Scegli l'ottava della fondamentale e la posizione dell'accordo. Regoli il bilanciamento tra drone e metronomo con un solo cursore.
+• Scegli l'ottava della fondamentale e la posizione dell'accordo. Regoli il bilanciamento tra metronomo e armonia con un solo cursore.
 
 ACCORDATORE
 • Cromatico, con uno strobo rotondo e la nota al centro: suona una nota qualsiasi e compare, senza dover scegliere prima la corda.

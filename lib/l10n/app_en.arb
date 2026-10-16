@@ -3,7 +3,7 @@
   "appTitle": "Low End",
   "tunerTab": "Tuner",
   "metronomeTab": "Metronome",
-  "droneMode": "Drone",
+  "harmonyTab": "Harmony",
   "metronomeStart": "Start the metronome",
   "metronomeStop": "Stop the metronome",
   "metronomeHint": "Tap to start",
@@ -21,7 +21,7 @@
   "slower": "Slower",
   "faster": "Faster",
   "tapTempo": "Tap the tempo",
-  "droneStop": "Stop the drone",
+  "droneStop": "Stop the harmony",
   "progressionLabel": "Progression",
   "progressionMinorTwoFiveOne": "II–V–I minor",
   "progressionBlues": "12-bar blues",
@@ -45,8 +45,9 @@
       }
     }
   },
-  "balanceLabel": "Metronome and drone balance",
-  "balanceValue": "Metronome {metronome}%, drone {drone}%",
+  "balanceTitle": "Balance",
+  "balanceLabel": "Balance between the metronome and the harmony",
+  "balanceValue": "Metronome {metronome}%, harmony {drone}%",
   "@balanceValue": {
     "placeholders": {
       "metronome": {
@@ -58,7 +59,7 @@
     }
   },
   "referencePitch": "Reference A",
-  "referencePitchHint": "The frequency of {note}, for the tuner and the drone.",
+  "referencePitchHint": "The frequency of {note}, for the tuner and the harmony.",
   "@referencePitchHint": {
     "placeholders": {
       "note": {
@@ -148,7 +149,7 @@
   "noteNamesLetters": "C D E (A4 = 440 Hz)",
   "aboutTooltip": "About Low End",
   "aboutLegalese": "Free and open-source software, released under the MIT License.",
-  "aboutDescription": "Tuner, drone and metronome for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.",
+  "aboutDescription": "Metronome, harmony and tuner for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.",
   "aboutPiano": "Piano sounds: Salamander Grand Piano by Alexander Holm (public domain).",
   "styleLabel": "Style",
   "styleHeld": "Chord every bar",
@@ -182,15 +183,14 @@
   "shapeStacked": "Stacked",
   "shapeClose": "Close",
   "shapeRootless": "No root",
-  "balanceMetronome": "Click",
-  "balanceDrone": "Piano",
   "guideTitle": "Gestures and shortcuts",
   "guideRing": "Tap the metronome's ring to start and stop it.",
   "guideTempo": "Tap the number to type the tempo. Hold − or + to move in steps of 5 and 10.",
   "guideSwipe": "Swipe left and right to change section.",
   "guideHold": "Hold a tab to start or stop its sound from any section.",
-  "guideDrone": "In the drone, tap a note to play it. Hold C♯ or F♯ to write them D♭ or G♭.",
-  "guideTuner": "The tuner listens by itself. Going there pauses the metronome and the drone.",
+  "guideDrone": "In Harmony, tap a note to play it. Hold C♯ or F♯ to write them D♭ or G♭.",
+  "guideTuner": "The tuner listens by itself. Going there pauses the metronome and the harmony.",
+  "guideVolume": "The volume is the phone's: use its volume keys. The slider at the bottom only balances the metronome and the harmony.",
   "guideDone": "Got it",
   "writeAs": "Write as {note}",
   "@writeAs": {

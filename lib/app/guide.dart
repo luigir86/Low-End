@@ -43,6 +43,7 @@ class _Guide extends StatelessWidget {
             tip(Icons.ads_click, l10n.guideHold),
             tip(Icons.graphic_eq, l10n.guideDrone),
             tip(Icons.mic_none, l10n.guideTuner),
+            tip(Icons.volume_up_outlined, l10n.guideVolume),
             const SizedBox(height: 8),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(),

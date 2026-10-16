@@ -211,7 +211,7 @@ class _HomeShellState extends State<HomeShell> {
                     icon: Icons.graphic_eq,
                     active: drone.isPlaying,
                   ),
-                  label: l10n.droneMode,
+                  label: l10n.harmonyTab,
                   tooltip: '',
                 ),
               ),

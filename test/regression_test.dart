@@ -304,7 +304,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.text('The frequency of A4, for the tuner and the drone.'),
+        find.text('The frequency of A4, for the tuner and the harmony.'),
         findsOneWidget,
       );
     });

@@ -1,1 +1,1 @@
-Prima versione: metronomo con tempi musicali, drone al pianoforte con accordi e progressioni, e accordatore cromatico per contrabbasso e basso.
+Prima versione: metronomo con tempi musicali, armonia al pianoforte con accordi e progressioni, e accordatore cromatico per contrabbasso e basso.

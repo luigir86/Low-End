@@ -1,15 +1,15 @@
-Low End is a practice companion for double bass and electric bass players: a metronome, a piano drone and a tuner in one light app. It is free, has no ads, needs no account and works fully offline.
+Low End is a practice companion for double bass and electric bass players: a metronome, a piano harmony section and a tuner in one light app. It is free, has no ads, needs no account and works fully offline.
 
 METRONOME
 • Tempo from 30 to 250 BPM: tap the number to type it, hold − or + to move in steps, or use TAP.
 • Time signatures 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8, with the beats grouped the way you count them.
 • A ring that lights up beat by beat, with the downbeat marked, and a woodblock click that stays steady.
 
-DRONE
+HARMONY
 • Twelve keys on a dial: touch a note and it plays on a real piano, in time with the metronome.
 • The note alone, or a major, minor or seventh chord, struck once a bar, on every beat or as an arpeggio.
 • Progressions to practise over, one chord per bar: II–V–I (major and minor), I–IV–V, I–VI–IV–V and the twelve-bar blues, in any key.
-• Choose the octave of the root and how the chord is laid out. Set the balance between drone and metronome with one slider.
+• Choose the octave of the root and how the chord is laid out. Set the balance between metronome and harmony with one slider.
 
 TUNER
 • Chromatic, with a round strobe and the note in the middle: play any note and it shows up, no string to choose first.

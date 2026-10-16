@@ -17,7 +17,7 @@ The tuner starts listening as soon as it is on screen (you can pause it, and it 
 
 The gear at the top opens the **settings**: app language (English or Italian, or the phone's), note names (Do Re Mi with Italian octave numbers, La3 = 440 Hz, or C D E, A4 = 440 Hz) and the reference A, from 438 to 445 Hz. They are kept on the phone.
 
-The tabs are Metronome, Drone and Tuner, and the app opens on the metronome. Each section starts and stops its own sound, and the drone and the metronome can play together. A pulsing dot on a tab shows that its sound is playing. Opening the tuner pauses them (so the microphone hears only the bass) and leaving it they carry on; with the screen off or the app in the background they stop.
+The tabs are Metronome, Harmony (the former "Drone") and Tuner, and the app opens on the metronome. Each section starts and stops its own sound, and the drone and the metronome can play together. A pulsing dot on a tab shows that its sound is playing. Opening the tuner pauses them (so the microphone hears only the bass) and leaving it they carry on; with the screen off or the app in the background they stop.
 
 ## Free, light and accessible
 

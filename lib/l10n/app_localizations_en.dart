@@ -19,7 +19,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get metronomeTab => 'Metronome';
 
   @override
-  String get droneMode => 'Drone';
+  String get harmonyTab => 'Harmony';
 
   @override
   String get metronomeStart => 'Start the metronome';
@@ -54,7 +54,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tapTempo => 'Tap the tempo';
 
   @override
-  String get droneStop => 'Stop the drone';
+  String get droneStop => 'Stop the harmony';
 
   @override
   String get progressionLabel => 'Progression';
@@ -79,11 +79,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get balanceLabel => 'Metronome and drone balance';
+  String get balanceTitle => 'Balance';
+
+  @override
+  String get balanceLabel => 'Balance between the metronome and the harmony';
 
   @override
   String balanceValue(String metronome, String drone) {
-    return 'Metronome $metronome%, drone $drone%';
+    return 'Metronome $metronome%, harmony $drone%';
   }
 
   @override
@@ -91,7 +94,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String referencePitchHint(String note) {
-    return 'The frequency of $note, for the tuner and the drone.';
+    return 'The frequency of $note, for the tuner and the harmony.';
   }
 
   @override
@@ -208,7 +211,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutDescription =>
-      'Tuner, drone and metronome for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.';
+      'Metronome, harmony and tuner for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.';
 
   @override
   String get aboutPiano =>
@@ -292,12 +295,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shapeRootless => 'No root';
 
   @override
-  String get balanceMetronome => 'Click';
-
-  @override
-  String get balanceDrone => 'Piano';
-
-  @override
   String get guideTitle => 'Gestures and shortcuts';
 
   @override
@@ -316,11 +313,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideDrone =>
-      'In the drone, tap a note to play it. Hold C♯ or F♯ to write them D♭ or G♭.';
+      'In Harmony, tap a note to play it. Hold C♯ or F♯ to write them D♭ or G♭.';
 
   @override
   String get guideTuner =>
-      'The tuner listens by itself. Going there pauses the metronome and the drone.';
+      'The tuner listens by itself. Going there pauses the metronome and the harmony.';
+
+  @override
+  String get guideVolume =>
+      'The volume is the phone\'s: use its volume keys. The slider at the bottom only balances the metronome and the harmony.';
 
   @override
   String get guideDone => 'Got it';
