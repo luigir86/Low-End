@@ -200,11 +200,11 @@ abstract final class LowEndTheme {
       borderRadius: BorderRadius.circular(radius),
     );
     return ThemeData(
-      // Barlow (SIL OFL), bundled in assets/fonts. It lacks ♩ ♭ ♯.
-      fontFamily: 'Barlow',
-      // ♭ ♯ from Edwin, MuseScore's text font, and ♩ from Noto Music (both bundled), so the
-      // signs look the same on every phone.
-      fontFamilyFallback: const ['Edwin', 'NotoMusic'],
+      // Petaluma Script (SIL OFL), the handwritten jazz font of the lead
+      // sheets, bundled in assets/fonts (it has the ♭ and ♯). Barlow fills the
+      // rest it lacks, and the ♩ comes from Noto Music.
+      fontFamily: 'PetalumaScript',
+      fontFamilyFallback: const ['Barlow', 'NotoMusic'],
       colorScheme: scheme,
       scaffoldBackgroundColor: scheme.surface,
       extensions: [colors],

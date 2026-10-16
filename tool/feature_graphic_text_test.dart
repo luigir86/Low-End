@@ -1,4 +1,4 @@
-// Sets the title and the line under it of the feature graphics in Barlow,
+// Sets the title and the line under it of the feature graphics in Petaluma Script,
 // the app's own font, over the same ebony and glow as the picture. Run after
 // recolor_store_graphics_test.dart: it wipes the old text (right of the
 // lion) and writes it again.
@@ -23,15 +23,13 @@ const _tagline = {
 };
 
 void main() {
-  testWidgets('write the feature graphic text in Barlow', (tester) async {
+  testWidgets('write the feature graphic text in Petaluma', (tester) async {
     TestWidgetsFlutterBinding.ensureInitialized();
-    final loader = FontLoader('Barlow');
-    for (final weight in ['Regular', 'SemiBold']) {
+    final loader = FontLoader('PetalumaScript');
+    for (final file in ['PetalumaScript.otf']) {
       loader.addFont(
         Future.value(
-          ByteData.sublistView(
-            File('assets/fonts/Barlow-$weight.ttf').readAsBytesSync(),
-          ),
+          ByteData.sublistView(File('assets/fonts/$file').readAsBytesSync()),
         ),
       );
     }
@@ -86,11 +84,14 @@ void main() {
         ) {
           final builder =
               ui.ParagraphBuilder(
-                  ui.ParagraphStyle(fontFamily: 'Barlow', height: height),
+                  ui.ParagraphStyle(
+                    fontFamily: 'PetalumaScript',
+                    height: height,
+                  ),
                 )
                 ..pushStyle(
                   ui.TextStyle(
-                    fontFamily: 'Barlow',
+                    fontFamily: 'PetalumaScript',
                     fontSize: size,
                     fontWeight: weight,
                     color: color,
@@ -102,15 +103,15 @@ void main() {
 
         final title = paragraph(
           'Low End',
-          84,
-          ui.FontWeight.w600,
+          104,
+          ui.FontWeight.w400,
           const ui.Color(0xFFE2BFA9), // Palette.mochaLight
           440,
           1.0,
         );
         final line = paragraph(
           _tagline[locale]!,
-          34,
+          40,
           ui.FontWeight.w400,
           const ui.Color(0xFFF1E6DD), // Palette.inkOnDark
           440,
