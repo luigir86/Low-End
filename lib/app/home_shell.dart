@@ -228,7 +228,6 @@ class _HomeShellState extends State<HomeShell> {
                     icon: Icons.mic_none,
                     activeIcon: Icons.mic,
                     active: scope.tuner.isListening,
-                    pulse: false,
                   ),
                   label: l10n.tunerTab,
                 ),

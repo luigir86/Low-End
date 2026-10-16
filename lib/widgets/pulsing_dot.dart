@@ -1,57 +1,75 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 /// Small dot that pulses gently, shown on a tab whose section is playing.
 class PulsingDot extends StatefulWidget {
-  const PulsingDot({super.key, this.size = 11, this.pulse = true});
+  const PulsingDot({super.key, this.size = 11});
 
   final double size;
-
-  /// False for a dot that stays at full strength (see [ActivityIcon.pulse]).
-  final bool pulse;
 
   @override
   State<PulsingDot> createState() => _PulsingDotState();
 }
 
-class _PulsingDotState extends State<PulsingDot>
-    with SingleTickerProviderStateMixin {
-  late final _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 900),
-    value: 1,
-  );
+class _PulsingDotState extends State<PulsingDot> {
+  static const _period = Duration(milliseconds: 1800);
+
+  /// A fade this slow needs no more than a dozen steps a second: a timer
+  /// instead of a vsync animation, which would redraw the whole screen 60 to
+  /// 120 times a second for as long as something plays.
+  static const _step = Duration(milliseconds: 80);
+
+  final _opacity = ValueNotifier<double>(1);
+  final _clock = Stopwatch();
+  Timer? _timer;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Stays still when the phone asks to remove animations.
-    if (!widget.pulse || MediaQuery.disableAnimationsOf(context)) {
-      _controller.value = 1;
-    } else if (!_controller.isAnimating) {
-      _controller.repeat(reverse: true);
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _timer?.cancel();
+      _timer = null;
+      _opacity.value = 1;
+    } else if (_timer == null) {
+      _clock.start();
+      _timer = Timer.periodic(_step, (_) {
+        final phase =
+            (_clock.elapsedMicroseconds % _period.inMicroseconds) /
+            _period.inMicroseconds;
+        // Up and down between 0.55 and 1: the dot must stay easy to see.
+        final wave = phase < 0.5 ? phase * 2 : 2 - phase * 2;
+        _opacity.value = 0.55 + 0.45 * Curves.linear.transform(wave);
+      });
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _timer?.cancel();
+    _opacity.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return FadeTransition(
-      // Never fades far: the dot must stay easy to see.
-      opacity: Tween(begin: 0.55, end: 1.0).animate(_controller),
-      child: Container(
-        width: widget.size,
-        height: widget.size,
-        decoration: BoxDecoration(
-          color: colors.primary,
-          shape: BoxShape.circle,
-          // A rim in the bar's colour sets it off from the icon below.
-          border: Border.all(color: colors.surfaceContainer, width: 1.5),
+    // Its own layer: a step of the pulse then costs the dot, not the bar.
+    return RepaintBoundary(
+      child: ValueListenableBuilder<double>(
+        valueListenable: _opacity,
+        builder: (context, opacity, child) =>
+            Opacity(opacity: opacity, child: child),
+        child: Container(
+          width: widget.size,
+          height: widget.size,
+          decoration: BoxDecoration(
+            color: colors.primary,
+            shape: BoxShape.circle,
+            // A rim in the bar's colour sets it off from the icon below.
+            border: Border.all(color: colors.surfaceContainer, width: 1.5),
+          ),
         ),
       ),
     );
@@ -66,16 +84,11 @@ class ActivityIcon extends StatelessWidget {
     required this.icon,
     required this.active,
     this.activeIcon,
-    this.pulse = true,
   });
 
   final IconData icon;
   final IconData? activeIcon;
   final bool active;
-
-  /// False for the tuner: its dot stays still, and the screen keeps its
-  /// strobe as the only thing moving.
-  final bool pulse;
 
   @override
   Widget build(BuildContext context) {
@@ -83,8 +96,7 @@ class ActivityIcon extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Icon(active ? (activeIcon ?? icon) : icon),
-        if (active)
-          Positioned(top: -3, right: -5, child: PulsingDot(pulse: pulse)),
+        if (active) const Positioned(top: -3, right: -5, child: PulsingDot()),
       ],
     );
   }

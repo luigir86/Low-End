@@ -72,10 +72,33 @@ class _BeatRing extends StatefulWidget {
 
 class _BeatRingState extends State<_BeatRing>
     with SingleTickerProviderStateMixin {
-  late final Ticker _ticker = createTicker((_) => _frame.value++);
+  late final Ticker _ticker = createTicker(_onFrame);
 
-  /// Bumped on every frame while playing, to repaint the ring.
-  final _frame = ValueNotifier<int>(0);
+  /// Bumped when the lit segment changes (or the metronome stops), to repaint
+  /// the ring: the costly layer, which does not move between beats.
+  final _ringFrame = ValueNotifier<int>(0);
+
+  /// Bumped while the dot still swells or the countdown shows, to repaint
+  /// the hub: a layer of its own, so a frame costs one small circle.
+  final _dotFrame = ValueNotifier<int>(0);
+
+  int? _lastBeat;
+
+  void _onFrame(Duration _) {
+    final metronome = widget.metronome;
+    final beat = metronome.beat;
+    if (beat != _lastBeat) {
+      _lastBeat = beat;
+      _ringFrame.value++;
+      _dotFrame.value++;
+      return;
+    }
+    final since = metronome.sinceBeat;
+    if (metronome.waitLeft != null ||
+        (since != null && since < _DotPainter.settleTime(metronome))) {
+      _dotFrame.value++;
+    }
+  }
 
   @override
   void initState() {
@@ -95,14 +118,17 @@ class _BeatRingState extends State<_BeatRing>
     if (playing && !_ticker.isActive) _ticker.start();
     if (!playing && _ticker.isActive) {
       _ticker.stop();
-      _frame.value++;
+      _lastBeat = null;
+      _ringFrame.value++;
+      _dotFrame.value++;
     }
   }
 
   @override
   void dispose() {
     _ticker.dispose();
-    _frame.dispose();
+    _ringFrame.dispose();
+    _dotFrame.dispose();
     super.dispose();
   }
 
@@ -133,9 +159,19 @@ class _BeatRingState extends State<_BeatRing>
                   painter: _RingPainter(
                     metronome: metronome,
                     signature: metronome.signature,
-                    frame: _frame,
+                    frame: _ringFrame,
                     colors: theme.colorScheme,
                     background: LowEndColors.of(context).strobeBackground,
+                    downbeat: LowEndColors.of(context).downbeat,
+                  ),
+                ),
+              ),
+              RepaintBoundary(
+                child: CustomPaint(
+                  painter: _DotPainter(
+                    metronome: metronome,
+                    frame: _dotFrame,
+                    colors: theme.colorScheme,
                     downbeat: LowEndColors.of(context).downbeat,
                     // A dot that swells is motion: with animations turned
                     // off it only changes colour.
@@ -182,7 +218,6 @@ class _RingPainter extends CustomPainter {
     required this.colors,
     required this.background,
     required this.downbeat,
-    required this.pulse,
   }) : super(repaint: frame);
 
   final MetronomeController metronome;
@@ -195,7 +230,6 @@ class _RingPainter extends CustomPainter {
 
   /// The colour of the "one".
   final Color downbeat;
-  final bool pulse;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -233,6 +267,45 @@ class _RingPainter extends CustomPainter {
         border: b == beat ? null : colors.outline,
       );
     }
+  }
+
+  @override
+  bool shouldRepaint(_RingPainter old) =>
+      old.metronome != metronome ||
+      old.signature != signature ||
+      old.colors != colors ||
+      old.background != background ||
+      old.downbeat != downbeat;
+}
+
+/// The hub: the dot that swells on the beat, or the countdown to the piano's
+/// bar line. Apart from the ring, so a frame of the swell repaints only this.
+class _DotPainter extends CustomPainter {
+  _DotPainter({
+    required this.metronome,
+    required ValueNotifier<int> frame,
+    required this.colors,
+    required this.downbeat,
+    required this.pulse,
+  }) : super(repaint: frame);
+
+  final MetronomeController metronome;
+  final ColorScheme colors;
+  final Color downbeat;
+  final bool pulse;
+
+  /// How fast the swell dies away.
+  static double _decay(MetronomeController metronome) =>
+      math.min(0.12, metronome.pulseLength.inMicroseconds / 3e6);
+
+  /// After this long the swell is under a tenth of a pixel: no more frames.
+  static Duration settleTime(MetronomeController metronome) =>
+      Duration(microseconds: (_decay(metronome) * 6e6).round());
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final dial = DialGeometry(size);
+    final beat = metronome.beat;
 
     // Waiting for the piano's bar line: the seconds to go, in the hub.
     final left = metronome.waitLeft;
@@ -259,7 +332,7 @@ class _RingPainter extends CustomPainter {
     var radius = dial.hub * 0.3;
     if (pulse) {
       // Swells at once on the beat, then shrinks back before the next one.
-      final decay = math.min(0.12, metronome.pulseLength.inMicroseconds / 3e6);
+      final decay = _decay(metronome);
       radius += dial.hub * 0.25 * math.exp(-since.inMicroseconds / 1e6 / decay);
     }
     canvas.drawCircle(
@@ -270,11 +343,9 @@ class _RingPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_RingPainter old) =>
+  bool shouldRepaint(_DotPainter old) =>
       old.metronome != metronome ||
-      old.signature != signature ||
       old.colors != colors ||
-      old.background != background ||
       old.downbeat != downbeat ||
       old.pulse != pulse;
 }
