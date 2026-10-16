@@ -251,13 +251,9 @@ class _FifthsPainter extends CustomPainter {
             : inChord
             ? colors.secondary
             : outOfKey
-            ? disc
+            ? Color.lerp(disc, colors.surface, 0.6)!
             : colors.outlineVariant,
-        border: lit || inChord
-            ? null
-            : outOfKey
-            ? colors.outline.withValues(alpha: 0.5)
-            : colors.outline,
+        border: lit || inChord || outOfKey ? null : colors.outline,
       );
       if (next == pc && !lit) {
         dial.paintSegment(
@@ -372,7 +368,7 @@ class _NoteKey extends StatelessWidget {
                             : inChord
                             ? colors.onSecondary
                             : outOfKey
-                            ? colors.onSurfaceVariant
+                            ? colors.onSurfaceVariant.withValues(alpha: 0.55)
                             : colors.onSurface,
                         // Bold for the root, so it stands out by more than
                         // colour alone.
