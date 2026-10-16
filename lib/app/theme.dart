@@ -202,9 +202,9 @@ abstract final class LowEndTheme {
     return ThemeData(
       // Barlow (SIL OFL), bundled in assets/fonts. It lacks ♩ ♭ ♯.
       fontFamily: 'Barlow',
-      // ♭ ♯ from Gentium Plus and ♩ from Noto Music (both bundled), so the
+      // ♭ ♯ from Edwin, MuseScore's text font, and ♩ from Noto Music (both bundled), so the
       // signs look the same on every phone.
-      fontFamilyFallback: const ['GentiumPlus', 'NotoMusic'],
+      fontFamilyFallback: const ['Edwin', 'NotoMusic'],
       colorScheme: scheme,
       scaffoldBackgroundColor: scheme.surface,
       extensions: [colors],

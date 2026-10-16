@@ -102,9 +102,9 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
   fonts:
-    - family: GentiumPlus
+    - family: Edwin
       fonts:
-        - asset: assets/fonts/GentiumPlus-Regular.ttf
+        - asset: assets/fonts/Edwin-Roman.otf
     - family: NotoMusic
       fonts:
         - asset: assets/fonts/NotoMusic-Regular.ttf
