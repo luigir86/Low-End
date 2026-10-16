@@ -59,4 +59,9 @@ abstract final class LowEndShape {
   /// Height of a row of controls under a dial, and of a round button in it
   /// (also the smallest touch target: 48).
   static const control = 48.0;
+
+  /// Height of a button in a row under a dial: the time signature, TAP,
+  /// − + and the pencil, the chord menu, the Root / Chord / Progression
+  /// switch.
+  static const row = 64.0;
 }

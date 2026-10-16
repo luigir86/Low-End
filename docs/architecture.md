@@ -41,7 +41,7 @@ Every outside thing sits behind an interface with a silent or fake twin (`ToneOu
 ## Sound
 
 - **One engine.** `soloud_engine.dart` starts the [SoLoud](https://solhsa.com/soloud/) engine once, on the first sound, and lets that sound wait 300 ms while the phone's output ramps up (a click right at the start came out as a double "tra-ta"). The Xiph codecs are left out of the build (`pubspec.yaml`, `no_xiph_libs`), since all sounds are made in memory.
-- **Whole bars as loops.** The metronome does not fire timers. `ClickSound` renders **one bar** of clicks (woodblock, accent on the first beat) as a PCM buffer and `BarLoopPlayer` loops it gaplessly, so the time cannot drift. Changing the tempo or time signature renders a new bar.
+- **Whole bars as loops.** The metronome does not fire timers. `ClickSound` renders **one bar** of ride-cymbal strokes (the bell on the first beat; for the swing and shuffle feels the skip note and the hi-hat too) as a PCM buffer and `BarLoopPlayer` loops it gaplessly, so the time cannot drift. Changing the tempo or time signature renders a new bar.
 - **Harmony.** `PianoSound` renders the chord (or the bars of a progression) from 14 recorded notes pitched up and down, into a loop **of the same length** as the metronome's bar. `LoopTransport` makes a second loop that starts while another plays wait for the next bar line, so chords and clicks stay together.
 - **Sustained tone.** `DroneSound` makes the steady, warm tone of a held note as a seamless loop; its pitch never wavers, so it is a true reference.
 - **Volume** is the phone's media volume. The one in-app slider (`BalanceSlider`) only balances metronome and harmony.

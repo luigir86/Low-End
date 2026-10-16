@@ -43,10 +43,16 @@ class BarLoopPlayer {
   /// that far in; if the other loop is playing it then waits for that
   /// loop's next bar line, so that the two stay together. Says where and
   /// when it began.
+  ///
+  /// [preRoll], for a loop that starts on its own, is that much of the end
+  /// of the loop, which must be silent, played first: the output comes up
+  /// during it, and the first sound is not softened. It counts in the
+  /// delay.
   Future<LoopStart> play(
     Uint8List wav,
     Duration bar, {
     Duration? startAt,
+    Duration preRoll = Duration.zero,
   }) async {
     await ensureSoLoud();
     final source = await _soloud.loadMem('$name-loop.wav', wav);
@@ -89,6 +95,16 @@ class BarLoopPlayer {
         );
       }
     }
+    // The silence before the first sound of a loop that starts by itself.
+    var seekTo = position;
+    if (wait == null &&
+        !carryOn &&
+        position == Duration.zero &&
+        preRoll > Duration.zero &&
+        preRoll < length) {
+      seekTo = length - preRoll;
+      delay = preRoll;
+    }
     final SoundHandle handle;
     Duration? startsAt;
     if (wait == null) {
@@ -98,7 +114,7 @@ class BarLoopPlayer {
         looping: true,
         volume: _volume,
       );
-      if (position > Duration.zero) _soloud.seek(handle, position);
+      if (seekTo > Duration.zero) _soloud.seek(handle, seekTo);
       _soloud.setPause(handle, false);
     } else {
       // The other loop is playing: come in on its next "one", on the

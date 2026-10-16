@@ -44,8 +44,6 @@ void main() {
     expect(_metronomeTab, findsOneWidget);
     expect(find.text('Library'), findsNothing);
 
-    await tester.tap(_metronomeTab);
-    await tester.pumpAndSettle();
     expect(find.text('Tap to start'), findsOneWidget);
     expect(find.text('80'), findsOneWidget);
     expect(find.text('TAP'), findsOneWidget);
@@ -310,8 +308,6 @@ void main() {
           micInput: FakeMicInput(),
         ),
       );
-      await tester.pumpAndSettle();
-      await tester.tap(_metronomeTab);
       await tester.pumpAndSettle();
 
       await tester.tap(find.byTooltip('Faster'));
@@ -666,6 +662,41 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
     expect(scope.metronome.bpm, 60);
+  });
+
+  testWidgets('a tap on the tab on screen starts and stops its sound', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.625;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      LowEndApp(
+        toneOutput: SilentToneOutput(),
+        clickOutput: SilentClickOutput(),
+        micInput: FakeMicInput(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
+
+    // The app opens on the metronome: a tap on its tab plays, then stops.
+    await tester.tap(_metronomeTab);
+    await tester.pump();
+    expect(scope.metronome.isPlaying, isTrue);
+    await tester.tap(_metronomeTab);
+    await tester.pump();
+    expect(scope.metronome.isPlaying, isFalse);
+
+    // On another tab, a tap only goes there.
+    await tester.tap(_harmonyTab.first);
+    await tester.pumpAndSettle();
+    expect(scope.navigation.section, AppSection.drone);
+    expect(scope.drone.isPlaying, isFalse);
+    // And once there, a tap on its tab plays.
+    await tester.tap(_harmonyTab.first);
+    await tester.pump();
+    expect(scope.drone.isPlaying, isTrue);
   });
 
   testWidgets('the balance slider: icons go to the sides, the middle sticks', (

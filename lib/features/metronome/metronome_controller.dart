@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../audio/click_output.dart';
 import '../../audio/click_sound.dart';
 import '../tuner/drone/drone_controller.dart';
+import 'feel.dart';
 import 'time_signature.dart';
 
 /// State and playback of the metronome.
@@ -38,6 +39,7 @@ class MetronomeController extends ChangeNotifier implements BarClock {
 
   int _bpm = startBpm;
   TimeSignature _signature = TimeSignature.fourFour;
+  MetronomeFeel _feel = MetronomeFeel.straight;
   double _level = 1;
   bool _playing = false;
   bool _audioFailed = false;
@@ -66,6 +68,12 @@ class MetronomeController extends ChangeNotifier implements BarClock {
   int get bpm => _bpm;
   @override
   TimeSignature get signature => _signature;
+
+  /// Straight, swing or shuffle (only felt in bars counted in quarters).
+  MetronomeFeel get feel => _feel;
+
+  /// True when [feel] changes the sound: not in the bars counted in eighths.
+  bool get feelApplies => _signature.denominator != 8;
 
   /// Pulses (segments of the ring, clicks) in a bar.
   int get beatsPerBar => _signature.beats;
@@ -182,6 +190,15 @@ class MetronomeController extends ChangeNotifier implements BarClock {
     if (_playing) _sync();
   }
 
+  /// Sets how the beat is felt. While playing, the bar carries on from where
+  /// it was, with the new pattern.
+  void setFeel(MetronomeFeel feel) {
+    if (feel == _feel) return;
+    _feel = feel;
+    _notify();
+    if (_playing) _sync();
+  }
+
   /// Moves the tempo up or down by [delta] BPM.
   void step(int delta) => setBpm(_bpm + delta);
 
@@ -245,7 +262,7 @@ class MetronomeController extends ChangeNotifier implements BarClock {
       final fresh = _fresh;
       _fresh = false;
       final started = await _output.play(
-        ClickSound.bar(bpm: pulseBpm, signature: _signature),
+        ClickSound.bar(bpm: pulseBpm, signature: _signature, feel: _feel),
         startAt: fresh ? Duration.zero : null,
       );
       // The sound starts now (or on the piano's next bar line): line the

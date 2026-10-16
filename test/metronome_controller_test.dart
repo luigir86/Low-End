@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:low_end/audio/click_output.dart';
 import 'package:low_end/audio/click_sound.dart';
 import 'package:low_end/audio/loop_transport.dart';
+import 'package:low_end/features/metronome/feel.dart';
 import 'package:low_end/features/metronome/metronome_controller.dart';
 import 'package:low_end/features/metronome/time_signature.dart';
 
@@ -59,20 +60,134 @@ void main() {
     expect(metronome.waitLeft, isNull);
   });
 
-  test('the first beat is a little higher than the others', () {
-    double zeroCrossingsPerSecond(Float64List s) {
-      var n = 0;
-      for (var i = 1; i < s.length ~/ 2; i++) {
-        if ((s[i - 1] < 0) != (s[i] < 0)) n++;
+  test('the "one" is the bell: louder and ringing longer than the rest', () {
+    double peak(Float64List s) =>
+        s.map((v) => v.abs()).reduce((a, c) => a > c ? a : c);
+    double tail(Float64List s) {
+      // Energy after 100 ms: what is left of the ring.
+      var sum = 0.0;
+      for (var i = ClickSound.sampleRate ~/ 10; i < s.length; i++) {
+        sum += s[i] * s[i];
       }
-      return n / (s.length / 2 / ClickSound.sampleRate) / 2;
+      return sum;
     }
 
-    final accent = zeroCrossingsPerSecond(ClickSound.click(accent: true));
-    final plain = zeroCrossingsPerSecond(ClickSound.click(accent: false));
-    expect(accent, greaterThan(plain));
-    // Neither shrill: around 1 kHz at most.
-    expect(accent, lessThan(1600));
+    final accent = ClickSound.click(accent: true);
+    final group = ClickSound.click(accent: false, group: true);
+    final plain = ClickSound.click(accent: false);
+    expect(peak(accent), greaterThan(peak(group)));
+    expect(peak(group), greaterThan(peak(plain)));
+    expect(tail(accent), greaterThan(tail(plain)));
+    // It rings like a cymbal, not a click: well over 100 ms...
+    expect(tail(plain), greaterThan(0));
+    // ...yet it never clips, and ends before a beat of 250 BPM does.
+    expect(peak(accent), lessThan(0.95));
+    expect(accent.length, lessThan(ClickSound.sampleRate * 60 ~/ 250));
+    expect(ClickSound.ghost().length, plain.length);
+  });
+
+  group('the feel', () {
+    // 4/4 at 60: a beat is a second, so a third and two thirds are easy.
+    int beat() => ClickSound.sampleRate;
+    double energy(Float64List bar, int from, int length) {
+      var sum = 0.0;
+      for (var i = from; i < from + length; i++) {
+        sum += bar[i] * bar[i];
+      }
+      return sum;
+    }
+
+    Float64List samples(MetronomeFeel feel, [TimeSignature? s]) {
+      final wav = ClickSound.bar(
+        bpm: 60,
+        signature: s ?? TimeSignature.fourFour,
+        feel: feel,
+      );
+      return Float64List.fromList([
+        for (var i = 44; i < wav.length; i += 2)
+          ((wav[i] | (wav[i + 1] << 8)).toSigned(16)) / 32767,
+      ]);
+    }
+
+    test('straight sounds only on the beats', () {
+      final bar = samples(MetronomeFeel.straight);
+      final skip = beat() * 2 ~/ 3;
+      for (var b = 0; b < 4; b++) {
+        expect(energy(bar, b * beat() + skip, 200), 0, reason: 'beat $b');
+      }
+    });
+
+    test('swing skips after 2 and 4, with the hi-hat on them', () {
+      final bar = samples(MetronomeFeel.swing);
+      final skip = beat() * 2 ~/ 3;
+      expect(energy(bar, 0 * beat() + skip, 200), 0);
+      expect(energy(bar, 1 * beat() + skip, 200), greaterThan(0));
+      expect(energy(bar, 2 * beat() + skip, 200), 0);
+      expect(energy(bar, 3 * beat() + skip, 200), greaterThan(0));
+      // The hi-hat comes on 2 and 4 as well: a brighter start there.
+      final straight = samples(MetronomeFeel.straight);
+      expect(
+        energy(bar, beat(), 800),
+        isNot(closeTo(energy(straight, beat(), 800), 1e-9)),
+      );
+    });
+
+    test('shuffle skips after every beat', () {
+      final bar = samples(MetronomeFeel.shuffle);
+      final skip = beat() * 2 ~/ 3;
+      for (var b = 0; b < 4; b++) {
+        expect(energy(bar, b * beat() + skip, 200), greaterThan(0));
+      }
+    });
+
+    test('a bar of one beat swings too, and the loop never clips', () {
+      final bar = samples(MetronomeFeel.swing, TimeSignature.oneOne);
+      expect(energy(bar, beat() * 2 ~/ 3, 200), greaterThan(0));
+      for (final feel in MetronomeFeel.values) {
+        final loop = samples(feel);
+        expect(loop.every((v) => v.abs() <= 0.96), isTrue);
+      }
+    });
+
+    test('bars in eighths are always straight', () {
+      expect(
+        samples(MetronomeFeel.swing, TimeSignature.sixEight),
+        samples(MetronomeFeel.straight, TimeSignature.sixEight),
+      );
+    });
+
+    test('the controller plays the feel, keeping the bar going', () async {
+      expect(metronome.feel, MetronomeFeel.straight);
+      await metronome.start();
+      final straight = output.bar!;
+      metronome.setFeel(MetronomeFeel.shuffle);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(metronome.feel, MetronomeFeel.shuffle);
+      expect(output.bar, isNot(straight));
+      // Same length, and it carries on rather than starting again.
+      expect(output.bar!.length, straight.length);
+      expect(output.startAt, isNull);
+      // Not for the bars in eighths.
+      metronome.setSignature(TimeSignature.sixEight);
+      expect(metronome.feelApplies, isFalse);
+    });
+  });
+
+  group('the first sound has time to come up', () {
+    test('some of the silence at the end of the bar is played first', () {
+      final bar = ClickSound.bar(bpm: 80);
+      // 4/4 at 80: a stroke lasts 230 ms of a beat of 750: plenty of room.
+      expect(
+        SoLoudClickOutput.preRollFor(bar),
+        const Duration(milliseconds: 120),
+      );
+    });
+
+    test('never into a stroke: none when beats are crowded', () {
+      // 250 BPM, a beat of 240 ms: the last stroke rings to the end.
+      final bar = ClickSound.bar(bpm: 250);
+      expect(SoLoudClickOutput.preRollFor(bar), Duration.zero);
+    });
   });
 
   test('keeps the tempo between 30 and 250 BPM in 4/4', () {

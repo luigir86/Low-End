@@ -188,6 +188,30 @@ abstract class AppLocalizations {
   /// **'Stop the harmony'**
   String get droneStop;
 
+  /// No description provided for @feelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Feel'**
+  String get feelLabel;
+
+  /// No description provided for @feelStraight.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight'**
+  String get feelStraight;
+
+  /// No description provided for @feelSwing.
+  ///
+  /// In en, this message translates to:
+  /// **'Swing'**
+  String get feelSwing;
+
+  /// No description provided for @feelShuffle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shuffle'**
+  String get feelShuffle;
+
   /// No description provided for @progressionLabel.
   ///
   /// In en, this message translates to:

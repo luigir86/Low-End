@@ -57,6 +57,18 @@ class AppLocalizationsIt extends AppLocalizations {
   String get droneStop => 'Ferma l\'armonia';
 
   @override
+  String get feelLabel => 'Andamento';
+
+  @override
+  String get feelStraight => 'Dritto';
+
+  @override
+  String get feelSwing => 'Swing';
+
+  @override
+  String get feelShuffle => 'Shuffle';
+
+  @override
   String get progressionLabel => 'Progressione';
 
   @override

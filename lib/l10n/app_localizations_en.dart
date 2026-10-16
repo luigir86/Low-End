@@ -57,6 +57,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get droneStop => 'Stop the harmony';
 
   @override
+  String get feelLabel => 'Feel';
+
+  @override
+  String get feelStraight => 'Straight';
+
+  @override
+  String get feelSwing => 'Swing';
+
+  @override
+  String get feelShuffle => 'Shuffle';
+
+  @override
   String get progressionLabel => 'Progression';
 
   @override

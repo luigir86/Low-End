@@ -23,7 +23,7 @@ Rules: pick a role, never a number; the three dials show their value in `display
 | --- | --- |
 | Corner radius of buttons, cards, menus | 16 (`LowEndShape.radius`) |
 | Round or rounded control | 48 × 48 at least (`LowEndShape.control`), the smallest touch target |
-| Row of controls under a dial | 96 high at least (`DialLayout.upperHeight`), then 64 (`lowerHeight`), then the balance row (`footerHeight`) |
+| Row of controls under a dial | each button 64 high (`LowEndShape.row`): the Root / Chord / Progression and Straight / Swing / Shuffle switches, the chord menu, and the time signature, TAP, − + and pencil of the metronome, side by side; then the balance row (`footerHeight`) |
 | + over − pair | two 48 × 48 buttons, rounded outside and almost square where they meet |
 | Dial | one disc, a ring from 0.64 to 0.97 of the radius, a hub of 0.61; the same position and size on every tab (`DialGeometry`, `dial_alignment_test.dart`) |
 | Ring segments | metronome: thinner band (0.22 to 0.92 of the ring), one segment per beat, a bar of one beat is a whole ring; harmony: the whole ring, twelve keys; tuner: two bands of thin segments |
@@ -39,8 +39,7 @@ Wood. Light: maple surfaces, walnut text and primary. Dark: ebony surfaces, a li
 | Secondary (the rest of a chord) | `mochaMousse` |
 | The metronome's "one" | `downbeatLight` (burnt orange) / `downbeatDark` (cream): unlike the other beats, it must be seen on a dark stage |
 | Tuner verdict | in tune green, close ochre, off red (`inTune*`, `close*`, `off*`), always with a shape (a tick or an arrow) as well |
-| Next chord (harmony) | a faint tint of the primary and a thin arc on the outer edge |
-| The key (harmony) | one thin arc on the inner edge of its segment |
+| The functions of a progression (harmony) | its Roman numerals (I, II, V) written small on the notes they stand on, and still while it plays; nothing moves to say what is next |
 
 All text and shapes keep at least 4.5:1 / 3:1 contrast (`theme_test.dart`, `accessibility_test.dart`).
 
