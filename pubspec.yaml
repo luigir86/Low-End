@@ -100,3 +100,24 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  fonts:
+    - family: Edwin
+      fonts:
+        - asset: assets/fonts/Edwin-Roman.otf
+          weight: 400
+        - asset: assets/fonts/Edwin-Bold.otf
+          weight: 700
+    - family: NotoMusic
+      fonts:
+        - asset: assets/fonts/NotoMusic-Regular.ttf
+    - family: Barlow
+      fonts:
+        - asset: assets/fonts/Barlow-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Barlow-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Barlow-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Barlow-Bold.ttf
+          weight: 700

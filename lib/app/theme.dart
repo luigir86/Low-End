@@ -200,6 +200,11 @@ abstract final class LowEndTheme {
       borderRadius: BorderRadius.circular(radius),
     );
     return ThemeData(
+      // Edwin (SIL OFL), the text font of MuseScore, bundled in assets/fonts;
+      // it has the ♭ and ♯. Barlow fills the few characters it lacks, and
+      // the ♩ comes from Noto Music.
+      fontFamily: 'Edwin',
+      fontFamilyFallback: const ['Barlow', 'NotoMusic'],
       colorScheme: scheme,
       scaffoldBackgroundColor: scheme.surface,
       extensions: [colors],

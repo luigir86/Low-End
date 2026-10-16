@@ -102,7 +102,6 @@ class SettingsPage extends StatelessWidget {
                   ],
                 ),
               ),
-              const Divider(),
               _Section(title: l10n.referencePitch),
               ListTile(
                 title: Text(l10n.referencePitchHint(example)),
@@ -120,6 +119,24 @@ class SettingsPage extends StatelessWidget {
                     ],
                     onChanged: (hz) => settings.setReferencePitch(hz!),
                   ),
+                ),
+              ),
+              const Divider(),
+              _Section(title: l10n.circleLayoutLabel),
+              RadioGroup<CircleLayout>(
+                groupValue: settings.circleLayout,
+                onChanged: (c) => settings.setCircleLayout(c!),
+                child: Column(
+                  children: [
+                    RadioListTile(
+                      value: CircleLayout.fifths,
+                      title: Text(l10n.circleLayoutFifths),
+                    ),
+                    RadioListTile(
+                      value: CircleLayout.chromatic,
+                      title: Text(l10n.circleLayoutChromatic),
+                    ),
+                  ],
                 ),
               ),
               const Divider(),
