@@ -509,6 +509,9 @@ class _SignatureButton extends StatelessWidget {
     final signature = metronome.signature;
     return LabeledField(
       label: l10n.timeSignature,
+      // The border is bare: "4/4" in it needs no title (the label is still
+      // what a screen reader announces).
+      showLabel: false,
       value: signature.label,
       onTap: () => _choose(context),
     );
@@ -577,9 +580,14 @@ class _TapButtonState extends State<_TapButton> {
         child: RowChip(
           // The tap is counted by the Listener; this only shows the ripple.
           onPressed: () {},
+          // Coloured: the one chip of the row that is a button to press.
+          filled: true,
           label: Text(
             'TAP',
-            style: rowChipStyle(context)?.copyWith(letterSpacing: 1),
+            style: rowChipStyle(
+              context,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            )?.copyWith(letterSpacing: 1),
           ),
         ),
       ),

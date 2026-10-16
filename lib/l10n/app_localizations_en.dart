@@ -78,6 +78,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get progressionBlues => '12-bar blues';
 
   @override
+  String get progressionGenreJazz => 'Jazz standard';
+
+  @override
+  String get progressionGenreMinorJazz => 'Jazz in a minor key';
+
+  @override
+  String get progressionGenreRock => 'Rock ’n’ roll';
+
+  @override
+  String get progressionGenrePop => '’50s–’60s pop';
+
+  @override
+  String get progressionGenreBlues => 'Blues';
+
+  @override
+  String progressionLike(String genre, String song) {
+    return '$genre, like $song';
+  }
+
+  @override
+  String get thanksTitle => 'Thanks';
+
+  @override
+  String get thanksText =>
+      'Thanks to the Power Flower Orchestra of Fossano, who inspired this app and put it to the test.';
+
+  @override
   String get addSevenths => 'Add the seventh to the chords';
 
   @override
@@ -250,6 +277,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get aboutPiano =>
       'Piano sounds: Salamander Grand Piano by Alexander Holm (public domain).';
+
+  @override
+  String get aboutDrums =>
+      'Drum sounds: Versilian Community Sample Library by Versilian Studios (CC0, public domain).';
 
   @override
   String get styleLabel => 'Style';

@@ -140,6 +140,12 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
               const Divider(),
+              _Section(title: l10n.thanksTitle),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                child: Text(l10n.thanksText),
+              ),
+              const Divider(),
               ListTile(
                 leading: Icon(
                   Icons.help_outline,

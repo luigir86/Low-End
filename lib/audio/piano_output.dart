@@ -2,6 +2,7 @@ import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 
+import '../features/metronome/feel.dart';
 import '../features/metronome/time_signature.dart';
 import 'bar_loop_player.dart';
 import 'click_sound.dart';
@@ -24,6 +25,8 @@ abstract class PianoOutput {
   /// where and when it began.
   ///
   /// With [rootless], the chords have no root: their lowest note is not one.
+  /// With a [feel] other than straight, the beat and arpeggio styles play
+  /// the metronome's skip notes too (see [PianoSound.loop]).
   Future<LoopStart> play({
     required List<PianoChord> chords,
     required PianoStyle style,
@@ -33,6 +36,7 @@ abstract class PianoOutput {
     required double volume,
     Duration? startAt,
     bool rootless = false,
+    MetronomeFeel feel = MetronomeFeel.straight,
   });
 
   Future<void> stop();
@@ -64,6 +68,7 @@ class SoLoudPianoOutput implements PianoOutput {
     required double volume,
     Duration? startAt,
     bool rootless = false,
+    MetronomeFeel feel = MetronomeFeel.straight,
   }) async {
     final samples = await _load();
     _player.setVolume(volume);
@@ -76,6 +81,7 @@ class SoLoudPianoOutput implements PianoOutput {
       signature,
       a4,
       rootless,
+      feel,
     );
     final bar = Duration(
       microseconds:
@@ -97,6 +103,7 @@ class SoLoudPianoOutput implements PianoOutput {
     TimeSignature signature,
     double a4,
     bool rootless,
+    MetronomeFeel feel,
   ) => Isolate.run(
     () => PianoSound.loopWav(
       samples: samples,
@@ -106,6 +113,7 @@ class SoLoudPianoOutput implements PianoOutput {
       signature: signature,
       a4: a4,
       rootless: rootless,
+      feel: feel,
     ),
   );
 
@@ -126,6 +134,7 @@ class SilentPianoOutput implements PianoOutput {
   TimeSignature? signature;
   Duration? startAt;
   bool rootless = false;
+  MetronomeFeel feel = MetronomeFeel.straight;
   double volume = 0;
   var plays = 0;
 
@@ -142,7 +151,9 @@ class SilentPianoOutput implements PianoOutput {
     required double volume,
     Duration? startAt,
     bool rootless = false,
+    MetronomeFeel feel = MetronomeFeel.straight,
   }) async {
+    this.feel = feel;
     this.chords = chords;
     this.rootless = rootless;
     this.style = style;

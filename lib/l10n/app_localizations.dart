@@ -230,6 +230,54 @@ abstract class AppLocalizations {
   /// **'12-bar blues'**
   String get progressionBlues;
 
+  /// No description provided for @progressionGenreJazz.
+  ///
+  /// In en, this message translates to:
+  /// **'Jazz standard'**
+  String get progressionGenreJazz;
+
+  /// No description provided for @progressionGenreMinorJazz.
+  ///
+  /// In en, this message translates to:
+  /// **'Jazz in a minor key'**
+  String get progressionGenreMinorJazz;
+
+  /// No description provided for @progressionGenreRock.
+  ///
+  /// In en, this message translates to:
+  /// **'Rock ’n’ roll'**
+  String get progressionGenreRock;
+
+  /// No description provided for @progressionGenrePop.
+  ///
+  /// In en, this message translates to:
+  /// **'’50s–’60s pop'**
+  String get progressionGenrePop;
+
+  /// No description provided for @progressionGenreBlues.
+  ///
+  /// In en, this message translates to:
+  /// **'Blues'**
+  String get progressionGenreBlues;
+
+  /// A progression described by its genre and a well-known song that uses it, in the progression menu.
+  ///
+  /// In en, this message translates to:
+  /// **'{genre}, like {song}'**
+  String progressionLike(String genre, String song);
+
+  /// No description provided for @thanksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks'**
+  String get thanksTitle;
+
+  /// No description provided for @thanksText.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks to the Power Flower Orchestra of Fossano, who inspired this app and put it to the test.'**
+  String get thanksText;
+
   /// No description provided for @addSevenths.
   ///
   /// In en, this message translates to:
@@ -529,6 +577,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Piano sounds: Salamander Grand Piano by Alexander Holm (public domain).'**
   String get aboutPiano;
+
+  /// No description provided for @aboutDrums.
+  ///
+  /// In en, this message translates to:
+  /// **'Drum sounds: Versilian Community Sample Library by Versilian Studios (CC0, public domain).'**
+  String get aboutDrums;
 
   /// No description provided for @styleLabel.
   ///

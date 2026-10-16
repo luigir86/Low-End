@@ -9,16 +9,20 @@ import '../app/style.dart';
 
 /// A field in the style of the chord menu: its [label] written on the
 /// border, the current [value] inside, a caret to say a touch opens a
-/// choice.
+/// choice. With [showLabel] false the border stays bare, as for the time
+/// signature, where "4/4" says it all; the [label] is still what a screen
+/// reader announces.
 class LabeledField extends StatelessWidget {
   const LabeledField({
     super.key,
     required this.label,
     required this.value,
     required this.onTap,
+    this.showLabel = true,
   });
 
   final String label;
+  final bool showLabel;
   final String value;
   final VoidCallback onTap;
 
@@ -36,7 +40,7 @@ class LabeledField extends StatelessWidget {
         onTap: onTap,
         child: InputDecorator(
           decoration: InputDecoration(
-            labelText: label,
+            labelText: showLabel ? label : null,
             floatingLabelBehavior: FloatingLabelBehavior.always,
             border: const OutlineInputBorder(),
             contentPadding: const EdgeInsets.fromLTRB(12, 16, 4, 16),
@@ -59,19 +63,31 @@ class LabeledField extends StatelessWidget {
 }
 
 /// A chip of the row: "+7" on the harmony, TAP, − and + on the metronome.
-/// With [onPressed] null it is dimmed (the end of a range).
+/// With [onPressed] null it is dimmed (the end of a range). With [filled]
+/// it is coloured in the container colour, to say that it is a button to
+/// press (TAP), unlike the chips that only show a value.
 class RowChip extends StatelessWidget {
-  const RowChip({super.key, required this.label, this.tooltip, this.onPressed});
+  const RowChip({
+    super.key,
+    required this.label,
+    this.tooltip,
+    this.onPressed,
+    this.filled = false,
+  });
 
   final Widget label;
   final String? tooltip;
   final VoidCallback? onPressed;
+  final bool filled;
 
   @override
   Widget build(BuildContext context) => ActionChip(
     label: label,
     tooltip: tooltip,
     onPressed: onPressed,
+    backgroundColor: filled
+        ? Theme.of(context).colorScheme.primaryContainer
+        : null,
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
     labelPadding: const EdgeInsets.symmetric(horizontal: 4),
     side: BorderSide(
