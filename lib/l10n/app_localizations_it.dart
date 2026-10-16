@@ -214,6 +214,27 @@ class AppLocalizationsIt extends AppLocalizations {
       'Accordatore, drone e metronomo per contrabbasso e basso elettrico. Low End funziona offline: il microfono si usa solo mentre l\'accordatore ascolta, e nessun suono o dato esce dal telefono.';
 
   @override
+  String get aboutPiano =>
+      'Suoni del pianoforte: Salamander Grand Piano di Alexander Holm (pubblico dominio).';
+
+  @override
+  String get styleLabel => 'Stile';
+
+  @override
+  String get styleHeld => 'Accordo a ogni battuta';
+
+  @override
+  String get styleBeat => 'Accordo a ogni beat';
+
+  @override
+  String get styleArpeggio => 'Arpeggio';
+
+  @override
+  String styleTempo(int bpm, String signature) {
+    return 'Segue il metronomo: $bpm BPM, $signature';
+  }
+
+  @override
   String aboutSource(String url) {
     return 'Codice sorgente: $url';
   }

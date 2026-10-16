@@ -149,6 +149,18 @@
   "aboutTooltip": "About Low End",
   "aboutLegalese": "Free and open-source software, released under the MIT License.",
   "aboutDescription": "Tuner, drone and metronome for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.",
+  "aboutPiano": "Piano sounds: Salamander Grand Piano by Alexander Holm (public domain).",
+  "styleLabel": "Style",
+  "styleHeld": "Chord every bar",
+  "styleBeat": "Chord on every beat",
+  "styleArpeggio": "Arpeggio",
+  "styleTempo": "Follows the metronome: {bpm} BPM, {signature}",
+  "@styleTempo": {
+    "placeholders": {
+      "bpm": {"type": "int"},
+      "signature": {"type": "String"}
+    }
+  },
   "aboutSource": "Source code: {url}",
   "@aboutSource": {
     "placeholders": {

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:low_end/audio/click_output.dart';
 import 'package:low_end/audio/click_sound.dart';
+import 'package:low_end/audio/loop_transport.dart';
 import 'package:low_end/features/metronome/metronome_controller.dart';
 import 'package:low_end/features/metronome/time_signature.dart';
 
@@ -173,9 +174,9 @@ void main() {
 
 class _SlowClickOutput extends SilentClickOutput {
   @override
-  Future<void> play(Uint8List barWav, Duration startAt) async {
+  Future<LoopStart> play(Uint8List barWav, {Duration? startAt}) async {
     await Future<void>.delayed(const Duration(milliseconds: 5));
-    await super.play(barWav, startAt);
+    return super.play(barWav, startAt: startAt);
   }
 
   Future<void> drain() =>
@@ -184,6 +185,6 @@ class _SlowClickOutput extends SilentClickOutput {
 
 class _FailingClickOutput extends SilentClickOutput {
   @override
-  Future<void> play(Uint8List barWav, Duration startAt) =>
+  Future<LoopStart> play(Uint8List barWav, {Duration? startAt}) =>
       Future.error(StateError('no audio device'));
 }

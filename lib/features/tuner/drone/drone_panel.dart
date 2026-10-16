@@ -546,7 +546,73 @@ class _ChordMenu extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
             ),
           ),
+          if (drone.hasPiano) ...[
+            const SizedBox(width: 8),
+            _StyleMenu(drone: drone),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+/// How the chord or the progression sounds: held, or on the piano, struck
+/// on every beat or as an arpeggio, at the metronome's tempo.
+class _StyleMenu extends StatelessWidget {
+  const _StyleMenu({required this.drone});
+
+  final DroneController drone;
+
+  static IconData _icon(DroneStyle style) => switch (style) {
+    DroneStyle.held => Icons.music_note,
+    DroneStyle.beat => Icons.piano,
+    DroneStyle.arpeggio => Icons.show_chart,
+  };
+
+  static String _name(AppLocalizations l10n, DroneStyle style) =>
+      switch (style) {
+        DroneStyle.held => l10n.styleHeld,
+        DroneStyle.beat => l10n.styleBeat,
+        DroneStyle.arpeggio => l10n.styleArpeggio,
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final scope = AudioScope.of(context);
+    final metronome = scope.metronome;
+    return PopupMenuButton<DroneStyle>(
+      tooltip: '${l10n.styleLabel}: ${_name(l10n, drone.style)}',
+      initialValue: drone.style,
+      onSelected: drone.setStyle,
+      itemBuilder: (context) => [
+        for (final style in DroneStyle.values)
+          PopupMenuItem(
+            value: style,
+            child: Row(
+              children: [
+                Icon(_icon(style)),
+                const SizedBox(width: 12),
+                Text(_name(l10n, style)),
+              ],
+            ),
+          ),
+        // The piano keeps the metronome's time, wherever it is set.
+        const PopupMenuDivider(),
+        PopupMenuItem<DroneStyle>(
+          enabled: false,
+          child: Text(
+            l10n.styleTempo(metronome.bpm, metronome.signature.label),
+          ),
+        ),
+      ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        child: Icon(
+          _icon(drone.style),
+          size: 28,
+          color: Theme.of(context).colorScheme.primary,
+        ),
       ),
     );
   }

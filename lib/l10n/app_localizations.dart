@@ -446,6 +446,42 @@ abstract class AppLocalizations {
   /// **'Tuner, drone and metronome for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.'**
   String get aboutDescription;
 
+  /// No description provided for @aboutPiano.
+  ///
+  /// In en, this message translates to:
+  /// **'Piano sounds: Salamander Grand Piano by Alexander Holm (public domain).'**
+  String get aboutPiano;
+
+  /// No description provided for @styleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Style'**
+  String get styleLabel;
+
+  /// No description provided for @styleHeld.
+  ///
+  /// In en, this message translates to:
+  /// **'Chord every bar'**
+  String get styleHeld;
+
+  /// No description provided for @styleBeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chord on every beat'**
+  String get styleBeat;
+
+  /// No description provided for @styleArpeggio.
+  ///
+  /// In en, this message translates to:
+  /// **'Arpeggio'**
+  String get styleArpeggio;
+
+  /// No description provided for @styleTempo.
+  ///
+  /// In en, this message translates to:
+  /// **'Follows the metronome: {bpm} BPM, {signature}'**
+  String styleTempo(int bpm, String signature);
+
   /// No description provided for @aboutSource.
   ///
   /// In en, this message translates to:

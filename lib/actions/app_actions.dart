@@ -118,8 +118,8 @@ class AppActions {
     const AppAction(
       name: 'drone_play',
       description:
-          'Plays the drone, a sustained pure tone to practise intonation on. '
-          'Any setting given is applied first.',
+          'Plays the drone, on the piano, to practise on, in time with the '
+          'metronome: a note, a chord or a progression. Any setting given is applied first.',
       parameters: _droneParameters,
     ),
     const AppAction(name: 'drone_stop', description: 'Stops the drone.'),
@@ -205,9 +205,8 @@ class AppActions {
       'type': 'string',
       'enum': ['major', 'minor', 'seventh'],
       'description':
-          'The chord played when voicing is "chord", in pure intervals; '
-          '"seventh" is the dominant seventh, its seventh tuned to 16/9 (the '
-          'pure ratio closest to the equal-tempered minor seventh).',
+          'The chord played when voicing is "chord"; "seventh" is the dominant '
+          'seventh.',
     },
     'progression': {
       'type': 'string',
@@ -221,6 +220,15 @@ class AppActions {
       'description':
           'The progression played when voicing is "progression": II-V-I, '
           'minor II-V-I, I-IV-V, I-VI-IV-V or 12-bar blues.',
+    },
+    'style': {
+      'type': 'string',
+      'enum': ['held', 'beat', 'arpeggio'],
+      'description':
+          'How the piano plays the note, chord or progression: struck once a bar '
+          '(held), on every beat, or as an '
+          'arpeggio, one note a beat (the piano follows the tempo and time '
+          'signature of the metronome).',
     },
     'sevenths': {
       'type': 'boolean',
@@ -335,11 +343,15 @@ class AppActions {
     final chord = args['chord'] == null
         ? null
         : _enum(ChordType.values, args['chord']);
+    final style = args['style'] == null
+        ? null
+        : _enum(DroneStyle.values, args['style']);
     return () {
       if (pitchClass != null) drone.setPitchClass(pitchClass);
       if (voicing != null) drone.setVoicing(voicing);
       if (chord != null) drone.setChord(chord);
       if (progression != null) drone.setProgression(progression);
+      if (style != null) drone.setStyle(style);
       if (sevenths != null) drone.setSevenths(sevenths);
     };
   }
@@ -377,6 +389,7 @@ class AppActions {
         'chord': drone.chord.name,
         'progression': drone.progression.name,
         'sevenths': drone.sevenths,
+        'style': drone.style.name,
         'progression_step': drone.voicing == DroneVoicing.progression
             ? drone.step
             : null,

@@ -1,16 +1,24 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:low_end/features/metronome/time_signature.dart';
 import 'package:low_end/audio/pitch.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
 import 'package:low_end/features/tuner/drone/harmony.dart';
 
 /// A bar clock set by hand, as the metronome would be.
-class _Clock implements BarClock {
+class _Clock extends ChangeNotifier implements BarClock {
   @override
   Duration barLength = const Duration(seconds: 2);
 
   @override
   double? barPhase;
+
+  @override
+  int bpm = 120;
+
+  @override
+  TimeSignature signature = TimeSignature.fourFour;
 }
 
 /// The frequencies sounding, each to a millionth of a hertz.

@@ -211,6 +211,27 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tuner, drone and metronome for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.';
 
   @override
+  String get aboutPiano =>
+      'Piano sounds: Salamander Grand Piano by Alexander Holm (public domain).';
+
+  @override
+  String get styleLabel => 'Style';
+
+  @override
+  String get styleHeld => 'Chord every bar';
+
+  @override
+  String get styleBeat => 'Chord on every beat';
+
+  @override
+  String get styleArpeggio => 'Arpeggio';
+
+  @override
+  String styleTempo(int bpm, String signature) {
+    return 'Follows the metronome: $bpm BPM, $signature';
+  }
+
+  @override
   String aboutSource(String url) {
     return 'Source code: $url';
   }

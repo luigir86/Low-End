@@ -1,16 +1,23 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_soloud/flutter_soloud.dart';
 
-import 'soloud_engine.dart';
+import 'bar_loop_player.dart';
+import 'click_sound.dart';
+import 'loop_transport.dart';
 
 /// Loops one bar of metronome clicks.
 ///
 /// Kept behind an interface so the rest of the app can be tested without a
 /// real audio device.
 abstract class ClickOutput {
-  /// Starts looping [barWav] (see ClickSound.bar), [startAt] into the bar,
-  /// replacing the bar already playing, if any.
-  Future<void> play(Uint8List barWav, Duration startAt);
+  /// Starts looping [barWav] (see ClickSound.bar), replacing the bar
+  /// already playing, if any.
+  ///
+  /// With no [startAt], a bar replacing another carries on from where the
+  /// old one was (scaled to its own length), as a tempo change should, and
+  /// the piano does the same. With one, it starts that far into the bar; if
+  /// the piano is playing it then waits for the piano's next bar line, so
+  /// the two stay together. Says where and when it began.
+  Future<LoopStart> play(Uint8List barWav, {Duration? startAt});
 
   Future<void> stop();
 
@@ -19,52 +26,24 @@ abstract class ClickOutput {
 }
 
 /// [ClickOutput] backed by the SoLoud audio engine.
-///
-/// Calls are expected one at a time (MetronomeController waits for each
-/// one to finish before the next).
 class SoLoudClickOutput implements ClickOutput {
-  AudioSource? _source;
-  SoundHandle? _handle;
-  double _volume = 1;
-
-  SoLoud get _soloud => SoLoud.instance;
+  final _player = BarLoopPlayer('click');
 
   @override
-  Future<void> play(Uint8List barWav, Duration startAt) async {
-    await ensureSoLoud();
-    final source = await _soloud.loadMem('metronome-bar.wav', barWav);
-    // Start the new bar where the old one was, then drop the old one: a
-    // tempo change keeps the beat going instead of restarting the bar.
-    final handle = _soloud.play(
-      source,
-      paused: true,
-      looping: true,
-      volume: _volume,
+  Future<LoopStart> play(Uint8List barWav, {Duration? startAt}) {
+    // The loop is one bar long.
+    final bar = Duration(
+      microseconds:
+          (barWav.length - 44) ~/ 2 * 1000000 ~/ ClickSound.sampleRate,
     );
-    if (startAt > Duration.zero) _soloud.seek(handle, startAt);
-    _soloud.setPause(handle, false);
-    await _release();
-    _source = source;
-    _handle = handle;
+    return _player.play(barWav, bar, startAt: startAt);
   }
 
   @override
-  Future<void> stop() => _release();
+  Future<void> stop() => _player.stop();
 
   @override
-  void setVolume(double volume) {
-    _volume = volume;
-    final handle = _handle;
-    if (handle != null) _soloud.setVolume(handle, volume);
-  }
-
-  Future<void> _release() async {
-    final handle = _handle, source = _source;
-    _handle = null;
-    _source = null;
-    if (handle != null) await _soloud.stop(handle);
-    if (source != null) await _soloud.disposeSource(source);
-  }
+  void setVolume(double volume) => _player.setVolume(volume);
 }
 
 /// [ClickOutput] that makes no sound; used where audio is unavailable.
@@ -72,14 +51,18 @@ class SoLoudClickOutput implements ClickOutput {
 class SilentClickOutput implements ClickOutput {
   /// The bar playing now, or null when stopped.
   Uint8List? bar;
-  Duration startAt = Duration.zero;
+  Duration? startAt;
   var plays = 0;
 
+  /// How long the next start waits, as if the piano were playing.
+  Duration delay = Duration.zero;
+
   @override
-  Future<void> play(Uint8List barWav, Duration startAt) async {
+  Future<LoopStart> play(Uint8List barWav, {Duration? startAt}) async {
     bar = barWav;
     this.startAt = startAt;
     plays++;
+    return (position: startAt ?? Duration.zero, delay: delay);
   }
 
   @override

@@ -49,7 +49,7 @@
   },
   {
     "name": "drone_play",
-    "description": "Plays the drone, a sustained pure tone to practise intonation on. Any setting given is applied first.",
+    "description": "Plays the drone, on the piano, to practise on, in time with the metronome: a note, a chord or a progression. Any setting given is applied first.",
     "input_schema": {
       "type": "object",
       "properties": {
@@ -73,7 +73,7 @@
             "minor",
             "seventh"
           ],
-          "description": "The chord played when voicing is \"chord\", in pure intervals; \"seventh\" is the dominant seventh, its seventh tuned to 16/9 (the pure ratio closest to the equal-tempered minor seventh)."
+          "description": "The chord played when voicing is \"chord\"; \"seventh\" is the dominant seventh."
         },
         "progression": {
           "type": "string",
@@ -85,6 +85,15 @@
             "blues"
           ],
           "description": "The progression played when voicing is \"progression\": II-V-I, minor II-V-I, I-IV-V, I-VI-IV-V or 12-bar blues."
+        },
+        "style": {
+          "type": "string",
+          "enum": [
+            "held",
+            "beat",
+            "arpeggio"
+          ],
+          "description": "How the piano plays the note, chord or progression: struck once a bar (held), on every beat, or as an arpeggio, one note a beat (the piano follows the tempo and time signature of the metronome)."
         },
         "sevenths": {
           "type": "boolean",
@@ -173,7 +182,7 @@
             "minor",
             "seventh"
           ],
-          "description": "The chord played when voicing is \"chord\", in pure intervals; \"seventh\" is the dominant seventh, its seventh tuned to 16/9 (the pure ratio closest to the equal-tempered minor seventh)."
+          "description": "The chord played when voicing is \"chord\"; \"seventh\" is the dominant seventh."
         },
         "progression": {
           "type": "string",
@@ -185,6 +194,15 @@
             "blues"
           ],
           "description": "The progression played when voicing is \"progression\": II-V-I, minor II-V-I, I-IV-V, I-VI-IV-V or 12-bar blues."
+        },
+        "style": {
+          "type": "string",
+          "enum": [
+            "held",
+            "beat",
+            "arpeggio"
+          ],
+          "description": "How the piano plays the note, chord or progression: struck once a bar (held), on every beat, or as an arpeggio, one note a beat (the piano follows the tempo and time signature of the metronome)."
         },
         "sevenths": {
           "type": "boolean",

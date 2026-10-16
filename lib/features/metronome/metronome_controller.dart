@@ -37,6 +37,11 @@ class MetronomeController extends ChangeNotifier implements BarClock {
   // Where in the bar the screen's clock started, see [barPhase].
   Duration _startedAt = Duration.zero;
 
+  // How long into the screen's clock the sound begins, when it waits for
+  // the piano's next bar line, and whether it has been asked for yet.
+  Duration _waiting = Duration.zero;
+  var _starting = false;
+
   final _taps = <Duration>[];
 
   /// True when the next bar must start from its "one", because the sound
@@ -46,7 +51,9 @@ class MetronomeController extends ChangeNotifier implements BarClock {
   bool _syncing = false;
   bool _syncAgain = false;
 
+  @override
   int get bpm => _bpm;
+  @override
   TimeSignature get signature => _signature;
   int get beatsPerBar => _signature.beats;
   bool get isPlaying => _playing;
@@ -62,8 +69,10 @@ class MetronomeController extends ChangeNotifier implements BarClock {
   /// when stopped.
   @override
   double? get barPhase {
-    if (!_playing) return null;
-    final at = _startedAt + _clock.elapsed;
+    if (!_playing || _starting) return null;
+    // Before the sound comes in, nothing is lit.
+    if (_clock.elapsed < _waiting) return null;
+    final at = _startedAt + _clock.elapsed - _waiting;
     return at.inMicroseconds / barLength.inMicroseconds % 1;
   }
 
@@ -87,6 +96,7 @@ class MetronomeController extends ChangeNotifier implements BarClock {
     _playing = true;
     _audioFailed = false;
     _fresh = true;
+    _starting = true;
     _restartClock(Duration.zero);
     _notify();
     return _sync();
@@ -134,6 +144,7 @@ class MetronomeController extends ChangeNotifier implements BarClock {
     _signature = signature;
     if (_playing) {
       _fresh = true;
+      _starting = true;
       _restartClock(Duration.zero);
     }
     _notify();
@@ -166,6 +177,7 @@ class MetronomeController extends ChangeNotifier implements BarClock {
 
   void _restartClock(Duration at) {
     _startedAt = at;
+    _waiting = Duration.zero;
     _clock
       ..reset()
       ..start();
@@ -196,17 +208,24 @@ class MetronomeController extends ChangeNotifier implements BarClock {
         await _output.stop();
         return;
       }
-      // The first beat always sounds from its start: the screen's clock has
-      // already moved on while the sound was being made.
-      final at = _fresh ? Duration.zero : barLength * (barPhase ?? 0);
+      // The first beat always sounds from its start; after a change of tempo
+      // the bar carries on from where it was.
+      final fresh = _fresh;
       _fresh = false;
-      await _output.play(ClickSound.bar(bpm: _bpm, signature: _signature), at);
-      // The sound starts now: line the screen up with it.
-      _restartClock(at);
+      final started = await _output.play(
+        ClickSound.bar(bpm: _bpm, signature: _signature),
+        startAt: fresh ? Duration.zero : null,
+      );
+      // The sound starts now (or on the piano's next bar line): line the
+      // screen up with it.
+      _starting = false;
+      _restartClock(started.position);
+      _waiting = started.delay;
     } catch (error) {
       debugPrint('Metronome could not start: $error');
       _playing = false;
       _audioFailed = true;
+      _starting = false;
       _clock.stop();
       _notify();
       try {

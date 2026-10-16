@@ -6,6 +6,7 @@ import '../actions/app_actions.dart';
 import '../audio/audio_scope.dart';
 import '../audio/click_output.dart';
 import '../audio/mic_input.dart';
+import '../audio/piano_output.dart';
 import '../audio/tone_output.dart';
 import '../features/metronome/metronome_controller.dart';
 import '../features/tuner/drone/drone_controller.dart';
@@ -25,10 +26,14 @@ class LowEndApp extends StatefulWidget {
     this.micInput,
     this.settings,
     this.backgroundAudio,
+    this.pianoOutput,
   });
 
   /// Audio output for the drone; defaults to the device's speakers.
   final ToneOutput? toneOutput;
+
+  /// Audio output for the drone's piano; defaults to the device's speakers.
+  final PianoOutput? pianoOutput;
 
   /// Audio output for the metronome; defaults to the device's speakers.
   final ClickOutput? clickOutput;
@@ -52,6 +57,11 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     widget.toneOutput ?? SoLoudToneOutput(),
     // Progressions change chord on the metronome's bars.
     clock: _metronome,
+    // With a tone output given (as tests do) there is no piano, unless one
+    // is given too: the real one needs the audio engine.
+    piano:
+        widget.pianoOutput ??
+        (widget.toneOutput == null ? SoLoudPianoOutput() : null),
   );
   late final _metronome = MetronomeController(
     widget.clickOutput ?? SoLoudClickOutput(),
@@ -80,6 +90,9 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     _drone.setReferencePitch(_droneA4);
     _drone.setLevel(_settings.droneLevel);
     _metronome.setLevel(_settings.metronomeLevel);
+    // The drone opens on the piano: the chord on every beat (set before it
+    // plays, so nothing starts yet).
+    if (_drone.hasPiano) _drone.setVoicing(DroneVoicing.chord);
     _settings.addListener(_onSettingsChanged);
     _navigation.addListener(_onNavigationChanged);
     _drone.addListener(_onPlayingChanged);

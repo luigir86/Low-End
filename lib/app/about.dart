@@ -29,6 +29,8 @@ void showLowEndAbout(BuildContext context) {
       const SizedBox(height: 16),
       Text(l10n.aboutDescription),
       const SizedBox(height: 8),
+      Text(l10n.aboutPiano),
+      const SizedBox(height: 8),
       SelectableText(l10n.aboutSource(sourceCodeUrl)),
     ],
   );
