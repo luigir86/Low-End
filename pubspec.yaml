@@ -102,9 +102,12 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
   fonts:
-    - family: PetalumaScript
+    - family: Edwin
       fonts:
-        - asset: assets/fonts/PetalumaScript.otf
+        - asset: assets/fonts/Edwin-Roman.otf
+          weight: 400
+        - asset: assets/fonts/Edwin-Bold.otf
+          weight: 700
     - family: NotoMusic
       fonts:
         - asset: assets/fonts/NotoMusic-Regular.ttf

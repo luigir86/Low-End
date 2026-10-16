@@ -1,4 +1,4 @@
-// Sets the title and the line under it of the feature graphics in Petaluma Script,
+// Sets the title and the line under it of the feature graphics in Edwin,
 // the app's own font, over the same ebony and glow as the picture. Run after
 // recolor_store_graphics_test.dart: it wipes the old text (right of the
 // lion) and writes it again.
@@ -23,10 +23,10 @@ const _tagline = {
 };
 
 void main() {
-  testWidgets('write the feature graphic text in Petaluma', (tester) async {
+  testWidgets('write the feature graphic text in Edwin', (tester) async {
     TestWidgetsFlutterBinding.ensureInitialized();
-    final loader = FontLoader('PetalumaScript');
-    for (final file in ['PetalumaScript.otf']) {
+    final loader = FontLoader('Edwin');
+    for (final file in ['Edwin-Roman.otf']) {
       loader.addFont(
         Future.value(
           ByteData.sublistView(File('assets/fonts/$file').readAsBytesSync()),
@@ -84,14 +84,11 @@ void main() {
         ) {
           final builder =
               ui.ParagraphBuilder(
-                  ui.ParagraphStyle(
-                    fontFamily: 'PetalumaScript',
-                    height: height,
-                  ),
+                  ui.ParagraphStyle(fontFamily: 'Edwin', height: height),
                 )
                 ..pushStyle(
                   ui.TextStyle(
-                    fontFamily: 'PetalumaScript',
+                    fontFamily: 'Edwin',
                     fontSize: size,
                     fontWeight: weight,
                     color: color,
@@ -103,7 +100,7 @@ void main() {
 
         final title = paragraph(
           'Low End',
-          104,
+          92,
           ui.FontWeight.w400,
           const ui.Color(0xFFE2BFA9), // Palette.mochaLight
           440,
@@ -111,7 +108,7 @@ void main() {
         );
         final line = paragraph(
           _tagline[locale]!,
-          40,
+          36,
           ui.FontWeight.w400,
           const ui.Color(0xFFF1E6DD), // Palette.inkOnDark
           440,
