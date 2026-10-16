@@ -66,7 +66,7 @@ void main() {
       SharedPreferences.setMockInitialValues({
         'language': 'fr',
         'note_names': 'klingon',
-        'reference_pitch': 432.0,
+        'reference_pitch': 437.0,
       });
       final s = await AppSettings.load();
       expect(s.languageCode, isNull);

@@ -46,7 +46,7 @@ abstract final class Palette {
 
   // The metronome's "one": unlike the other beats in both tint and
   // lightness, so it shows out of the corner of an eye on a dark stage.
-  static const downbeatLight = Color(0xFFB8440F);
+  static const downbeatLight = Color(0xFFB05030);
   static const downbeatDark = Color(0xFFFFF4E0);
 
   // Tuner verdicts.

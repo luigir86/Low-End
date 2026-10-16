@@ -71,6 +71,10 @@ void main() {
   });
 
   test('changes and reports the settings', () async {
+    await actions.call('set_reference_pitch', {'hz': 415});
+    expect(settings.a4, 415);
+    await actions.call('set_reference_pitch', {'hz': 432});
+    expect(settings.a4, 432);
     await actions.call('set_reference_pitch', {'hz': 438});
     final result = await actions.call('settings_set', {
       'language': 'it',
@@ -104,7 +108,7 @@ void main() {
       'error': 'Unknown action "fly".',
     });
     expect(
-      (await actions.call('set_reference_pitch', {'hz': 430}))['error'],
+      (await actions.call('set_reference_pitch', {'hz': 437}))['error'],
       contains('must be one of'),
     );
     expect(

@@ -50,7 +50,7 @@ The gear at the top opens the settings:
 | --- | --- |
 | Language | Same as the phone, English, Italian |
 | Note names | Follow the language, Do Re Mi (La3 = 440 Hz), C D E (A4 = 440 Hz) |
-| Reference A | 438 to 445 Hz, for the tuner and the harmony |
+| Reference A | 415, 430, 432 or 438 to 445 Hz, for the tuner and the harmony |
 | Harmony circle | Circle of fifths, or in semitones |
 | Theme | Follow the phone, light, dark |
 | Keep the screen on | While something plays or the tuner listens |

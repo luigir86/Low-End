@@ -14,7 +14,7 @@ HARMONY
 TUNER
 • Chromatic, with a round strobe and the note in the middle: play any note and it shows up, no string to choose first.
 • Hears low and high notes alike, from 28 to 700 Hz (a low B on a five-string bass up to a high violin note).
-• Reference A from 438 to 445 Hz. The sound is analysed on the phone and never recorded.
+• Reference A: 415, 430, 432 or 438 to 445 Hz. The sound is analysed on the phone and never recorded.
 
 MADE FOR PLAYING
 • Swipe left and right to change section. Hold a tab to start or stop its sound from anywhere.

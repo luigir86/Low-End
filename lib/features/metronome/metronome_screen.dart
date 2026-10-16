@@ -261,6 +261,8 @@ class _RingPainter extends CustomPainter {
       }
       dial.paintSegment(
         canvas,
+        inner: dial.ringInner + dial.ringWidth * 0.22,
+        outer: dial.ringOuter - dial.ringWidth * 0.08,
         startAngle: b * slice + start,
         sweep: slice - start - end,
         color: color,
@@ -329,11 +331,11 @@ class _DotPainter extends CustomPainter {
     // The dot in the hub.
     final since = metronome.sinceBeat;
     if (beat == null || since == null) return;
-    var radius = dial.hub * 0.3;
+    var radius = dial.hub * 0.16;
     if (pulse) {
       // Swells at once on the beat, then shrinks back before the next one.
       final decay = _decay(metronome);
-      radius += dial.hub * 0.25 * math.exp(-since.inMicroseconds / 1e6 / decay);
+      radius += dial.hub * 0.14 * math.exp(-since.inMicroseconds / 1e6 / decay);
     }
     canvas.drawCircle(
       dial.center,

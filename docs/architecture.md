@@ -40,7 +40,7 @@ Every outside thing sits behind an interface with a silent or fake twin (`ToneOu
 
 ## Sound
 
-- **One engine.** `soloud_engine.dart` starts the [SoLoud](https://solhsa.com/soloud/) engine once, on the first sound. The Xiph codecs are left out of the build (`pubspec.yaml`, `no_xiph_libs`), since all sounds are made in memory.
+- **One engine.** `soloud_engine.dart` starts the [SoLoud](https://solhsa.com/soloud/) engine once, on the first sound, and lets that sound wait 300 ms while the phone's output ramps up (a click right at the start came out as a double "tra-ta"). The Xiph codecs are left out of the build (`pubspec.yaml`, `no_xiph_libs`), since all sounds are made in memory.
 - **Whole bars as loops.** The metronome does not fire timers. `ClickSound` renders **one bar** of clicks (woodblock, accent on the first beat) as a PCM buffer and `BarLoopPlayer` loops it gaplessly, so the time cannot drift. Changing the tempo or time signature renders a new bar.
 - **Harmony.** `PianoSound` renders the chord (or the bars of a progression) from 14 recorded notes pitched up and down, into a loop **of the same length** as the metronome's bar. `LoopTransport` makes a second loop that starts while another plays wait for the next bar line, so chords and clicks stay together.
 - **Sustained tone.** `DroneSound` makes the steady, warm tone of a held note as a seamless loop; its pitch never wavers, so it is a true reference.
@@ -56,7 +56,7 @@ Every outside thing sits behind an interface with a silent or fake twin (`ToneOu
 
 ## Settings
 
-`AppSettings` keeps language, note names, reference A (438–445 Hz), theme, screen-on, circle layout, balance and the "guide seen" flag in `shared_preferences`, on the phone only (Android backup is off in the manifest). Unreadable settings never stop the app: it starts with the defaults.
+`AppSettings` keeps language, note names, reference A (415, 430, 432 or 438–445 Hz), theme, screen-on, circle layout, balance and the "guide seen" flag in `shared_preferences`, on the phone only (Android backup is off in the manifest). Unreadable settings never stop the app: it starts with the defaults.
 
 ## Look
 

@@ -43,4 +43,10 @@ void main() {
     expect(const Note(1, 4).name(NoteNames.letters, flat: true), 'D♭');
     expect(const Note(6, 4).name(NoteNames.solfege, flat: true), 'Sol♭');
   });
+
+  test('the reference pitches include the baroque ones, in order', () {
+    expect(referencePitches, containsAll([415.0, 430.0, 432.0, 440.0]));
+    expect(referencePitches, orderedEquals([...referencePitches]..sort()));
+    expect(referencePitches.toSet(), hasLength(referencePitches.length));
+  });
 }

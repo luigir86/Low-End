@@ -1,9 +1,11 @@
 import 'dart:math' as math;
 
-/// Reference pitches for A4 offered in the settings, around the 440 to 443
-/// Hz that most orchestras tune to.
+/// Reference pitches for A4 offered in the settings, in ascending order: the
+/// baroque 415, 430 and 432 Hz, then 438 to 445 Hz around the 440 to 443 that
+/// most orchestras tune to.
 const referencePitches = [
-  438.0, 439.0, 440.0, 441.0, 442.0, 443.0, 444.0, 445.0, //
+  415.0, 430.0, 432.0, 438.0, 439.0, 440.0, 441.0, 442.0, 443.0, 444.0, //
+  445.0,
 ];
 
 /// How note names are written.

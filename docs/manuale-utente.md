@@ -50,7 +50,7 @@ L'ingranaggio in alto apre le impostazioni:
 | --- | --- |
 | Lingua | Come il telefono, inglese, italiano |
 | Nomi delle note | Come la lingua, Do Re Mi (La3 = 440 Hz), C D E (A4 = 440 Hz) |
-| La di riferimento | Da 438 a 445 Hz, per l'accordatore e l'armonia |
+| La di riferimento | 415, 430, 432 oppure da 438 a 445 Hz, per l'accordatore e l'armonia |
 | Cerchio dell'armonia | Cerchio delle quinte, oppure in semitoni |
 | Tema | Come il telefono, chiaro, scuro |
 | Tieni lo schermo acceso | Mentre suona o l'accordatore ascolta |
