@@ -184,7 +184,12 @@ void main() {
         await h.start();
         await tester.tap(find.byIcon(Icons.settings_outlined));
         await h.settle('open settings');
-        await tester.drag(find.byType(ListView).last, const Offset(0, -2000));
+        // The page is long, longer still with the text twice as big.
+        await tester.scrollUntilVisible(
+          find.byIcon(Icons.info_outline),
+          200,
+          scrollable: find.byType(Scrollable).last,
+        );
         await h.settle('scroll');
         await tester.tap(find.byIcon(Icons.info_outline));
         await h.settle('about');

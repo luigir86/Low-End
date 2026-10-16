@@ -16,9 +16,18 @@ class MetronomeController extends ChangeNotifier implements BarClock {
   /// perfect time in the audio engine).
   final Stopwatch _clock;
 
+  /// The tempo range, in beats per minute of the figure the tempo counts
+  /// (see [TimeSignature.beatUnit]): quarters, or dotted quarters in 6/8.
   static const minBpm = 30;
   static const maxBpm = 250;
+
+  /// In 7/8 the tempo counts eighths, and a fast Balkan bar needs more.
+  static const maxEighthBpm = 400;
   static const startBpm = 80;
+
+  /// The fastest tempo in [signature].
+  static int maxBpmFor(TimeSignature signature) =>
+      signature.beatUnit == BeatUnit.eighth ? maxEighthBpm : maxBpm;
 
   /// Taps further apart than this start a new count.
   static const _tapTimeout = Duration(seconds: 2);
@@ -51,19 +60,30 @@ class MetronomeController extends ChangeNotifier implements BarClock {
   bool _syncing = false;
   bool _syncAgain = false;
 
+  /// The tempo, in beats of [TimeSignature.beatUnit] per minute: in 6/8,
+  /// 60 is a dotted quarter a second, three clicks.
   @override
   int get bpm => _bpm;
   @override
   TimeSignature get signature => _signature;
+
+  /// Pulses (segments of the ring, clicks) in a bar.
   int get beatsPerBar => _signature.beats;
   bool get isPlaying => _playing;
+
+  /// The fastest tempo in the current time signature.
+  int get maxTempo => maxBpmFor(_signature);
+
+  /// Clicks per minute: [bpm], or three times it in 6/8.
+  int get pulseBpm => _bpm * _signature.pulsesPerBeat;
 
   /// True when the last attempt to start sound failed on this device.
   bool get audioFailed => _audioFailed;
 
-  Duration get beatLength => Duration(microseconds: 60000000 ~/ _bpm);
+  /// Time from one click to the next.
+  Duration get pulseLength => Duration(microseconds: 60000000 ~/ pulseBpm);
   @override
-  Duration get barLength => beatLength * beatsPerBar;
+  Duration get barLength => pulseLength * beatsPerBar;
 
   /// How far into the bar the metronome is, from 0 to just under 1, or null
   /// when stopped.
@@ -76,19 +96,27 @@ class MetronomeController extends ChangeNotifier implements BarClock {
     return at.inMicroseconds / barLength.inMicroseconds % 1;
   }
 
-  /// The beat now sounding, 0 (the "one") to the last of the bar, or null
-  /// when stopped.
+  /// How long until the click comes in, when it waits for the piano's next
+  /// bar line, or null when it does not wait (or the wait is not known yet).
+  Duration? get waitLeft {
+    if (!_playing || _starting) return null;
+    final left = _waiting - _clock.elapsed;
+    return left > Duration.zero ? left : null;
+  }
+
+  /// The pulse now sounding (the segment lit), 0 (the "one") to the last of
+  /// the bar, or null when stopped.
   int? get beat {
     final phase = barPhase;
     return phase == null ? null : (phase * beatsPerBar).floor();
   }
 
-  /// Time since the current beat sounded, or null when stopped.
+  /// Time since the current pulse sounded, or null when stopped.
   Duration? get sinceBeat {
     final phase = barPhase;
     if (phase == null) return null;
     final inBeat = phase * beatsPerBar % 1;
-    return beatLength * inBeat;
+    return pulseLength * inBeat;
   }
 
   Future<void> start() {
@@ -112,10 +140,10 @@ class MetronomeController extends ChangeNotifier implements BarClock {
 
   Future<void> toggle() => _playing ? stop() : start();
 
-  /// Sets the tempo, kept within [minBpm] and [maxBpm]. While playing, the
+  /// Sets the tempo, kept within [minBpm] and [maxTempo]. While playing, the
   /// beat carries on from where it was.
   void setBpm(int bpm) {
-    final value = bpm.clamp(minBpm, maxBpm);
+    final value = bpm.clamp(minBpm, maxTempo);
     if (value == _bpm) return;
     final phase = barPhase;
     _bpm = value;
@@ -137,11 +165,14 @@ class MetronomeController extends ChangeNotifier implements BarClock {
     }
   }
 
-  /// Changes the time signature. While playing, the bar starts again from
-  /// its "one": the old position means nothing in the new bar.
+  /// Changes the time signature, keeping the number of the tempo (in 6/8
+  /// it then counts dotted quarters) as far as the new bar allows. While
+  /// playing, the bar starts again from its "one": the old position means
+  /// nothing in the new bar.
   void setSignature(TimeSignature signature) {
     if (signature == _signature) return;
     _signature = signature;
+    _bpm = _bpm.clamp(minBpm, maxTempo);
     if (_playing) {
       _fresh = true;
       _starting = true;
@@ -164,7 +195,8 @@ class MetronomeController extends ChangeNotifier implements BarClock {
   }
 
   /// One tap of the TAP button: after two taps or more, sets the tempo to
-  /// the average of the latest intervals.
+  /// the average of the latest intervals. The taps are beats of the tempo,
+  /// as a player taps them: dotted quarters in 6/8, not eighths.
   void tap(Duration now) {
     if (_taps.isNotEmpty && now - _taps.last > _tapTimeout) _taps.clear();
     _taps.add(now);
@@ -213,7 +245,7 @@ class MetronomeController extends ChangeNotifier implements BarClock {
       final fresh = _fresh;
       _fresh = false;
       final started = await _output.play(
-        ClickSound.bar(bpm: _bpm, signature: _signature),
+        ClickSound.bar(bpm: pulseBpm, signature: _signature),
         startAt: fresh ? Duration.zero : null,
       );
       // The sound starts now (or on the piano's next bar line): line the

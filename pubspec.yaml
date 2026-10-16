@@ -37,6 +37,8 @@ dependencies:
   record: ^7.1.2
   shared_preferences: ^2.5.6
   audio_service: ^0.18.19
+  wakelock_plus: ^1.8.1
+  url_launcher: ^6.3.3
 hooks:
   user_defines:
     flutter_soloud:
@@ -67,6 +69,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/brand/
     - assets/piano/
   # assets:
   #   - images/a_dot_burr.jpeg

@@ -8,6 +8,7 @@ import '../features/tuner/tuner_panel.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/pulsing_dot.dart';
 import 'app_navigation.dart';
+import 'guide.dart';
 import 'settings_page.dart';
 
 /// Main screen with bottom navigation between the app's sections.
@@ -29,6 +30,19 @@ class _HomeShellState extends State<HomeShell> {
   /// True while the page slides to a section chosen elsewhere, so that the
   /// sections it crosses are not opened one after the other.
   var _sliding = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // The first time, the guide to the gestures.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final settings = AudioScope.of(context).settings;
+      if (settings.seenGuide) return;
+      settings.markGuideSeen();
+      showGuide(context);
+    });
+  }
 
   @override
   void dispose() {
@@ -54,9 +68,24 @@ class _HomeShellState extends State<HomeShell> {
     }
   }
 
-  /// Starts or stops what a tab plays, on a long press.
+  /// The hint shown over a tab after holding it, one per section.
+  final _hints = {
+    for (final s in AppSection.values) s: GlobalKey<TooltipState>(),
+  };
+
+  /// Starts or stops what a tab plays, on a long press. On the tuner, while
+  /// the microphone listens, it only stops: the tuner pauses the sound so
+  /// as to hear the bass, and holding a tab must not undo that unseen.
   void _toggle(AppSection section) {
     final scope = AudioScope.of(context);
+    final playing = switch (section) {
+      AppSection.metronome => scope.metronome.isPlaying,
+      AppSection.drone => scope.drone.isPlaying,
+      AppSection.tuner => true,
+    };
+    final listening =
+        scope.navigation.section == AppSection.tuner && scope.tuner.isListening;
+    if (listening && !playing) return;
     HapticFeedback.mediumImpact();
     switch (section) {
       case AppSection.metronome:
@@ -66,17 +95,31 @@ class _HomeShellState extends State<HomeShell> {
       case AppSection.tuner:
         break;
     }
+    // Says what holding does, also to those who found it by chance.
+    _hints[section]?.currentState?.ensureTooltipVisible();
   }
 
-  Widget _tab(AppSection section, Widget destination) {
+  Widget _tab(AppSection section, Widget destination, {required bool active}) {
     final l10n = AppLocalizations.of(context);
     if (section == AppSection.tuner) return destination;
     return Semantics(
       onLongPressHint: l10n.holdToToggle,
+      // Screen readers hear it too, with the tab's name.
+      value: active ? l10n.playing : null,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onLongPress: () => _toggle(section),
-        child: destination,
+        // Shown only after a hold (the hold itself is the shortcut): a
+        // tooltip of its own would take the long press away from it.
+        child: Tooltip(
+          key: _hints[section],
+          message: l10n.holdToToggle,
+          triggerMode: TooltipTriggerMode.manual,
+          excludeFromSemantics: true,
+          preferBelow: false,
+          verticalOffset: 42,
+          child: destination,
+        ),
       ),
     );
   }
@@ -138,9 +181,11 @@ class _HomeShellState extends State<HomeShell> {
             destinations: [
               _tab(
                 AppSection.metronome,
+                active: metronome.isPlaying,
                 NavigationDestination(
                   icon: ActivityIcon(
                     icon: Icons.timer_outlined,
+                    activeIcon: Icons.timer,
                     active: metronome.isPlaying,
                   ),
                   label: l10n.metronomeTab,
@@ -150,6 +195,7 @@ class _HomeShellState extends State<HomeShell> {
               ),
               _tab(
                 AppSection.drone,
+                active: drone.isPlaying,
                 NavigationDestination(
                   icon: ActivityIcon(
                     icon: Icons.graphic_eq,
@@ -160,7 +206,9 @@ class _HomeShellState extends State<HomeShell> {
                 ),
               ),
               NavigationDestination(
-                icon: const Icon(Icons.tune),
+                // It listens: the microphone says what the tab does.
+                icon: const Icon(Icons.mic_none),
+                selectedIcon: const Icon(Icons.mic),
                 label: l10n.tunerTab,
               ),
             ],

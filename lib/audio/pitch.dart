@@ -26,6 +26,40 @@ const _italianNames = [
   'Si', //
 ];
 
+/// The seven letters, C to B, their pitch classes and their names.
+const _naturals = [0, 2, 4, 5, 7, 9, 11];
+const _englishLetters = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+const _italianLetters = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+
+/// The letter of each pitch class (0 = C … 6 = B) as the names above write
+/// it: C♯ on C, E♭ on E.
+const _usualLetters = [0, 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6];
+
+/// The letter (0 = C … 6 = B) [pitchClass] is written with: the usual one,
+/// or for a black key with [flat], the letter above (D♭ rather than C♯).
+int letterOf(int pitchClass, {bool flat = false}) {
+  final natural = _naturals.indexOf(pitchClass);
+  if (natural >= 0) return natural;
+  return flat
+      ? _naturals.indexOf((pitchClass + 1) % 12)
+      : _usualLetters[pitchClass];
+}
+
+/// [pitchClass] written on [letter] (0 = C … 6 = B) with a sharp or a flat
+/// as needed, such as D♯ or Re♭: how a note is spelled in a key. Where that
+/// would take a double sharp or flat, the usual name instead.
+String spell(int pitchClass, int letter, NoteNames names) {
+  final base = (names == NoteNames.solfege
+      ? _italianLetters
+      : _englishLetters)[letter];
+  return switch ((pitchClass - _naturals[letter] + 18) % 12 - 6) {
+    0 => base,
+    1 => '$base♯',
+    -1 => '$base♭',
+    _ => Note(pitchClass, 4).name(names),
+  };
+}
+
 /// A note in scientific pitch notation: [pitchClass] 0 = C … 11 = B, and
 /// [octave] where E1 is the double bass low E string (about 41.2 Hz).
 class Note {
@@ -53,9 +87,13 @@ class Note {
   double centsOf(double frequency, {double a4 = 440}) =>
       1200 * math.log(frequency / this.frequency(a4: a4)) / math.ln2;
 
-  /// The note name without octave.
-  String name(NoteNames names) =>
-      (names == NoteNames.solfege ? _italianNames : _englishNames)[pitchClass];
+  /// The note name without octave; with [flat], a black key is written
+  /// with a flat (D♭, G♭).
+  String name(NoteNames names, {bool flat = false}) => flat
+      ? spell(pitchClass, letterOf(pitchClass, flat: true), names)
+      : (names == NoteNames.solfege
+            ? _italianNames
+            : _englishNames)[pitchClass];
 
   /// The octave number as written with [names].
   int octaveIn(NoteNames names) =>

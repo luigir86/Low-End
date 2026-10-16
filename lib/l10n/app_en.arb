@@ -124,7 +124,7 @@
   "audioUnavailable": "Sound could not start on this device.",
   "startListening": "Listen",
   "stopListening": "Pause",
-  "tunerIdleHint": "Paused",
+  "tunerIdleHint": "Tuner paused: tap Listen",
   "playAString": "Play a note",
   "micPermissionDenied": "Low End needs the microphone to hear your bass. If you said no, allow it in the phone settings under Apps › Low End › Permissions.",
   "micUnavailable": "The microphone could not start on this device.",
@@ -154,11 +154,51 @@
   "styleHeld": "Chord every bar",
   "styleBeat": "Chord on every beat",
   "styleArpeggio": "Arpeggio",
-  "styleTempo": "Follows the metronome: {bpm} BPM, {signature}",
+  "styleTempo": "Follows the metronome: {tempo}, {signature}",
   "@styleTempo": {
+    "description": "The tempo is written like ♩ = 120.",
     "placeholders": {
-      "bpm": {"type": "int"},
+      "tempo": {"type": "String"},
       "signature": {"type": "String"}
+    }
+  },
+  "beatUnitQuarter": "quarter note",
+  "beatUnitDottedQuarter": "dotted quarter note",
+  "beatUnitEighth": "eighth note",
+  "pausedForTuner": "Paused while you tune",
+  "resume": "Resume",
+  "playing": "Playing",
+  "openSettings": "Open settings",
+  "themeLabel": "Theme",
+  "themeSystem": "Follow the phone",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "keepScreenOnTitle": "Keep the screen on",
+  "keepScreenOnSubtitle": "While it plays or the tuner listens",
+  "setTempo": "Type the tempo",
+  "optionsLabel": "Sound options",
+  "octaveLabel": "Octave of the root",
+  "shapeLabel": "Chord position",
+  "shapeStacked": "Stacked",
+  "shapeClose": "Close",
+  "shapeRootless": "No root",
+  "balanceMetronome": "Click",
+  "balanceDrone": "Piano",
+  "guideTitle": "Gestures and shortcuts",
+  "guideRing": "Tap the metronome's ring to start and stop it.",
+  "guideTempo": "Tap the number to type the tempo. Hold − or + to move in steps of 5 and 10.",
+  "guideSwipe": "Swipe left and right to change section.",
+  "guideHold": "Hold a tab to start or stop its sound from any section.",
+  "guideDrone": "In the drone, tap a note to play it. Hold C♯ or F♯ to write them D♭ or G♭.",
+  "guideTuner": "The tuner listens by itself. Going there pauses the metronome and the drone.",
+  "guideDone": "Got it",
+  "writeAs": "Write as {note}",
+  "@writeAs": {
+    "description": "What holding a key of the drone does: C♯ written as D♭.",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
     }
   },
   "aboutSource": "Source code: {url}",

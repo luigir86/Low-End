@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:record/record.dart';
 
 /// Captures sound from the microphone as mono samples from -1 to 1.
@@ -23,32 +24,66 @@ class RecordMicInput implements MicInput {
 
   AudioRecorder get _rec => _recorder ??= AudioRecorder();
 
+  /// The microphone as it comes, without the filters phones put on it for
+  /// the voice (many cut below 100 Hz or so, where a bass lives); the plain
+  /// microphone where a phone does not offer it.
+  static const _sources = [
+    AndroidAudioSource.unprocessed,
+    AndroidAudioSource.mic,
+  ];
+  var _source = 0;
+
   @override
   Future<bool> requestPermission() => _rec.hasPermission();
 
   @override
   Future<Stream<Float64List>> start(int sampleRate) async {
-    final bytes = await _rec.startStream(
-      RecordConfig(
-        encoder: AudioEncoder.pcm16bits,
-        sampleRate: sampleRate,
-        numChannels: 1,
-        // Phone voice processing would flatten and filter the low notes.
-        autoGain: false,
-        echoCancel: false,
-        noiseSuppress: false,
-        androidConfig: const AndroidRecordConfig(
-          audioSource: AndroidAudioSource.mic,
-          manageBluetooth: false,
-        ),
-      ),
-    );
-    return bytes.transform(const Pcm16Decoder());
+    while (true) {
+      try {
+        final bytes = await _rec.startStream(_config(sampleRate));
+        return bytes.transform(const Pcm16Decoder());
+      } catch (error) {
+        if (_source + 1 >= _sources.length) rethrow;
+        // Not on this phone: the next source, from now on.
+        debugPrint('${_sources[_source].name} microphone failed: $error');
+        _source++;
+        try {
+          await _rec.stop();
+        } catch (_) {}
+      }
+    }
   }
+
+  RecordConfig _config(int sampleRate) => RecordConfig(
+    encoder: AudioEncoder.pcm16bits,
+    sampleRate: sampleRate,
+    numChannels: 1,
+    // Phone voice processing would flatten and filter the low notes.
+    autoGain: false,
+    echoCancel: false,
+    noiseSuppress: false,
+    androidConfig: AndroidRecordConfig(
+      audioSource: _sources[_source],
+      manageBluetooth: false,
+    ),
+  );
 
   @override
   Future<void> stop() async {
     await _recorder?.stop();
+  }
+}
+
+/// Opens the app's page in the phone settings, where the microphone can be
+/// allowed after a no. Returns false when it could not.
+Future<bool> openAppSettings() async {
+  try {
+    await const MethodChannel('low_end/app_settings')
+        .invokeMethod<void>('open');
+    return true;
+  } catch (error) {
+    debugPrint('App settings could not open: $error');
+    return false;
   }
 }
 

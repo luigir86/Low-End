@@ -124,7 +124,11 @@ void main() {
           final r = await actions.call('drone_set', {'note': text});
           expect(r['ok'], isTrue, reason: text);
           expect(drone.note.pitchClass, pc, reason: text);
-          expect(drone.note.octave, DroneController.octave, reason: text);
+          expect(
+            drone.note.octave,
+            DroneController.defaultOctave,
+            reason: text,
+          );
         }
       },
     );

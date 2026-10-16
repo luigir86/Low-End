@@ -29,7 +29,7 @@ Matcher _sounds(List<double> hz) => pairwiseCompare<double, double>(
 );
 
 double _hz(int pitchClass) =>
-    Note(pitchClass, DroneController.octave).frequency();
+    Note(pitchClass, DroneController.defaultOctave).frequency();
 
 void main() {
   late SilentToneOutput output;
@@ -43,7 +43,7 @@ void main() {
   });
 
   // testWidgets for its fake clock: the bar timers run without waiting.
-  testWidgets('II–V–I in C plays D minor, G, C, one chord a bar', (
+  testWidgets('II–V–I in C plays D minor, G7, C, one chord a bar', (
     tester,
   ) async {
     drone.setVoicing(DroneVoicing.progression);
@@ -62,7 +62,9 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
     expect(drone.step, 1);
     expect(output.frequencies.first, closeTo(_hz(7), 1e-9)); // G
-    expect(output.frequencies, hasLength(3));
+    // The dominant always has its seventh, as in Chord mode.
+    final g = _hz(7);
+    expect(output.frequencies, _sounds([g, g * 5 / 4, g * 3 / 2, g * 16 / 9]));
 
     await tester.pump(const Duration(seconds: 2));
     expect(drone.step, 2);
@@ -133,6 +135,89 @@ void main() {
     await pumpEventQueue();
     expect(output.frequencies, hasLength(4));
     await drone.stop();
+  });
+
+  test('the blues is all dominant sevenths, with "7" off too', () async {
+    drone
+      ..setVoicing(DroneVoicing.progression)
+      ..setProgression(Progression.blues)
+      ..setPitchClass(0);
+    expect(drone.sevenths, isFalse);
+    expect(Progression.blues.steps.map((s) => s.quality).toSet(), {
+      ChordQuality.dominant,
+    });
+    expect(drone.currentChord?.seventh, isTrue);
+    await drone.start();
+    final c = _hz(0);
+    expect(output.frequencies, _sounds([c, c * 5 / 4, c * 3 / 2, c * 16 / 9]));
+    await drone.stop();
+  });
+
+  test('"7" off leaves the other chords of a progression as triads', () {
+    drone
+      ..setVoicing(DroneVoicing.progression)
+      ..setPitchClass(0);
+    // II–V–I: Dm, G7, C.
+    expect(drone.currentChord, (
+      root: 2,
+      quality: ChordQuality.minor,
+      seventh: false,
+    ));
+    drone.setProgression(Progression.oneFourFive);
+    expect(drone.currentChord?.seventh, isFalse);
+  });
+
+  group('chords are spelled as in their key', () {
+    List<String> names(DroneController d, int key, Progression p) {
+      d
+        ..setVoicing(DroneVoicing.progression)
+        ..setProgression(p)
+        ..setPitchClass(key);
+      return [
+        for (var i = 0; i < p.steps.length; i++)
+          spell(
+            (key + p.steps[i].offset) % 12,
+            d.letterAt(i),
+            NoteNames.letters,
+          ),
+      ];
+    }
+
+    test('minor II–V–I in C♯ and F♯ minor', () {
+      expect(names(drone, 1, Progression.minorTwoFiveOne), ['D♯', 'G♯', 'C♯']);
+      expect(names(drone, 6, Progression.minorTwoFiveOne), ['G♯', 'C♯', 'F♯']);
+    });
+
+    test('I–VI–IV–V in F♯ has D♯ minor, not E♭', () {
+      expect(names(drone, 6, Progression.oneSixFourFive), [
+        'F♯',
+        'D♯',
+        'B',
+        'C♯',
+      ]);
+    });
+
+    test('the flat keys keep their flats', () {
+      expect(names(drone, 10, Progression.twoFiveOne), ['C', 'F', 'B♭']);
+      expect(names(drone, 3, Progression.oneFourFive), ['E♭', 'A♭', 'B♭']);
+    });
+
+    test('C♯ can be written D♭, and its chords follow: G♭, A♭', () {
+      expect(drone.spelledFlat(1), isFalse);
+      drone.toggleSpelling(1);
+      expect(drone.spelledFlat(1), isTrue);
+      expect(names(drone, 1, Progression.oneFourFive), ['D♭', 'G♭', 'A♭']);
+      drone.toggleSpelling(6);
+      expect(names(drone, 6, Progression.twoFiveOne), ['A♭', 'D♭', 'G♭']);
+      // In solfège too.
+      expect(spell(6, drone.keyLetter, NoteNames.solfege), 'Sol♭');
+      // Only C♯/D♭ and F♯/G♭ change: E♭ stays E♭.
+      drone.toggleSpelling(3);
+      expect(drone.spelledFlat(3), isFalse);
+      drone.toggleSpelling(1);
+      drone.setPitchClass(1);
+      expect(spell(1, drone.keyLetter, NoteNames.letters), 'C♯');
+    });
   });
 
   test('minor II–V–I has a diminished II', () {

@@ -114,15 +114,15 @@
   },
   {
     "name": "metronome_start",
-    "description": "Opens the metronome and starts it, in 4/4, at the tempo given or the current one.",
+    "description": "Opens the metronome and starts it, in its current time signature, at the tempo given or the current one.",
     "input_schema": {
       "type": "object",
       "properties": {
         "bpm": {
           "type": "integer",
           "minimum": 30,
-          "maximum": 250,
-          "description": "Beats per minute."
+          "maximum": 400,
+          "description": "Beats per minute of the note value the tempo counts in the current time signature: quarter notes in x/4, dotted quarters in 6/8, 9/8 and 12/8, eighth notes in 7/8. At most 250, or 400 in 7/8."
         }
       },
       "additionalProperties": false
@@ -146,8 +146,8 @@
         "bpm": {
           "type": "integer",
           "minimum": 30,
-          "maximum": 250,
-          "description": "Beats per minute."
+          "maximum": 400,
+          "description": "Beats per minute of the note value the tempo counts in the current time signature: quarter notes in x/4, dotted quarters in 6/8, 9/8 and 12/8, eighth notes in 7/8. At most 250, or 400 in 7/8."
         }
       },
       "required": [

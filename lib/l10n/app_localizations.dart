@@ -341,7 +341,7 @@ abstract class AppLocalizations {
   /// No description provided for @tunerIdleHint.
   ///
   /// In en, this message translates to:
-  /// **'Paused'**
+  /// **'Tuner paused: tap Listen'**
   String get tunerIdleHint;
 
   /// No description provided for @playAString.
@@ -476,11 +476,197 @@ abstract class AppLocalizations {
   /// **'Arpeggio'**
   String get styleArpeggio;
 
-  /// No description provided for @styleTempo.
+  /// The tempo is written like ♩ = 120.
   ///
   /// In en, this message translates to:
-  /// **'Follows the metronome: {bpm} BPM, {signature}'**
-  String styleTempo(int bpm, String signature);
+  /// **'Follows the metronome: {tempo}, {signature}'**
+  String styleTempo(String tempo, String signature);
+
+  /// No description provided for @beatUnitQuarter.
+  ///
+  /// In en, this message translates to:
+  /// **'quarter note'**
+  String get beatUnitQuarter;
+
+  /// No description provided for @beatUnitDottedQuarter.
+  ///
+  /// In en, this message translates to:
+  /// **'dotted quarter note'**
+  String get beatUnitDottedQuarter;
+
+  /// No description provided for @beatUnitEighth.
+  ///
+  /// In en, this message translates to:
+  /// **'eighth note'**
+  String get beatUnitEighth;
+
+  /// No description provided for @pausedForTuner.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused while you tune'**
+  String get pausedForTuner;
+
+  /// No description provided for @resume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get resume;
+
+  /// No description provided for @playing.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing'**
+  String get playing;
+
+  /// No description provided for @openSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get openSettings;
+
+  /// No description provided for @themeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get themeLabel;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow the phone'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @keepScreenOnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the screen on'**
+  String get keepScreenOnTitle;
+
+  /// No description provided for @keepScreenOnSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'While it plays or the tuner listens'**
+  String get keepScreenOnSubtitle;
+
+  /// No description provided for @setTempo.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the tempo'**
+  String get setTempo;
+
+  /// No description provided for @optionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound options'**
+  String get optionsLabel;
+
+  /// No description provided for @octaveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Octave of the root'**
+  String get octaveLabel;
+
+  /// No description provided for @shapeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Chord position'**
+  String get shapeLabel;
+
+  /// No description provided for @shapeStacked.
+  ///
+  /// In en, this message translates to:
+  /// **'Stacked'**
+  String get shapeStacked;
+
+  /// No description provided for @shapeClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get shapeClose;
+
+  /// No description provided for @shapeRootless.
+  ///
+  /// In en, this message translates to:
+  /// **'No root'**
+  String get shapeRootless;
+
+  /// No description provided for @balanceMetronome.
+  ///
+  /// In en, this message translates to:
+  /// **'Click'**
+  String get balanceMetronome;
+
+  /// No description provided for @balanceDrone.
+  ///
+  /// In en, this message translates to:
+  /// **'Piano'**
+  String get balanceDrone;
+
+  /// No description provided for @guideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gestures and shortcuts'**
+  String get guideTitle;
+
+  /// No description provided for @guideRing.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the metronome\'s ring to start and stop it.'**
+  String get guideRing;
+
+  /// No description provided for @guideTempo.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the number to type the tempo. Hold − or + to move in steps of 5 and 10.'**
+  String get guideTempo;
+
+  /// No description provided for @guideSwipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe left and right to change section.'**
+  String get guideSwipe;
+
+  /// No description provided for @guideHold.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold a tab to start or stop its sound from any section.'**
+  String get guideHold;
+
+  /// No description provided for @guideDrone.
+  ///
+  /// In en, this message translates to:
+  /// **'In the drone, tap a note to play it. Hold C♯ or F♯ to write them D♭ or G♭.'**
+  String get guideDrone;
+
+  /// No description provided for @guideTuner.
+  ///
+  /// In en, this message translates to:
+  /// **'The tuner listens by itself. Going there pauses the metronome and the drone.'**
+  String get guideTuner;
+
+  /// No description provided for @guideDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get guideDone;
+
+  /// What holding a key of the drone does: C♯ written as D♭.
+  ///
+  /// In en, this message translates to:
+  /// **'Write as {note}'**
+  String writeAs(String note);
 
   /// No description provided for @aboutSource.
   ///

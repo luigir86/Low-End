@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:low_end/audio/click_sound.dart';
+import 'package:low_end/audio/loop_transport.dart';
 import 'package:low_end/audio/piano_output.dart';
 import 'package:low_end/audio/piano_sound.dart';
 import 'package:low_end/audio/tone_output.dart';
@@ -50,6 +51,26 @@ void main() {
   const cMajor = [60, 64, 67];
 
   group('the piano loop', () {
+    test('doubles the root an octave down, unless rootless or too low', () {
+      Float64List render(List<int> chord, {bool rootless = false}) =>
+          PianoSound.loop(
+            samples: samples,
+            chords: [chord],
+            style: PianoStyle.bar,
+            bpm: 120,
+            signature: TimeSignature.fourFour,
+            rootless: rootless,
+          );
+
+      // C4: the C3 below it is there, and gone when the chord has no root.
+      final doubled = render(cMajor);
+      expect(doubled, isNot(equals(render(cMajor, rootless: true))));
+      // A2: the A1 would be a piano slowed down to a rumble, so it is left
+      // out whatever the flag says.
+      const low = [45, 61, 64];
+      expect(render(low), equals(render(low, rootless: true)));
+    });
+
     test('is whole bars of the metronome length', () {
       final loop = PianoSound.loop(
         samples: samples,
@@ -206,6 +227,100 @@ void main() {
       expect(ratio, closeTo(1.0595, 0.03));
     });
 
+    test('a slow bar is struck again softly, never left silent', () {
+      // 4/4 at 50: a bar of 4.8 s, longer than a recording rings.
+      final beat = (ClickSound.sampleRate * 60 / 50).round();
+      expect(PianoSound.chordStrikes(0, 4, beat), [0, 2]);
+      // 5/4 at 40: beats of 1.5 s, two of them too long, so every beat.
+      final slow = (ClickSound.sampleRate * 60 / 40).round();
+      expect(PianoSound.chordStrikes(0, 5, slow), [0, 1, 2, 3, 4]);
+      // At 120 once a bar is enough, as before.
+      expect(PianoSound.chordStrikes(0, 4, ClickSound.sampleRate ~/ 2), [0]);
+      // A long group of 7/8 in Chord on every beat: split as well.
+      final eighth = (ClickSound.sampleRate * 60 / 60).round();
+      expect(PianoSound.chordStrikes(4, 7, eighth), [4, 5]);
+
+      // At 30 BPM in 4/4 a beat lasts 2 s, so even two beats are too long
+      // for a recording: the chord is struck again, softly, on each beat,
+      // and sounds again in the second half of the bar.
+      final loop = PianoSound.loop(
+        samples: samples,
+        chords: [cMajor],
+        style: PianoStyle.bar,
+        bpm: 30,
+        signature: TimeSignature.fourFour,
+      );
+      final two = ClickSound.sampleRate * 2;
+      expect(_energy(loop, 0, 2000), greaterThan(1));
+      expect(_energy(loop, 2 * two, 2000), greaterThan(0.1));
+      // Softer than the first strike.
+      expect(_energy(loop, 2 * two, 2000), lessThan(_energy(loop, 0, 2000)));
+    });
+
+    test('a held note is not struck on every beat of a slow 5/4 or 3/4', () {
+      int bar(int bpm, int beats) =>
+          (ClickSound.sampleRate * 60 / bpm).round() * beats;
+      // 5/4 at 60: a 5 s bar, struck twice, half way, between two beats.
+      final five = PianoSound.droneStrikes(bar(60, 5));
+      expect(five, hasLength(2));
+      expect(five[1], bar(60, 5) ~/ 2);
+      // 3/4 at 50 (3.6 s): twice, not three times.
+      expect(PianoSound.droneStrikes(bar(50, 3)), hasLength(2));
+      // 7/8 at ♪ = 100 (4.2 s): twice, not seven times.
+      expect(PianoSound.droneStrikes(bar(100, 7)), hasLength(2));
+      // A 4/4 at 80 (3 s) is struck once, as before.
+      expect(PianoSound.droneStrikes(bar(80, 4)), [0]);
+      // Never more often than the recordings need, whatever the bar.
+      final long = bar(30, 12);
+      final strikes = PianoSound.droneStrikes(long);
+      expect(long / strikes.length, greaterThan(2 * ClickSound.sampleRate));
+    });
+
+    test('chords are turned down evenly, not bent at the peaks', () {
+      // Loud test notes, so that the sum goes past the top.
+      PianoSamples loud(double level) => PianoSamples({
+        for (final e in samples.notes.entries)
+          e.key: Float32List.fromList([for (final v in e.value) v * level]),
+      });
+      Float64List render(double level) => PianoSound.loop(
+        samples: loud(level),
+        chords: [
+          [60, 64, 67, 71],
+        ],
+        style: PianoStyle.beat,
+        bpm: 120,
+        signature: TimeSignature.fourFour,
+      );
+      final quiet = render(0.2), strong = render(2);
+      final peak = strong.map((v) => v.abs()).reduce(math.max);
+      expect(peak, lessThanOrEqualTo(0.97 + 1e-9));
+      expect(peak, greaterThan(0.9));
+      // The loud loop is the quiet one scaled: the same shape, no new
+      // partials.
+      final ratio = strong[1000] / quiet[1000];
+      for (var i = 0; i < quiet.length; i += 97) {
+        if (quiet[i].abs() < 1e-4) continue;
+        // (The test notes are 32-bit floats: equal to a few millionths.)
+        expect(
+          strong[i] / quiet[i],
+          closeTo(ratio, ratio * 1e-4),
+          reason: 'at $i',
+        );
+      }
+      // And a quiet one is left as it is.
+      expect(quiet.map((v) => v.abs()).reduce(math.max), lessThan(0.97));
+    });
+
+    test('a fuller chord is no louder: the level goes down with the notes', () {
+      expect(PianoSound.chordGain(3), 1);
+      expect(PianoSound.chordGain(4), 1);
+      expect(PianoSound.chordGain(5), lessThan(1));
+      expect(
+        PianoSound.chordGain(5) * 5,
+        greaterThan(PianoSound.chordGain(4) * 4),
+      );
+    });
+
     test('the WAV is a valid 16-bit mono file', () {
       final wav = PianoSound.loopWav(
         samples: samples,
@@ -264,7 +379,8 @@ void main() {
       drone.setChord(ChordType.seventh);
       drone.setStyle(DroneStyle.arpeggio);
       await drone.tapNote(7); // G
-      expect(piano.chords!.single, [67, 71, 74, 77]);
+      // G in the bass, then F B D close together above it.
+      expect(piano.chords!.single, [67, 65, 71, 74]);
       expect(piano.style, PianoStyle.arpeggio);
     });
 
@@ -272,13 +388,79 @@ void main() {
       drone.setVoicing(DroneVoicing.progression);
       drone.setStyle(DroneStyle.beat);
       await drone.tapNote(0);
-      // II–V–I in C: D minor, G, C.
+      // II–V–I in C: D minor, G7 (the dominant with its seventh), C.
+      // Close together: the hand stays in one place from chord to chord.
       expect(piano.chords, [
         [62, 65, 69],
-        [67, 71, 74],
+        [67, 65, 71, 74],
         [60, 64, 67],
       ]);
     });
+
+    test('the chord shapes: stacked, close and without the root', () async {
+      drone.setVoicing(DroneVoicing.chord);
+      drone.setChord(ChordType.seventh);
+      drone.setStyle(DroneStyle.beat);
+      drone.setShape(ChordShape.stacked);
+      await drone.tapNote(7); // G7
+      expect(piano.chords!.single, [67, 71, 74, 77]);
+      expect(piano.rootless, isFalse);
+
+      drone.setShape(ChordShape.close);
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(piano.chords!.single, [67, 65, 71, 74]);
+      expect(piano.rootless, isFalse);
+
+      // The bass player has the root: the third, fifth and seventh only.
+      drone.setShape(ChordShape.rootless);
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(piano.chords!.single, [65, 71, 74]);
+      expect(piano.rootless, isTrue);
+    });
+
+    test('every chord sits in the same octave of keys when close', () async {
+      drone.setVoicing(DroneVoicing.chord);
+      drone.setStyle(DroneStyle.beat);
+      for (var pc = 0; pc < 12; pc++) {
+        await drone.tapNote(pc);
+        await Future<void>.delayed(const Duration(milliseconds: 5));
+        final upper = piano.chords!.single.sublist(1);
+        for (final n in upper) {
+          expect(n, inInclusiveRange(64, 75), reason: 'pitch class $pc');
+        }
+        // The notes are what the chord says, wherever they sit.
+        expect({
+          for (final n in piano.chords!.single) n % 12,
+        }, drone.chordTones.union({pc}));
+        await drone.stop();
+      }
+    });
+
+    test(
+      'the root can be played lower, and the chord stays above it',
+      () async {
+        drone.setVoicing(DroneVoicing.chord);
+        drone.setStyle(DroneStyle.beat);
+        expect(drone.octave, 4);
+        drone.setOctave(2);
+        expect(drone.octave, 2);
+        expect(drone.note.octave, 2);
+        await drone.tapNote(9); // A
+        // A2 in the bass, then C♯ and E from G3 up.
+        expect(piano.chords!.single, [45, 61, 64]);
+
+        drone.setOctave(3);
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        expect(piano.chords!.single.first, 57);
+        expect(drone.frequency, closeTo(220, 0.01));
+        expect(drone.note.octave, 3);
+
+        // Only the octaves offered.
+        drone.setOctave(7);
+        expect(drone.octave, 3);
+        await drone.stop();
+      },
+    );
 
     test("a single note is played by the piano too", () async {
       await drone.tapNote(9); // A
@@ -288,6 +470,32 @@ void main() {
       // Kept sounding, not struck on every beat, whatever the style.
       expect(piano.style, PianoStyle.drone);
       expect(tone.frequencies, isEmpty);
+    });
+
+    test('in 6/8 the piano plays the clicks: three a beat', () async {
+      drone.setVoicing(DroneVoicing.chord);
+      clock.signature = TimeSignature.sixEight;
+      clock.bpm = 60;
+      clock.announce();
+      await drone.tapNote(0);
+      expect(piano.bpm, 180);
+    });
+
+    test('holding + renders the piano only as often as it can', () async {
+      final slow = _SlowPianoOutput();
+      final d = DroneController(tone, clock: clock, piano: slow);
+      d.setVoicing(DroneVoicing.chord);
+      await d.tapNote(0);
+      final plays = slow.plays;
+      for (var i = 0; i < 20; i++) {
+        clock.bpm += 5;
+        clock.announce();
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      // One render under way, then one with the latest tempo: not twenty.
+      expect(slow.plays - plays, lessThanOrEqualTo(2));
+      expect(slow.bpm, 220);
+      await d.stop();
     });
 
     test('a new tempo carries on, a new time signature starts over', () async {
@@ -355,6 +563,33 @@ void main() {
       await drone.stop();
     });
   });
+}
+
+/// A piano that takes a while to get each loop ready, as rendering does.
+class _SlowPianoOutput extends SilentPianoOutput {
+  @override
+  Future<LoopStart> play({
+    required List<PianoChord> chords,
+    required PianoStyle style,
+    required int bpm,
+    required TimeSignature signature,
+    required double a4,
+    required double volume,
+    Duration? startAt,
+    bool rootless = false,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    return super.play(
+      chords: chords,
+      style: style,
+      bpm: bpm,
+      signature: signature,
+      a4: a4,
+      volume: volume,
+      startAt: startAt,
+      rootless: rootless,
+    );
+  }
 }
 
 class _Clock extends ChangeNotifier implements BarClock {

@@ -23,4 +23,24 @@ void main() {
     expect(const Note(9, 4).label(NoteNames.letters), 'A4');
     expect(const Note(9, 4).label(NoteNames.solfege), 'La3');
   });
+
+  test('a note is spelled on the letter its key asks for', () {
+    // D♯ (on D) rather than E♭, G♯ rather than A♭, as in C♯ minor.
+    expect(spell(3, 1, NoteNames.letters), 'D♯');
+    expect(spell(8, 4, NoteNames.solfege), 'Sol♯');
+    expect(spell(6, 4, NoteNames.letters), 'G♭');
+    expect(spell(11, 0, NoteNames.letters), 'C♭');
+    expect(spell(0, 0, NoteNames.solfege), 'Do');
+    // A double sharp is not written: the usual name instead.
+    expect(spell(2, 0, NoteNames.letters), 'D');
+    // The usual letters give the usual names.
+    for (var pc = 0; pc < 12; pc++) {
+      for (final names in NoteNames.values) {
+        expect(spell(pc, letterOf(pc), names), Note(pc, 4).name(names));
+      }
+    }
+    expect(letterOf(1, flat: true), 1);
+    expect(const Note(1, 4).name(NoteNames.letters, flat: true), 'D♭');
+    expect(const Note(6, 4).name(NoteNames.solfege, flat: true), 'Sol♭');
+  });
 }

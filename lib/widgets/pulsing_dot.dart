@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Small dot that pulses gently, shown on a tab whose section is playing.
 class PulsingDot extends StatefulWidget {
-  const PulsingDot({super.key, this.size = 8});
+  const PulsingDot({super.key, this.size = 11});
 
   final double size;
 
@@ -37,25 +37,36 @@ class _PulsingDotState extends State<PulsingDot>
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return FadeTransition(
-      opacity: Tween(begin: 0.35, end: 1.0).animate(_controller),
+      // Never fades far: the dot must stay easy to see.
+      opacity: Tween(begin: 0.55, end: 1.0).animate(_controller),
       child: Container(
         width: widget.size,
         height: widget.size,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
+          color: colors.primary,
           shape: BoxShape.circle,
+          // A rim in the bar's colour sets it off from the icon below.
+          border: Border.all(color: colors.surfaceContainer, width: 1.5),
         ),
       ),
     );
   }
 }
 
-/// [icon] with a [PulsingDot] in its top-right corner when [active].
+/// [icon] with a [PulsingDot] in its top-right corner when [active], and
+/// [activeIcon] (a filled one) in its place, if there is one.
 class ActivityIcon extends StatelessWidget {
-  const ActivityIcon({super.key, required this.icon, required this.active});
+  const ActivityIcon({
+    super.key,
+    required this.icon,
+    required this.active,
+    this.activeIcon,
+  });
 
   final IconData icon;
+  final IconData? activeIcon;
   final bool active;
 
   @override
@@ -63,8 +74,8 @@ class ActivityIcon extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        Icon(icon),
-        if (active) const Positioned(top: -2, right: -4, child: PulsingDot()),
+        Icon(active ? (activeIcon ?? icon) : icon),
+        if (active) const Positioned(top: -3, right: -5, child: PulsingDot()),
       ],
     );
   }
