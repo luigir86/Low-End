@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart' show Key;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:low_end/app/low_end_app.dart';
@@ -51,7 +52,7 @@ void main() {
     await tester.tap(find.text('Tuner'));
     await tester.pumpAndSettle();
     expect(mic.askedDuring, isNotNull);
-    expect(find.text('Pause'), findsOneWidget);
+    expect(find.byKey(const Key('tunerHub')), findsOneWidget);
     expect(output.used, isFalse);
   });
 }

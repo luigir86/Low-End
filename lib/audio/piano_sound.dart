@@ -298,7 +298,7 @@ abstract final class PianoSound {
           for (var pulse = 0; pulse < signature.beats; pulse++) {
             final accent = signature.accent(pulse);
             // In eighths, the beat is the group: 6/8 is two beats.
-            final isBeat = signature.denominator == 4 || accent < 2;
+            final isBeat = signature.denominator != 8 || accent < 2;
             if (!isBeat) continue;
             final gain = accent == 0 ? 1.0 : (accent == 1 ? 0.85 : 0.72);
             final next = _nextStrike(signature, pulse);
@@ -340,7 +340,7 @@ abstract final class PianoSound {
     var n = 1;
     while (pulse + n < signature.beats) {
       final next = pulse + n;
-      if (signature.denominator == 4 || signature.accent(next) < 2) break;
+      if (signature.denominator != 8 || signature.accent(next) < 2) break;
       n++;
     }
     return n;

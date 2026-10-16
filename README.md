@@ -15,7 +15,7 @@ The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens o
 ### Metronome
 
 - Tempo from 30 to 250 BPM: touch the number to type it, hold − or + to move in steps, or tap TAP.
-- Time signatures 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8, with the beats grouped the way you count them.
+- Time signatures 1/1 (one click a bar), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8, with the beats grouped the way you count them.
 - A ring that lights up beat by beat (the downbeat marked) and a woodblock click. The audio engine loops a whole bar, so the time stays steady.
 
 ### Harmony
@@ -33,7 +33,7 @@ The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens o
 
 ### Settings
 
-The gear in the top corner opens the settings: language (English, Italian, or the phone's), note names (Do Re Mi with Italian octave numbers, La3 = 440 Hz, or C D E, A4 = 440 Hz), reference A from 438 to 445 Hz, light or dark theme, and an option to keep the screen on. They are kept on the phone. The gesture guide is shown at the first launch and from the settings.
+The gear in the top corner opens the settings: language (English, Italian, or the phone's), note names (Do Re Mi with Italian octave numbers, La3 = 440 Hz, or C D E, A4 = 440 Hz), reference A (415, 430, 432 or 438 to 445 Hz), light or dark theme, and an option to keep the screen on. They are kept on the phone. The gesture guide is shown at the first launch and from the settings.
 
 With the screen off or the app in the background the metronome and the harmony keep playing, with a notification that says what is sounding.
 
@@ -52,7 +52,6 @@ Nothing here is promised.
 
 - Metronome: accents on 2 and 4, subdivisions, more time signatures, a tempo trainer, remembering tempo and time signature, latency compensation, landscape layout.
 - Harmony: more progressions and chords, just intonation.
-- Tuner: other reference pitches (415, 430, 432 Hz).
 - More languages (Spanish, German, French, Portuguese, Japanese).
 - A PDF library for sheet music, set lists and annotations, and later PDF to MusicXML and MIDI playback.
 

@@ -18,7 +18,8 @@ enum BeatUnit {
 /// pulses to a beat), the eighth in 7/8, whose groups are uneven. 3/4 and
 /// 6/8 hold the same number of eighths but feel different, so they differ in
 /// the grouping: 3/4 is three equal beats, 6/8 is two groups of three, with
-/// a stronger click on the first pulse of each group.
+/// a stronger click on the first pulse of each group. 1/1 is a bar of one
+/// beat, to keep a tempo without counting: every click is the "one".
 class TimeSignature {
   const TimeSignature(this.numerator, this.denominator, this.groups);
 
@@ -29,6 +30,7 @@ class TimeSignature {
   /// is felt as plain beats.
   final List<int> groups;
 
+  static const oneOne = TimeSignature(1, 1, [1]);
   static const twoFour = TimeSignature(2, 4, [2]);
   static const threeFour = TimeSignature(3, 4, [3]);
   static const fourFour = TimeSignature(4, 4, [4]);
@@ -39,6 +41,7 @@ class TimeSignature {
   static const twelveEight = TimeSignature(12, 8, [3, 3, 3, 3]);
 
   static const all = [
+    oneOne,
     twoFour,
     threeFour,
     fourFour,

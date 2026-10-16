@@ -135,7 +135,7 @@ void main() {
         await h.tab(AppSection.tuner);
         await h.play(41.2 * math.pow(2, -20 / 1200));
         await h.play(30.87);
-        await tester.tap(find.byIcon(Icons.pause));
+        await tester.tap(find.byKey(const Key('tunerHub')));
         await h.settle('pause');
         h.expectClean();
       });

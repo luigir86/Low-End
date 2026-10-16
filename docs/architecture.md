@@ -40,7 +40,7 @@ Every outside thing sits behind an interface with a silent or fake twin (`ToneOu
 
 ## Sound
 
-- **One engine.** `soloud_engine.dart` starts the [SoLoud](https://solhsa.com/soloud/) engine once, on the first sound. The Xiph codecs are left out of the build (`pubspec.yaml`, `no_xiph_libs`), since all sounds are made in memory.
+- **One engine.** `soloud_engine.dart` starts the [SoLoud](https://solhsa.com/soloud/) engine once, on the first sound, and lets that sound wait 300 ms while the phone's output ramps up (a click right at the start came out as a double "tra-ta"). The Xiph codecs are left out of the build (`pubspec.yaml`, `no_xiph_libs`), since all sounds are made in memory.
 - **Whole bars as loops.** The metronome does not fire timers. `ClickSound` renders **one bar** of clicks (woodblock, accent on the first beat) as a PCM buffer and `BarLoopPlayer` loops it gaplessly, so the time cannot drift. Changing the tempo or time signature renders a new bar.
 - **Harmony.** `PianoSound` renders the chord (or the bars of a progression) from 14 recorded notes pitched up and down, into a loop **of the same length** as the metronome's bar. `LoopTransport` makes a second loop that starts while another plays wait for the next bar line, so chords and clicks stay together.
 - **Sustained tone.** `DroneSound` makes the steady, warm tone of a held note as a seamless loop; its pitch never wavers, so it is a true reference.
@@ -56,11 +56,11 @@ Every outside thing sits behind an interface with a silent or fake twin (`ToneOu
 
 ## Settings
 
-`AppSettings` keeps language, note names, reference A (438–445 Hz), theme, screen-on, circle layout, balance and the "guide seen" flag in `shared_preferences`, on the phone only (Android backup is off in the manifest). Unreadable settings never stop the app: it starts with the defaults.
+`AppSettings` keeps language, note names, reference A (415, 430, 432 or 438–445 Hz), theme, screen-on, circle layout, balance and the "guide seen" flag in `shared_preferences`, on the phone only (Android backup is off in the manifest). Unreadable settings never stop the app: it starts with the defaults.
 
 ## Look
 
-All colours, shapes and text styles are in `lib/app/theme.dart` (wood palette, light and dark). The font is **Edwin** (regular and bold), with **Noto Music** supplying the ♩ that Edwin lacks; both are bundled and licensed under the SIL OFL. The launch screen colour in `android/app/src/main/res/values*/colors.xml` must match the theme (`test/theme_test.dart` checks it). Note names follow the language (Do Re Mi with Italian octaves, La3 = 440, or C D E, A4 = 440) or the user's choice.
+All colours are in `lib/app/theme.dart` (wood palette, light and dark), the font sizes and control shapes in `lib/app/style.dart`; `docs/style.md` is the style sheet that says what each is for, and `test/style_test.dart` keeps font sizes from being written anywhere else. The font is **Edwin** (regular and bold), with **Noto Music** supplying the ♩ that Edwin lacks; both are bundled and licensed under the SIL OFL. The launch screen colour in `android/app/src/main/res/values*/colors.xml` must match the theme (`test/theme_test.dart` checks it). Note names follow the language (Do Re Mi with Italian octaves, La3 = 440, or C D E, A4 = 440) or the user's choice.
 
 ## Tests
 

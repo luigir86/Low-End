@@ -13,13 +13,13 @@ The tabs at the bottom are **Metronome**, **Harmony** and **Tuner**. The app ope
 - A **pulsing dot** on a tab says that section is making sound: the metronome and the harmony while they play, the tuner while it listens.
 - The first time you open the app a short **gesture guide** appears. It is also in *Settings → Gestures and shortcuts*.
 
-The volume is the phone's: use its volume keys. The slider at the bottom of the Metronome and Harmony sections only balances one against the other.
+The volume is the phone's: use its volume keys. The slider at the bottom of the Metronome and Harmony sections only balances one against the other: touch an icon to go all the way to that side, the middle to have both at full level.
 
 ## Metronome
 
-- **Start and stop**: touch the ring in the middle. It lights up beat by beat, with the first beat marked, and a woodblock click keeps the time.
-- **Tempo**: from 30 to 250 BPM. Touch the number to type it; touch **−** or **+** to move by one, or hold them to move in steps of 5 and 10; or tap **TAP** in the rhythm you want.
-- **Time signature**: 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8. In 6/8, 9/8 and 12/8 the tempo counts dotted quarter notes (♩.), the way you conduct them; in 7/8 it counts eighths.
+- **Start and stop**: touch the ring or the number in the middle. The ring lights up beat by beat, with the first beat marked, and a woodblock click keeps the time.
+- **Tempo**: from 30 to 250 BPM. Touch the pencil to type it; touch **+** or **−** to move by one, or hold them to move in steps of 5 and 10; or tap **TAP** in the rhythm you want.
+- **Time signature**: 1/1 (one click per bar, to keep a tempo without counting), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8. In 6/8, 9/8 and 12/8 the tempo counts dotted quarter notes (♩.), the way you conduct them; in 7/8 it counts eighths.
 - Changing the tempo or the time signature while it plays takes effect at once, without a gap.
 
 ## Harmony
@@ -37,7 +37,7 @@ Twelve keys round a dial (by default in the circle of fifths; you can ask for se
 
 - The tuner listens by itself when you open the section (the first time Android asks for the **microphone**). Play a note: its name appears in the middle of the round strobe. The rings of the strobe turn anticlockwise when the note is **flat** and clockwise when it is **sharp**, faster the further off you are, and stand still when you are **in tune** (within 5 cents). The words *Flat*, *In tune* and *Sharp* and the number of cents are written too, and a screen reader reads them out.
 - It hears notes from 28 Hz to 700 Hz, and it names any note, with no string to choose first.
-- **Listen / Pause**: pause it whenever you want; it stays paused until you ask.
+- **Listen / Pause**: touch the middle of the dial to pause it whenever you want; it stays paused until you touch it again.
 - The tuner **pauses the metronome and the harmony** while you are on it, so the microphone hears only your instrument; they carry on when you leave.
 - The sound is analysed on the phone and never recorded or sent anywhere.
 - If you said no to the microphone, allow it in the phone settings under *Apps › Low End › Permissions*; the app shows a button that opens that page.
@@ -50,7 +50,7 @@ The gear at the top opens the settings:
 | --- | --- |
 | Language | Same as the phone, English, Italian |
 | Note names | Follow the language, Do Re Mi (La3 = 440 Hz), C D E (A4 = 440 Hz) |
-| Reference A | 438 to 445 Hz, for the tuner and the harmony |
+| Reference A | 415, 430, 432 or 438 to 445 Hz, for the tuner and the harmony |
 | Harmony circle | Circle of fifths, or in semitones |
 | Theme | Follow the phone, light, dark |
 | Keep the screen on | While something plays or the tuner listens |

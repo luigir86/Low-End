@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import '../../app/app_navigation.dart';
+import '../../app/style.dart';
 import '../../app/theme.dart';
 import '../../audio/audio_scope.dart';
 import '../../audio/mic_input.dart';
@@ -78,6 +79,7 @@ class _TunerPanelState extends State<TunerPanel> {
             reading: reading,
             listening: _tuner.isListening,
             names: names,
+            onToggle: _tuner.toggle,
           ),
           // Announced by screen readers, e.g. when the microphone is denied.
           upper: message == null
@@ -108,17 +110,10 @@ class _TunerPanelState extends State<TunerPanel> {
                     ],
                   ],
                 ),
-          // As wide and tall as TAP and the chord menu, but only text:
-          // listening is the normal state, so pausing stays discreet.
+          // Listening starts and stops from the middle of the dial, like the
+          // other two tabs: nothing to put in this row.
+          lower: const SizedBox.shrink(),
           footer: const ReferencePitchRow(),
-          lower: TextButton.icon(
-            onPressed: _tuner.toggle,
-            style: TextButton.styleFrom(minimumSize: const Size.fromHeight(64)),
-            icon: Icon(_tuner.isListening ? Icons.pause : Icons.mic, size: 20),
-            label: Text(
-              _tuner.isListening ? l10n.stopListening : l10n.startListening,
-            ),
-          ),
         );
       },
     );
@@ -154,11 +149,15 @@ class _StrobeDisc extends StatefulWidget {
     required this.reading,
     required this.listening,
     required this.names,
+    required this.onToggle,
   });
 
   final TunerReading? reading;
   final bool listening;
   final NoteNames names;
+
+  /// Touching the middle pauses or resumes listening.
+  final VoidCallback onToggle;
 
   @override
   State<_StrobeDisc> createState() => _StrobeDiscState();
@@ -244,13 +243,36 @@ class _StrobeDiscState extends State<_StrobeDisc>
             ),
           ),
         ),
-        FractionallySizedBox(
-          widthFactor: 0.5,
-          heightFactor: 0.5,
-          child: _NoteDisplay(
-            reading: r,
-            listening: widget.listening,
-            names: widget.names,
+        // The hub is the button: as wide as the hub of the dial.
+        Center(
+          child: FractionallySizedBox(
+            widthFactor: DialGeometry.hubFraction,
+            heightFactor: DialGeometry.hubFraction,
+            child: Semantics(
+              button: true,
+              label: widget.listening
+                  ? AppLocalizations.of(context).stopListening
+                  : AppLocalizations.of(context).startListening,
+              child: Material(
+                type: MaterialType.transparency,
+                child: InkWell(
+                  key: const Key('tunerHub'),
+                  customBorder: const CircleBorder(),
+                  onTap: widget.onToggle,
+                  child: Center(
+                    child: FractionallySizedBox(
+                      widthFactor: 0.5 / DialGeometry.hubFraction,
+                      heightFactor: 0.5 / DialGeometry.hubFraction,
+                      child: _NoteDisplay(
+                        reading: r,
+                        listening: widget.listening,
+                        names: widget.names,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ],
@@ -304,8 +326,8 @@ class _DiscPainter extends CustomPainter {
       }
     }
 
-    // A fixed reference at 12 o'clock across both bands, with a pointer
-    // above the hub: the segments stand still against it when in tune.
+    // A fixed reference at 12 o'clock across both bands: the segments stand
+    // still against it when in tune.
     final top = dial.center.dx;
     final y0 = dial.center.dy - dial.ringOuter;
     final y1 = dial.center.dy - dial.ringInner;
@@ -322,14 +344,6 @@ class _DiscPainter extends CustomPainter {
       Paint()
         ..color = scale
         ..strokeWidth = 2,
-    );
-    canvas.drawPath(
-      Path()
-        ..moveTo(top - dial.ringWidth * 0.14, y1)
-        ..lineTo(top + dial.ringWidth * 0.14, y1)
-        ..lineTo(top, y1 + dial.ringWidth * 0.26)
-        ..close(),
-      Paint()..color = scale,
     );
 
     if (stillCents case final cents?) {
@@ -396,25 +410,26 @@ class _NoteDisplay extends StatelessWidget {
       color: theme.colorScheme.onSurfaceVariant,
     );
     final r = reading;
+    // Fixed sizes, the same as on the other two dials; large text on the
+    // phone shrinks the whole block to fit rather than overflow.
+    Widget fit(List<Widget> children) => Center(
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(mainAxisSize: MainAxisSize.min, children: children),
+      ),
+    );
+    if (!listening) {
+      // Paused: what touching the middle does.
+      return fit([
+        Icon(Icons.mic, size: 32, color: theme.colorScheme.primary),
+        Text(l10n.startListening, style: muted, textAlign: TextAlign.center),
+      ]);
+    }
     if (r == null) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Flexible(
-            flex: 3,
-            child: FittedBox(child: Text('–', style: _noteStyle(theme))),
-          ),
-          Flexible(
-            child: FittedBox(
-              child: Text(
-                listening ? l10n.playAString : '',
-                style: muted,
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ],
-      );
+      return fit([
+        Text('–', style: _noteStyle(theme)),
+        Text(l10n.playAString, style: muted, textAlign: TextAlign.center),
+      ]);
     }
     final cents = r.cents.round();
     final direction = r.inTune
@@ -428,65 +443,43 @@ class _NoteDisplay extends StatelessWidget {
     // Screen readers hear the note and whether it is flat, sharp or in tune,
     // only when that changes: reading every cent aloud would never stop.
     return Semantics(
+      container: true,
       liveRegion: true,
       label: '${r.target.label(names)}, $direction',
       child: ExcludeSemantics(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Flexible(
-              flex: 6,
-              child: FittedBox(
-                child: _NoteName(note: r.target, names: names, color: color),
+        child: fit([
+          _NoteName(note: r.target, names: names, color: color),
+          // The verdict, large enough to read from the music stand.
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // A shape as well as a colour, for colour-blind players.
+              Icon(
+                r.inTune
+                    ? Icons.check_circle
+                    : (cents < 0 ? Icons.arrow_downward : Icons.arrow_upward),
+                color: color,
+                size: LowEndType.headline,
               ),
-            ),
-            // The verdict, large enough to read from the music stand.
-            Flexible(
-              flex: 3,
-              child: FittedBox(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // A shape as well as a colour, for colour-blind players.
-                    Icon(
-                      r.inTune
-                          ? Icons.check_circle
-                          : (cents < 0
-                                ? Icons.arrow_downward
-                                : Icons.arrow_upward),
-                      color: color,
-                      size: 32,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      r.inTune ? direction : '$direction $centsText',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        color: color,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+              const SizedBox(width: 6),
+              Text(
+                r.inTune ? direction : '$direction $centsText',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-            ),
-            Flexible(
-              flex: 2,
-              child: FittedBox(
-                child: Text(
-                  l10n.frequencyHz(r.frequency.toStringAsFixed(1)),
-                  style: muted,
-                ),
-              ),
-            ),
-          ],
-        ),
+            ],
+          ),
+          Text(l10n.frequencyHz(r.frequency.toStringAsFixed(1)), style: muted),
+        ]),
       ),
     );
   }
 }
 
 TextStyle? _noteStyle(ThemeData theme) =>
-    theme.textTheme.displayLarge?.copyWith(fontSize: 88, height: 1.05);
+    theme.textTheme.displayMedium?.copyWith(height: 1.05);
 
 /// The note name, large, with its octave smaller beside it.
 class _NoteName extends StatelessWidget {
@@ -510,7 +503,7 @@ class _NoteName extends StatelessWidget {
           TextSpan(text: note.name(names)),
           TextSpan(
             text: '${note.octaveIn(names)}',
-            style: TextStyle(fontSize: (style?.fontSize ?? 88) * 0.4),
+            style: LowEndType.octave(style),
           ),
         ],
       ),
