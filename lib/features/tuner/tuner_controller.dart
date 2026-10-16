@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 
 import '../../audio/mic_input.dart';
 import '../../audio/pitch_detector.dart';
-import 'tunings.dart';
 
 enum TunerStatus { idle, starting, listening, permissionDenied, failed }
 
@@ -41,8 +40,6 @@ class TunerController extends ChangeNotifier {
   var _disposed = false;
   var _status = TunerStatus.idle;
   double? _frequency;
-  // Chromatic by default: the tuner names whatever note it hears.
-  Tuning? _tuning;
 
   TunerStatus get status => _status;
   bool get isListening =>
@@ -51,18 +48,10 @@ class TunerController extends ChangeNotifier {
   /// The detected frequency in Hz, smoothed, or null when no note is heard.
   double? get frequency => _frequency;
 
-  /// The chosen tuning, or null for chromatic mode (any note).
-  Tuning? get tuning => _tuning;
-
   /// True when the player paused the tuner: coming back to the tab or to
   /// the app then leaves it paused (see [resume]). It always starts out
   /// false, so the app opens listening.
   bool get userPaused => _userPaused;
-
-  void setTuning(Tuning? tuning) {
-    _tuning = tuning;
-    _notify();
-  }
 
   /// Starts listening, also after a pause by the player. While a start is
   /// already under way, returns that one, so the caller can wait until the

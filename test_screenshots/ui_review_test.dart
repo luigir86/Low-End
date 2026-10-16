@@ -1,7 +1,7 @@
 // Screenshots for UI review, not regression tests.
 //
 // Regenerate with:
-//   flutter test test_screenshots --update-goldens
+//   flutter test test_screenshots/ui_review_test.dart --update-goldens
 // then look at the PNGs in test_screenshots/goldens/. They live outside
 // test/ so that a plain `flutter test` skips them, and are not committed.
 @Tags(['ui_review'])
@@ -19,7 +19,7 @@ import 'package:low_end/audio/click_output.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
 
-// Roboto and the Material icons, copied from the Flutter SDK into the repo
+// Roboto and the Material icons (the tests' text and icon fonts), copied from the Flutter SDK into the repo
 // (Apache 2.0, licences beside them) so the tests find them on any machine.
 const _fonts = 'test/fonts';
 
@@ -27,6 +27,9 @@ Future<ByteData> _font(String file) async =>
     ByteData.sublistView(await File('$_fonts/$file').readAsBytes());
 
 /// One screen configuration.
+Future<ByteData> _asset(String path) async =>
+    ByteData.sublistView(await File(path).readAsBytes());
+
 class _Config {
   const _Config(
     this.id, {
@@ -137,6 +140,14 @@ void main() {
       ..addFont(_font('roboto-medium.ttf'))
       ..addFont(_font('roboto-bold.ttf'));
     await roboto.load();
+    // The app's own fonts, as the phone has them.
+    final edwin = FontLoader('Edwin')
+      ..addFont(_asset('assets/fonts/Edwin-Roman.otf'))
+      ..addFont(_asset('assets/fonts/Edwin-Bold.otf'));
+    await edwin.load();
+    final music = FontLoader('NotoMusic')
+      ..addFont(_asset('assets/fonts/NotoMusic-Regular.ttf'));
+    await music.load();
     final icons = FontLoader('MaterialIcons')
       ..addFont(_font('materialicons-regular.otf'));
     await icons.load();
@@ -158,26 +169,26 @@ void main() {
         await h.shot('tuner_4_paused');
       });
 
-      testWidgets('drone', (tester) async {
+      testWidgets('harmony', (tester) async {
         final h = _Harness(tester, config);
         await h.start();
-        await h.tab('Drone', 'Drone');
-        await h.shot('drone_1_idle');
+        await h.tab('Harmony', 'Armonia');
+        await h.shot('harmony_1_idle');
         await h.tapText(h.t('A', 'La'));
-        await h.shot('drone_2_root');
+        await h.shot('harmony_2_root');
         await h.tapText(h.t('Chord', 'Accordo'));
         await h.tester.tap(
           find.byWidgetPredicate((w) => w is DropdownMenu).first,
         );
         await h._settle();
-        await h.shot('drone_3_chord_dropdown');
+        await h.shot('harmony_3_chord_dropdown');
         await h.tapText(h.t('Minor', 'Minore'));
-        await h.shot('drone_4_minor');
+        await h.shot('harmony_4_minor');
         await h.tapText(h.t('Progression', 'Progressione'));
-        await h.shot('drone_5_progression');
+        await h.shot('harmony_5_progression');
         await h.tab('Metronome', 'Metronomo');
         await h.shot('metronome_idle_drone_on');
-        await h.tapText(h.t('Tap to start', 'Tocca per iniziare'));
+        await h.tapText(h.t('Tap to start', 'Tocca per avviare'));
         await h.shot('metronome_beat_1');
         await h.tester.pump(const Duration(milliseconds: 750));
         await h.shot('metronome_beat_2');

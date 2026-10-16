@@ -1,0 +1,67 @@
+# Low End: manuale utente
+
+*English: [user-guide.md](user-guide.md).*
+
+Low End è un metronomo, una sezione di armonia al pianoforte e un accordatore in un'unica app. L'ha realizzata un contrabbassista amatoriale pensando agli amici dell'orchestra, ma è pensata per ogni musicista. È gratuita, senza pubblicità, non raccoglie nulla e non ha bisogno di internet.
+
+## Le tre sezioni
+
+Le schede in basso sono **Metronomo**, **Armonia** e **Accordatore**. L'app si apre sul metronomo.
+
+- **Scorri** a destra o a sinistra per cambiare sezione.
+- **Tieni premuta una scheda** per avviare o fermare il suono di quella sezione da qualsiasi punto (il metronomo o l'armonia).
+- Un **pallino che pulsa** su una scheda dice che quella sezione sta suonando: il metronomo e l'armonia mentre suonano, l'accordatore mentre ascolta.
+- La prima volta compare una breve **guida ai gesti**; la ritrovi in *Impostazioni → Gesti e scorciatoie*.
+
+Il volume è quello del telefono: usa i suoi tasti. Il cursore in basso, in Metronomo e Armonia, bilancia solo l'uno rispetto all'altra.
+
+## Metronomo
+
+- **Avvio e stop**: tocca l'anello al centro. Si accende movimento per movimento, con il primo tempo in evidenza, e un click di woodblock tiene il tempo.
+- **Tempo**: da 30 a 250 BPM. Tocca il numero per scriverlo; tocca **−** o **+** per spostarti di uno, oppure tienili premuti per andare a passi di 5 e 10; oppure batti **TAP** al ritmo che vuoi.
+- **Misura**: 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 e 12/8. In 6/8, 9/8 e 12/8 il tempo conta le semiminime puntate (♩.), come si dirige; in 7/8 conta le crome.
+- Se cambi tempo o misura mentre suona, il cambio è immediato e senza stacchi.
+
+## Armonia
+
+Dodici tasti intorno a un quadrante (di norma nel cerchio delle quinte; nelle impostazioni puoi scegliere i semitoni).
+
+- **Tocca un tasto** per sentirlo su un vero pianoforte, a tempo con il metronomo. **Toccalo di nuovo** per fermarlo. Armonia e metronomo possono suonare insieme o da soli.
+- **Tieni premuto Do♯ o Fa♯** per scriverli Re♭ o Sol♭.
+- **Fondamentale**: la nota da sola. **Accordo**: maggiore, minore o di settima, costruito sulla nota. **Progressione**: un accordo per battuta, nella tonalità della nota toccata: II–V–I (maggiore e minore), I–IV–V, I–VI–IV–V e il blues di dodici battute. Il quadrante mostra la tonalità e attenua le note che ne sono fuori. «Aggiungi la settima agli accordi» li trasforma in accordi di settima.
+- **Stile**: accordo battuto una volta a battuta, a ogni tempo, oppure arpeggiato, secondo tempo e misura del metronomo.
+- **Opzioni del suono**: l'ottava della fondamentale e la posizione dell'accordo (impilato, vicino, oppure senza fondamentale, per suonarla tu).
+- **Bilanciamento**: un solo cursore mescola metronomo e armonia.
+
+## Accordatore
+
+- L'accordatore ascolta da solo quando apri la sezione (la prima volta Android chiede il permesso per il **microfono**). Suona una nota: il suo nome compare al centro dello strobo rotondo. Gli anelli dello strobo girano in senso antiorario se la nota è **calante** e orario se è **crescente**, più veloci quanto più sei lontano, e restano fermi quando sei **intonato** (entro 5 cent). Sono scritte anche le parole *Calante*, *Intonato* e *Crescente* e il numero di cent, e un lettore di schermo le legge ad alta voce.
+- Sente le note da 28 Hz a 700 Hz e riconosce qualsiasi nota, senza dover scegliere prima la corda.
+- **Ascolta / Pausa**: mettilo in pausa quando vuoi; resta in pausa finché non lo riattivi.
+- Mentre sei nell'accordatore, **metronomo e armonia vanno in pausa**, così il microfono sente solo il tuo strumento; riprendono quando esci.
+- Il suono è analizzato sul telefono e non viene mai registrato né inviato.
+- Se hai negato il microfono, consentilo nelle impostazioni del telefono in *App › Low End › Autorizzazioni*; l'app mostra un pulsante che apre quella pagina.
+
+## Impostazioni
+
+L'ingranaggio in alto apre le impostazioni:
+
+| Impostazione | Scelte |
+| --- | --- |
+| Lingua | Come il telefono, inglese, italiano |
+| Nomi delle note | Come la lingua, Do Re Mi (La3 = 440 Hz), C D E (A4 = 440 Hz) |
+| La di riferimento | Da 438 a 445 Hz, per l'accordatore e l'armonia |
+| Cerchio dell'armonia | Cerchio delle quinte, oppure in semitoni |
+| Tema | Come il telefono, chiaro, scuro |
+| Tieni lo schermo acceso | Mentre suona o l'accordatore ascolta |
+| Gesti e scorciatoie | Mostra di nuovo la guida |
+
+**Informazioni su Low End** (in fondo alle impostazioni) mostra la licenza, il link al codice sorgente e, sotto *Visualizza licenze*, le licenze di tutto ciò con cui l'app è costruita, font e suoni del pianoforte compresi.
+
+## Suonare con lo schermo spento
+
+Metronomo e armonia continuano a suonare se blocchi il telefono o passi a un'altra app. Una notifica dice cosa sta suonando, con i pulsanti per mettere in pausa o riprendere e per fermare. La prima volta Android può chiederti il permesso per le notifiche.
+
+## Domande e problemi
+
+Scrivi a ribaluigi@gmail.com oppure apri una segnalazione su https://github.com/luigir86/Low-End/issues.

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app/licenses.dart';
 import 'app/low_end_app.dart';
 import 'app/settings.dart';
 
@@ -15,5 +16,6 @@ Future<void> main() async {
     debugPrint('Settings could not be read: $error');
     settings = AppSettings();
   }
+  registerAssetLicenses();
   runApp(LowEndApp(settings: settings));
 }

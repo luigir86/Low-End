@@ -1,6 +1,6 @@
 # Low End
 
-Low End is a free, open-source practice app for double bass and electric bass players: a **metronome**, a piano **harmony** section and a **tuner**, in one light Android app. It is built with [Flutter](https://flutter.dev), works fully offline and is available in English and Italian.
+Low End is a free, open-source practice app for musicians: a **metronome**, a piano **harmony** section and a **tuner**, in one light Android app. It was made by an amateur double bass player with the friends from the orchestra in mind, and it is useful to everyone who plays. It is built with [Flutter](https://flutter.dev), works fully offline and is available in English and Italian.
 
 <p>
   <img src="store/graphics/phone/en-US/1_metronome.png" alt="Metronome" width="30%">
@@ -28,9 +28,8 @@ The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens o
 ### Tuner
 
 - Chromatic, with a round strobe and the note in the middle: play any note and it shows up, no string to choose first.
-- Finds the note with the YIN algorithm ([`lib/audio/pitch_detector.dart`](lib/audio/pitch_detector.dart)), from 28 to 700 Hz, down to the low B of five-string basses.
-- Tunings for orchestral and solo double bass, C extension, five-string double bass, four-, five- and six-string electric bass, and drop D.
-- It listens only while it is on screen (and you can pause it). Opening the tuner pauses the metronome and the harmony, so the microphone hears only the bass.
+- Finds the note with the YIN algorithm ([`lib/audio/pitch_detector.dart`](lib/audio/pitch_detector.dart)), from 28 to 700 Hz: from the lowest strings to a violin's high notes.
+- It listens only while it is on screen (and you can pause it). Opening the tuner pauses the metronome and the harmony, so the microphone hears only your instrument.
 
 ### Settings
 
@@ -49,11 +48,11 @@ With the screen off or the app in the background the metronome and the harmony k
 
 ## Ideas for later
 
-Nothing here is promised. The review notes in [docs/review](docs/review) hold the longer list.
+Nothing here is promised.
 
 - Metronome: accents on 2 and 4, subdivisions, more time signatures, a tempo trainer, remembering tempo and time signature, latency compensation, landscape layout.
 - Harmony: more progressions and chords, just intonation.
-- Tuner: more tunings, other reference pitches (415, 430, 432 Hz).
+- Tuner: other reference pitches (415, 430, 432 Hz).
 - More languages (Spanish, German, French, Portuguese, Japanese).
 - A PDF library for sheet music, set lists and annotations, and later PDF to MusicXML and MIDI playback.
 
@@ -70,10 +69,12 @@ lib/
   audio/                    pitch maths and sound output
   widgets/                  shared UI pieces
   l10n/                     translations (app_en.arb, app_it.arb)
-test/                       automated tests
-assets/                     piano samples and the logo
+test/                       automated tests (test/review: layouts, languages, text sizes)
+test_screenshots/           screenshot harness used to review every screen
+tool/                       scripts that make the icons, feature graphics and piano samples
+assets/                     piano samples, fonts and the logo
 store/                      Google Play listing: texts, graphics, checklist
-docs/                       assistant actions and the review notes
+docs/                       user guide, architecture, offline check, assistant actions
 ```
 
 All colours, shapes and text styles live in `lib/app/theme.dart` (wood palette with Pantone Mocha Mousse).
@@ -104,3 +105,16 @@ Send the `arm64-v8a` file: it fits almost every phone from the last ten years. T
 ## Translations
 
 Texts live in `lib/l10n/app_en.arb` (English, the reference) and `lib/l10n/app_it.arb` (Italian). After changing them, run `flutter gen-l10n`.
+
+## Documentation
+
+| Document | For |
+| --- | --- |
+| [docs/user-guide.md](docs/user-guide.md) (English), [docs/manuale-utente.md](docs/manuale-utente.md) (Italiano) | Players: what every control does |
+| [docs/architecture.md](docs/architecture.md) | Developers: how the app is built |
+| [docs/offline.md](docs/offline.md) | Proof that the app needs no internet, and how to check it |
+| [docs/llm.md](docs/llm.md) | Assistants and automation: the `lowend://` actions |
+| [PRIVACY.md](PRIVACY.md) | Privacy policy: no data collected |
+| [LICENSE](LICENSE), [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) | The app's licence and those of everything it uses |
+| [store/README.md](store/README.md) | Google Play listing and checklist |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to help |

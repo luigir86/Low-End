@@ -1,6 +1,6 @@
 # Third-party components
 
-Low End itself is released under the [MIT License](LICENSE). It is built with the open-source components below. All of them are permissive licences (MIT, BSD, Apache-2.0, zlib, public domain) that allow free use and redistribution, including in a free app on Google Play. The full text of each licence ships with the app: **Settings → About → View licences** lists every Flutter and Dart package, and the files named below hold the texts of the native parts.
+Low End itself is released under the [MIT License](LICENSE). It is built with the open-source components below. All of them are permissive licences (MIT, BSD, Apache-2.0, zlib, public domain) that allow free use and redistribution, including in a free app on Google Play. The full text of each licence ships with the app: **Settings → About Low End → View licences** lists every Flutter and Dart package, the two fonts and the piano recordings; the files named below hold the texts of the native parts.
 
 Exact versions of every package are in [pubspec.lock](pubspec.lock). Keep this file in step with `pubspec.yaml` when a dependency is added or removed.
 
@@ -17,7 +17,7 @@ Exact versions of every package are in [pubspec.lock](pubspec.lock). Keep this f
 | [url_launcher](https://pub.dev/packages/url_launcher) | 6.3.3 | Opens the source-code link | BSD-3-Clause |
 | [intl](https://pub.dev/packages/intl) | 0.20.3 | Languages (English, Italian) | BSD-3-Clause |
 
-Build and test only (not in the app): `flutter_test`, `flutter_lints`.
+Build and test only (not in the app): `flutter_test` and `flutter_lints` (BSD-3-Clause). The screenshot and test harnesses also use Roboto and the Material Icons font copied from the Flutter SDK into `test/fonts/` (Apache-2.0, licences beside them); they are not part of the app.
 
 ## Native code inside flutter_soloud
 
@@ -29,7 +29,7 @@ Build and test only (not in the app): `flutter_test`, `flutter_lints`.
 
 Everything else that `pubspec.lock` lists comes from the Dart and Flutter teams or from small well-known authors, under these licences:
 
-- **BSD-3-Clause**: `async`, `characters`, `collection`, `crypto`, `ffi`, `file`, `fixnum`, `glob`, `hooks`, `http`, `http_parser`, `jni` and its helpers, `logging`, `meta`, `path`, `path_provider*`, `platform`, `plugin_platform_interface`, `process`, `pub_semver`, `source_span`, `stack_trace`, `string_scanner`, `typed_data`, `vector_math`, `web`, `win32`, `xdg_directories`, `yaml`, and the platform packages of the plugins above.
+- **BSD-3-Clause**: `args`, `async`, `code_assets`, `native_toolchain_c`, `objective_c`, `package_info_plus*`, `characters`, `collection`, `crypto`, `ffi`, `file`, `fixnum`, `glob`, `hooks`, `http`, `http_parser`, `jni` and its helpers, `logging`, `meta`, `path`, `path_provider*`, `platform`, `plugin_platform_interface`, `process`, `pub_semver`, `source_span`, `stack_trace`, `string_scanner`, `typed_data`, `vector_math`, `web`, `win32`, `xdg_directories`, `yaml`, and the platform packages of the plugins above.
 - **BSD-2-Clause**: `sqflite*` (used by the cache of `audio_service`).
 - **MIT**: `audio_service_*`, `audio_session`, `flutter_cache_manager`, `petitparser`, `synchronized`, `uuid`, `xml`.
 - **Apache-2.0**: `clock`, `material_color_utilities`, `rxdart`.
@@ -43,7 +43,7 @@ The Android build also contains AndroidX, Kotlin (`kotlin-stdlib`, `kotlinx-coro
 
 - **Piano notes**: *Salamander Grand Piano V3* by Alexander Holm, released into the **public domain** on 4 March 2022. Details in [assets/piano/README.md](assets/piano/README.md).
 - **Material Icons** (Flutter's built-in icon font): Apache-2.0.
-- **Fonts**, all under the **SIL Open Font License 1.1**, bundled in `assets/fonts/` with their licences and used unmodified: *Edwin* by MuseScore (the app's text, and the ♭ and ♯ signs), *Barlow* (for the few characters Edwin lacks) and *Noto Music* (only ♩).
+- **Fonts**, both under the **SIL Open Font License 1.1**, bundled in `assets/fonts/` with their licences (`OFL-Edwin.txt`, `OFL-NotoMusic.txt`) and used unmodified: *Edwin* by MuseScore (all the text, with the ♭ and ♯ signs; regular and bold) and *Noto Music* by the Noto Project Authors (only the ♩ sign, which Edwin lacks). The earlier Barlow fonts were removed because Edwin already covers every other character the app writes.
 
 ## Checks made
 

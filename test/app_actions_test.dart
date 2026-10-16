@@ -37,7 +37,9 @@ void main() {
     // Regenerate with: flutter test --update-goldens
     final file = File('docs/llm-actions.json');
     if (autoUpdateGoldenFiles) file.writeAsStringSync(exportActions());
-    expect(file.readAsStringSync(), exportActions());
+    // Git on Windows may check the file out with CRLF line endings.
+    final text = file.readAsStringSync().replaceAll('\r\n', '\n');
+    expect(text, exportActions());
   });
 
   test('reads note names in English and Italian', () {
