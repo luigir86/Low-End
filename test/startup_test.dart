@@ -33,9 +33,9 @@ class _WatchedMic extends FakeMicInput {
 }
 
 void main() {
-  // Opening the app must stay instant: the first frame is drawn before the
-  // microphone starts, and the audio engine waits for the first sound.
-  testWidgets('the first frame comes before the microphone and the audio', (
+  // Opening the app must stay instant: it opens on the metronome, with the
+  // microphone off, and the audio engine waits for the first sound.
+  testWidgets('opening the app starts neither the microphone nor the audio', (
     tester,
   ) async {
     final output = _WatchedToneOutput();
@@ -43,9 +43,14 @@ void main() {
     await tester.pumpWidget(LowEndApp(toneOutput: output, micInput: mic));
     await tester.pumpAndSettle();
 
-    // The tuner on screen starts listening by itself, but only once the
-    // first frame has been drawn.
-    expect(mic.askedDuring, SchedulerPhase.postFrameCallbacks);
+    expect(find.text('Tap to start'), findsOneWidget);
+    expect(mic.askedDuring, isNull);
+    expect(output.used, isFalse);
+
+    // The tuner asks for the microphone only once it is opened.
+    await tester.tap(find.text('Tuner'));
+    await tester.pumpAndSettle();
+    expect(mic.askedDuring, isNotNull);
     expect(find.text('Pause'), findsOneWidget);
     expect(output.used, isFalse);
   });

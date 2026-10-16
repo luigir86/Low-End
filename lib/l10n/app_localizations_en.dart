@@ -19,14 +19,72 @@ class AppLocalizationsEn extends AppLocalizations {
   String get metronomeTab => 'Metronome';
 
   @override
-  String get comingSoon => 'Coming soon';
-
-  @override
-  String get metronomeDescription =>
-      'Precise metronome with accents and subdivisions.';
-
-  @override
   String get droneMode => 'Drone';
+
+  @override
+  String get metronomeStart => 'Start the metronome';
+
+  @override
+  String get metronomeStop => 'Stop the metronome';
+
+  @override
+  String get metronomeHint => 'Tap to start';
+
+  @override
+  String bpmValue(String bpm) {
+    return '$bpm BPM';
+  }
+
+  @override
+  String get timeSignature => 'Time signature';
+
+  @override
+  String get backgroundPlaying => 'Playing in the background';
+
+  @override
+  String get holdToToggle => 'Hold to start or stop';
+
+  @override
+  String get slower => 'Slower';
+
+  @override
+  String get faster => 'Faster';
+
+  @override
+  String get tapTempo => 'Tap the tempo';
+
+  @override
+  String get droneStop => 'Stop the drone';
+
+  @override
+  String get progressionLabel => 'Progression';
+
+  @override
+  String get progressionMinorTwoFiveOne => 'II–V–I minor';
+
+  @override
+  String get progressionBlues => '12-bar blues';
+
+  @override
+  String get addSevenths => 'Add the seventh to the chords';
+
+  @override
+  String degreeOf(String degree, String key) {
+    return '$degree of $key';
+  }
+
+  @override
+  String droneChordDiminished(String note) {
+    return '$note diminished';
+  }
+
+  @override
+  String get balanceLabel => 'Metronome and drone balance';
+
+  @override
+  String balanceValue(String metronome, String drone) {
+    return 'Metronome $metronome%, drone $drone%';
+  }
 
   @override
   String get referencePitch => 'Reference A';
@@ -42,11 +100,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String droneNowPlaying(String note) {
-    return 'Drone · $note';
-  }
-
-  @override
   String stopSound(String name) {
     return 'Stop $name';
   }
@@ -55,10 +108,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String playSound(String name) {
     return 'Play $name';
   }
-
-  @override
-  String get droneShortcutHint =>
-      'Practise with the drone and the click together.';
 
   @override
   String get droneHint => 'Touch a note to play it. Touch it again to stop.';
@@ -160,6 +209,27 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get aboutDescription =>
       'Tuner, drone and metronome for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.';
+
+  @override
+  String get aboutPiano =>
+      'Piano sounds: Salamander Grand Piano by Alexander Holm (public domain).';
+
+  @override
+  String get styleLabel => 'Style';
+
+  @override
+  String get styleHeld => 'Chord every bar';
+
+  @override
+  String get styleBeat => 'Chord on every beat';
+
+  @override
+  String get styleArpeggio => 'Arpeggio';
+
+  @override
+  String styleTempo(int bpm, String signature) {
+    return 'Follows the metronome: $bpm BPM, $signature';
+  }
 
   @override
   String aboutSource(String url) {

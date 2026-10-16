@@ -11,6 +11,7 @@ import 'package:low_end/app/app_navigation.dart';
 import 'package:low_end/app/home_shell.dart';
 import 'package:low_end/app/low_end_app.dart';
 import 'package:low_end/app/settings.dart';
+import 'package:low_end/app/settings_page.dart';
 import 'package:low_end/audio/audio_scope.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
@@ -35,6 +36,9 @@ class _GatedOutput implements ToneOutput {
   List<double> sounding = const [];
   var running = 0;
   var mostAtOnce = 0;
+
+  @override
+  Future<void> prepare(List<(List<double>, List<double>)> sounds) async {}
 
   @override
   Future<void> play(List<double> f, List<double> gains, double v) async {
@@ -90,7 +94,11 @@ Future<AudioScope> _pumpApp(
     ),
   );
   await _settle(tester);
-  return AudioScope.of(tester.element(find.byType(HomeShell)));
+  final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
+  // The app opens on the metronome; these checks are about the tuner.
+  scope.navigation.open(AppSection.tuner);
+  await _settle(tester);
+  return scope;
 }
 
 /// The strobe and the now-playing dot move for ever, so pumpAndSettle would
@@ -259,13 +267,15 @@ void main() {
       );
       scope.navigation.open(AppSection.drone);
       await _settle(tester);
-      expect(find.byType(DropdownMenu<ChordType>), findsNothing);
+      // Its place is kept, so the rows line up, but it cannot be seen or
+      // touched.
+      expect(find.byType(DropdownMenu<ChordType>).hitTestable(), findsNothing);
       await tester.tap(find.text('La'));
       await _settle(tester);
       expect(find.text('La3'), findsOneWidget);
       expect(find.text('Fondamentale'), findsOneWidget, reason: 'switch only');
 
-      await tester.tap(find.text('Accordo'));
+      await tester.tap(find.text('Accordo').first);
       await _settle(tester);
       expect(find.byType(DropdownMenu<ChordType>), findsOneWidget);
       expect(find.text('La maggiore'), findsOneWidget);
@@ -285,7 +295,14 @@ void main() {
       await _pumpApp(tester);
       await tester.tap(find.byTooltip('Settings'));
       await _settle(tester);
-      expect(find.text('Reference A'), findsOneWidget);
+      // On the settings page (the tuner below it shows the same row).
+      expect(
+        find.descendant(
+          of: find.byType(SettingsPage),
+          matching: find.text('Reference A'),
+        ),
+        findsOneWidget,
+      );
       expect(
         find.text('The frequency of A4, for the tuner and the drone.'),
         findsOneWidget,

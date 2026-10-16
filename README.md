@@ -5,8 +5,8 @@ Low End is a mobile app for double bass and electric bass players, built with [F
 ## Planned features
 
 1. **Tuner** for double bass and electric bass, chromatic with a round strobe in the style of Peterson tuners and the note in the middle: play any note and it shows up, no tuning to choose.
-2. **Drone**: its own tab, with twelve note keys round a dial. Touch a key to play that note in the middle octave, touch it again to stop; play the note alone or a major, minor or seventh chord in pure intervals. Loudness follows the phone volume. Also reachable from the Metronome.
-3. **Metronome** with accents, subdivisions and a speed trainer.
+2. **Drone**: its own tab, with twelve note keys round a dial. Touch a key to play that note in the middle octave, touch it again to stop; it plays on the piano, in time with the metronome: the note alone, a major, minor or seventh chord, or a progression, struck once a bar, on every beat or as an arpeggio. Loudness follows the phone volume. Also reachable from the Metronome.
+3. **Metronome**: its own tab, in 4/4 for now, with a ring of four segments that light up clockwise (the "one" at the top in brass) and a dot in the middle that swells on every beat. Touch the ring to start and stop; − and + (hold to go faster) and TAP set the tempo, from 30 to 250 BPM, starting at 80. The click is a short woodblock tick, a little higher on the first beat; the audio engine loops a whole bar, so the time stays steady.
 4. **PDF library** for sheet music, set lists and annotations (later: the app starts with the tuner, drone and metronome).
 5. **PDF to MusicXML** conversion (beta, server-side optical music recognition).
 6. **MIDI playback** of converted scores, at the real sounding octave.
@@ -17,7 +17,7 @@ The tuner starts listening as soon as it is on screen (you can pause it, and it 
 
 The gear at the top opens the **settings**: app language (English or Italian, or the phone's), note names (Do Re Mi with Italian octave numbers, La3 = 440 Hz, or C D E, A4 = 440 Hz) and the reference A, from 438 to 445 Hz. They are kept on the phone.
 
-While any sound plays, its tab shows a pulsing dot and a strip above the navigation bar offers a stop button for it.
+The tabs are Metronome, Drone and Tuner, and the app opens on the metronome. Each section starts and stops its own sound, and the drone and the metronome can play together. A pulsing dot on a tab shows that its sound is playing. Opening the tuner pauses them (so the microphone hears only the bass) and leaving it they carry on; with the screen off or the app in the background they stop.
 
 ## Free, light and accessible
 

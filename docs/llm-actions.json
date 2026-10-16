@@ -1,7 +1,7 @@
 [
   {
     "name": "get_state",
-    "description": "Returns what the app is doing now: the section on screen, the tuner (listening, last note heard and how many cents off), the drone (playing, note, root or chord) and the settings (reference A, language, note names). Loudness follows the phone's media volume.",
+    "description": "Returns what the app is doing now: the section on screen, the tuner (listening, last note heard and how many cents off), the drone (playing, note, root or chord), the metronome (playing, tempo) and the settings (reference A, language, note names). Loudness follows the phone's media volume.",
     "input_schema": {
       "type": "object",
       "properties": {},
@@ -49,7 +49,7 @@
   },
   {
     "name": "drone_play",
-    "description": "Plays the drone, a sustained pure tone to practise intonation on. Any setting given is applied first.",
+    "description": "Plays the drone, on the piano, to practise on, in time with the metronome: a note, a chord or a progression. Any setting given is applied first.",
     "input_schema": {
       "type": "object",
       "properties": {
@@ -61,9 +61,10 @@
           "type": "string",
           "enum": [
             "root",
-            "chord"
+            "chord",
+            "progression"
           ],
-          "description": "The note alone, or the chord built on it."
+          "description": "The note alone, the chord built on it, or a progression in its key (one chord per bar, at the metronome tempo)."
         },
         "chord": {
           "type": "string",
@@ -72,7 +73,31 @@
             "minor",
             "seventh"
           ],
-          "description": "The chord played when voicing is \"chord\", in pure intervals; \"seventh\" is the dominant seventh, its seventh tuned to 16/9 (the pure ratio closest to the equal-tempered minor seventh)."
+          "description": "The chord played when voicing is \"chord\"; \"seventh\" is the dominant seventh."
+        },
+        "progression": {
+          "type": "string",
+          "enum": [
+            "twoFiveOne",
+            "minorTwoFiveOne",
+            "oneFourFive",
+            "oneSixFourFive",
+            "blues"
+          ],
+          "description": "The progression played when voicing is \"progression\": II-V-I, minor II-V-I, I-IV-V, I-VI-IV-V or 12-bar blues."
+        },
+        "style": {
+          "type": "string",
+          "enum": [
+            "held",
+            "beat",
+            "arpeggio"
+          ],
+          "description": "How the piano plays the note, chord or progression: struck once a bar (held), on every beat, or as an arpeggio, one note a beat (the piano follows the tempo and time signature of the metronome)."
+        },
+        "sevenths": {
+          "type": "boolean",
+          "description": "Adds the seventh to the chords and progressions (maj7, m7, 7, m7b5)."
         }
       },
       "additionalProperties": false
@@ -84,6 +109,50 @@
     "input_schema": {
       "type": "object",
       "properties": {},
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "metronome_start",
+    "description": "Opens the metronome and starts it, in 4/4, at the tempo given or the current one.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "bpm": {
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 250,
+          "description": "Beats per minute."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "metronome_stop",
+    "description": "Stops the metronome.",
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "metronome_set",
+    "description": "Changes the tempo without starting or stopping it.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "bpm": {
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 250,
+          "description": "Beats per minute."
+        }
+      },
+      "required": [
+        "bpm"
+      ],
       "additionalProperties": false
     }
   },
@@ -101,9 +170,10 @@
           "type": "string",
           "enum": [
             "root",
-            "chord"
+            "chord",
+            "progression"
           ],
-          "description": "The note alone, or the chord built on it."
+          "description": "The note alone, the chord built on it, or a progression in its key (one chord per bar, at the metronome tempo)."
         },
         "chord": {
           "type": "string",
@@ -112,7 +182,31 @@
             "minor",
             "seventh"
           ],
-          "description": "The chord played when voicing is \"chord\", in pure intervals; \"seventh\" is the dominant seventh, its seventh tuned to 16/9 (the pure ratio closest to the equal-tempered minor seventh)."
+          "description": "The chord played when voicing is \"chord\"; \"seventh\" is the dominant seventh."
+        },
+        "progression": {
+          "type": "string",
+          "enum": [
+            "twoFiveOne",
+            "minorTwoFiveOne",
+            "oneFourFive",
+            "oneSixFourFive",
+            "blues"
+          ],
+          "description": "The progression played when voicing is \"progression\": II-V-I, minor II-V-I, I-IV-V, I-VI-IV-V or 12-bar blues."
+        },
+        "style": {
+          "type": "string",
+          "enum": [
+            "held",
+            "beat",
+            "arpeggio"
+          ],
+          "description": "How the piano plays the note, chord or progression: struck once a bar (held), on every beat, or as an arpeggio, one note a beat (the piano follows the tempo and time signature of the metronome)."
+        },
+        "sevenths": {
+          "type": "boolean",
+          "description": "Adds the seventh to the chords and progressions (maj7, m7, 7, m7b5)."
         }
       },
       "additionalProperties": false

@@ -1,0 +1,143 @@
+import 'dart:async';
+import 'dart:io' show Platform;
+
+import 'package:audio_service/audio_service.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+
+/// What the notification asks for.
+enum MediaCommand { play, pause, stop }
+
+/// What the notification shows.
+enum MediaState { off, playing, paused }
+
+/// Keeps the sound going with the screen off or the app in the background,
+/// and lets the notification pause, resume and stop it.
+///
+/// Android freezes an app that has gone to the background unless it runs a
+/// foreground service, shown as a media notification. Kept behind an
+/// interface so the rest of the app can be tested without a phone.
+abstract class BackgroundAudio {
+  /// What the user asks from the notification (or a headset button).
+  Stream<MediaCommand> get commands;
+
+  /// Shows the notification in [state], or removes it for [MediaState.off].
+  Future<void> show(MediaState state, {required String title, String text});
+}
+
+/// [BackgroundAudio] backed by an Android media notification (and the
+/// foreground service behind it).
+class MediaNotificationAudio implements BackgroundAudio {
+  static bool get _supported => !kIsWeb && Platform.isAndroid;
+
+  static const _channel = MethodChannel('low_end/notifications');
+
+  final _commands = StreamController<MediaCommand>.broadcast();
+  _Handler? _handler;
+  Future<_Handler>? _starting;
+  var _askedPermission = false;
+
+  @override
+  Stream<MediaCommand> get commands => _commands.stream;
+
+  Future<_Handler> _start() => _starting ??=
+      AudioService.init(
+        builder: () => _Handler(_commands),
+        config: const AudioServiceConfig(
+          androidNotificationChannelId: 'com.luigir86.low_end.playback',
+          androidNotificationChannelName: 'Low End',
+          // Paused, the notification stays: it is how the sound is resumed.
+          androidStopForegroundOnPause: false,
+        ),
+      ).then((h) => _handler = h).catchError((Object error) {
+        _starting = null;
+        throw error;
+      });
+
+  @override
+  Future<void> show(
+    MediaState state, {
+    required String title,
+    String text = '',
+  }) async {
+    if (!_supported) return;
+    try {
+      if (state == MediaState.off && _handler == null) return;
+      if (state == MediaState.playing && !_askedPermission) {
+        // Android 13+ hides the notification without this; the sound would
+        // still play.
+        _askedPermission = true;
+        unawaited(
+          _channel.invokeMethod<void>('request').catchError((Object _) {}),
+        );
+      }
+      final handler = await _start();
+      if (state == MediaState.off) {
+        await handler.hide();
+      } else {
+        handler.show(
+          playing: state == MediaState.playing,
+          title: title,
+          text: text,
+        );
+      }
+    } catch (error) {
+      debugPrint('Background audio could not change: $error');
+    }
+  }
+}
+
+class _Handler extends BaseAudioHandler {
+  _Handler(this._commands);
+
+  final StreamController<MediaCommand> _commands;
+
+  void show({
+    required bool playing,
+    required String title,
+    required String text,
+  }) {
+    mediaItem.add(MediaItem(id: 'low_end', title: title, artist: text));
+    playbackState.add(
+      PlaybackState(
+        controls: [
+          if (playing) MediaControl.pause else MediaControl.play,
+          MediaControl.stop,
+        ],
+        systemActions: const {
+          MediaAction.play,
+          MediaAction.pause,
+          MediaAction.stop,
+        },
+        androidCompactActionIndices: const [0],
+        processingState: AudioProcessingState.ready,
+        playing: playing,
+      ),
+    );
+  }
+
+  Future<void> hide() => super.stop();
+
+  @override
+  Future<void> play() async => _commands.add(MediaCommand.play);
+
+  @override
+  Future<void> pause() async => _commands.add(MediaCommand.pause);
+
+  @override
+  Future<void> stop() async => _commands.add(MediaCommand.stop);
+}
+
+/// [BackgroundAudio] that does nothing; used in tests.
+@visibleForTesting
+class NoBackgroundAudio implements BackgroundAudio {
+  @override
+  Stream<MediaCommand> get commands => const Stream.empty();
+
+  @override
+  Future<void> show(
+    MediaState state, {
+    required String title,
+    String text = '',
+  }) async {}
+}

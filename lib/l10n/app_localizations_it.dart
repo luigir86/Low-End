@@ -19,14 +19,72 @@ class AppLocalizationsIt extends AppLocalizations {
   String get metronomeTab => 'Metronomo';
 
   @override
-  String get comingSoon => 'In arrivo';
-
-  @override
-  String get metronomeDescription =>
-      'Metronomo preciso con accenti e suddivisioni.';
-
-  @override
   String get droneMode => 'Drone';
+
+  @override
+  String get metronomeStart => 'Avvia il metronomo';
+
+  @override
+  String get metronomeStop => 'Ferma il metronomo';
+
+  @override
+  String get metronomeHint => 'Tocca per iniziare';
+
+  @override
+  String bpmValue(String bpm) {
+    return '$bpm BPM';
+  }
+
+  @override
+  String get timeSignature => 'Misura';
+
+  @override
+  String get backgroundPlaying => 'In riproduzione in background';
+
+  @override
+  String get holdToToggle => 'Tieni premuto per avviare o fermare';
+
+  @override
+  String get slower => 'Più lento';
+
+  @override
+  String get faster => 'Più veloce';
+
+  @override
+  String get tapTempo => 'Batti il tempo';
+
+  @override
+  String get droneStop => 'Ferma il drone';
+
+  @override
+  String get progressionLabel => 'Progressione';
+
+  @override
+  String get progressionMinorTwoFiveOne => 'II–V–I minore';
+
+  @override
+  String get progressionBlues => 'Blues in 12 battute';
+
+  @override
+  String get addSevenths => 'Aggiungi la settima agli accordi';
+
+  @override
+  String degreeOf(String degree, String key) {
+    return '$degree di $key';
+  }
+
+  @override
+  String droneChordDiminished(String note) {
+    return '$note diminuito';
+  }
+
+  @override
+  String get balanceLabel => 'Bilanciamento tra metronomo e drone';
+
+  @override
+  String balanceValue(String metronome, String drone) {
+    return 'Metronomo $metronome%, drone $drone%';
+  }
 
   @override
   String get referencePitch => 'La di riferimento';
@@ -42,11 +100,6 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String droneNowPlaying(String note) {
-    return 'Drone · $note';
-  }
-
-  @override
   String stopSound(String name) {
     return 'Ferma $name';
   }
@@ -55,9 +108,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String playSound(String name) {
     return 'Suona $name';
   }
-
-  @override
-  String get droneShortcutHint => 'Esercitati con drone e metronomo insieme.';
 
   @override
   String get droneHint =>
@@ -162,6 +212,27 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get aboutDescription =>
       'Accordatore, drone e metronomo per contrabbasso e basso elettrico. Low End funziona offline: il microfono si usa solo mentre l\'accordatore ascolta, e nessun suono o dato esce dal telefono.';
+
+  @override
+  String get aboutPiano =>
+      'Suoni del pianoforte: Salamander Grand Piano di Alexander Holm (pubblico dominio).';
+
+  @override
+  String get styleLabel => 'Stile';
+
+  @override
+  String get styleHeld => 'Accordo a ogni battuta';
+
+  @override
+  String get styleBeat => 'Accordo a ogni beat';
+
+  @override
+  String get styleArpeggio => 'Arpeggio';
+
+  @override
+  String styleTempo(int bpm, String signature) {
+    return 'Segue il metronomo: $bpm BPM, $signature';
+  }
 
   @override
   String aboutSource(String url) {

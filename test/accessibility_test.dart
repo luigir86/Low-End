@@ -35,6 +35,9 @@ Future<void> pumpApp(
     LowEndApp(toneOutput: SilentToneOutput(), micInput: mic ?? FakeMicInput()),
   );
   await tester.pumpAndSettle();
+  // The app opens on the metronome; these checks start from the tuner.
+  await tester.tap(find.text('Tuner'));
+  await tester.pumpAndSettle();
 }
 
 void main() {

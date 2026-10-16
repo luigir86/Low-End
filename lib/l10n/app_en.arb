@@ -3,9 +3,60 @@
   "appTitle": "Low End",
   "tunerTab": "Tuner",
   "metronomeTab": "Metronome",
-  "comingSoon": "Coming soon",
-  "metronomeDescription": "Precise metronome with accents and subdivisions.",
   "droneMode": "Drone",
+  "metronomeStart": "Start the metronome",
+  "metronomeStop": "Stop the metronome",
+  "metronomeHint": "Tap to start",
+  "bpmValue": "{bpm} BPM",
+  "@bpmValue": {
+    "placeholders": {
+      "bpm": {
+        "type": "String"
+      }
+    }
+  },
+  "timeSignature": "Time signature",
+  "backgroundPlaying": "Playing in the background",
+  "holdToToggle": "Hold to start or stop",
+  "slower": "Slower",
+  "faster": "Faster",
+  "tapTempo": "Tap the tempo",
+  "droneStop": "Stop the drone",
+  "progressionLabel": "Progression",
+  "progressionMinorTwoFiveOne": "II–V–I minor",
+  "progressionBlues": "12-bar blues",
+  "addSevenths": "Add the seventh to the chords",
+  "degreeOf": "{degree} of {key}",
+  "@degreeOf": {
+    "placeholders": {
+      "degree": {
+        "type": "String"
+      },
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "droneChordDiminished": "{note} diminished",
+  "@droneChordDiminished": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "balanceLabel": "Metronome and drone balance",
+  "balanceValue": "Metronome {metronome}%, drone {drone}%",
+  "@balanceValue": {
+    "placeholders": {
+      "metronome": {
+        "type": "String"
+      },
+      "drone": {
+        "type": "String"
+      }
+    }
+  },
   "referencePitch": "Reference A",
   "referencePitchHint": "The frequency of {note}, for the tuner and the drone.",
   "@referencePitchHint": {
@@ -19,14 +70,6 @@
   "@frequencyHz": {
     "placeholders": {
       "frequency": {
-        "type": "String"
-      }
-    }
-  },
-  "droneNowPlaying": "Drone · {note}",
-  "@droneNowPlaying": {
-    "placeholders": {
-      "note": {
         "type": "String"
       }
     }
@@ -47,7 +90,6 @@
       }
     }
   },
-  "droneShortcutHint": "Practise with the drone and the click together.",
   "droneHint": "Touch a note to play it. Touch it again to stop.",
   "rootOnly": "Root",
   "chordLabel": "Chord",
@@ -107,6 +149,18 @@
   "aboutTooltip": "About Low End",
   "aboutLegalese": "Free and open-source software, released under the MIT License.",
   "aboutDescription": "Tuner, drone and metronome for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.",
+  "aboutPiano": "Piano sounds: Salamander Grand Piano by Alexander Holm (public domain).",
+  "styleLabel": "Style",
+  "styleHeld": "Chord every bar",
+  "styleBeat": "Chord on every beat",
+  "styleArpeggio": "Arpeggio",
+  "styleTempo": "Follows the metronome: {bpm} BPM, {signature}",
+  "@styleTempo": {
+    "placeholders": {
+      "bpm": {"type": "int"},
+      "signature": {"type": "String"}
+    }
+  },
   "aboutSource": "Source code: {url}",
   "@aboutSource": {
     "placeholders": {

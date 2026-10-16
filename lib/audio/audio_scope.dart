@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../actions/app_actions.dart';
 import '../app/app_navigation.dart';
 import '../app/settings.dart';
+import '../features/metronome/metronome_controller.dart';
 import '../features/tuner/drone/drone_controller.dart';
 import '../features/tuner/tuner_controller.dart';
 
@@ -13,6 +14,7 @@ class AudioScope extends InheritedWidget {
   const AudioScope({
     super.key,
     required this.drone,
+    required this.metronome,
     required this.tuner,
     required this.navigation,
     required this.actions,
@@ -21,6 +23,7 @@ class AudioScope extends InheritedWidget {
   });
 
   final DroneController drone;
+  final MetronomeController metronome;
   final TunerController tuner;
   final AppNavigation navigation;
   final AppActions actions;
@@ -35,6 +38,7 @@ class AudioScope extends InheritedWidget {
   @override
   bool updateShouldNotify(AudioScope oldWidget) =>
       drone != oldWidget.drone ||
+      metronome != oldWidget.metronome ||
       tuner != oldWidget.tuner ||
       navigation != oldWidget.navigation ||
       actions != oldWidget.actions ||

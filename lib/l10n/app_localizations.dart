@@ -116,23 +116,125 @@ abstract class AppLocalizations {
   /// **'Metronome'**
   String get metronomeTab;
 
-  /// No description provided for @comingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Coming soon'**
-  String get comingSoon;
-
-  /// No description provided for @metronomeDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Precise metronome with accents and subdivisions.'**
-  String get metronomeDescription;
-
   /// No description provided for @droneMode.
   ///
   /// In en, this message translates to:
   /// **'Drone'**
   String get droneMode;
+
+  /// No description provided for @metronomeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the metronome'**
+  String get metronomeStart;
+
+  /// No description provided for @metronomeStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop the metronome'**
+  String get metronomeStop;
+
+  /// No description provided for @metronomeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to start'**
+  String get metronomeHint;
+
+  /// No description provided for @bpmValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{bpm} BPM'**
+  String bpmValue(String bpm);
+
+  /// No description provided for @timeSignature.
+  ///
+  /// In en, this message translates to:
+  /// **'Time signature'**
+  String get timeSignature;
+
+  /// No description provided for @backgroundPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing in the background'**
+  String get backgroundPlaying;
+
+  /// No description provided for @holdToToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold to start or stop'**
+  String get holdToToggle;
+
+  /// No description provided for @slower.
+  ///
+  /// In en, this message translates to:
+  /// **'Slower'**
+  String get slower;
+
+  /// No description provided for @faster.
+  ///
+  /// In en, this message translates to:
+  /// **'Faster'**
+  String get faster;
+
+  /// No description provided for @tapTempo.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the tempo'**
+  String get tapTempo;
+
+  /// No description provided for @droneStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop the drone'**
+  String get droneStop;
+
+  /// No description provided for @progressionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Progression'**
+  String get progressionLabel;
+
+  /// No description provided for @progressionMinorTwoFiveOne.
+  ///
+  /// In en, this message translates to:
+  /// **'II–V–I minor'**
+  String get progressionMinorTwoFiveOne;
+
+  /// No description provided for @progressionBlues.
+  ///
+  /// In en, this message translates to:
+  /// **'12-bar blues'**
+  String get progressionBlues;
+
+  /// No description provided for @addSevenths.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the seventh to the chords'**
+  String get addSevenths;
+
+  /// No description provided for @degreeOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{degree} of {key}'**
+  String degreeOf(String degree, String key);
+
+  /// No description provided for @droneChordDiminished.
+  ///
+  /// In en, this message translates to:
+  /// **'{note} diminished'**
+  String droneChordDiminished(String note);
+
+  /// No description provided for @balanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Metronome and drone balance'**
+  String get balanceLabel;
+
+  /// No description provided for @balanceValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Metronome {metronome}%, drone {drone}%'**
+  String balanceValue(String metronome, String drone);
 
   /// No description provided for @referencePitch.
   ///
@@ -152,12 +254,6 @@ abstract class AppLocalizations {
   /// **'{frequency} Hz'**
   String frequencyHz(String frequency);
 
-  /// No description provided for @droneNowPlaying.
-  ///
-  /// In en, this message translates to:
-  /// **'Drone · {note}'**
-  String droneNowPlaying(String note);
-
   /// No description provided for @stopSound.
   ///
   /// In en, this message translates to:
@@ -169,12 +265,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Play {name}'**
   String playSound(String name);
-
-  /// No description provided for @droneShortcutHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Practise with the drone and the click together.'**
-  String get droneShortcutHint;
 
   /// No description provided for @droneHint.
   ///
@@ -355,6 +445,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tuner, drone and metronome for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.'**
   String get aboutDescription;
+
+  /// No description provided for @aboutPiano.
+  ///
+  /// In en, this message translates to:
+  /// **'Piano sounds: Salamander Grand Piano by Alexander Holm (public domain).'**
+  String get aboutPiano;
+
+  /// No description provided for @styleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Style'**
+  String get styleLabel;
+
+  /// No description provided for @styleHeld.
+  ///
+  /// In en, this message translates to:
+  /// **'Chord every bar'**
+  String get styleHeld;
+
+  /// No description provided for @styleBeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chord on every beat'**
+  String get styleBeat;
+
+  /// No description provided for @styleArpeggio.
+  ///
+  /// In en, this message translates to:
+  /// **'Arpeggio'**
+  String get styleArpeggio;
+
+  /// No description provided for @styleTempo.
+  ///
+  /// In en, this message translates to:
+  /// **'Follows the metronome: {bpm} BPM, {signature}'**
+  String styleTempo(int bpm, String signature);
 
   /// No description provided for @aboutSource.
   ///

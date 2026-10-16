@@ -108,6 +108,10 @@ void main() {
       LowEndApp(toneOutput: SilentToneOutput(), micInput: mic),
     );
     await tester.pumpAndSettle();
+    // The app opens on the metronome, with the microphone off.
+    expect(mic.isCapturing, isFalse);
+    await tester.tap(find.text('Tuner'));
+    await tester.pumpAndSettle();
     // Opening the tuner starts listening right away.
     expect(mic.isCapturing, isTrue);
     expect(find.text('Play a note'), findsOneWidget);

@@ -12,8 +12,11 @@ The actions live in [`lib/actions/app_actions.dart`](../lib/actions/app_actions.
 | `open_section` | Shows `tuner`, `drone` or `metronome` |
 | `tuner_start` | Opens the chromatic tuner and listens: it names any note played |
 | `tuner_stop` | Pauses the tuner, like the Pause button: it stays paused until `tuner_start` |
-| `drone_play` | Plays the drone in the middle octave, applying `note` (A, Bb, Sol…), `voicing` (`root` or `chord`) and `chord` (`major`, `minor`, `seventh`; the seventh is tuned to 16/9, the pure ratio closest to the minor seventh a bassist plays) |
+| `drone_play` | Plays the drone in the middle octave, applying `note` (A, Bb, Sol…: the root, or the key of a progression), `voicing` (`root`, `chord` or `progression`), `chord` (`major`, `minor`, `seventh`), `progression` (`twoFiveOne`, `minorTwoFiveOne`, `oneFourFive`, `oneSixFourFive`, `blues`; one chord per bar at the metronome tempo) and `style` (`held`, `beat`, `arpeggio`: the piano strikes the chord once a bar, on every beat, or plays an arpeggio, at the metronome tempo and time signature) and `sevenths` (adds the seventh: maj7, m7, 7, m7b5). The sound is a piano, in equal temperament |
 | `drone_stop` | Stops the drone |
+| `metronome_start` | Opens the metronome and starts it in 4/4, optionally at `bpm` (30–250) |
+| `metronome_stop` | Stops the metronome |
+| `metronome_set` | Sets the tempo, `bpm`, without starting or stopping it |
 | `drone_set` | Changes the drone settings without starting or stopping it |
 | `set_reference_pitch` | A4 from 438 to 445 Hz, saved in the settings |
 | `settings_set` | App `language` (`system`, `en`, `it`) and `note_names` (`auto`, `solfege`, `letters`) |
