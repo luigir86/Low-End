@@ -200,6 +200,13 @@ void main() {
         await h.start();
         await h.tab('Metronome', 'Metronomo');
         await h.shot('metronome_idle');
+        // A bar of one beat is a whole ring.
+        await h.tapText('4/4');
+        await h.tapText('1/1');
+        await h.shot('metronome_1_1_idle');
+        await h.tapText(h.t('Tap to start', 'Tocca per avviare'));
+        await h.shot('metronome_1_1_beat');
+        await h.tapText('80');
         await h.tester.tap(find.byTooltip(h.t('Settings', 'Impostazioni')));
         await h._settle();
         await h.shot('settings_1_top');

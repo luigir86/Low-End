@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../app/settings.dart';
+import '../../../app/style.dart';
 import '../../../app/theme.dart';
 import '../../../audio/audio_scope.dart';
 import '../../../audio/pitch.dart';
@@ -382,7 +383,7 @@ class _NoteKey extends StatelessWidget {
                     if (respelling != null)
                       Text(
                         respelling,
-                        style: theme.textTheme.labelSmall?.copyWith(
+                        style: theme.textTheme.labelMedium?.copyWith(
                           color: playing
                               ? colors.onPrimary
                               : inChord
@@ -440,7 +441,7 @@ class _DialCenter extends StatelessWidget {
                 TextSpan(text: rootName),
                 TextSpan(
                   text: '${root.octaveIn(names)}',
-                  style: TextStyle(fontSize: (noteStyle?.fontSize ?? 45) * 0.4),
+                  style: LowEndType.octave(noteStyle),
                 ),
               ],
             ),

@@ -13,12 +13,12 @@ The tabs at the bottom are **Metronome**, **Harmony** and **Tuner**. The app ope
 - A **pulsing dot** on a tab says that section is making sound: the metronome and the harmony while they play, the tuner while it listens.
 - The first time you open the app a short **gesture guide** appears. It is also in *Settings → Gestures and shortcuts*.
 
-The volume is the phone's: use its volume keys. The slider at the bottom of the Metronome and Harmony sections only balances one against the other.
+The volume is the phone's: use its volume keys. The slider at the bottom of the Metronome and Harmony sections only balances one against the other: touch an icon to go all the way to that side, the middle to have both at full level.
 
 ## Metronome
 
 - **Start and stop**: touch the ring or the number in the middle. The ring lights up beat by beat, with the first beat marked, and a woodblock click keeps the time.
-- **Tempo**: from 30 to 250 BPM. Touch the ♩ BPM label under the dial to type it; touch **−** or **+** to move by one, or hold them to move in steps of 5 and 10; or tap **TAP** in the rhythm you want.
+- **Tempo**: from 30 to 250 BPM. Touch the pencil to type it; touch **+** or **−** to move by one, or hold them to move in steps of 5 and 10; or tap **TAP** in the rhythm you want.
 - **Time signature**: 1/1 (one click per bar, to keep a tempo without counting), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8. In 6/8, 9/8 and 12/8 the tempo counts dotted quarter notes (♩.), the way you conduct them; in 7/8 it counts eighths.
 - Changing the tempo or the time signature while it plays takes effect at once, without a gap.
 

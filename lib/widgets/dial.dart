@@ -58,15 +58,29 @@ class DialGeometry {
   }) {
     final rIn = inner ?? ringInner, rOut = outer ?? ringOuter;
     final start = startAngle - math.pi / 2;
-    final path = Path()
-      ..arcTo(Rect.fromCircle(center: center, radius: rOut), start, sweep, true)
-      ..arcTo(
-        Rect.fromCircle(center: center, radius: rIn),
-        start + sweep,
-        -sweep,
-        false,
-      )
-      ..close();
+    final Path path;
+    if (sweep >= 2 * math.pi - 1e-6) {
+      // A whole ring, with no gap (a bar of one beat): two circles.
+      path = Path()
+        ..fillType = PathFillType.evenOdd
+        ..addOval(Rect.fromCircle(center: center, radius: rOut))
+        ..addOval(Rect.fromCircle(center: center, radius: rIn));
+    } else {
+      path = Path()
+        ..arcTo(
+          Rect.fromCircle(center: center, radius: rOut),
+          start,
+          sweep,
+          true,
+        )
+        ..arcTo(
+          Rect.fromCircle(center: center, radius: rIn),
+          start + sweep,
+          -sweep,
+          false,
+        )
+        ..close();
+    }
     final paint = Paint()..color = color;
     // With a [stroke] width, only the outline.
     if (stroke != null) {
@@ -135,7 +149,7 @@ class DialLayout extends StatelessWidget {
 
   /// Minimum heights of the two rows, and the room they take with their
   /// spacing; with large text a row grows and the screen scrolls.
-  static const upperHeight = 88.0;
+  static const upperHeight = 96.0;
   static const lowerHeight = 64.0;
   static const footerHeight = 68.0;
   static const _controlsRoom = upperHeight + lowerHeight + footerHeight + 88;

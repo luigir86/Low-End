@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'style.dart';
+
 /// Low End's look, in one place: change a colour, a radius or a font weight
 /// here and every screen follows, like the variables of a CSS stylesheet.
 ///
@@ -119,7 +121,7 @@ class LowEndColors extends ThemeExtension<LowEndColors> {
 }
 
 abstract final class LowEndTheme {
-  static const radius = 16.0;
+  static const radius = LowEndShape.radius;
 
   static const _lightScheme = ColorScheme(
     brightness: Brightness.light,
@@ -205,6 +207,7 @@ abstract final class LowEndTheme {
       fontFamily: 'Edwin',
       fontFamilyFallback: const ['NotoMusic'],
       colorScheme: scheme,
+      textTheme: LowEndType.textTheme,
       scaffoldBackgroundColor: scheme.surface,
       extensions: [colors],
       appBarTheme: AppBarTheme(
@@ -221,6 +224,15 @@ abstract final class LowEndTheme {
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => TextStyle(
+            fontSize: LowEndType.small,
+            color: scheme.onSurface,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w700
+                : FontWeight.w500,
+          ),
+        ),
         backgroundColor: scheme.surfaceContainer,
         indicatorColor: scheme.primaryContainer,
         surfaceTintColor: Colors.transparent,

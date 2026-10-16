@@ -15,6 +15,7 @@ import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/piano_output.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
 import 'package:low_end/audio/tone_output.dart';
+import 'package:low_end/widgets/balance_slider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:low_end/widgets/pulsing_dot.dart';
 
@@ -636,7 +637,7 @@ void main() {
     await tester.pumpAndSettle();
     final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
 
-    await tester.tap(find.text('♩ BPM'));
+    await tester.tap(find.byIcon(Icons.edit_outlined));
     await tester.pumpAndSettle();
     expect(find.text('Type the tempo'), findsOneWidget);
     await tester.enterText(find.byType(TextField), '132');
@@ -646,25 +647,58 @@ void main() {
     expect(find.text('Type the tempo'), findsNothing);
 
     // Too fast is brought back to the limit, and a preset sets it at once.
-    await tester.tap(find.text('♩ BPM'));
+    await tester.tap(find.byIcon(Icons.edit_outlined));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), '999');
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
     expect(scope.metronome.bpm, MetronomeController.maxBpm);
-    await tester.tap(find.text('♩ BPM'));
+    await tester.tap(find.byIcon(Icons.edit_outlined));
     await tester.pumpAndSettle();
     await tester.tap(find.text('60').last);
     await tester.pumpAndSettle();
     expect(scope.metronome.bpm, 60);
 
     // Cancelling leaves it as it was.
-    await tester.tap(find.text('♩ BPM'));
+    await tester.tap(find.byIcon(Icons.edit_outlined));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), '90');
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
     expect(scope.metronome.bpm, 60);
+  });
+
+  testWidgets('the balance slider: icons go to the sides, the middle sticks', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.625;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      LowEndApp(toneOutput: SilentToneOutput(), micInput: FakeMicInput()),
+    );
+    await tester.pumpAndSettle();
+    final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
+    Finder inSlider(IconData icon) => find.descendant(
+      of: find.byType(BalanceSlider),
+      matching: find.byIcon(icon),
+    );
+
+    await tester.tap(inSlider(Icons.graphic_eq));
+    await tester.pump();
+    expect(scope.settings.balance, 1);
+    await tester.tap(inSlider(Icons.timer_outlined));
+    await tester.pump();
+    expect(scope.settings.balance, -1);
+
+    // Near the middle the slider stops in the middle; elsewhere it follows.
+    final slider = tester.widget<Slider>(find.byType(Slider));
+    slider.onChanged!(0.1);
+    expect(scope.settings.balance, 0);
+    slider.onChanged!(-0.1);
+    expect(scope.settings.balance, 0);
+    slider.onChanged!(0.3);
+    expect(scope.settings.balance, 0.3);
   });
 }
 

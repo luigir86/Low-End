@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+import '../../app/style.dart';
 import '../../app/theme.dart';
 import '../../audio/audio_scope.dart';
 import '../../l10n/app_localizations.dart';
@@ -18,7 +19,7 @@ import 'time_signature.dart';
 /// in its own colour, and the tempo in the middle. In bars felt in groups
 /// (6/8) wider gaps split the groups, and a bar of one beat is a single
 /// segment that flashes. Touching the ring starts and stops it; below it,
-/// − and + (and a touch on the unit to type the tempo) and TAP.
+/// the time signature, TAP, + over − and a pencil to type the tempo.
 class MetronomeScreen extends StatelessWidget {
   const MetronomeScreen({super.key});
 
@@ -31,30 +32,29 @@ class MetronomeScreen extends StatelessWidget {
       listenable: metronome,
       builder: (context, _) => DialLayout(
         dial: _BeatRing(metronome: metronome),
-        upper: Column(
-          mainAxisSize: MainAxisSize.min,
+        // One row for everything under the dial: the time signature, TAP
+        // (in the middle, it matters most), + over − and the pencil.
+        upper: Row(
           children: [
+            // They share the row, so large text shrinks them instead of
+            // pushing the buttons out of the screen.
+            Expanded(flex: 5, child: _SignatureButton(metronome: metronome)),
+            const SizedBox(width: 8),
+            Expanded(flex: 4, child: _TapButton(metronome: metronome)),
+            const SizedBox(width: 8),
             _TempoControls(metronome: metronome),
-            if (metronome.audioFailed)
-              Semantics(
+          ],
+        ),
+        lower: metronome.audioFailed
+            ? Semantics(
                 liveRegion: true,
                 child: Text(
                   l10n.audioUnavailable,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: theme.colorScheme.error),
                 ),
-              ),
-          ],
-        ),
-        lower: Row(
-          children: [
-            // Both share the row, so large text shrinks them instead of
-            // pushing TAP out of the screen.
-            Flexible(flex: 2, child: _SignatureButton(metronome: metronome)),
-            const SizedBox(width: 12),
-            Expanded(flex: 3, child: _TapButton(metronome: metronome)),
-          ],
-        ),
+              )
+            : const SizedBox.shrink(),
         footer: const BalanceSlider(),
       ),
     );
@@ -232,8 +232,14 @@ class _RingPainter extends CustomPainter {
     for (var b = 0; b < count; b++) {
       final opens = signature.grouped && signature.accent(b) < 2;
       final closes = signature.grouped && signature.accent((b + 1) % count) < 2;
-      final start = DialGeometry.gap / 2 + (opens ? groupGap / 2 : 0);
-      final end = DialGeometry.gap / 2 + (closes ? groupGap / 2 : 0);
+      // A bar of one beat is the whole ring, with no gap.
+      final whole = count == 1;
+      final start = whole
+          ? 0.0
+          : DialGeometry.gap / 2 + (opens ? groupGap / 2 : 0);
+      final end = whole
+          ? 0.0
+          : DialGeometry.gap / 2 + (closes ? groupGap / 2 : 0);
       // Beat 0 starts at 12 o'clock, then clockwise.
       var color = colors.outlineVariant;
       var flash = false;
@@ -297,9 +303,7 @@ class _Hub extends StatelessWidget {
       children: [
         Text(
           '$number',
-          style: theme.textTheme.displayLarge?.copyWith(
-            fontSize: 76,
-            height: 1.05,
+          style: theme.textTheme.displayMedium?.copyWith(
             fontWeight: FontWeight.w600,
             color: waiting
                 ? theme.colorScheme.onSurfaceVariant
@@ -307,11 +311,15 @@ class _Hub extends StatelessWidget {
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),
-        // Stopped: what touching does.
-        if (!playing && !waiting)
+        // What touching does, or the figure the tempo counts: "♩ BPM",
+        // "♩. BPM · ♪ = 180" in 6/8.
+        if (!waiting)
           Text(
-            l10n.metronomeHint,
-            style: theme.textTheme.titleMedium?.copyWith(
+            playing
+                ? tempoUnitCaption(metronome.signature, metronome.bpm)
+                : l10n.metronomeHint,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
@@ -336,7 +344,8 @@ String beatUnitName(AppLocalizations l10n, BeatUnit unit) => switch (unit) {
   BeatUnit.eighth => l10n.beatUnitEighth,
 };
 
-/// − BPM +, with the buttons repeating while held.
+/// + over − (repeating while held) and a pencil that opens the keyboard to
+/// type the tempo.
 class _TempoControls extends StatelessWidget {
   const _TempoControls({required this.metronome});
 
@@ -345,99 +354,62 @@ class _TempoControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        _RepeatButton(
-          icon: Icons.remove,
-          tooltip: l10n.slower,
-          onStep: metronome.bpm > MetronomeController.minBpm
-              ? () => metronome.step(-1)
-              : null,
-          onHold: (unit) => metronome.nudge(-1, unit),
-        ),
-        Flexible(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 140),
-            // The number is in the hub, which starts and stops: touching
-            // the unit under it here opens the keyboard to type the tempo.
-            child: MergeSemantics(
-              child: Semantics(
-                liveRegion: true,
-                button: true,
-                label: l10n.bpmValue('${metronome.bpm}'),
-                hint: l10n.setTempo,
-                onTap: () => showTempoDialog(context, metronome),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () => showTempoDialog(context, metronome),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 12,
-                    ),
-                    child: Align(
-                      widthFactor: 1,
-                      heightFactor: 1,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.edit_outlined,
-                            size: 18,
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                          const SizedBox(width: 8),
-                          // The figure the tempo counts: "♩. BPM" in 6/8, with
-                          // the eighths it makes.
-                          Flexible(
-                            child: FittedBox(
-                              child: Text(
-                                tempoUnitCaption(
-                                  metronome.signature,
-                                  metronome.bpm,
-                                ),
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _RepeatButton(
+              icon: Icons.add,
+              tooltip: l10n.faster,
+              top: true,
+              onStep: metronome.bpm < metronome.maxTempo
+                  ? () => metronome.step(1)
+                  : null,
+              onHold: (unit) => metronome.nudge(1, unit),
             ),
-          ),
+            _RepeatButton(
+              icon: Icons.remove,
+              tooltip: l10n.slower,
+              top: false,
+              onStep: metronome.bpm > MetronomeController.minBpm
+                  ? () => metronome.step(-1)
+                  : null,
+              onHold: (unit) => metronome.nudge(-1, unit),
+            ),
+          ],
         ),
-        _RepeatButton(
-          icon: Icons.add,
-          tooltip: l10n.faster,
-          onStep: metronome.bpm < metronome.maxTempo
-              ? () => metronome.step(1)
-              : null,
-          onHold: (unit) => metronome.nudge(1, unit),
+        IconButton(
+          icon: const Icon(Icons.edit_outlined),
+          tooltip: l10n.setTempo,
+          constraints: BoxConstraints.tightFor(
+            width: LowEndShape.control,
+            height: LowEndShape.control,
+          ),
+          onPressed: () => showTempoDialog(context, metronome),
         ),
       ],
     );
   }
 }
 
-/// A round button that steps by one when tapped, and when held keeps going
+/// A button of the + over − pair that steps by one when tapped, and when held keeps going
 /// by fives (to the next multiple of 5), then by tens after a couple of
 /// seconds.
 class _RepeatButton extends StatefulWidget {
   const _RepeatButton({
     required this.icon,
     required this.tooltip,
+    required this.top,
     required this.onStep,
     required this.onHold,
   });
 
   final IconData icon;
+
+  /// The upper button of the pair: rounded above, almost square below.
+  final bool top;
   final String tooltip;
   final VoidCallback? onStep;
 
@@ -491,8 +463,19 @@ class _RepeatButtonState extends State<_RepeatButton> {
       onLongPressEnd: (_) => _stopRepeat(),
       onLongPressCancel: _stopRepeat,
       child: IconButton.outlined(
-        iconSize: 28,
-        constraints: const BoxConstraints.tightFor(width: 64, height: 64),
+        iconSize: 24,
+        constraints: BoxConstraints.tightFor(
+          width: LowEndShape.control,
+          height: LowEndShape.control,
+        ),
+        style: IconButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(widget.top ? LowEndShape.radius : 4),
+              bottom: Radius.circular(widget.top ? 4 : LowEndShape.radius),
+            ),
+          ),
+        ),
         icon: Icon(widget.icon),
         tooltip: widget.tooltip,
         onPressed: widget.onStep,
@@ -532,7 +515,7 @@ class _SignatureButton extends StatelessWidget {
               fit: BoxFit.scaleDown,
               child: Text(
                 l10n.timeSignature,
-                style: Theme.of(context).textTheme.labelSmall,
+                style: Theme.of(context).textTheme.labelMedium,
               ),
             ),
             FittedBox(fit: BoxFit.scaleDown, child: Text(signature.label)),
@@ -616,7 +599,7 @@ class _TapButtonState extends State<_TapButton> {
               textStyle: Theme.of(context).textTheme.titleLarge
                   ?.copyWith(fontWeight: FontWeight.w700, letterSpacing: 2),
             ),
-            child: const Text('TAP'),
+            child: const FittedBox(fit: BoxFit.scaleDown, child: Text('TAP')),
           ),
         ),
       ),

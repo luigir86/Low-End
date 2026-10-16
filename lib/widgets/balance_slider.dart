@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../app/style.dart';
 import '../audio/audio_scope.dart';
 import '../l10n/app_localizations.dart';
 
@@ -18,21 +19,30 @@ class BalanceSlider extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final muted = theme.colorScheme.onSurfaceVariant;
-    Widget side(IconData icon, String name) => ExcludeSemantics(
+    // Touching an icon sends the slider all the way to that side; the
+    // slider itself speaks for screen readers.
+    Widget side(IconData icon, String name, double balance) => ExcludeSemantics(
       child: SizedBox(
         width: _sideWidth,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: muted),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                name,
-                style: theme.textTheme.labelSmall?.copyWith(color: muted),
-              ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(LowEndShape.radius),
+          onTap: () => settings.setBalance(balance),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: muted),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    name,
+                    style: theme.textTheme.labelMedium?.copyWith(color: muted),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -48,7 +58,7 @@ class BalanceSlider extends StatelessWidget {
           children: [
             // The same icons and names as the tabs; the slider speaks for
             // both.
-            side(Icons.timer_outlined, l10n.metronomeTab),
+            side(Icons.timer_outlined, l10n.metronomeTab, -1),
             Expanded(
               child: Semantics(
                 label: l10n.balanceLabel,
@@ -79,7 +89,10 @@ class BalanceSlider extends StatelessWidget {
                         // again.
                         divisions: 20,
                         value: settings.balance,
-                        onChanged: settings.setBalance,
+                        // Near the middle it stops there: both at full level is
+                        // what most players want, and the hardest to hit.
+                        onChanged: (v) =>
+                            settings.setBalance(v.abs() <= 0.1 ? 0 : v),
                         semanticFormatterCallback: (_) => value,
                       ),
                     ],
@@ -87,7 +100,7 @@ class BalanceSlider extends StatelessWidget {
                 ),
               ),
             ),
-            side(Icons.graphic_eq, l10n.harmonyTab),
+            side(Icons.graphic_eq, l10n.harmonyTab, 1),
           ],
         );
         // The two icons and names say what it balances; the Semantics label

@@ -13,12 +13,12 @@ Le schede in basso sono **Metronomo**, **Armonia** e **Accordatore**. L'app si a
 - Un **pallino che pulsa** su una scheda dice che quella sezione sta suonando: il metronomo e l'armonia mentre suonano, l'accordatore mentre ascolta.
 - La prima volta compare una breve **guida ai gesti**; la ritrovi in *Impostazioni → Gesti e scorciatoie*.
 
-Il volume è quello del telefono: usa i suoi tasti. Il cursore in basso, in Metronomo e Armonia, bilancia solo l'uno rispetto all'altra.
+Il volume è quello del telefono: usa i suoi tasti. Il cursore in basso, in Metronomo e Armonia, bilancia solo l'uno rispetto all'altra: tocca un'icona per andare tutto da quella parte, il centro per averli entrambi al massimo.
 
 ## Metronomo
 
 - **Avvio e stop**: tocca l'anello o il numero al centro. L'anello si accende movimento per movimento, con il primo tempo in evidenza, e un click di woodblock tiene il tempo.
-- **Tempo**: da 30 a 250 BPM. Tocca la scritta ♩ BPM sotto il cerchio per scriverlo; tocca **−** o **+** per spostarti di uno, oppure tienili premuti per andare a passi di 5 e 10; oppure batti **TAP** al ritmo che vuoi.
+- **Tempo**: da 30 a 250 BPM. Tocca la matita per scriverlo; tocca **+** o **−** per spostarti di uno, oppure tienili premuti per andare a passi di 5 e 10; oppure batti **TAP** al ritmo che vuoi.
 - **Misura**: 1/1 (un solo click a battuta, per tenere un tempo senza contare), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 e 12/8. In 6/8, 9/8 e 12/8 il tempo conta le semiminime puntate (♩.), come si dirige; in 7/8 conta le crome.
 - Se cambi tempo o misura mentre suona, il cambio è immediato e senza stacchi.
 
