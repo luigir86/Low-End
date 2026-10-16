@@ -6,6 +6,8 @@ The actions live in [`lib/actions/app_actions.dart`](../lib/actions/app_actions.
 
 ## Actions
 
+The section the app shows as **Harmony** (Armonia) keeps its original action names: `drone_play`, `drone_stop`, `drone_set` and the section id `drone`.
+
 | Action | What it does |
 |---|---|
 | `get_state` | Section on screen, tuner (status, last note, cents off, in tune), drone (playing, note, root or chord), settings (reference A, language, note names) |

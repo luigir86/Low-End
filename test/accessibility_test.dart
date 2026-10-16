@@ -40,6 +40,17 @@ Future<void> pumpApp(
   await tester.pumpAndSettle();
 }
 
+/// The Harmony and Metronome tabs: their names are also under the balance
+/// slider.
+final _harmonyTab = find.descendant(
+  of: find.byType(NavigationBar),
+  matching: find.text('Harmony'),
+);
+final _metronomeTab = find.descendant(
+  of: find.byType(NavigationBar),
+  matching: find.text('Metronome'),
+);
+
 void main() {
   for (final mode in [ThemeMode.light, ThemeMode.dark]) {
     testWidgets('every screen meets the guidelines (${mode.name} theme)', (
@@ -60,11 +71,11 @@ void main() {
         await expectAccessible(tester);
       }
 
-      await tester.tap(find.text('Drone').first);
+      await tester.tap(_harmonyTab.first);
       await tester.pumpAndSettle();
       await expectAccessible(tester);
 
-      await tester.tap(find.text('Metronome'));
+      await tester.tap(_metronomeTab);
       await tester.pumpAndSettle();
       await expectAccessible(tester);
       handle.dispose();
@@ -94,7 +105,7 @@ void main() {
   ) async {
     final handle = tester.ensureSemantics();
     await pumpApp(tester);
-    await tester.tap(find.text('Drone').first);
+    await tester.tap(_harmonyTab.first);
     await tester.pumpAndSettle();
     // Each key says what a touch does.
     expect(find.bySemanticsLabel('Play A'), findsOneWidget);
@@ -112,13 +123,13 @@ void main() {
   testWidgets('screens fit with the largest text size', (tester) async {
     await pumpApp(tester, textScale: 2);
     expect(tester.takeException(), isNull);
-    await tester.tap(find.text('Drone').first);
+    await tester.tap(_harmonyTab.first);
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('A'));
     await tester.pump(const Duration(milliseconds: 300));
     expect(tester.takeException(), isNull);
-    await tester.tap(find.text('Metronome'));
+    await tester.tap(_metronomeTab);
     await tester.pump(const Duration(milliseconds: 300));
     expect(tester.takeException(), isNull);
   });

@@ -116,11 +116,11 @@ abstract class AppLocalizations {
   /// **'Metronome'**
   String get metronomeTab;
 
-  /// No description provided for @droneMode.
+  /// No description provided for @harmonyTab.
   ///
   /// In en, this message translates to:
-  /// **'Drone'**
-  String get droneMode;
+  /// **'Harmony'**
+  String get harmonyTab;
 
   /// No description provided for @metronomeStart.
   ///
@@ -185,7 +185,7 @@ abstract class AppLocalizations {
   /// No description provided for @droneStop.
   ///
   /// In en, this message translates to:
-  /// **'Stop the drone'**
+  /// **'Stop the harmony'**
   String get droneStop;
 
   /// No description provided for @progressionLabel.
@@ -224,16 +224,22 @@ abstract class AppLocalizations {
   /// **'{note} diminished'**
   String droneChordDiminished(String note);
 
+  /// No description provided for @balanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get balanceTitle;
+
   /// No description provided for @balanceLabel.
   ///
   /// In en, this message translates to:
-  /// **'Metronome and drone balance'**
+  /// **'Balance between the metronome and the harmony'**
   String get balanceLabel;
 
   /// No description provided for @balanceValue.
   ///
   /// In en, this message translates to:
-  /// **'Metronome {metronome}%, drone {drone}%'**
+  /// **'Metronome {metronome}%, harmony {drone}%'**
   String balanceValue(String metronome, String drone);
 
   /// No description provided for @referencePitch.
@@ -245,7 +251,7 @@ abstract class AppLocalizations {
   /// No description provided for @referencePitchHint.
   ///
   /// In en, this message translates to:
-  /// **'The frequency of {note}, for the tuner and the drone.'**
+  /// **'The frequency of {note}, for the tuner and the harmony.'**
   String referencePitchHint(String note);
 
   /// No description provided for @frequencyHz.
@@ -443,7 +449,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutDescription.
   ///
   /// In en, this message translates to:
-  /// **'Tuner, drone and metronome for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.'**
+  /// **'Metronome, harmony and tuner for double bass and electric bass. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.'**
   String get aboutDescription;
 
   /// No description provided for @aboutPiano.
@@ -602,18 +608,6 @@ abstract class AppLocalizations {
   /// **'No root'**
   String get shapeRootless;
 
-  /// No description provided for @balanceMetronome.
-  ///
-  /// In en, this message translates to:
-  /// **'Click'**
-  String get balanceMetronome;
-
-  /// No description provided for @balanceDrone.
-  ///
-  /// In en, this message translates to:
-  /// **'Piano'**
-  String get balanceDrone;
-
   /// No description provided for @guideTitle.
   ///
   /// In en, this message translates to:
@@ -647,14 +641,20 @@ abstract class AppLocalizations {
   /// No description provided for @guideDrone.
   ///
   /// In en, this message translates to:
-  /// **'In the drone, tap a note to play it. Hold C♯ or F♯ to write them D♭ or G♭.'**
+  /// **'In Harmony, tap a note to play it. Hold C♯ or F♯ to write them D♭ or G♭.'**
   String get guideDrone;
 
   /// No description provided for @guideTuner.
   ///
   /// In en, this message translates to:
-  /// **'The tuner listens by itself. Going there pauses the metronome and the drone.'**
+  /// **'The tuner listens by itself. Going there pauses the metronome and the harmony.'**
   String get guideTuner;
+
+  /// No description provided for @guideVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'The volume is the phone\'s: use its volume keys. The slider at the bottom only balances the metronome and the harmony.'**
+  String get guideVolume;
 
   /// No description provided for @guideDone.
   ///

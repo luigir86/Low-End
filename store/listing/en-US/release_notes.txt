@@ -1,1 +1,1 @@
-First release: metronome with time signatures, piano drone with chords and progressions, and a chromatic tuner for double bass and bass.
+First release: metronome with time signatures, piano harmony with chords and progressions, and a chromatic tuner for double bass and bass.

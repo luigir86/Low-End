@@ -134,7 +134,7 @@ class DialLayout extends StatelessWidget {
   /// spacing; with large text a row grows and the screen scrolls.
   static const upperHeight = 88.0;
   static const lowerHeight = 64.0;
-  static const footerHeight = 56.0;
+  static const footerHeight = 68.0;
   static const _controlsRoom = upperHeight + lowerHeight + footerHeight + 88;
 
   @override

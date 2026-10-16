@@ -241,7 +241,7 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
       final root = spell(_drone.rootPitchClass, _drone.rootLetter, names);
       final chord = _drone.currentChord;
       parts.add(
-        '${l10n.droneMode} '
+        '${l10n.harmonyTab} '
         '${chord == null ? root : chordSymbol(l10n, chord, root)}',
       );
     }

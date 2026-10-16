@@ -28,7 +28,7 @@ Raise `version:` in `pubspec.yaml` (the number after `+` must grow with every up
 
 | Field | Value |
 | --- | --- |
-| App name | Low End: Bass Tuner & Drone (it: Low End: accordatore e drone) |
+| App name | Low End: Metronome & Tuner (it: Low End: Metronomo Accordatore) |
 | Category | Music & Audio |
 | Free or paid | Free |
 | Contains ads | No |
@@ -39,7 +39,7 @@ Raise `version:` in `pubspec.yaml` (the number after `+` must grow with every up
 ## App content (declarations)
 
 - **Data safety**: the app collects **no data** and shares none. The microphone is processed on the phone and never stored or sent; the app has no network access (no `INTERNET` permission). Answer "No" to "Does your app collect or share any of the required user data types?". Data is not encrypted in transit because nothing is in transit.
-- **Permissions to explain**: `RECORD_AUDIO` (tuner), `FOREGROUND_SERVICE` + `FOREGROUND_SERVICE_MEDIA_PLAYBACK` (metronome and drone keep playing with the screen off, with a notification), `POST_NOTIFICATIONS` (that notification), `WAKE_LOCK` (keeps playback running; keeps the screen on if the player asks).
+- **Permissions to explain**: `RECORD_AUDIO` (tuner), `FOREGROUND_SERVICE` + `FOREGROUND_SERVICE_MEDIA_PLAYBACK` (metronome and harmony keep playing with the screen off, with a notification), `POST_NOTIFICATIONS` (that notification), `WAKE_LOCK` (keeps playback running; keeps the screen on if the player asks).
 - **Foreground service declaration**: type *Media playback*. Short video to attach: start the metronome, lock the screen, show the notification.
 - **Content rating** (IARC questionnaire): no violence, no sexual content, no gambling, no user-generated content, no sharing of location. Expected result: PEGI 3 / Everyone.
 - **Target audience**: 13 and over is the simplest choice (no ads, no data, but it is not aimed at children). Choosing "under 13" would add the Families policy requirements.

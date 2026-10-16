@@ -19,7 +19,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get metronomeTab => 'Metronomo';
 
   @override
-  String get droneMode => 'Drone';
+  String get harmonyTab => 'Armonia';
 
   @override
   String get metronomeStart => 'Avvia il metronomo';
@@ -54,7 +54,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get tapTempo => 'Batti il tempo';
 
   @override
-  String get droneStop => 'Ferma il drone';
+  String get droneStop => 'Ferma l\'armonia';
 
   @override
   String get progressionLabel => 'Progressione';
@@ -79,11 +79,14 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String get balanceLabel => 'Bilanciamento tra metronomo e drone';
+  String get balanceTitle => 'Bilanciamento';
+
+  @override
+  String get balanceLabel => 'Bilanciamento tra metronomo e armonia';
 
   @override
   String balanceValue(String metronome, String drone) {
-    return 'Metronomo $metronome%, drone $drone%';
+    return 'Metronomo $metronome%, armonia $drone%';
   }
 
   @override
@@ -91,7 +94,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String referencePitchHint(String note) {
-    return 'La frequenza di $note, per l\'accordatore e il drone.';
+    return 'La frequenza di $note, per l\'accordatore e l\'armonia.';
   }
 
   @override
@@ -211,7 +214,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get aboutDescription =>
-      'Accordatore, drone e metronomo per contrabbasso e basso elettrico. Low End funziona offline: il microfono si usa solo mentre l\'accordatore ascolta, e nessun suono o dato esce dal telefono.';
+      'Metronomo, armonia e accordatore per contrabbasso e basso elettrico. Low End funziona offline: il microfono si usa solo mentre l\'accordatore ascolta, e nessun suono o dato esce dal telefono.';
 
   @override
   String get aboutPiano =>
@@ -295,12 +298,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get shapeRootless => 'Senza fondamentale';
 
   @override
-  String get balanceMetronome => 'Click';
-
-  @override
-  String get balanceDrone => 'Pianoforte';
-
-  @override
   String get guideTitle => 'Gesti e scorciatoie';
 
   @override
@@ -320,11 +317,15 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get guideDrone =>
-      'Nel drone tocca una nota per farla suonare. Tieni premuto Do♯ o Fa♯ per scriverli Re♭ o Sol♭.';
+      'In Armonia tocca una nota per farla suonare. Tieni premuto Do♯ o Fa♯ per scriverli Re♭ o Sol♭.';
 
   @override
   String get guideTuner =>
-      'L\'accordatore ascolta da solo. Entrando, metronomo e drone vanno in pausa.';
+      'L\'accordatore ascolta da solo. Entrando, metronomo e armonia vanno in pausa.';
+
+  @override
+  String get guideVolume =>
+      'Il volume è quello del telefono: usa i suoi tasti. Il cursore in basso bilancia solo metronomo e armonia.';
 
   @override
   String get guideDone => 'Ho capito';

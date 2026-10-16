@@ -44,10 +44,11 @@ class BalanceSlider extends StatelessWidget {
           percent(settings.metronomeLevel),
           percent(settings.droneLevel),
         );
-        return Row(
+        final row = Row(
           children: [
-            // The same icons as the tabs; the slider speaks for both.
-            side(Icons.timer_outlined, l10n.balanceMetronome),
+            // The same icons and names as the tabs; the slider speaks for
+            // both.
+            side(Icons.timer_outlined, l10n.metronomeTab),
             Expanded(
               child: Semantics(
                 label: l10n.balanceLabel,
@@ -86,7 +87,20 @@ class BalanceSlider extends StatelessWidget {
                 ),
               ),
             ),
-            side(Icons.graphic_eq, l10n.balanceDrone),
+            side(Icons.graphic_eq, l10n.harmonyTab),
+          ],
+        );
+        // Says what the slider does: it balances, it is not a volume.
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ExcludeSemantics(
+              child: Text(
+                l10n.balanceTitle,
+                style: theme.textTheme.labelSmall?.copyWith(color: muted),
+              ),
+            ),
+            row,
           ],
         );
       },
