@@ -27,6 +27,20 @@ enum DroneStyle {
   final PianoStyle piano;
 }
 
+/// How the piano spreads a chord over the keys.
+enum ChordShape {
+  /// The notes stacked above the root, as the chord is spelled.
+  stacked,
+
+  /// The root as the bass, and the other notes close together above it, in
+  /// one place on the keyboard whatever the chord: from one chord to the next
+  /// they move as little as they can, as a pianist's hand does.
+  close,
+
+  /// As [close] but without the bass: the root is left to the bass player.
+  rootless,
+}
+
 /// The chords offered in Chord mode.
 enum ChordType {
   major(ChordQuality.major),
@@ -44,6 +58,8 @@ enum ChordType {
 /// follows: the metronome's, so chords change on its "one". It notifies when
 /// the tempo or the time signature change.
 abstract interface class BarClock implements Listenable {
+  /// Beats per minute of the figure the tempo counts: in 6/8, dotted
+  /// quarters (see [TimeSignature.pulsesPerBeat]).
   int get bpm;
   TimeSignature get signature;
 
@@ -95,9 +111,13 @@ class DroneController extends ChangeNotifier {
   final PianoOutput? _piano;
   final BarClock _clock;
 
-  /// The drone always plays in the middle octave (A4 = 440 Hz): high enough
-  /// for any phone speaker, and easy to hear against a bass.
-  static const octave = 4;
+  /// The drone opens in the middle octave (A4 = 440 Hz): high enough for any
+  /// phone speaker, and easy to hear against a bass.
+  static const defaultOctave = 4;
+
+  /// The octaves it can play the root in: lower ones for a bass, to hear the
+  /// beats against its note on headphones or a speaker that reaches them.
+  static const octaves = [2, 3, 4];
 
   /// Loudness at full level.
   static const _fullVolume = 0.8;
@@ -110,7 +130,9 @@ class DroneController extends ChangeNotifier {
 
   bool _playing = false;
   bool _audioFailed = false;
-  Note _note = const Note(9, octave);
+  var _octave = defaultOctave;
+  Note _note = const Note(9, defaultOctave);
+  ChordShape _shape = ChordShape.close;
   DroneVoicing _voicing = DroneVoicing.root;
   ChordType _chord = ChordType.major;
   Progression _progression = Progression.twoFiveOne;
@@ -138,6 +160,10 @@ class DroneController extends ChangeNotifier {
   /// The latest sound change still under way, if any (see [_sync]).
   Future<void>? _pending;
 
+  /// A change waiting for the one under way, if any: later changes join it
+  /// rather than queue up behind it (see [_sync]).
+  Future<void>? _queued;
+
   bool get isPlaying => _playing;
 
   /// True when the last attempt to start sound failed on this device.
@@ -145,6 +171,12 @@ class DroneController extends ChangeNotifier {
 
   /// The note touched: the root, or the key of a progression.
   Note get note => _note;
+
+  /// The octave the root is played in, one of [octaves].
+  int get octave => _octave;
+
+  /// How the piano spreads a chord (see [ChordShape]).
+  ChordShape get shape => _shape;
   DroneVoicing get voicing => _voicing;
   ChordType get chord => _chord;
   Progression get progression => _progression;
@@ -179,18 +211,52 @@ class DroneController extends ChangeNotifier {
       quality: _chord.quality,
       seventh: _sevenths || _chord == ChordType.seventh,
     ),
+    // A dominant always has its seventh, as in Chord mode: it is what makes
+    // it a dominant (the blues is all sevenths).
     DroneVoicing.progression => (
       root: (_note.pitchClass + _progression.steps[step].offset) % 12,
       quality: _progression.steps[step].quality,
-      seventh: _sevenths,
+      seventh:
+          _sevenths ||
+          _progression.steps[step].quality == ChordQuality.dominant,
     ),
   };
+
+  /// The letter (0 = C … 6 = B) the key is written with: C♯ or D♭, F♯ or
+  /// G♭ as chosen (see [toggleSpelling]), the usual one for the others.
+  int get keyLetter =>
+      letterOf(_note.pitchClass, flat: spelledFlat(_note.pitchClass));
+
+  /// The letter of the chord root at [step], counted up the scale from the
+  /// key, so that each chord of a progression is spelled as in its key: in
+  /// C♯ minor, II–V–I is D♯ø G♯7 C♯m, not E♭ø A♭7 C♯m.
+  int letterAt(int step) => _voicing == DroneVoicing.progression
+      ? (keyLetter + _progression.steps[step].degree) % 7
+      : keyLetter;
+
+  /// The letter of the root sounding now.
+  int get rootLetter => letterAt(_step);
+
+  /// The black keys that may be written either way, C♯/D♭ and F♯/G♭, and
+  /// which of them are written with a flat.
+  static const respellable = {1, 6};
+  final _flats = <int>{};
+
+  /// True when [pitchClass] is written with a flat (D♭, G♭).
+  bool spelledFlat(int pitchClass) => _flats.contains(pitchClass);
+
+  /// Writes [pitchClass] the other way, C♯ as D♭ and back, if it can be.
+  void toggleSpelling(int pitchClass) {
+    if (!respellable.contains(pitchClass)) return;
+    if (!_flats.remove(pitchClass)) _flats.add(pitchClass);
+    _notify();
+  }
 
   /// The root sounding now: the note, or the root of the current chord.
   int get rootPitchClass => currentChord?.root ?? _note.pitchClass;
 
   /// Frequency of the root sounding, in Hz.
-  double get frequency => Note(rootPitchClass, octave).frequency(a4: _a4);
+  double get frequency => Note(rootPitchClass, _octave).frequency(a4: _a4);
 
   /// The pitch classes of the other notes of the chord sounding.
   Set<int> get chordTones {
@@ -206,7 +272,7 @@ class DroneController extends ChangeNotifier {
   List<double> get frequencies => _frequenciesOf(currentChord);
 
   List<double> _frequenciesOf(DroneChord? c) {
-    final root = Note(c?.root ?? _note.pitchClass, octave).frequency(a4: _a4);
+    final root = Note(c?.root ?? _note.pitchClass, _octave).frequency(a4: _a4);
     final ratios = c == null ? [1.0] : c.quality.ratios(seventh: c.seventh);
     return [for (final r in ratios) root * r];
   }
@@ -247,7 +313,20 @@ class DroneController extends ChangeNotifier {
 
   void setPitchClass(int pitchClass) {
     if (pitchClass == _note.pitchClass) return;
-    _update(() => _note = Note(pitchClass, octave), restart: true);
+    _update(() => _note = Note(pitchClass, _octave), restart: true);
+  }
+
+  void setOctave(int octave) {
+    if (octave == _octave || !octaves.contains(octave)) return;
+    _update(() {
+      _octave = octave;
+      _note = Note(_note.pitchClass, octave);
+    });
+  }
+
+  void setShape(ChordShape shape) {
+    if (shape == _shape) return;
+    _update(() => _shape = shape);
   }
 
   void setVoicing(DroneVoicing voicing) {
@@ -381,16 +460,29 @@ class DroneController extends ChangeNotifier {
 
   /// The chords of the loop, one per bar, as the piano plays them.
   List<PianoChord> get _pianoChords {
+    final bass = (_octave + 1) * 12;
+    // Where the notes above the bass sit in [ChordShape.close]: one octave of
+    // keys, from here up, the same for every chord (G3, C4 or E4, to clear
+    // the bass).
+    final floor = _octave <= 2
+        ? 55
+        : _octave == 3
+        ? 60
+        : 64;
+
     List<int> notes(DroneChord? c) {
       // A single note: the piano plays the root alone.
-      if (c == null) {
-        return [(DroneController.octave + 1) * 12 + _note.pitchClass];
+      if (c == null) return [bass + _note.pitchClass];
+      final root = bass + c.root;
+      final above = c.quality.semitones(seventh: c.seventh);
+      if (_shape == ChordShape.stacked) {
+        return [root, for (final s in above) root + s];
       }
-      final root = (DroneController.octave + 1) * 12 + c.root;
-      return [
-        root,
-        for (final s in c.quality.semitones(seventh: c.seventh)) root + s,
-      ];
+      // Each note on the key of its name within the octave from the floor:
+      // whatever the chord, the hand stays in one place.
+      final upper = [for (final s in above) floor + (c.root + s - floor) % 12]
+        ..sort();
+      return _shape == ChordShape.rootless ? upper : [root, ...upper];
     }
 
     return [
@@ -409,15 +501,34 @@ class DroneController extends ChangeNotifier {
   /// happens at once too, and a start still under way stops again as soon
   /// as it is done, so a stop pressed while the audio engine is starting
   /// really silences it. Never throws: a failure shows in [audioFailed].
+  ///
+  /// Changes made while one is under way are applied all at once when it is
+  /// done, as the metronome does: holding + renders the piano only as often
+  /// as it can, always with the latest tempo, instead of catching up with
+  /// every step in turn.
   Future<void> _sync() {
     if (!_playing || _disposed) return _silence();
+    // The change already waiting reads the state when its turn comes, so it
+    // takes this one in too.
+    if (_queued case final queued?) return queued;
     final previous = _pending;
-    late final Future<void> done;
-    done = (previous == null ? _play() : previous.then((_) => _play()))
-        .whenComplete(() {
-          if (identical(_pending, done)) _pending = null;
-        });
-    return _pending = done;
+    final Future<void> done;
+    if (previous == null) {
+      done = _play();
+    } else {
+      late final Future<void> next;
+      next = previous.then((_) {
+        // Its turn: from now on, a change waits for it to finish.
+        if (identical(_queued, next)) _queued = null;
+        return _play();
+      });
+      done = _queued = next;
+    }
+    late final Future<void> tracked;
+    tracked = done.whenComplete(() {
+      if (identical(_pending, tracked)) _pending = null;
+    });
+    return _pending = tracked;
   }
 
   Future<void> _play() async {
@@ -456,11 +567,13 @@ class DroneController extends ChangeNotifier {
       chords: chords,
       // A note on its own is kept sounding, whatever the style.
       style: _voicing == DroneVoicing.root ? PianoStyle.drone : _style.piano,
-      bpm: bpm,
+      // The piano counts pulses, like the clicks: three a beat in 6/8.
+      bpm: bpm * signature.pulsesPerBeat,
       signature: signature,
       a4: _a4,
       volume: _volume,
       startAt: fromTheTop ? Duration.zero : null,
+      rootless: _voicing != DroneVoicing.root && _shape == ChordShape.rootless,
     );
     if (!_playing || _disposed) return;
     final bar = _clock.barLength;

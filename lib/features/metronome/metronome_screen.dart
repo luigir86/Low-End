@@ -10,6 +10,7 @@ import '../../l10n/app_localizations.dart';
 import '../../widgets/balance_slider.dart';
 import '../../widgets/dial.dart';
 import 'metronome_controller.dart';
+import 'tempo_dialog.dart';
 import 'time_signature.dart';
 
 /// The metronome: a ring with one segment per beat of the bar (4 in 4/4,
@@ -113,7 +114,9 @@ class _BeatRingState extends State<_BeatRing>
     return Semantics(
       button: true,
       label: playing ? l10n.metronomeStop : l10n.metronomeStart,
-      value: l10n.bpmValue('${metronome.bpm}'),
+      value:
+          '${l10n.bpmValue('${metronome.bpm}')}, '
+          '${beatUnitName(l10n, metronome.signature.beatUnit)}',
       excludeSemantics: true,
       child: Material(
         type: MaterialType.transparency,
@@ -127,9 +130,11 @@ class _BeatRingState extends State<_BeatRing>
                 child: CustomPaint(
                   painter: _RingPainter(
                     metronome: metronome,
+                    signature: metronome.signature,
                     frame: _frame,
                     colors: theme.colorScheme,
                     background: LowEndColors.of(context).strobeBackground,
+                    downbeat: LowEndColors.of(context).downbeat,
                     // A dot that swells is motion: with animations turned
                     // off it only changes colour.
                     pulse: !MediaQuery.disableAnimationsOf(context),
@@ -170,15 +175,24 @@ class _BeatRingState extends State<_BeatRing>
 class _RingPainter extends CustomPainter {
   _RingPainter({
     required this.metronome,
+    required this.signature,
     required ValueNotifier<int> frame,
     required this.colors,
     required this.background,
+    required this.downbeat,
     required this.pulse,
   }) : super(repaint: frame);
 
   final MetronomeController metronome;
+
+  /// The time signature drawn: kept here so that a new one repaints the ring
+  /// at once, also while the metronome is stopped and nothing else does.
+  final TimeSignature signature;
   final ColorScheme colors;
   final Color background;
+
+  /// The colour of the "one".
+  final Color downbeat;
   final bool pulse;
 
   @override
@@ -187,7 +201,6 @@ class _RingPainter extends CustomPainter {
     dial.paintBase(canvas, disc: background, hub: colors.surface);
 
     final beat = metronome.beat;
-    final signature = metronome.signature;
     final count = signature.beats;
     final slice = 2 * math.pi / count;
     // Wider gaps between the groups of a bar such as 6/8, so that it does
@@ -203,7 +216,7 @@ class _RingPainter extends CustomPainter {
       if (b != beat) {
         color = colors.outlineVariant;
       } else if (b == 0) {
-        color = colors.tertiary;
+        color = downbeat;
       } else if (signature.grouped && !opens) {
         // The weak pulses of a group are softer than its first.
         color = colors.primary.withValues(alpha: 0.6);
@@ -215,7 +228,27 @@ class _RingPainter extends CustomPainter {
         startAngle: b * slice + start,
         sweep: slice - start - end,
         color: color,
+        border: b == beat ? null : colors.outline,
       );
+    }
+
+    // Waiting for the piano's bar line: the seconds to go, in the hub.
+    final left = metronome.waitLeft;
+    if (left != null && left >= const Duration(milliseconds: 500)) {
+      final seconds = (left.inMilliseconds / 1000).ceil();
+      final text = TextPainter(
+        text: TextSpan(
+          text: '$seconds',
+          style: TextStyle(
+            color: colors.onSurfaceVariant,
+            fontSize: dial.hub * 0.9,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      text.paint(canvas, dial.center - Offset(text.width / 2, text.height / 2));
+      return;
     }
 
     // The dot in the hub.
@@ -224,23 +257,41 @@ class _RingPainter extends CustomPainter {
     var radius = dial.hub * 0.3;
     if (pulse) {
       // Swells at once on the beat, then shrinks back before the next one.
-      final decay = math.min(0.12, metronome.beatLength.inMicroseconds / 3e6);
+      final decay = math.min(0.12, metronome.pulseLength.inMicroseconds / 3e6);
       radius += dial.hub * 0.25 * math.exp(-since.inMicroseconds / 1e6 / decay);
     }
     canvas.drawCircle(
       dial.center,
       radius,
-      Paint()..color = beat == 0 ? colors.tertiary : colors.secondary,
+      Paint()..color = beat == 0 ? downbeat : colors.secondary,
     );
   }
 
   @override
   bool shouldRepaint(_RingPainter old) =>
       old.metronome != metronome ||
+      old.signature != signature ||
       old.colors != colors ||
       old.background != background ||
+      old.downbeat != downbeat ||
       old.pulse != pulse;
 }
+
+/// What the tempo counts, under its number: "♩ BPM", "♪ BPM" in 7/8, and
+/// in the compound bars "♩. BPM · ♪ = 180", the eighths too.
+String tempoUnitCaption(TimeSignature signature, int bpm) {
+  final caption = '${signature.beatUnit.symbol} BPM';
+  if (!signature.compound) return caption;
+  return '$caption · ${BeatUnit.eighth.symbol} = '
+      '${bpm * signature.pulsesPerBeat}';
+}
+
+/// The figure the tempo counts, for screen readers.
+String beatUnitName(AppLocalizations l10n, BeatUnit unit) => switch (unit) {
+  BeatUnit.quarter => l10n.beatUnitQuarter,
+  BeatUnit.dottedQuarter => l10n.beatUnitDottedQuarter,
+  BeatUnit.eighth => l10n.beatUnitEighth,
+};
 
 /// − BPM +, with the buttons repeating while held.
 class _TempoControls extends StatelessWidget {
@@ -266,25 +317,39 @@ class _TempoControls extends StatelessWidget {
         Flexible(
           child: ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 140),
-            child: Semantics(
-              liveRegion: true,
-              child: Column(
-                children: [
-                  FittedBox(
-                    child: Text(
-                      '${metronome.bpm}',
-                      style: theme.textTheme.displayMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+            // Touching the number opens the keyboard to type the tempo.
+            child: MergeSemantics(
+              child: Semantics(
+                liveRegion: true,
+                button: true,
+                hint: l10n.setTempo,
+                onTap: () => showTempoDialog(context, metronome),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () => showTempoDialog(context, metronome),
+                  child: Column(
+                    children: [
+                      FittedBox(
+                        child: Text(
+                          '${metronome.bpm}',
+                          style: theme.textTheme.displayMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
-                    ),
+                      // The figure the tempo counts: "♩. BPM" in 6/8, with the
+                      // eighths it makes.
+                      FittedBox(
+                        child: Text(
+                          tempoUnitCaption(metronome.signature, metronome.bpm),
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    'BPM',
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -292,7 +357,7 @@ class _TempoControls extends StatelessWidget {
         _RepeatButton(
           icon: Icons.add,
           tooltip: l10n.faster,
-          onStep: metronome.bpm < MetronomeController.maxBpm
+          onStep: metronome.bpm < metronome.maxTempo
               ? () => metronome.step(1)
               : null,
           onHold: (unit) => metronome.nudge(1, unit),
@@ -400,7 +465,20 @@ class _SignatureButton extends StatelessWidget {
           textStyle: Theme.of(context).textTheme.titleLarge
               ?.copyWith(fontWeight: FontWeight.w700),
         ),
-        child: Text(signature.label),
+        // The name of the button above the bar, "Time signature" over 4/4.
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                l10n.timeSignature,
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+            ),
+            Text(signature.label),
+          ],
+        ),
       ),
     );
   }
@@ -424,7 +502,7 @@ class _SignatureButton extends StatelessWidget {
                 ListTile(
                   title: Text(s.label),
                   // How the bar is felt: 3/4 is "3", 6/8 is "3 + 3".
-                  subtitle: Text(s.feel),
+                  subtitle: s.grouped ? Text(s.feel) : null,
                   selected: s == metronome.signature,
                   trailing: s == metronome.signature
                       ? const Icon(Icons.check)

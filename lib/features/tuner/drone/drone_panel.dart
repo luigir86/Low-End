@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../app/theme.dart';
 import '../../../audio/audio_scope.dart';
@@ -9,6 +10,7 @@ import '../../../audio/pitch.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../widgets/balance_slider.dart';
 import '../../../widgets/dial.dart';
+import '../../metronome/metronome_controller.dart';
 import 'drone_controller.dart';
 import 'harmony.dart';
 
@@ -109,11 +111,21 @@ class _FifthsDial extends StatelessWidget {
                 child: _NoteKey(
                   name: Note(
                     circleOfFifths[i],
-                    DroneController.octave,
-                  ).name(names),
+                    drone.octave,
+                  ).name(names, flat: drone.spelledFlat(circleOfFifths[i])),
                   playing: playing == circleOfFifths[i],
                   inChord: chord.contains(circleOfFifths[i]),
                   onTap: () => drone.tapNote(circleOfFifths[i]),
+                  // C♯ or D♭, F♯ or G♭: holding the key writes it the
+                  // other way, and the chords of its key with it.
+                  respelling:
+                      DroneController.respellable.contains(circleOfFifths[i])
+                      ? Note(circleOfFifths[i], drone.octave).name(
+                          names,
+                          flat: !drone.spelledFlat(circleOfFifths[i]),
+                        )
+                      : null,
+                  onLongPress: () => drone.toggleSpelling(circleOfFifths[i]),
                 ),
               ),
             // What is sounding, in the hub; large text shrinks to fit.
@@ -126,7 +138,9 @@ class _FifthsDial extends StatelessWidget {
                   button: true,
                   label: drone.isPlaying
                       ? l10n.droneStop
-                      : l10n.playSound(drone.note.name(names)),
+                      : l10n.playSound(
+                          spell(drone.note.pitchClass, drone.keyLetter, names),
+                        ),
                   child: Material(
                     type: MaterialType.transparency,
                     child: InkWell(
@@ -196,6 +210,7 @@ class _FifthsPainter extends CustomPainter {
             : inChord
             ? colors.secondary
             : colors.outlineVariant,
+        border: lit || inChord ? null : colors.outline,
       );
       if (next == pc && !lit) {
         dial.paintSegment(
@@ -240,6 +255,8 @@ class _NoteKey extends StatelessWidget {
     required this.playing,
     required this.inChord,
     required this.onTap,
+    required this.respelling,
+    required this.onLongPress,
   });
 
   final String name;
@@ -249,22 +266,34 @@ class _NoteKey extends StatelessWidget {
   final bool inChord;
   final VoidCallback onTap;
 
+  /// The other way to write the note (D♭ for C♯), or null if there is none.
+  final String? respelling;
+  final VoidCallback onLongPress;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final respelling = this.respelling;
     return Semantics(
       button: true,
       selected: playing,
       // Says what a touch will do, not just the note name.
       label: playing ? l10n.stopSound(name) : l10n.playSound(name),
+      onLongPressHint: respelling == null ? null : l10n.writeAs(respelling),
       excludeSemantics: true,
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
           customBorder: const CircleBorder(),
           onTap: onTap,
+          onLongPress: respelling == null
+              ? null
+              : () {
+                  HapticFeedback.selectionClick();
+                  onLongPress();
+                },
           child: Center(
             child: FittedBox(
               child: Padding(
@@ -314,7 +343,9 @@ class _DialCenter extends StatelessWidget {
       fontWeight: FontWeight.w600,
       color: theme.colorScheme.primary,
     );
-    final root = Note(drone.rootPitchClass, DroneController.octave);
+    final root = Note(drone.rootPitchClass, drone.octave);
+    // Spelled as in the key: D♯ in C♯ minor, G♭ in D♭.
+    final rootName = spell(root.pitchClass, drone.rootLetter, names);
     final chord = drone.currentChord;
     final inProgression = drone.voicing == DroneVoicing.progression;
     return Semantics(
@@ -325,7 +356,7 @@ class _DialCenter extends StatelessWidget {
           Text.rich(
             TextSpan(
               children: [
-                TextSpan(text: root.name(names)),
+                TextSpan(text: rootName),
                 TextSpan(
                   text: '${root.octaveIn(names)}',
                   style: TextStyle(fontSize: (noteStyle?.fontSize ?? 45) * 0.4),
@@ -337,7 +368,7 @@ class _DialCenter extends StatelessWidget {
           ),
           if (chord != null)
             Text(
-              chordSymbol(l10n, chord, root.name(names)),
+              chordSymbol(l10n, chord, rootName),
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium,
             ),
@@ -345,7 +376,7 @@ class _DialCenter extends StatelessWidget {
             Text(
               l10n.degreeOf(
                 drone.progression.steps[drone.step].numeral,
-                drone.note.name(names),
+                spell(drone.note.pitchClass, drone.keyLetter, names),
               ),
               style: muted,
             ),
@@ -472,7 +503,7 @@ class _VoicingSwitch extends StatelessWidget {
 
 /// Which chord or which progression, and whether to add sevenths: hidden
 /// for the root alone, its place kept so the rows line up with the other
-/// sections.
+/// sections. The button for the sound options is always there.
 class _ChordMenu extends StatelessWidget {
   const _ChordMenu({required this.drone});
 
@@ -482,138 +513,254 @@ class _ChordMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final progression = drone.voicing == DroneVoicing.progression;
-    return Visibility(
-      visible: drone.voicing != DroneVoicing.root,
-      maintainSize: true,
-      maintainAnimation: true,
-      maintainState: true,
-      child: Row(
-        children: [
-          Expanded(
-            child: progression
-                ? DropdownMenu<Progression>(
-                    key: const ValueKey('progression'),
-                    expandedInsets: EdgeInsets.zero,
-                    // Also what screen readers announce with the choice.
-                    label: Text(l10n.progressionLabel),
-                    initialSelection: drone.progression,
-                    dropdownMenuEntries: [
-                      for (final p in Progression.values)
-                        DropdownMenuEntry(
-                          value: p,
-                          label: progressionName(l10n, p),
+    return Row(
+      children: [
+        Expanded(
+          child: Visibility(
+            visible: drone.voicing != DroneVoicing.root,
+            maintainSize: true,
+            maintainAnimation: true,
+            maintainState: true,
+            child: Row(
+              children: [
+                Expanded(
+                  child: progression
+                      ? DropdownMenu<Progression>(
+                          key: const ValueKey('progression'),
+                          expandedInsets: EdgeInsets.zero,
+                          // Also what screen readers announce with the choice.
+                          label: Text(l10n.progressionLabel),
+                          initialSelection: drone.progression,
+                          dropdownMenuEntries: [
+                            for (final p in Progression.values)
+                              DropdownMenuEntry(
+                                value: p,
+                                label: progressionName(l10n, p),
+                              ),
+                          ],
+                          onSelected: (p) {
+                            if (p != null) drone.setProgression(p);
+                          },
+                        )
+                      : DropdownMenu<ChordType>(
+                          key: const ValueKey('chord'),
+                          expandedInsets: EdgeInsets.zero,
+                          label: Text(l10n.chordLabel),
+                          initialSelection: drone.chord,
+                          dropdownMenuEntries: [
+                            for (final chord in ChordType.values)
+                              DropdownMenuEntry(
+                                value: chord,
+                                label: chordName(l10n, chord),
+                              ),
+                          ],
+                          onSelected: (c) {
+                            if (c != null) drone.setChord(c);
+                          },
                         ),
-                    ],
-                    onSelected: (p) {
-                      if (p != null) drone.setProgression(p);
-                    },
-                  )
-                : DropdownMenu<ChordType>(
-                    key: const ValueKey('chord'),
-                    expandedInsets: EdgeInsets.zero,
-                    label: Text(l10n.chordLabel),
-                    initialSelection: drone.chord,
-                    dropdownMenuEntries: [
-                      for (final chord in ChordType.values)
-                        DropdownMenuEntry(
-                          value: chord,
-                          label: chordName(l10n, chord),
-                        ),
-                    ],
-                    onSelected: (c) {
-                      if (c != null) drone.setChord(c);
-                    },
-                  ),
-          ),
-          const SizedBox(width: 12),
-          // Adds the seventh to every chord: maj7, m7, 7, m7♭5.
-          Tooltip(
-            message: l10n.addSevenths,
-            child: FilterChip(
-              // The digit says it all; a tick would crowd it.
-              showCheckmark: false,
-              label: Text(
-                '7',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: drone.sevenths
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Theme.of(context).colorScheme.onSurface,
                 ),
-              ),
-              selected: drone.sevenths,
-              onSelected: drone.setSevenths,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                const SizedBox(width: 12),
+                // Adds the seventh to every chord: maj7, m7, 7, m7♭5.
+                Tooltip(
+                  message: l10n.addSevenths,
+                  child: FilterChip(
+                    // The digit says it all; a tick would crowd it.
+                    showCheckmark: false,
+                    label: Text(
+                      '+7',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: drone.sevenths
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    selected: drone.sevenths,
+                    onSelected: drone.setSevenths,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 12,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          if (drone.hasPiano) ...[
-            const SizedBox(width: 8),
-            _StyleMenu(drone: drone),
-          ],
-        ],
-      ),
+        ),
+        const SizedBox(width: 8),
+        // At least 48 dp wide and high, to be touched with a thumb.
+        IconButton(
+          iconSize: 28,
+          constraints: const BoxConstraints.tightFor(width: 52, height: 52),
+          color: Theme.of(context).colorScheme.primary,
+          icon: const Icon(Icons.tune),
+          tooltip: l10n.optionsLabel,
+          onPressed: () => _showOptions(context, drone),
+        ),
+      ],
     );
   }
 }
 
-/// How the chord or the progression sounds: held, or on the piano, struck
-/// on every beat or as an arpeggio, at the metronome's tempo.
-class _StyleMenu extends StatelessWidget {
-  const _StyleMenu({required this.drone});
+IconData _styleIcon(DroneStyle style) => switch (style) {
+  // A long line for the chord held a bar, dots for the beats, a climb for
+  // the arpeggio.
+  DroneStyle.held => Icons.horizontal_rule,
+  DroneStyle.beat => Icons.more_horiz,
+  DroneStyle.arpeggio => Icons.trending_up,
+};
+
+String _styleName(AppLocalizations l10n, DroneStyle style) => switch (style) {
+  DroneStyle.held => l10n.styleHeld,
+  DroneStyle.beat => l10n.styleBeat,
+  DroneStyle.arpeggio => l10n.styleArpeggio,
+};
+
+String _shapeName(AppLocalizations l10n, ChordShape shape) => switch (shape) {
+  ChordShape.stacked => l10n.shapeStacked,
+  ChordShape.close => l10n.shapeClose,
+  ChordShape.rootless => l10n.shapeRootless,
+};
+
+/// The sound options: how the chord or the progression is played (held, on
+/// every beat or as an arpeggio, at the metronome's tempo), where its notes
+/// sit on the keys, and the octave of the root.
+Future<void> _showOptions(BuildContext context, DroneController drone) {
+  final scope = AudioScope.of(context);
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    builder: (sheet) => SafeArea(
+      child: SingleChildScrollView(
+        child: ListenableBuilder(
+          listenable: Listenable.merge([
+            drone,
+            scope.metronome,
+            scope.settings,
+          ]),
+          builder: (context, _) => _Options(
+            drone: drone,
+            metronome: scope.metronome,
+            names: scope.settings.noteNames(Localizations.localeOf(context)),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+class _Options extends StatelessWidget {
+  const _Options({
+    required this.drone,
+    required this.metronome,
+    required this.names,
+  });
 
   final DroneController drone;
-
-  static IconData _icon(DroneStyle style) => switch (style) {
-    DroneStyle.held => Icons.music_note,
-    DroneStyle.beat => Icons.piano,
-    DroneStyle.arpeggio => Icons.show_chart,
-  };
-
-  static String _name(AppLocalizations l10n, DroneStyle style) =>
-      switch (style) {
-        DroneStyle.held => l10n.styleHeld,
-        DroneStyle.beat => l10n.styleBeat,
-        DroneStyle.arpeggio => l10n.styleArpeggio,
-      };
+  final MetronomeController metronome;
+  final NoteNames names;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final scope = AudioScope.of(context);
-    final metronome = scope.metronome;
-    return PopupMenuButton<DroneStyle>(
-      tooltip: '${l10n.styleLabel}: ${_name(l10n, drone.style)}',
-      initialValue: drone.style,
-      onSelected: drone.setStyle,
-      itemBuilder: (context) => [
-        for (final style in DroneStyle.values)
-          PopupMenuItem(
-            value: style,
-            child: Row(
+    final theme = Theme.of(context);
+    Widget heading(String text) => Semantics(
+      header: true,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        child: Text(
+          text,
+          style: theme.textTheme.titleSmall?.copyWith(
+            color: theme.colorScheme.primary,
+          ),
+        ),
+      ),
+    );
+    Widget label(String text) =>
+        FittedBox(fit: BoxFit.scaleDown, child: Text(text, maxLines: 1));
+    final chords = drone.voicing != DroneVoicing.root;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        heading(l10n.octaveLabel),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<int>(
+              showSelectedIcon: false,
+              style: SegmentedButton.styleFrom(minimumSize: const Size(0, 48)),
+              segments: [
+                // The root in each octave, as it is written: A2, A3, A4.
+                for (final o in DroneController.octaves)
+                  ButtonSegment(
+                    value: o,
+                    label: label(Note(drone.note.pitchClass, o).label(names)),
+                  ),
+              ],
+              selected: {drone.octave},
+              onSelectionChanged: (s) => drone.setOctave(s.first),
+            ),
+          ),
+        ),
+        if (drone.hasPiano) ...[
+          if (chords) ...[
+            heading(l10n.shapeLabel),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SizedBox(
+                width: double.infinity,
+                child: SegmentedButton<ChordShape>(
+                  showSelectedIcon: false,
+                  style: SegmentedButton.styleFrom(
+                    minimumSize: const Size(0, 48),
+                  ),
+                  segments: [
+                    for (final s in ChordShape.values)
+                      ButtonSegment(
+                        value: s,
+                        label: label(_shapeName(l10n, s)),
+                      ),
+                  ],
+                  selected: {drone.shape},
+                  onSelectionChanged: (s) => drone.setShape(s.first),
+                ),
+              ),
+            ),
+          ],
+          heading(l10n.styleLabel),
+          RadioGroup<DroneStyle>(
+            groupValue: drone.style,
+            onChanged: (s) => drone.setStyle(s!),
+            child: Column(
               children: [
-                Icon(_icon(style)),
-                const SizedBox(width: 12),
-                Text(_name(l10n, style)),
+                for (final style in DroneStyle.values)
+                  RadioListTile<DroneStyle>(
+                    value: style,
+                    secondary: Icon(_styleIcon(style)),
+                    title: Text(_styleName(l10n, style)),
+                  ),
               ],
             ),
           ),
-        // The piano keeps the metronome's time, wherever it is set.
-        const PopupMenuDivider(),
-        PopupMenuItem<DroneStyle>(
-          enabled: false,
-          child: Text(
-            l10n.styleTempo(metronome.bpm, metronome.signature.label),
+          // The piano keeps the metronome's time, wherever it is set.
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Text(
+              l10n.styleTempo(
+                '${metronome.signature.beatUnit.symbol} = ${metronome.bpm}',
+                metronome.signature.label,
+              ),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ),
-        ),
+        ] else
+          const SizedBox(height: 16),
       ],
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-        child: Icon(
-          _icon(drone.style),
-          size: 28,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-      ),
     );
   }
 }

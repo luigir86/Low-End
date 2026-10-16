@@ -43,6 +43,22 @@ void main() {
     expect(output.bar, isNull);
   });
 
+  test('counts down the wait for the piano\'s bar line', () async {
+    await metronome.start();
+    // Nothing to wait for: the click came in at once.
+    expect(metronome.waitLeft, isNull);
+    await metronome.stop();
+    expect(metronome.waitLeft, isNull);
+
+    output.delay = const Duration(seconds: 2);
+    await metronome.start();
+    final left = metronome.waitLeft!;
+    expect(left, greaterThan(const Duration(milliseconds: 1500)));
+    expect(left, lessThanOrEqualTo(const Duration(seconds: 2)));
+    await metronome.stop();
+    expect(metronome.waitLeft, isNull);
+  });
+
   test('the first beat is a little higher than the others', () {
     double zeroCrossingsPerSecond(Float64List s) {
       var n = 0;
@@ -59,7 +75,7 @@ void main() {
     expect(accent, lessThan(1600));
   });
 
-  test('keeps the tempo between 30 and 250 BPM', () {
+  test('keeps the tempo between 30 and 250 BPM in 4/4', () {
     metronome.setBpm(10);
     expect(metronome.bpm, MetronomeController.minBpm);
     metronome.setBpm(400);
@@ -146,11 +162,80 @@ void main() {
     await metronome.start();
     metronome.setSignature(TimeSignature.sixEight);
     await Future<void>.delayed(const Duration(milliseconds: 20));
-    // Six pulses of one second.
+    // 60 dotted quarters a minute: two beats of a second, six clicks.
     expect(metronome.beatsPerBar, 6);
-    expect(_samples(output.bar!), 6 * ClickSound.sampleRate);
+    expect(metronome.pulseBpm, 180);
+    expect(_samples(output.bar!), 2 * ClickSound.sampleRate);
+    expect(
+      metronome.barLength.inMicroseconds,
+      closeTo(const Duration(seconds: 2).inMicroseconds, 10),
+    );
     // A new bar starts from its "one".
     expect(output.startAt, Duration.zero);
+  });
+
+  group('compound bars count the dotted quarter', () {
+    test('6/8, 9/8 and 12/8 at ♩. = 100 click 300 eighths a minute', () {
+      for (final s in [
+        TimeSignature.sixEight,
+        TimeSignature.nineEight,
+        TimeSignature.twelveEight,
+      ]) {
+        metronome.setSignature(s);
+        metronome.setBpm(100);
+        expect(s.compound, isTrue);
+        expect(s.beatUnit, BeatUnit.dottedQuarter);
+        expect(metronome.bpm, 100);
+        expect(metronome.pulseBpm, 300, reason: s.label);
+        final beats = s.beats ~/ 3;
+        final bar = ClickSound.bar(bpm: metronome.pulseBpm, signature: s);
+        expect(
+          _samples(bar),
+          closeTo(beats * 0.6 * ClickSound.sampleRate, s.beats),
+        );
+      }
+    });
+
+    test('x/4 counts the quarter and 7/8 the eighth, one click each', () {
+      expect(TimeSignature.fourFour.beatUnit, BeatUnit.quarter);
+      expect(TimeSignature.fiveFour.compound, isFalse);
+      expect(TimeSignature.sevenEight.compound, isFalse);
+      expect(TimeSignature.sevenEight.beatUnit, BeatUnit.eighth);
+      metronome.setSignature(TimeSignature.sevenEight);
+      metronome.setBpm(200);
+      expect(metronome.pulseBpm, 200);
+    });
+
+    test('fast tempos can be set: a gigue at ♩. = 120, 7/8 up to 400', () {
+      metronome.setSignature(TimeSignature.sixEight);
+      metronome.setBpm(120);
+      expect(metronome.bpm, 120);
+      metronome.setBpm(1000);
+      expect(metronome.bpm, MetronomeController.maxBpm);
+      metronome.setSignature(TimeSignature.sevenEight);
+      metronome.setBpm(380);
+      expect(metronome.bpm, 380);
+      expect(metronome.maxTempo, MetronomeController.maxEighthBpm);
+      // Back to 4/4, the tempo comes within its range.
+      metronome.setSignature(TimeSignature.fourFour);
+      expect(metronome.bpm, MetronomeController.maxBpm);
+    });
+
+    test('TAP in 6/8 takes the taps as dotted quarters', () {
+      metronome.setSignature(TimeSignature.sixEight);
+      // A tap a second, as anyone taps a 6/8: ♩. = 60, not ♪ = 60.
+      for (var i = 0; i < 4; i++) {
+        metronome.tap(Duration(seconds: i));
+      }
+      expect(metronome.bpm, 60);
+      expect(metronome.pulseBpm, 180);
+    });
+
+    test('a click lasts a third of the beat in 6/8', () {
+      metronome.setSignature(TimeSignature.sixEight);
+      metronome.setBpm(60);
+      expect(metronome.pulseLength, const Duration(microseconds: 333333));
+    });
   });
 
   test('6/8 and 3/4 differ in where the strong pulses fall', () {

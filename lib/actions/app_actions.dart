@@ -126,8 +126,8 @@ class AppActions {
     const AppAction(
       name: 'metronome_start',
       description:
-          'Opens the metronome and starts it, in 4/4, at the tempo given or '
-          'the current one.',
+          'Opens the metronome and starts it, in its current time signature, '
+          'at the tempo given or the current one.',
       parameters: _metronomeParameters,
     ),
     const AppAction(
@@ -187,8 +187,13 @@ class AppActions {
     'bpm': {
       'type': 'integer',
       'minimum': MetronomeController.minBpm,
-      'maximum': MetronomeController.maxBpm,
-      'description': 'Beats per minute.',
+      'maximum': MetronomeController.maxEighthBpm,
+      'description':
+          'Beats per minute of the note value the tempo counts in the '
+          'current time signature: quarter notes in x/4, dotted quarters in '
+          '6/8, 9/8 and 12/8, eighth notes in 7/8. At most '
+          '${MetronomeController.maxBpm}, or '
+          '${MetronomeController.maxEighthBpm} in 7/8.',
     },
   };
 
@@ -433,17 +438,19 @@ class AppActions {
         '"$name" must be one of ${values.map((v) => v.name).join(', ')}.',
       ));
 
-  /// The `bpm` argument, checked, or null when not given.
-  static int? _bpm(Map<String, Object?> args) {
+  /// The `bpm` argument, checked against the current time signature, or
+  /// null when not given.
+  int? _bpm(Map<String, Object?> args) {
     final v = args['bpm'];
     if (v == null) return null;
     final bpm = _number(v, 'bpm');
+    final max = metronome.maxTempo;
     if (bpm != bpm.roundToDouble() ||
         bpm < MetronomeController.minBpm ||
-        bpm > MetronomeController.maxBpm) {
+        bpm > max) {
       throw ActionError(
         '"bpm" must be a whole number from ${MetronomeController.minBpm} '
-        'to ${MetronomeController.maxBpm}.',
+        'to $max in ${metronome.signature.label}.',
       );
     }
     return bpm.round();

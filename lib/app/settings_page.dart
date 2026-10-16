@@ -4,9 +4,10 @@ import '../audio/audio_scope.dart';
 import '../audio/pitch.dart';
 import '../l10n/app_localizations.dart';
 import 'about.dart';
+import 'guide.dart';
 import 'settings.dart';
 
-/// Language, note names and reference A, plus the About box.
+/// Language, theme, screen, note names and reference A, plus the About box.
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
@@ -51,6 +52,35 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
               const Divider(),
+              _Section(title: l10n.themeLabel),
+              RadioGroup<ThemeMode>(
+                groupValue: settings.themeMode,
+                onChanged: (mode) => settings.setThemeMode(mode!),
+                child: Column(
+                  children: [
+                    RadioListTile(
+                      value: ThemeMode.system,
+                      title: Text(l10n.themeSystem),
+                    ),
+                    RadioListTile(
+                      value: ThemeMode.light,
+                      title: Text(l10n.themeLight),
+                    ),
+                    RadioListTile(
+                      value: ThemeMode.dark,
+                      title: Text(l10n.themeDark),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(),
+              SwitchListTile(
+                value: settings.keepScreenOn,
+                onChanged: settings.setKeepScreenOn,
+                title: Text(l10n.keepScreenOnTitle),
+                subtitle: Text(l10n.keepScreenOnSubtitle),
+              ),
+              const Divider(),
               _Section(title: l10n.noteNamesLabel),
               RadioGroup<NoteNaming>(
                 groupValue: settings.naming,
@@ -93,6 +123,14 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
               const Divider(),
+              ListTile(
+                leading: Icon(
+                  Icons.help_outline,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                title: Text(l10n.guideTitle),
+                onTap: () => showGuide(context),
+              ),
               ListTile(
                 leading: Icon(
                   Icons.info_outline,

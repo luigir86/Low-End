@@ -6,6 +6,7 @@ import 'package:flutter/scheduler.dart';
 import '../../app/app_navigation.dart';
 import '../../app/theme.dart';
 import '../../audio/audio_scope.dart';
+import '../../audio/mic_input.dart';
 import '../../audio/pitch.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/dial.dart';
@@ -81,17 +82,31 @@ class _TunerPanelState extends State<TunerPanel> {
           // Announced by screen readers, e.g. when the microphone is denied.
           upper: message == null
               ? const SizedBox.shrink()
-              : Semantics(
-                  liveRegion: true,
-                  child: Text(
-                    message,
-                    textAlign: TextAlign.center,
-                    style: _tuner.status == TunerStatus.idle
-                        ? theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          )
-                        : TextStyle(color: theme.colorScheme.error),
-                  ),
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Semantics(
+                      liveRegion: true,
+                      child: Text(
+                        message,
+                        textAlign: TextAlign.center,
+                        style: _tuner.status == TunerStatus.idle
+                            ? theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              )
+                            : TextStyle(color: theme.colorScheme.error),
+                      ),
+                    ),
+                    // A way out of a no: straight to the app's settings.
+                    if (_tuner.status == TunerStatus.permissionDenied) ...[
+                      const SizedBox(height: 8),
+                      FilledButton.icon(
+                        onPressed: openAppSettings,
+                        icon: const Icon(Icons.settings_outlined),
+                        label: Text(l10n.openSettings),
+                      ),
+                    ],
+                  ],
                 ),
           // As wide and tall as TAP and the chord menu, but only text:
           // listening is the normal state, so pausing stays discreet.
@@ -223,6 +238,8 @@ class _StrobeDiscState extends State<_StrobeDisc>
                 // A still marker for players who turned animations off.
                 stillCents: _animate ? null : r?.cents,
                 scale: theme.colorScheme.outline,
+                // Waiting for a note: soft segments with a clear edge.
+                edge: r == null ? theme.colorScheme.outline : null,
               ),
             ),
           ),
@@ -249,6 +266,7 @@ class _DiscPainter extends CustomPainter {
     required this.hub,
     required this.stillCents,
     required this.scale,
+    required this.edge,
   }) : super(repaint: phase);
 
   final ValueNotifier<double> phase;
@@ -257,6 +275,7 @@ class _DiscPainter extends CustomPainter {
   final Color hub;
   final double? stillCents;
   final Color scale;
+  final Color? edge;
 
   static const _count = 32;
 
@@ -280,6 +299,7 @@ class _DiscPainter extends CustomPainter {
           color: segments,
           inner: band == 0 ? split + bandGap / 2 : dial.ringInner,
           outer: band == 0 ? dial.ringOuter : split - bandGap / 2,
+          border: edge,
         );
       }
     }
@@ -319,7 +339,8 @@ class _DiscPainter extends CustomPainter {
       old.background != background ||
       old.hub != hub ||
       old.stillCents != stillCents ||
-      old.scale != scale;
+      old.scale != scale ||
+      old.edge != edge;
 }
 
 class _NoteDisplay extends StatelessWidget {
@@ -380,12 +401,14 @@ class _NoteDisplay extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Flexible(
-              flex: 3,
+              flex: 6,
               child: FittedBox(
                 child: _NoteName(note: r.target, names: names, color: color),
               ),
             ),
+            // The verdict, large enough to read from the music stand.
             Flexible(
+              flex: 3,
               child: FittedBox(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -398,18 +421,22 @@ class _NoteDisplay extends StatelessWidget {
                                 ? Icons.arrow_downward
                                 : Icons.arrow_upward),
                       color: color,
-                      size: 20,
+                      size: 32,
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 6),
                     Text(
                       r.inTune ? direction : '$direction $centsText',
-                      style: theme.textTheme.titleMedium,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        color: color,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
             Flexible(
+              flex: 2,
               child: FittedBox(
                 child: Text(
                   l10n.frequencyHz(r.frequency.toStringAsFixed(1)),

@@ -1,6 +1,6 @@
 import 'dart:math' as math;
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../features/metronome/time_signature.dart';
@@ -12,7 +12,9 @@ enum PianoStyle {
   /// ringing into the next, with no beat to it.
   drone,
 
-  /// The chord struck once, on the "one", and left to ring for the bar.
+  /// The chord struck on the "one" and left to ring for the bar; in a bar
+  /// too slow for it to last, struck again softly half way (or as often as
+  /// it takes), so that the bar never ends in silence.
   bar,
 
   /// The chord struck again on every beat, firmest on the "one".
@@ -88,9 +90,20 @@ class PianoSamples {
 /// looping recording, the same length as the metronome's bar so that the
 /// two stay together however long they run.
 abstract final class PianoSound {
-  /// Level of each note before the sum is softened, to leave room for the
-  /// others.
+  /// Level of each note, to leave room for the others.
   static const _headroom = 0.42;
+
+  /// Notes struck together up to which each keeps its full level; above,
+  /// the chord is turned down as a whole (see [chordGain]).
+  static const _fullChord = 4;
+
+  /// The loudest the loop may get: a little under full scale.
+  static const _ceiling = 0.97;
+
+  /// The lowest note the root is doubled at, an octave down for weight (C2):
+  /// below it the recordings would be pitched down too far to sound like a
+  /// piano.
+  static const _lowestDouble = 36;
 
   /// How long a note rings before it is let go, in beats, and how long it
   /// takes to die away after that.
@@ -101,6 +114,57 @@ abstract final class PianoSound {
   /// again: well within the length of the recordings.
   static const _droneRenew = 2.8;
 
+  /// How long, in seconds, a chord is left before it is struck again,
+  /// softly, so that a slow bar does not end in silence: the recordings
+  /// last 3.6 s, the last second fading out, and pitched up they are a
+  /// little shorter.
+  static const _chordRenew = 2.4;
+
+  /// Level of a chord struck again within the bar, against its first
+  /// strike.
+  static const _renewGain = 0.6;
+
+  /// The level of each note of a chord of [notes] struck together: full up
+  /// to [_fullChord] notes, then lower, so that a fuller chord is not louder
+  /// and its sum keeps clear of the top. A plain gain, which leaves the
+  /// sound as it is, unlike softening the peaks, which would add partials
+  /// and beat against the notes.
+  @visibleForTesting
+  static double chordGain(int notes) =>
+      notes <= _fullChord ? 1 : math.sqrt(_fullChord / notes);
+
+  /// Where, in samples from its start, a single note held through a bar of
+  /// [barLength] samples is struck: as seldom as the recordings allow,
+  /// evenly, wherever that falls in the bar (on a beat or not), so that the
+  /// note has no beat to it; once a bar if the bar is not much longer than
+  /// a recording rings.
+  @visibleForTesting
+  static List<int> droneStrikes(int barLength) {
+    final limit = _droneRenew * ClickSound.sampleRate;
+    final count = barLength <= limit * 1.25 ? 1 : (barLength / limit).ceil();
+    return [for (var i = 0; i < count; i++) (i * barLength / count).round()];
+  }
+
+  /// The pulses, from [from] up to [to] (not included), on which a chord
+  /// struck at [from] and held until [to] is struck again so that it never
+  /// rings longer than the recordings last: as few as needed, as evenly as
+  /// the pulses of [beat] samples allow, starting with [from].
+  @visibleForTesting
+  static List<int> chordStrikes(int from, int to, int beat) {
+    final limit = _chordRenew * ClickSound.sampleRate;
+    final span = to - from;
+    for (var count = 1; count < span; count++) {
+      final at = [for (var i = 0; i < count; i++) from + i * span ~/ count];
+      var longest = 0;
+      for (var i = 0; i < count; i++) {
+        final end = i + 1 < count ? at[i + 1] : to;
+        longest = math.max(longest, end - at[i]);
+      }
+      if (longest * beat <= limit) return at;
+    }
+    return [for (var p = from; p < to; p++) p];
+  }
+
   /// One loop of [chords] (one per bar) at [bpm] in [signature], as a WAV
   /// file. [a4] tunes the piano like the rest of the app.
   static Uint8List loopWav({
@@ -110,6 +174,7 @@ abstract final class PianoSound {
     required int bpm,
     required TimeSignature signature,
     double a4 = 440,
+    bool rootless = false,
   }) => ClickSound.wav(
     loop(
       samples: samples,
@@ -118,10 +183,13 @@ abstract final class PianoSound {
       bpm: bpm,
       signature: signature,
       a4: a4,
+      rootless: rootless,
     ),
   );
 
-  /// The samples of the loop, from -1 to 1 (see [loopWav]).
+  /// The samples of the loop, from -1 to 1 (see [loopWav]). With [rootless],
+  /// the chords have no root to double an octave down: their first note is
+  /// not one.
   static Float64List loop({
     required PianoSamples samples,
     required List<PianoChord> chords,
@@ -129,6 +197,7 @@ abstract final class PianoSound {
     required int bpm,
     required TimeSignature signature,
     double a4 = 440,
+    bool rootless = false,
   }) {
     final beat = (ClickSound.sampleRate * 60 / bpm).round();
     final barLength = beat * signature.beats;
@@ -174,56 +243,93 @@ abstract final class PianoSound {
       }
     }
 
+    /// The chord, with its root again an octave down for the weight, struck
+    /// at [at] at [gain] and held for [hold] samples.
+    void strikeChord(PianoChord chord, double gain, int at, int hold) {
+      final doubled = !rootless && chord[0] - 12 >= _lowestDouble;
+      final level = gain * chordGain(chord.length + (doubled ? 1 : 0));
+      for (var i = 0; i < chord.length; i++) {
+        strike(chord[i], level * (i == 0 ? 1 : 0.82), at, hold);
+      }
+      if (doubled) strike(chord[0] - 12, level * 0.6, at, hold);
+    }
+
+    /// The chord struck on [pulse] and held until [until] (a pulse, or the
+    /// end of the bar), struck again softly in between when that is longer
+    /// than the recordings ring.
+    void holdChord(
+      PianoChord chord,
+      double gain,
+      int start,
+      int pulse,
+      int until,
+    ) {
+      final strikes = chordStrikes(pulse, until, beat);
+      for (var i = 0; i < strikes.length; i++) {
+        final end = i + 1 < strikes.length ? strikes[i + 1] : until;
+        strikeChord(
+          chord,
+          i == 0 ? gain : gain * _renewGain,
+          start + strikes[i] * beat,
+          (end - strikes[i]) * beat,
+        );
+      }
+    }
+
     for (var bar = 0; bar < chords.length; bar++) {
       final chord = chords[bar];
-      for (var pulse = 0; pulse < signature.beats; pulse++) {
-        final at = bar * barLength + pulse * beat;
-        final accent = signature.accent(pulse);
-        switch (style) {
-          case PianoStyle.drone:
-            // Struck every few beats, as often as the recording lasts, and
-            // not at all between: each strike rings into the next one.
-            final limit = _droneRenew * ClickSound.sampleRate;
-            var every = 1;
-            for (var d = 1; d <= signature.beats; d++) {
-              if (signature.beats % d == 0 && d * beat <= limit) every = d;
+      final start = bar * barLength;
+      switch (style) {
+        case PianoStyle.drone:
+          // Struck as seldom as the recording allows, wherever that falls
+          // in the bar, and not at all between: each strike rings into the
+          // next one.
+          final strikes = droneStrikes(barLength);
+          final every = barLength ~/ strikes.length;
+          for (final at in strikes) {
+            strike(chord[0], 1, start + at, every * 2);
+            if (chord[0] - 12 >= _lowestDouble) {
+              strike(chord[0] - 12, 0.6, start + at, every * 2);
             }
-            // A bar not much longer than that is struck once, at its start.
-            if (barLength <= limit * 1.25) every = signature.beats;
-            if (pulse % every != 0) continue;
-            final hold = every * beat * 2;
-            strike(chord[0], 1, at, hold);
-            strike(chord[0] - 12, 0.6, at, hold);
-          case PianoStyle.bar:
-            if (pulse != 0) continue;
-            final hold = signature.beats * beat;
-            for (var i = 0; i < chord.length; i++) {
-              strike(chord[i], i == 0 ? 1 : 0.82, at, hold);
-            }
-            strike(chord[0] - 12, 0.6, at, hold);
-          case PianoStyle.beat:
+          }
+        case PianoStyle.bar:
+          holdChord(chord, 1, start, 0, signature.beats);
+        case PianoStyle.beat:
+          for (var pulse = 0; pulse < signature.beats; pulse++) {
+            final accent = signature.accent(pulse);
             // In eighths, the beat is the group: 6/8 is two beats.
             final isBeat = signature.denominator == 4 || accent < 2;
             if (!isBeat) continue;
             final gain = accent == 0 ? 1.0 : (accent == 1 ? 0.85 : 0.72);
             final next = _nextStrike(signature, pulse);
-            for (var i = 0; i < chord.length; i++) {
-              strike(chord[i], gain * (i == 0 ? 1 : 0.82), at, next * beat);
-            }
-            // The root again an octave down, for the weight.
-            strike(chord[0] - 12, gain * 0.6, at, next * beat);
-          case PianoStyle.arpeggio:
+            holdChord(chord, gain, start, pulse, pulse + next);
+          }
+        case PianoStyle.arpeggio:
+          for (var pulse = 0; pulse < signature.beats; pulse++) {
+            final accent = signature.accent(pulse);
             final tone = _arpeggioTone(signature, pulse, chord.length);
             final gain = accent == 0 ? 1.0 : (accent == 1 ? 0.88 : 0.76);
             // A single note is quieter than a chord: lift it.
-            strike(chord[tone], gain * 1.6, at, (_arpeggioHold * beat).round());
-        }
+            strike(
+              chord[tone],
+              gain * 1.6,
+              start + pulse * beat,
+              (_arpeggioHold * beat).round(),
+            );
+          }
       }
     }
-    // Chords and ringing notes pile up: soften the peaks instead of
-    // letting them clip.
-    for (var i = 0; i < out.length; i++) {
-      out[i] = _soft(out[i]);
+    // Chords and ringing notes pile up: where they would go past the top,
+    // turn the whole loop down, evenly, rather than bend the peaks.
+    var peak = 0.0;
+    for (final v in out) {
+      peak = math.max(peak, v.abs());
+    }
+    if (peak > _ceiling) {
+      final scale = _ceiling / peak;
+      for (var i = 0; i < out.length; i++) {
+        out[i] *= scale;
+      }
     }
     return out;
   }
@@ -255,14 +361,5 @@ abstract final class PianoSound {
     final cycle = 2 * tones - 2;
     final i = pulse % cycle;
     return i < tones ? i : cycle - i;
-  }
-
-  /// Gentle saturation: linear for small values, never beyond ±1.
-  static double _soft(double x) {
-    const knee = 0.6;
-    final a = x.abs();
-    if (a <= knee) return x;
-    final over = (a - knee) / (1 - knee);
-    return x.sign * (knee + (1 - knee) * (over / (1 + over)));
   }
 }

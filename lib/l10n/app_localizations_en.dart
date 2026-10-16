@@ -152,7 +152,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stopListening => 'Pause';
 
   @override
-  String get tunerIdleHint => 'Paused';
+  String get tunerIdleHint => 'Tuner paused: tap Listen';
 
   @override
   String get playAString => 'Play a note';
@@ -227,8 +227,107 @@ class AppLocalizationsEn extends AppLocalizations {
   String get styleArpeggio => 'Arpeggio';
 
   @override
-  String styleTempo(int bpm, String signature) {
-    return 'Follows the metronome: $bpm BPM, $signature';
+  String styleTempo(String tempo, String signature) {
+    return 'Follows the metronome: $tempo, $signature';
+  }
+
+  @override
+  String get beatUnitQuarter => 'quarter note';
+
+  @override
+  String get beatUnitDottedQuarter => 'dotted quarter note';
+
+  @override
+  String get beatUnitEighth => 'eighth note';
+
+  @override
+  String get pausedForTuner => 'Paused while you tune';
+
+  @override
+  String get resume => 'Resume';
+
+  @override
+  String get playing => 'Playing';
+
+  @override
+  String get openSettings => 'Open settings';
+
+  @override
+  String get themeLabel => 'Theme';
+
+  @override
+  String get themeSystem => 'Follow the phone';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get keepScreenOnTitle => 'Keep the screen on';
+
+  @override
+  String get keepScreenOnSubtitle => 'While it plays or the tuner listens';
+
+  @override
+  String get setTempo => 'Type the tempo';
+
+  @override
+  String get optionsLabel => 'Sound options';
+
+  @override
+  String get octaveLabel => 'Octave of the root';
+
+  @override
+  String get shapeLabel => 'Chord position';
+
+  @override
+  String get shapeStacked => 'Stacked';
+
+  @override
+  String get shapeClose => 'Close';
+
+  @override
+  String get shapeRootless => 'No root';
+
+  @override
+  String get balanceMetronome => 'Click';
+
+  @override
+  String get balanceDrone => 'Piano';
+
+  @override
+  String get guideTitle => 'Gestures and shortcuts';
+
+  @override
+  String get guideRing => 'Tap the metronome\'s ring to start and stop it.';
+
+  @override
+  String get guideTempo =>
+      'Tap the number to type the tempo. Hold − or + to move in steps of 5 and 10.';
+
+  @override
+  String get guideSwipe => 'Swipe left and right to change section.';
+
+  @override
+  String get guideHold =>
+      'Hold a tab to start or stop its sound from any section.';
+
+  @override
+  String get guideDrone =>
+      'In the drone, tap a note to play it. Hold C♯ or F♯ to write them D♭ or G♭.';
+
+  @override
+  String get guideTuner =>
+      'The tuner listens by itself. Going there pauses the metronome and the drone.';
+
+  @override
+  String get guideDone => 'Got it';
+
+  @override
+  String writeAs(String note) {
+    return 'Write as $note';
   }
 
   @override

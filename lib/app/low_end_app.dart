@@ -7,15 +7,18 @@ import '../audio/audio_scope.dart';
 import '../audio/click_output.dart';
 import '../audio/mic_input.dart';
 import '../audio/piano_output.dart';
+import '../audio/pitch.dart';
 import '../audio/tone_output.dart';
 import '../features/metronome/metronome_controller.dart';
 import '../features/tuner/drone/drone_controller.dart';
+import '../features/tuner/drone/drone_panel.dart' show chordSymbol;
 import '../features/tuner/tuner_controller.dart';
 import '../l10n/app_localizations.dart';
 import 'app_navigation.dart';
 import 'background_audio.dart';
 import 'settings.dart';
 import 'home_shell.dart';
+import 'screen_awake.dart';
 import 'theme.dart';
 
 class LowEndApp extends StatefulWidget {
@@ -27,6 +30,7 @@ class LowEndApp extends StatefulWidget {
     this.settings,
     this.backgroundAudio,
     this.pianoOutput,
+    this.screenAwake,
   });
 
   /// Audio output for the drone; defaults to the device's speakers.
@@ -47,6 +51,10 @@ class LowEndApp extends StatefulWidget {
   /// Keeps the sound going in the background; the phone's foreground
   /// service by default.
   final BackgroundAudio? backgroundAudio;
+
+  /// Keeps the screen on while something plays or the tuner listens; the
+  /// phone's wake lock by default.
+  final ScreenAwake? screenAwake;
 
   @override
   State<LowEndApp> createState() => _LowEndAppState();
@@ -69,7 +77,12 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
   late final _tuner = TunerController(widget.micInput ?? RecordMicInput());
   late final BackgroundAudio _background =
       widget.backgroundAudio ?? MediaNotificationAudio();
+  late final ScreenAwake _screenAwake =
+      widget.screenAwake ?? WakelockScreenAwake();
   final _navigation = AppNavigation();
+
+  /// Shows the notice that the sound paused for the tuner.
+  final _messenger = GlobalKey<ScaffoldMessengerState>();
   late final _settings = widget.settings ?? AppSettings();
   late final _actions = AppActions(
     drone: _drone,
@@ -94,9 +107,11 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     // plays, so nothing starts yet).
     if (_drone.hasPiano) _drone.setVoicing(DroneVoicing.chord);
     _settings.addListener(_onSettingsChanged);
+    _lastSection = _navigation.section;
     _navigation.addListener(_onNavigationChanged);
     _drone.addListener(_onPlayingChanged);
     _metronome.addListener(_onPlayingChanged);
+    _tuner.addListener(_keepScreenOn);
     _commands = _background.commands.listen(_onMediaCommand);
     // If the app opens on the tuner (a link), start listening once the first
     // frame is up, so the microphone never delays it.
@@ -111,6 +126,9 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
   }
 
   void _onSettingsChanged() {
+    _keepScreenOn();
+    // The notification names the notes in the player's way.
+    if (_shown == MediaState.playing) _onPlayingChanged();
     // Both only act when their value really changed.
     _drone.setLevel(_settings.droneLevel);
     _metronome.setLevel(_settings.metronomeLevel);
@@ -122,31 +140,53 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
   /// The tuner listens whenever it is on screen, and only then; coming back
   /// it listens again, unless the player paused it.
   ///
-  /// On the Tuner tab the drone and the metronome pause, or the microphone
-  /// would hear them instead of the bass; leaving it, the ones that were
-  /// playing carry on.
+  /// Coming to the Tuner tab, the drone and the metronome pause, or the
+  /// microphone would hear them instead of the bass, and a notice says so,
+  /// with a button to play them again. Leaving the tab, nothing starts by
+  /// itself: a swipe too far must not bring the click back unasked, out of
+  /// time with the band.
   void _onNavigationChanged() {
     _navigation.tunerVisible ? _tuner.resume() : _tuner.stop();
-    final onTuner = _navigation.section == AppSection.tuner;
-    if (onTuner) {
-      if (_drone.isPlaying) {
-        _droneWaiting = true;
-        _drone.stop();
-      }
-      if (_metronome.isPlaying) {
-        _metronomeWaiting = true;
-        _metronome.stop();
-      }
-    } else {
-      if (_droneWaiting) _drone.start();
-      if (_metronomeWaiting) _metronome.start();
-      _droneWaiting = _metronomeWaiting = false;
-    }
+    final section = _navigation.section;
+    final arrived =
+        section == AppSection.tuner && _lastSection != AppSection.tuner;
+    _lastSection = section;
+    if (arrived) _pauseForTuner();
+    _keepScreenOn();
   }
 
-  /// Paused by the tuner, to start again when it is left.
-  var _droneWaiting = false;
-  var _metronomeWaiting = false;
+  /// The section on screen when the navigation last changed, to tell a
+  /// move to the tuner from a page opened on top of it.
+  AppSection _lastSection = AppSection.metronome;
+
+  void _pauseForTuner() {
+    final drone = _drone.isPlaying, metronome = _metronome.isPlaying;
+    if (!drone && !metronome) return;
+    if (drone) _drone.stop();
+    if (metronome) _metronome.stop();
+    final l10n = _notificationTexts();
+    _messenger.currentState
+      ?..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(l10n.pausedForTuner),
+          persist: false,
+          action: SnackBarAction(
+            label: l10n.resume,
+            onPressed: () {
+              if (drone && !_drone.isPlaying) _drone.start();
+              if (metronome && !_metronome.isPlaying) _metronome.start();
+            },
+          ),
+        ),
+      );
+  }
+
+  /// The screen stays on while anything plays or the tuner listens.
+  void _keepScreenOn() => _screenAwake.keepOn(
+    _settings.keepScreenOn &&
+        (_drone.isPlaying || _metronome.isPlaying || _tuner.isListening),
+  );
 
   /// With the screen off or the app in the background, the drone and the
   /// metronome carry on, kept alive by a media notification (see
@@ -158,18 +198,54 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
   var _heldMetronome = false;
   StreamSubscription<MediaCommand>? _commands;
 
+  /// What the notification says is playing, kept while it is paused.
+  var _nowPlaying = '';
+  var _shownText = '';
+
   void _onPlayingChanged() {
+    _keepScreenOn();
     final playing = _drone.isPlaying || _metronome.isPlaying;
-    if (playing) _pausedFromNotification = false;
+    final l10n = _notificationTexts();
+    if (playing) {
+      _pausedFromNotification = false;
+      _nowPlaying = _describePlaying(l10n);
+    }
     final state = playing
         ? MediaState.playing
         : _pausedFromNotification
         ? MediaState.paused
         : MediaState.off;
-    if (state == _shown) return;
+    // A new tempo, note or chord changes the text, not the state.
+    if (state == _shown && _nowPlaying == _shownText) return;
     _shown = state;
-    final l10n = _notificationTexts();
-    _background.show(state, title: l10n.appTitle, text: l10n.backgroundPlaying);
+    _shownText = _nowPlaying;
+    _background.show(
+      state,
+      title: l10n.appTitle,
+      text: _nowPlaying.isEmpty ? l10n.backgroundPlaying : _nowPlaying,
+    );
+  }
+
+  /// "Metronome 120 BPM · 4/4 · Drone A major": what is playing, for the
+  /// notification.
+  String _describePlaying(AppLocalizations l10n) {
+    final parts = <String>[];
+    if (_metronome.isPlaying) {
+      parts.add(
+        '${l10n.metronomeTab} ${l10n.bpmValue('${_metronome.bpm}')} · '
+        '${_metronome.signature.label}',
+      );
+    }
+    if (_drone.isPlaying) {
+      final names = _settings.noteNames(_locale());
+      final root = spell(_drone.rootPitchClass, _drone.rootLetter, names);
+      final chord = _drone.currentChord;
+      parts.add(
+        '${l10n.droneMode} '
+        '${chord == null ? root : chordSymbol(l10n, chord, root)}',
+      );
+    }
+    return parts.join(' · ');
   }
 
   void _onMediaCommand(MediaCommand command) {
@@ -194,9 +270,11 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     }
   }
 
+  Locale _locale() =>
+      _settings.locale ?? WidgetsBinding.instance.platformDispatcher.locale;
+
   AppLocalizations _notificationTexts() {
-    final locale =
-        _settings.locale ?? WidgetsBinding.instance.platformDispatcher.locale;
+    final locale = _locale();
     return AppLocalizations.delegate.isSupported(locale)
         ? lookupAppLocalizations(locale)
         : lookupAppLocalizations(const Locale('en'));
@@ -231,8 +309,10 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     _navigation.removeListener(_onNavigationChanged);
     _drone.removeListener(_onPlayingChanged);
     _metronome.removeListener(_onPlayingChanged);
+    _tuner.removeListener(_keepScreenOn);
     _commands?.cancel();
     _background.show(MediaState.off, title: '');
+    _screenAwake.keepOn(false);
     _drone.dispose();
     _metronome.dispose();
     _tuner.dispose();
@@ -258,6 +338,7 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
   }
 
   Widget _app() => MaterialApp(
+    scaffoldMessengerKey: _messenger,
     // Null follows the phone's language.
     locale: _settings.locale,
     onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
@@ -265,6 +346,7 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     supportedLocales: AppLocalizations.supportedLocales,
     theme: LowEndTheme.light,
     darkTheme: LowEndTheme.dark,
+    themeMode: _settings.themeMode,
     // Always start on the main screen: a launch link is an action, not a
     // page (see _runLink).
     onGenerateRoute: (_) =>

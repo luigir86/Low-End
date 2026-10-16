@@ -28,7 +28,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get metronomeStop => 'Ferma il metronomo';
 
   @override
-  String get metronomeHint => 'Tocca per iniziare';
+  String get metronomeHint => 'Tocca per avviare';
 
   @override
   String bpmValue(String bpm) {
@@ -154,7 +154,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get stopListening => 'Pausa';
 
   @override
-  String get tunerIdleHint => 'In pausa';
+  String get tunerIdleHint => 'Accordatore in pausa: tocca Ascolta';
 
   @override
   String get playAString => 'Suona una nota';
@@ -224,14 +224,114 @@ class AppLocalizationsIt extends AppLocalizations {
   String get styleHeld => 'Accordo a ogni battuta';
 
   @override
-  String get styleBeat => 'Accordo a ogni beat';
+  String get styleBeat => 'Accordo a ogni tempo';
 
   @override
   String get styleArpeggio => 'Arpeggio';
 
   @override
-  String styleTempo(int bpm, String signature) {
-    return 'Segue il metronomo: $bpm BPM, $signature';
+  String styleTempo(String tempo, String signature) {
+    return 'Segue il metronomo: $tempo, $signature';
+  }
+
+  @override
+  String get beatUnitQuarter => 'semiminima';
+
+  @override
+  String get beatUnitDottedQuarter => 'semiminima puntata';
+
+  @override
+  String get beatUnitEighth => 'croma';
+
+  @override
+  String get pausedForTuner => 'In pausa mentre accordi';
+
+  @override
+  String get resume => 'Riprendi';
+
+  @override
+  String get playing => 'In riproduzione';
+
+  @override
+  String get openSettings => 'Apri impostazioni';
+
+  @override
+  String get themeLabel => 'Tema';
+
+  @override
+  String get themeSystem => 'Come il telefono';
+
+  @override
+  String get themeLight => 'Chiaro';
+
+  @override
+  String get themeDark => 'Scuro';
+
+  @override
+  String get keepScreenOnTitle => 'Tieni lo schermo acceso';
+
+  @override
+  String get keepScreenOnSubtitle => 'Mentre suona o l\'accordatore ascolta';
+
+  @override
+  String get setTempo => 'Scrivi il tempo';
+
+  @override
+  String get optionsLabel => 'Opzioni del suono';
+
+  @override
+  String get octaveLabel => 'Ottava della fondamentale';
+
+  @override
+  String get shapeLabel => 'Posizione dell\'accordo';
+
+  @override
+  String get shapeStacked => 'Impilato';
+
+  @override
+  String get shapeClose => 'Vicino';
+
+  @override
+  String get shapeRootless => 'Senza fondamentale';
+
+  @override
+  String get balanceMetronome => 'Click';
+
+  @override
+  String get balanceDrone => 'Pianoforte';
+
+  @override
+  String get guideTitle => 'Gesti e scorciatoie';
+
+  @override
+  String get guideRing =>
+      'Tocca l\'anello del metronomo per avviarlo e fermarlo.';
+
+  @override
+  String get guideTempo =>
+      'Tocca il numero per scrivere il tempo. Tieni premuto − o + per scorrere a passi di 5 e 10.';
+
+  @override
+  String get guideSwipe => 'Scorri a destra e a sinistra per cambiare sezione.';
+
+  @override
+  String get guideHold =>
+      'Tieni premuto un tab per avviare o fermare il suo suono da qualsiasi sezione.';
+
+  @override
+  String get guideDrone =>
+      'Nel drone tocca una nota per farla suonare. Tieni premuto Do♯ o Fa♯ per scriverli Re♭ o Sol♭.';
+
+  @override
+  String get guideTuner =>
+      'L\'accordatore ascolta da solo. Entrando, metronomo e drone vanno in pausa.';
+
+  @override
+  String get guideDone => 'Ho capito';
+
+  @override
+  String writeAs(String note) {
+    return 'Scrivi come $note';
   }
 
   @override

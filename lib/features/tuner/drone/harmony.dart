@@ -12,7 +12,8 @@ enum ChordQuality {
   /// Minor triad; with the seventh, m7 (minor seventh, 9/5).
   minor([1, 6 / 5, 3 / 2], [3, 7], 9 / 5, 10),
 
-  /// Dominant: a major triad; with the seventh, 7. The seventh is 16/9
+  /// Dominant seventh, 7: always played with its seventh, which makes it a
+  /// dominant (see DroneController). The seventh is 16/9
   /// (996 cents), the pure ratio closest to the minor seventh a bassist
   /// plays: the harmonic seventh, 7/4, would sound 31 cents flat of it.
   dominant([1, 5 / 4, 3 / 2], [4, 7], 16 / 9, 10),
@@ -49,33 +50,45 @@ class ProgressionStep {
   final int offset;
   final ChordQuality quality;
   final String numeral;
+
+  /// Steps up the scale from the key, 0 for I, 4 for V: which letter the
+  /// root is written with.
+  int get degree => const [
+    'I',
+    'II',
+    'III',
+    'IV',
+    'V',
+    'VI',
+    'VII',
+  ].indexOf(numeral.toUpperCase());
 }
 
 /// Standard progressions, one chord per bar, played over and over in the
 /// key of the note touched.
 enum Progression {
-  /// Major II–V–I: in C, Dm G C (Dm7 G7 Cmaj7 with sevenths).
+  /// Major II–V–I: in C, Dm G7 C (Dm7 G7 Cmaj7 with sevenths).
   twoFiveOne([
     ProgressionStep(2, ChordQuality.minor, 'II'),
     ProgressionStep(7, ChordQuality.dominant, 'V'),
     ProgressionStep(0, ChordQuality.major, 'I'),
   ]),
 
-  /// Minor II–V–I: in C, D° G Cm (Dm7♭5 G7 Cm7 with sevenths).
+  /// Minor II–V–I: in C, D° G7 Cm (Dm7♭5 G7 Cm7 with sevenths).
   minorTwoFiveOne([
     ProgressionStep(2, ChordQuality.halfDiminished, 'II'),
     ProgressionStep(7, ChordQuality.dominant, 'V'),
     ProgressionStep(0, ChordQuality.minor, 'I'),
   ]),
 
-  /// I–IV–V: in C, C F G.
+  /// I–IV–V: in C, C F G7.
   oneFourFive([
     ProgressionStep(0, ChordQuality.major, 'I'),
     ProgressionStep(5, ChordQuality.major, 'IV'),
     ProgressionStep(7, ChordQuality.dominant, 'V'),
   ]),
 
-  /// I–VI–IV–V: in C, C Am F G.
+  /// I–VI–IV–V: in C, C Am F G7.
   oneSixFourFive([
     ProgressionStep(0, ChordQuality.major, 'I'),
     ProgressionStep(9, ChordQuality.minor, 'VI'),
@@ -83,7 +96,7 @@ enum Progression {
     ProgressionStep(7, ChordQuality.dominant, 'V'),
   ]),
 
-  /// Twelve-bar blues: I I I I, IV IV I I, V IV I V, all dominant.
+  /// Twelve-bar blues: I I I I, IV IV I I, V IV I V, all dominant sevenths.
   blues([
     ProgressionStep(0, ChordQuality.dominant, 'I'),
     ProgressionStep(0, ChordQuality.dominant, 'I'),

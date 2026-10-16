@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,6 +28,11 @@ class AppSettings extends ChangeNotifier {
     _balance = balance != null && balance.isFinite
         ? balance.clamp(-1.0, 1.0)
         : 0;
+    _themeMode =
+        ThemeMode.values.asNameMap()[_read<String>(prefs, _themeKey)] ??
+        ThemeMode.system;
+    _keepScreenOn = _read<bool>(prefs, _keepScreenOnKey) ?? true;
+    _seenGuide = _read<bool>(prefs, _seenGuideKey) ?? false;
   }
 
   /// Reads the saved settings.
@@ -38,6 +44,9 @@ class AppSettings extends ChangeNotifier {
   static const _namingKey = 'note_names';
   static const _a4Key = 'reference_pitch';
   static const _balanceKey = 'balance';
+  static const _themeKey = 'theme';
+  static const _keepScreenOnKey = 'keep_screen_on';
+  static const _seenGuideKey = 'seen_guide';
 
   final SharedPreferences? _prefs;
   String? _languageCode;
@@ -98,6 +107,44 @@ class AppSettings extends ChangeNotifier {
     assert(referencePitches.contains(hz));
     _a4 = hz;
     _save(_prefs?.setDouble(_a4Key, hz));
+    notifyListeners();
+  }
+
+  ThemeMode _themeMode = ThemeMode.system;
+  bool _keepScreenOn = true;
+
+  // Unsaved settings (tests) have nothing to teach: the guide is for the
+  // first launch of the real app.
+  bool _seenGuide = true;
+
+  /// Whether the guide to the gestures has been shown once already.
+  bool get seenGuide => _seenGuide;
+
+  void markGuideSeen() {
+    if (_seenGuide) return;
+    _seenGuide = true;
+    _save(_prefs?.setBool(_seenGuideKey, true));
+  }
+
+  /// Light, dark, or the phone's own setting: dark can be forced on a dark
+  /// stage whatever the phone is set to.
+  ThemeMode get themeMode => _themeMode;
+
+  /// Whether the screen stays on while something plays or the tuner
+  /// listens.
+  bool get keepScreenOn => _keepScreenOn;
+
+  void setThemeMode(ThemeMode mode) {
+    if (mode == _themeMode) return;
+    _themeMode = mode;
+    _save(_prefs?.setString(_themeKey, mode.name));
+    notifyListeners();
+  }
+
+  void setKeepScreenOn(bool value) {
+    if (value == _keepScreenOn) return;
+    _keepScreenOn = value;
+    _save(_prefs?.setBool(_keepScreenOnKey, value));
     notifyListeners();
   }
 

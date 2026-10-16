@@ -174,7 +174,7 @@ void main() {
       await _settle(tester);
       expect(mic.isCapturing, isFalse);
       expect(scope.tuner.userPaused, isTrue);
-      expect(find.text('Paused'), findsOneWidget);
+      expect(find.text('Tuner paused: tap Listen'), findsOneWidget);
 
       scope.navigation.open(AppSection.drone);
       await _settle(tester);

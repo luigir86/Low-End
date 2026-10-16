@@ -44,6 +44,11 @@ abstract final class Palette {
   static const brass = Color(0xFF7A5C1E);
   static const brassLight = Color(0xFFE3C27A);
 
+  // The metronome's "one": unlike the other beats in both tint and
+  // lightness, so it shows out of the corner of an eye on a dark stage.
+  static const downbeatLight = Color(0xFFB8440F);
+  static const downbeatDark = Color(0xFFFFF4E0);
+
   // Tuner verdicts.
   static const inTuneLight = Color(0xFF2E6B3A);
   static const inTuneDark = Color(0xFF8FD19E);
@@ -61,6 +66,7 @@ class LowEndColors extends ThemeExtension<LowEndColors> {
     required this.close,
     required this.off,
     required this.strobeBackground,
+    required this.downbeat,
   });
 
   /// Within a few cents.
@@ -74,6 +80,9 @@ class LowEndColors extends ThemeExtension<LowEndColors> {
 
   final Color strobeBackground;
 
+  /// The first beat of the bar on the metronome's ring.
+  final Color downbeat;
+
   static LowEndColors of(BuildContext context) =>
       Theme.of(context).extension<LowEndColors>()!;
 
@@ -83,11 +92,13 @@ class LowEndColors extends ThemeExtension<LowEndColors> {
     Color? close,
     Color? off,
     Color? strobeBackground,
+    Color? downbeat,
   }) => LowEndColors(
     inTune: inTune ?? this.inTune,
     close: close ?? this.close,
     off: off ?? this.off,
     strobeBackground: strobeBackground ?? this.strobeBackground,
+    downbeat: downbeat ?? this.downbeat,
   );
 
   @override
@@ -102,6 +113,7 @@ class LowEndColors extends ThemeExtension<LowEndColors> {
         other.strobeBackground,
         t,
       )!,
+      downbeat: Color.lerp(downbeat, other.downbeat, t)!,
     );
   }
 }
@@ -168,6 +180,7 @@ abstract final class LowEndTheme {
       close: Palette.closeLight,
       off: Palette.offLight,
       strobeBackground: Palette.mapleShade2,
+      downbeat: Palette.downbeatLight,
     ),
   );
 
@@ -178,6 +191,7 @@ abstract final class LowEndTheme {
       close: Palette.closeDark,
       off: Palette.offDark,
       strobeBackground: Palette.ebonyShade2,
+      downbeat: Palette.downbeatDark,
     ),
   );
 

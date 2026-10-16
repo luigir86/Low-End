@@ -1,10 +1,13 @@
 package com.luigir86.low_end
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.AudioManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import com.ryanheise.audioservice.AudioServiceActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -31,6 +34,22 @@ class MainActivity : AudioServiceActivity() {
                     ) {
                         requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
                     }
+                    result.success(null)
+                } else {
+                    result.notImplemented()
+                }
+            }
+        // The app's page in the phone settings, to allow the microphone
+        // after saying no.
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "low_end/app_settings")
+            .setMethodCallHandler { call, result ->
+                if (call.method == "open") {
+                    startActivity(
+                        Intent(
+                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.fromParts("package", packageName, null),
+                        ),
+                    )
                     result.success(null)
                 } else {
                     result.notImplemented()

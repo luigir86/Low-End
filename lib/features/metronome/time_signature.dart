@@ -1,11 +1,24 @@
+/// The note value a tempo counts, as written above a score: "♩ = 120".
+enum BeatUnit {
+  quarter('♩'),
+  dottedQuarter('♩.'),
+  eighth('♪');
+
+  const BeatUnit(this.symbol);
+
+  final String symbol;
+}
+
 /// A time signature as the metronome plays it: how many pulses in a bar and
 /// how they group.
 ///
-/// The tempo counts the pulses (the segments of the ring): quarter notes in
-/// x/4, eighth notes in x/8. 3/4 and 6/8 hold the same number of eighths but
-/// feel different, so they differ in the grouping: 3/4 is three equal beats,
-/// 6/8 is two groups of three, with a stronger click on the first pulse of
-/// each group.
+/// The pulses are the segments of the ring: quarter notes in x/4, eighth
+/// notes in x/8. The tempo counts the beat a player feels: the quarter note
+/// in x/4, the dotted quarter in the compound bars (6/8, 9/8, 12/8: three
+/// pulses to a beat), the eighth in 7/8, whose groups are uneven. 3/4 and
+/// 6/8 hold the same number of eighths but feel different, so they differ in
+/// the grouping: 3/4 is three equal beats, 6/8 is two groups of three, with
+/// a stronger click on the first pulse of each group.
 class TimeSignature {
   const TimeSignature(this.numerator, this.denominator, this.groups);
 
@@ -40,6 +53,19 @@ class TimeSignature {
 
   /// True when the bar is split into groups with their own strong pulse.
   bool get grouped => groups.length > 1;
+
+  /// True for the compound bars, 6/8, 9/8 and 12/8: eighths in groups of
+  /// three, each group one beat (a dotted quarter).
+  bool get compound =>
+      denominator == 8 && grouped && groups.every((g) => g == 3);
+
+  /// Pulses (segments of the ring) in one beat of the tempo.
+  int get pulsesPerBeat => compound ? 3 : 1;
+
+  /// The note value the tempo counts.
+  BeatUnit get beatUnit => compound
+      ? BeatUnit.dottedQuarter
+      : (denominator == 8 ? BeatUnit.eighth : BeatUnit.quarter);
 
   /// How strong pulse [beat] is: 0 for the "one", 1 for the first pulse of
   /// another group, 2 for the others.

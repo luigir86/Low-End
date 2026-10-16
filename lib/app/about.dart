@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
-import '../widgets/scroll_mark.dart';
 
 const sourceCodeUrl = 'https://github.com/luigir86/Low-End';
+
+/// Opens [url] in the browser; nothing happens if the phone has none.
+Future<void> _open(String url) async {
+  try {
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  } catch (error) {
+    debugPrint('Link could not be opened: $error');
+  }
+}
 
 /// The About dialog: what the app does, its licence, and the licences of the
 /// open-source packages it is built with (the MIT and BSD licences ask for
@@ -14,15 +23,7 @@ void showLowEndAbout(BuildContext context) {
     context: context,
     applicationName: l10n.appTitle,
     applicationIcon: ExcludeSemantics(
-      child: SizedBox.square(
-        dimension: 56,
-        child: CustomPaint(
-          painter: ScrollMarkPainter(
-            light: Theme.of(context).colorScheme.primary,
-            glow: false,
-          ),
-        ),
-      ),
+      child: Image.asset('assets/brand/logo.png', width: 80, height: 80),
     ),
     applicationLegalese: l10n.aboutLegalese,
     children: [
@@ -31,7 +32,15 @@ void showLowEndAbout(BuildContext context) {
       const SizedBox(height: 8),
       Text(l10n.aboutPiano),
       const SizedBox(height: 8),
-      SelectableText(l10n.aboutSource(sourceCodeUrl)),
+      // A link, not a text to copy from.
+      Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: TextButton.icon(
+          onPressed: () => _open(sourceCodeUrl),
+          icon: const Icon(Icons.open_in_new, size: 18),
+          label: Text(l10n.aboutSource(sourceCodeUrl)),
+        ),
+      ),
     ],
   );
 }
