@@ -526,7 +526,9 @@ class _ChordMenu extends StatelessWidget {
                 Expanded(
                   child: progression
                       ? DropdownMenu<Progression>(
-                          key: const ValueKey('progression'),
+                          // The text field keeps the name it was given: a new
+                          // language needs a new menu.
+                          key: ValueKey('progression-${l10n.localeName}'),
                           expandedInsets: EdgeInsets.zero,
                           // Also what screen readers announce with the choice.
                           label: Text(l10n.progressionLabel),
@@ -543,7 +545,7 @@ class _ChordMenu extends StatelessWidget {
                           },
                         )
                       : DropdownMenu<ChordType>(
-                          key: const ValueKey('chord'),
+                          key: ValueKey('chord-${l10n.localeName}'),
                           expandedInsets: EdgeInsets.zero,
                           label: Text(l10n.chordLabel),
                           initialSelection: drone.chord,

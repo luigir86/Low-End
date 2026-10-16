@@ -226,6 +226,20 @@ void main() {
       });
     }
 
+    testWidgets('renames the chosen chord in the chord menu', (tester) async {
+      final h = _H(tester, const _Config('en', scale: 1));
+      await h.start();
+      await h.tab(AppSection.drone);
+      h.scope.drone.setVoicing(DroneVoicing.chord);
+      h.scope.drone.setChord(ChordType.minor);
+      await h.settle('chord');
+      expect(find.text('Minor'), findsOneWidget);
+      h.settings.setLanguage('it');
+      await h.settle('italian');
+      expect(find.text('Minore'), findsOneWidget);
+      expect(find.text('Minor'), findsNothing);
+    });
+
     testWidgets('from the settings page while the drone plays', (tester) async {
       final h = _H(tester, const _Config('en', scale: 2));
       await h.start();
