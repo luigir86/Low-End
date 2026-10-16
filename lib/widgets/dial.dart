@@ -21,8 +21,11 @@ class DialGeometry {
   double get ringOuter => radius * 0.97;
   double get ringInner => radius * 0.64;
 
-  /// The plain centre, where the note or the beat dot goes.
-  double get hub => radius * 0.61;
+  /// The hub as a fraction of the dial: its diameter over the dial's.
+  static const hubFraction = 0.61;
+
+  /// The plain centre, where the note or the tempo goes.
+  double get hub => radius * hubFraction;
 
   /// The gap left between neighbouring segments, in radians.
   static const gap = 0.05;

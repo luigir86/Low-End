@@ -204,8 +204,8 @@ class _FifthsDial extends StatelessWidget {
 }
 
 /// The ring of twelve segments: the root playing lit, the rest of a chord
-/// in a second colour; in a progression, a dot on the key and an outline
-/// on the root that comes next.
+/// in a second colour; in a progression, a thin arc on the inner edge of the
+/// key and a soft tint with a thin outer arc on the root that comes next.
 class _FifthsPainter extends CustomPainter {
   _FifthsPainter({
     required this.order,
@@ -255,36 +255,39 @@ class _FifthsPainter extends CustomPainter {
             : colors.outlineVariant,
         border: lit || inChord || outOfKey ? null : colors.outline,
       );
+      final width = dial.ringWidth;
       if (next == pc && !lit) {
+        // Where it goes next, softly: a faint tint, and a thin arc on the
+        // outer edge. Nothing like the full colour of the note playing.
         dial.paintSegment(
           canvas,
           startAngle: start,
           sweep: sweep,
-          color: colors.primary,
-          stroke: 3,
+          color: colors.primary.withValues(alpha: 0.14),
+        );
+        dial.paintSegment(
+          canvas,
+          startAngle: start + 0.05,
+          sweep: sweep - 0.1,
+          inner: dial.ringOuter - width * 0.14,
+          outer: dial.ringOuter - width * 0.05,
+          color: colors.primary.withValues(alpha: 0.65),
         );
       }
       if (tonic == pc) {
-        // A dot by the inner edge and a notch by the outer one, in a colour
-        // that shows on the segment: the key is told by shape, not only by
-        // hue.
-        final mark = Paint()
-          ..color = lit
+        // The key, as one thin arc along the inner edge: below the name,
+        // never across it, in a colour that shows on the segment.
+        dial.paintSegment(
+          canvas,
+          startAngle: start + 0.05,
+          sweep: sweep - 0.1,
+          inner: dial.ringInner + width * 0.05,
+          outer: dial.ringInner + width * 0.15,
+          color: lit
               ? colors.onPrimary
               : inChord
               ? colors.onSecondary
-              : colors.primary;
-        canvas.drawCircle(
-          dial.pointAt(i * step, dial.ringInner + dial.ringWidth * 0.16),
-          dial.ringWidth * 0.09,
-          mark,
-        );
-        canvas.drawLine(
-          dial.pointAt(i * step, dial.ringOuter - dial.ringWidth * 0.20),
-          dial.pointAt(i * step, dial.ringOuter - dial.ringWidth * 0.04),
-          mark
-            ..strokeWidth = 4
-            ..strokeCap = StrokeCap.round,
+              : colors.primary,
         );
       }
     }

@@ -212,6 +212,22 @@ void main() {
       expect(loop.length, (ClickSound.sampleRate * 60 / 240).round() * 2);
     });
 
+    test('a bar of one beat (1/1) works in every style', () {
+      for (final style in PianoStyle.values) {
+        final loop = PianoSound.loop(
+          samples: samples,
+          chords: [cMajor, cMajor],
+          style: style,
+          bpm: 120,
+          signature: TimeSignature.oneOne,
+        );
+        // Two bars of one beat each.
+        expect(loop.length, ClickSound.sampleRate, reason: '$style');
+        expect(_energy(loop, 0, 200), greaterThan(0), reason: '$style');
+        expect(loop.every((v) => v.isFinite), isTrue, reason: '$style');
+      }
+    });
+
     test('is tuned by the reference A', () {
       Float64List at(double a4) => PianoSound.loop(
         samples: samples,

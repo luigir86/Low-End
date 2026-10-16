@@ -17,9 +17,9 @@ Il volume è quello del telefono: usa i suoi tasti. Il cursore in basso, in Metr
 
 ## Metronomo
 
-- **Avvio e stop**: tocca l'anello al centro. Si accende movimento per movimento, con il primo tempo in evidenza, e un click di woodblock tiene il tempo.
-- **Tempo**: da 30 a 250 BPM. Tocca il numero per scriverlo; tocca **−** o **+** per spostarti di uno, oppure tienili premuti per andare a passi di 5 e 10; oppure batti **TAP** al ritmo che vuoi.
-- **Misura**: 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 e 12/8. In 6/8, 9/8 e 12/8 il tempo conta le semiminime puntate (♩.), come si dirige; in 7/8 conta le crome.
+- **Avvio e stop**: tocca l'anello o il numero al centro. L'anello si accende movimento per movimento, con il primo tempo in evidenza, e un click di woodblock tiene il tempo.
+- **Tempo**: da 30 a 250 BPM. Tocca la scritta ♩ BPM sotto il cerchio per scriverlo; tocca **−** o **+** per spostarti di uno, oppure tienili premuti per andare a passi di 5 e 10; oppure batti **TAP** al ritmo che vuoi.
+- **Misura**: 1/1 (un solo click a battuta, per tenere un tempo senza contare), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 e 12/8. In 6/8, 9/8 e 12/8 il tempo conta le semiminime puntate (♩.), come si dirige; in 7/8 conta le crome.
 - Se cambi tempo o misura mentre suona, il cambio è immediato e senza stacchi.
 
 ## Armonia
@@ -37,7 +37,7 @@ Dodici tasti intorno a un quadrante (di norma nel cerchio delle quinte; nelle im
 
 - L'accordatore ascolta da solo quando apri la sezione (la prima volta Android chiede il permesso per il **microfono**). Suona una nota: il suo nome compare al centro dello strobo rotondo. Gli anelli dello strobo girano in senso antiorario se la nota è **calante** e orario se è **crescente**, più veloci quanto più sei lontano, e restano fermi quando sei **intonato** (entro 5 cent). Sono scritte anche le parole *Calante*, *Intonato* e *Crescente* e il numero di cent, e un lettore di schermo le legge ad alta voce.
 - Sente le note da 28 Hz a 700 Hz e riconosce qualsiasi nota, senza dover scegliere prima la corda.
-- **Ascolta / Pausa**: mettilo in pausa quando vuoi; resta in pausa finché non lo riattivi.
+- **Ascolta / Pausa**: tocca il centro del cerchio per metterlo in pausa quando vuoi; resta in pausa finché non lo tocchi di nuovo.
 - Mentre sei nell'accordatore, **metronomo e armonia vanno in pausa**, così il microfono sente solo il tuo strumento; riprendono quando esci.
 - Il suono è analizzato sul telefono e non viene mai registrato né inviato.
 - Se hai negato il microfono, consentilo nelle impostazioni del telefono in *App › Low End › Autorizzazioni*; l'app mostra un pulsante che apre quella pagina.

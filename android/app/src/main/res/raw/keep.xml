@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The release build removes resources nothing refers to by name. The
+     notification buttons (pause, play, stop) are found by audio_service by
+     their names, at run time, so they must stay: without them Android
+     logs "You must specify an icon resource id to build a CustomAction". -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/audio_service_*,@mipmap/ic_launcher" />

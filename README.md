@@ -15,7 +15,7 @@ The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens o
 ### Metronome
 
 - Tempo from 30 to 250 BPM: touch the number to type it, hold − or + to move in steps, or tap TAP.
-- Time signatures 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8, with the beats grouped the way you count them.
+- Time signatures 1/1 (one click a bar), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8, with the beats grouped the way you count them.
 - A ring that lights up beat by beat (the downbeat marked) and a woodblock click. The audio engine loops a whole bar, so the time stays steady.
 
 ### Harmony

@@ -284,7 +284,7 @@ void main() {
     );
     expect(tester.getSemantics(_metronomeTab).value, isEmpty);
     // Paused, the tuner lets a hold start it.
-    await tester.tap(find.text('Pause'));
+    await tester.tap(find.byKey(const Key('tunerHub')));
     await tester.pump(const Duration(milliseconds: 300));
     expect(scope.tuner.isListening, isFalse);
     await tester.longPress(_metronomeTab);
@@ -636,7 +636,7 @@ void main() {
     await tester.pumpAndSettle();
     final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
 
-    await tester.tap(find.text('80'));
+    await tester.tap(find.text('♩ BPM'));
     await tester.pumpAndSettle();
     expect(find.text('Type the tempo'), findsOneWidget);
     await tester.enterText(find.byType(TextField), '132');
@@ -646,20 +646,20 @@ void main() {
     expect(find.text('Type the tempo'), findsNothing);
 
     // Too fast is brought back to the limit, and a preset sets it at once.
-    await tester.tap(find.text('132'));
+    await tester.tap(find.text('♩ BPM'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), '999');
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
     expect(scope.metronome.bpm, MetronomeController.maxBpm);
-    await tester.tap(find.text('250'));
+    await tester.tap(find.text('♩ BPM'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('60'));
+    await tester.tap(find.text('60').last);
     await tester.pumpAndSettle();
     expect(scope.metronome.bpm, 60);
 
     // Cancelling leaves it as it was.
-    await tester.tap(find.text('60').first);
+    await tester.tap(find.text('♩ BPM'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), '90');
     await tester.tap(find.text('Cancel'));

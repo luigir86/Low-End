@@ -174,6 +174,21 @@ void main() {
     expect(output.startAt, Duration.zero);
   });
 
+  test('1/1 is a bar of one click, every click the "one"', () async {
+    metronome.setBpm(120);
+    metronome.setSignature(TimeSignature.oneOne);
+    expect(TimeSignature.all.first, TimeSignature.oneOne);
+    expect(metronome.beatsPerBar, 1);
+    expect(metronome.pulseBpm, 120);
+    expect(metronome.barLength, const Duration(milliseconds: 500));
+    await metronome.start();
+    expect(_samples(output.bar!), ClickSound.sampleRate ~/ 2);
+    // Always the "one": the whole bar is one segment, lit all the time.
+    expect(metronome.beat, 0);
+    expect(TimeSignature.oneOne.accent(0), 0);
+    expect(TimeSignature.oneOne.label, '1/1');
+  });
+
   group('compound bars count the dotted quarter', () {
     test('6/8, 9/8 and 12/8 at ♩. = 100 click 300 eighths a minute', () {
       for (final s in [

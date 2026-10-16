@@ -165,7 +165,8 @@ void main() {
         await h.shot('tuner_2_flat');
         await h.play(55);
         await h.shot('tuner_3_in_tune');
-        await h.tapText(h.t('Pause', 'Pausa'));
+        await tester.tap(find.byKey(const Key('tunerHub')));
+        await h._settle();
         await h.shot('tuner_4_paused');
       });
 

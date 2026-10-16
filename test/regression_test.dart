@@ -170,7 +170,7 @@ void main() {
         'background', (tester) async {
       final mic = FakeMicInput();
       final scope = await _pumpApp(tester, mic: mic);
-      await tester.tap(find.text('Pause'));
+      await tester.tap(find.byKey(const Key('tunerHub')));
       await _settle(tester);
       expect(mic.isCapturing, isFalse);
       expect(scope.tuner.userPaused, isTrue);
@@ -202,7 +202,7 @@ void main() {
       await _settle(tester);
       expect(mic.isCapturing, isFalse, reason: 'back from the background');
 
-      await tester.tap(find.text('Listen'));
+      await tester.tap(find.byKey(const Key('tunerHub')));
       await _settle(tester);
       expect(mic.isCapturing, isTrue);
       expect(scope.tuner.userPaused, isFalse);
