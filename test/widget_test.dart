@@ -659,14 +659,8 @@ void main() {
     final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
     brightness() => Theme.of(tester.element(find.byType(HomeShell))).brightness;
 
-    // The test window is light, and the app follows it until told otherwise.
-    expect(brightness(), Brightness.light);
-    settings.setThemeMode(ThemeMode.dark);
-    await tester.pumpAndSettle();
+    // The test window is light, but the app is always dark.
     expect(brightness(), Brightness.dark);
-    settings.setThemeMode(ThemeMode.light);
-    await tester.pumpAndSettle();
-    expect(brightness(), Brightness.light);
 
     // The screen stays on while it plays, unless the player says no.
     await scope.metronome.start();
@@ -683,7 +677,7 @@ void main() {
     expect(awake.on, isFalse);
   });
 
-  testWidgets('the settings page changes the theme and the screen option', (
+  testWidgets('the settings page has no theme, and changes the screen option', (
     tester,
   ) async {
     final settings = AppSettings();
@@ -698,9 +692,7 @@ void main() {
     await tester.tap(find.byTooltip('Settings'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Dark'));
-    await tester.pumpAndSettle();
-    expect(settings.themeMode, ThemeMode.dark);
+    expect(find.text('Theme'), findsNothing);
     await tester.tap(find.text('Keep the screen on'));
     await tester.pumpAndSettle();
     expect(settings.keepScreenOn, isFalse);

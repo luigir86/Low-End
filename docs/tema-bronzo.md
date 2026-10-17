@@ -1,0 +1,42 @@
+# Tema Bronzo per Low End
+
+Stato: **nel codice**. Sostituisce il tema "Orchestra" (un colore per scheda, chiaro e scuro), scartato da Luigi il 17 ottobre 2026. Le schermate del negozio sono in `store/graphics/phone/<lingua>/` (`flutter test test_screenshots/store_screenshots_test.dart --update-goldens`).
+
+## 1. L'idea in una frase
+
+Un solo colore per tutta l'app, il **bronzo miele** del leone dell'icona, su fondo **ebano**. Sempre scuro, senza scelta del tema. Tutto piatto.
+
+## 2. Perché questa scelta
+
+- **Un marchio solo.** Icona, grafica del negozio e app sono fatte dello stesso legno e bronzo su fondo scuro.
+- **Più semplice.** Nessuna impostazione del tema, un solo insieme di colori da tenere leggibile.
+- **Le schede si riconoscono dalla forma**: icona e nome nella barra, e tre cerchi diversi (battiti, circolo delle quinte, strobo).
+- **Sempre scuro** riposa la vista sul palco e in sala prove. Il tema chiaro non è richiesto da WCAG 2.1 AA.
+
+## 3. Palette
+
+| Ruolo | Colore |
+|---|---|
+| Accento, bronzo | #D4A373 |
+| Sfondo, ebano | #141312 (superfici #1C1B19, #262422, #312F2C) |
+| Testo | #EFEDEA, attenuato #C9C5BF mescolato al 25% di bronzo |
+
+Ogni altra tinta è il bronzo **mescolato nell'ebano** (`LowEndTheme.tint`): disco 10%, tasti e battiti spenti 26%, pillola scelta e TAP 20%, note dell'accordo 55%, segmenti dello strobo 60%, bordi e battiti accesi 75%. Il primo battito è il bronzo pieno, e più largo.
+
+La schermata di avvio di Android usa l'ebano (`android/app/src/main/res/values/colors.xml`), senza variante notte.
+
+## 4. Verdetti dell'accordatore
+
+Intonato verde #8FD19E, quasi giallo #F2DA4E, lontano rosso puro #FF5F56. Stanno solo sulla scritta del verdetto con la sua freccia o spunta; la nota resta bianca. Il giallo è lontano dal bronzo per tonalità (almeno 20 gradi, controllato da `test/theme_test.dart`), non solo per luminosità. Il verdetto è detto anche a parole e dal verso dello strobo: nessuna informazione affidata al solo colore.
+
+## 5. Pallino della scheda che suona
+
+Sempre bronzo pieno: pulsa cambiando grandezza (dall'80% al 100%), non trasparenza, così il fondo scuro non lo spegne.
+
+## 6. Contrasto (WCAG)
+
+`test/theme_test.dart` controlla: bronzo sullo sfondo almeno 4,5 : 1; bordi, battiti accesi e segmenti dello strobo sul disco almeno 3 : 1; testo sulla pillola e sulle note dell'accordo almeno 4,5 : 1; verdetti sul disco e sullo sfondo almeno 3 : 1.
+
+## 7. Icona
+
+Resta com'è: il leone in legno e bronzo su fondo scuro è già il tema.

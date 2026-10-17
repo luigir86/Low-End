@@ -19,7 +19,7 @@ TUNER
 MADE FOR PLAYING
 • Swipe left and right to change section. Touch the tab you are on to start or stop its sound; hold another tab to do it from anywhere.
 • Keeps playing with the screen off, with a notification that says what is sounding. Optional: keep the screen on.
-• Light, dark or automatic theme; English and Italian; note names as C D E or Do Re Mi.
+• A dark look in bronze and ebony, easy on the eyes on stage; English and Italian; note names as C D E or Do Re Mi.
 • Built to be accessible: screen-reader labels, enlargeable text, and colours that are never the only cue.
 
 PRIVATE AND OPEN

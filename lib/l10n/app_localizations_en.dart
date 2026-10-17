@@ -333,18 +333,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openSettings => 'Open settings';
 
   @override
-  String get themeLabel => 'Theme';
-
-  @override
-  String get themeSystem => 'Follow the phone';
-
-  @override
-  String get themeLight => 'Light';
-
-  @override
-  String get themeDark => 'Dark';
-
-  @override
   String get keepScreenOnTitle => 'Keep the screen on';
 
   @override

@@ -13,7 +13,6 @@ import '../widgets/pulsing_dot.dart';
 import 'app_navigation.dart';
 import 'guide.dart';
 import 'settings_page.dart';
-import 'theme.dart';
 
 /// Main screen with bottom navigation between the app's sections.
 class HomeShell extends StatefulWidget {
@@ -175,12 +174,7 @@ class _HomeShellState extends State<HomeShell> {
 
   Widget _tab(AppSection section, Widget tabContent, {required bool active}) {
     final l10n = AppLocalizations.of(context);
-    // The tab wears its section's accent: its pill, its name and the dot of
-    // a section that is playing.
-    final destination = Theme(
-      data: LowEndTheme.accented(Theme.of(context), section),
-      child: tabContent,
-    );
+    final destination = tabContent;
     // The tuner has nothing to hold for, and with the gestures locked for a
     // rehearsal no tab does: it only answers a tap, but still says it plays.
     if (section == AppSection.tuner ||
@@ -265,15 +259,7 @@ class _HomeShellState extends State<HomeShell> {
               },
               children: [
                 for (var i = 0; i < _screens.length; i++)
-                  _KeepAlive(
-                    child: Theme(
-                      data: LowEndTheme.accented(
-                        Theme.of(context),
-                        AppSection.values[i],
-                      ),
-                      child: _screens[i],
-                    ),
-                  ),
+                  _KeepAlive(child: _screens[i]),
               ],
             ),
             PositionedDirectional(

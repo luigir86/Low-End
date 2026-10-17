@@ -336,18 +336,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get openSettings => 'Apri impostazioni';
 
   @override
-  String get themeLabel => 'Tema';
-
-  @override
-  String get themeSystem => 'Come il telefono';
-
-  @override
-  String get themeLight => 'Chiaro';
-
-  @override
-  String get themeDark => 'Scuro';
-
-  @override
   String get keepScreenOnTitle => 'Tieni lo schermo acceso';
 
   @override

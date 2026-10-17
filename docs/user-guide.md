@@ -56,7 +56,6 @@ The gear at the top opens the settings:
 | Note names | Follow the language, Do Re Mi (La3 = 440 Hz), C D E (A4 = 440 Hz) |
 | Reference A | every hertz from 415 to 445, for the tuner and the harmony |
 | Harmony circle | Circle of fifths, or in semitones |
-| Theme | Follow the phone, light, dark |
 | Keep the screen on | While something plays or the tuner listens |
 | Gestures and shortcuts | Shows the guide again |
 

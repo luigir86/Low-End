@@ -41,17 +41,18 @@ Rules: pick a role, never a number; the three dials show their value in `display
 
 ## Colour
 
-The Orchestra (full notes in [tema-orchestra.md](tema-orchestra.md)): each tab has the colour of one material of the orchestra, and only that one. **Brass** for the metronome, **rosewood** for the harmony, **silver** for the tuner. Everything else is neutral and everything is flat: no gradients, no sheen. Every other shade of a tab is its accent mixed into the background (`LowEndTheme.accented`), so the three tabs share one look and differ by one colour.
+Bronze on ebony (full notes in [tema-bronzo.md](tema-bronzo.md)): always dark, no choice of theme, and one accent for the whole app, the honey bronze of the lion on the icon. Everything else is neutral and everything is flat: no gradients, no sheen. Every other shade is the bronze mixed into the ebony (`LowEndTheme.tint`), so the three tabs look like one app and are told apart by their icons, names and dials.
 
-| Meaning | Colour (light / dark) |
+| Meaning | Colour |
 | --- | --- |
-| Surface, text, muted text | neutral grey `maple` / ebony `ebony`, `inkOnLight` / `inkOnDark`, `inkOnLightMuted` / `inkOnDarkMuted` |
-| Tab accent (lit beats, the chosen key, the slider, borders) | metronome `#8A6508` / `#E3B84A`, harmony `#8A4A33` / `#D88F6E`, tuner `#5E6B7A` / `#B4C0CF` |
-| Shades of a tab | the accent mixed into the surface: disc 10 %, keys and beats that are off 26 %, the chosen pill and TAP 20 %, the rest of a chord 55 %, borders, the other lit beats and the tuner's segments 90 % (light) / 75 % (dark), except the tuner's segments in dark, 55 %, so the strobe does not outweigh the note |
+| Surface, text, muted text | ebony `ebony`, `inkOnDark`, `inkOnDarkMuted` with a quarter of bronze |
+| Accent (lit beats, the chosen key, the slider, the dot of a tab that plays) | bronze `#D4A373` |
+| Shades of the accent | the bronze mixed into the ebony: disc 10 %, keys and beats that are off 26 %, the chosen pill and TAP 20 %, the rest of a chord 55 %, the tuner's segments 60 % (so the strobe does not outweigh the note), borders and the other lit beats 75 % |
 | The metronome's "one" | the accent at full strength, and wider than the other beats (it fills the ring's margins), so it is told by its shape too |
 | Choices of a switch | the chosen one filled, in ink; the others in the muted ink, never in the accent |
-| Icons on the row of controls | the ink of the text; the tab's colour is on the borders |
-| Tuner verdict | in tune green, close orange, off red (`inTune*`, `close*`, `off*`), on the verdict words and their tick or arrow only (the note itself is in ink, like the middle of every dial), always with a shape (a tick or an arrow) as well. They are never a tab's colour: the orange is not the brass, the red is not the rosewood |
+| Icons on the row of controls | the ink of the text; the bronze is on the borders |
+| The dot of a tab that plays | the full bronze, pulsing in size, not in opacity, so the dark bar never dulls it |
+| Tuner verdict | in tune green, close yellow, off pure red (`inTune`, `close`, `off`), on the verdict words and their tick or arrow only (the note itself is in ink, like the middle of every dial), always with a shape (a tick or an arrow) as well. They are never the bronze: the yellow is at least 20 degrees of hue away from it |
 | The functions of a progression (harmony) | its Roman numerals (I, II, V) written small on the notes they stand on, and still while it plays; nothing moves to say what is next |
 
 All text and shapes keep at least 4.5:1 / 3:1 contrast (`theme_test.dart`, `accessibility_test.dart`).

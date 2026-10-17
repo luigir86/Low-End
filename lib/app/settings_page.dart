@@ -53,28 +53,6 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
               const Divider(),
-              _Section(title: l10n.themeLabel),
-              RadioGroup<ThemeMode>(
-                groupValue: settings.themeMode,
-                onChanged: (mode) => settings.setThemeMode(mode!),
-                child: Column(
-                  children: [
-                    RadioListTile(
-                      value: ThemeMode.system,
-                      title: Text(l10n.themeSystem),
-                    ),
-                    RadioListTile(
-                      value: ThemeMode.light,
-                      title: Text(l10n.themeLight),
-                    ),
-                    RadioListTile(
-                      value: ThemeMode.dark,
-                      title: Text(l10n.themeDark),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(),
               SwitchListTile(
                 value: settings.keepScreenOn,
                 onChanged: settings.setKeepScreenOn,
