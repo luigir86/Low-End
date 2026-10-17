@@ -64,7 +64,7 @@ All colours are in `lib/app/theme.dart` (wood palette, light and dark), the font
 
 ## Tests
 
-`flutter test` runs everything (about 250 tests, around a minute): unit tests of the controllers, sound and pitch maths; widget tests of the screens; `accessibility_test.dart` (labels, touch targets, contrast); `startup_test.dart` (nothing heavy at launch); and `test/review/` (the layout matrix: English and Italian, light and dark, text scale up to 2×, phones down to 320×568 and landscape (915×412, 640×360, a tablet), with no overflow and the tab dots showing while something plays). The tests load Roboto and the Material icons from `test/fonts/`.
+`flutter test` runs everything (about 390 tests, around a minute): unit tests of the controllers, sound and pitch maths; widget tests of the screens; `accessibility_test.dart` (labels, touch targets, contrast); `startup_test.dart` (nothing heavy at launch); and `test/review/` (the layout matrix: English and Italian, light and dark, text scale up to 2×, phones down to 320×568 and landscape (915×412, 640×360, a tablet), with no overflow and the tab dots showing while something plays). The tests load Roboto and the Material icons from `test/fonts/`.
 
 `test_screenshots/ui_review_test.dart` renders every screen to PNG for visual review and for the Play Store screenshots:
 
