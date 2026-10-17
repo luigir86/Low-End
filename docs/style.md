@@ -51,7 +51,7 @@ The Orchestra (full notes in [tema-orchestra.md](tema-orchestra.md)): each tab h
 | The metronome's "one" | the accent at full strength, and wider than the other beats (it fills the ring's margins), so it is told by its shape too |
 | Choices of a switch | the chosen one filled, in ink; the others in the muted ink, never in the accent |
 | Icons on the row of controls | the ink of the text; the tab's colour is on the borders |
-| Tuner verdict | in tune green, close orange, off red (`inTune*`, `close*`, `off*`), on the note and its words only, always with a shape (a tick or an arrow) as well. They are never a tab's colour: the orange is not the brass, the red is not the rosewood |
+| Tuner verdict | in tune green, close orange, off red (`inTune*`, `close*`, `off*`), on the verdict words and their tick or arrow only (the note itself is in ink, like the middle of every dial), always with a shape (a tick or an arrow) as well. They are never a tab's colour: the orange is not the brass, the red is not the rosewood |
 | The functions of a progression (harmony) | its Roman numerals (I, II, V) written small on the notes they stand on, and still while it plays; nothing moves to say what is next |
 
 All text and shapes keep at least 4.5:1 / 3:1 contrast (`theme_test.dart`, `accessibility_test.dart`).

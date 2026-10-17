@@ -454,9 +454,11 @@ class _DialCenter extends StatelessWidget {
         ],
       );
     }
+    // The note in the ink of the text, as on the other dials: the tab's
+    // colour is on the ring.
     final noteStyle = theme.textTheme.displayMedium?.copyWith(
       fontWeight: FontWeight.w600,
-      color: theme.colorScheme.primary,
+      color: theme.colorScheme.onSurface,
     );
     final root = Note(drone.rootPitchClass, drone.octave);
     // Spelled as in the key: D♯ in C♯ minor, G♭ in D♭.
