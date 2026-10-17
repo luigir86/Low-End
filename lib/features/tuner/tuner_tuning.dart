@@ -24,16 +24,14 @@ enum TunerTuning {
     <int>[6, 5, 4, 3, 2, 1],
   ),
 
-  /// E1 A1 D2 G2: the double bass and the electric bass.
+  /// E1 A1 D2 G2: the double bass and the electric bass. A fifth string
+  /// (the low B) or a sixth (the high C) is found too, but not announced:
+  /// whoever has one knows it.
   bass(
     <Note>[Note(4, 1), Note(9, 1), Note(2, 2), Note(7, 2)],
     <int>[4, 3, 2, 1],
-  ),
-
-  /// B0 E1 A1 D2 G2: a bass with a low B string (30.9 Hz).
-  bassFive(
-    <Note>[Note(11, 0), Note(4, 1), Note(9, 1), Note(2, 2), Note(7, 2)],
-    <int>[5, 4, 3, 2, 1],
+    extra: <Note>[Note(11, 0), Note(0, 3)],
+    extraNumbers: <int>[5, 0],
   ),
 
   /// C4 E4 G4 A4, with the G above the C: the usual re-entrant tuning.
@@ -60,7 +58,12 @@ enum TunerTuning {
     <int>[4, 3, 2, 1],
   );
 
-  const TunerTuning(this.strings, this.numbers);
+  const TunerTuning(
+    this.strings,
+    this.numbers, {
+    this.extra = const <Note>[],
+    this.extraNumbers = const <int>[],
+  });
 
   /// The open strings, lowest note first; empty when chromatic.
   final List<Note> strings;
@@ -68,13 +71,19 @@ enum TunerTuning {
   /// The number of each string of [strings], 1 being the thinnest.
   final List<int> numbers;
 
+  /// Strings some instruments of this kind have beyond [strings]: found by
+  /// the tuner, left out of what is shown to the player.
+  final List<Note> extra;
+
+  /// Their numbers; 0 for a string with no number to show.
+  final List<int> extraNumbers;
+
   bool get isChromatic => strings.isEmpty;
 
   /// The instruments, in the order of the menu.
   static const instruments = <TunerTuning>[
     guitar,
     bass,
-    bassFive,
     ukulele,
     violin,
     viola,
@@ -86,7 +95,7 @@ enum TunerTuning {
   Note? nearestString(double frequency, {double a4 = 440}) {
     Note? best;
     var bestOff = double.infinity;
-    for (final string in strings) {
+    for (final string in [...strings, ...extra]) {
       final off = string.centsOf(frequency, a4: a4).abs();
       if (off < bestOff) {
         bestOff = off;
@@ -97,10 +106,12 @@ enum TunerTuning {
   }
 
   /// The number of [string] (1 is the thinnest), or null when it is not a
-  /// string of this instrument.
+  /// string of this instrument or has no number to show.
   int? numberOf(Note string) {
-    final i = strings.indexWhere((s) => s.midi == string.midi);
-    return i < 0 ? null : numbers[i];
+    final all = [...strings, ...extra];
+    final numbers = [...this.numbers, ...extraNumbers];
+    final i = all.indexWhere((s) => s.midi == string.midi);
+    return i < 0 || numbers[i] == 0 ? null : numbers[i];
   }
 }
 

@@ -119,7 +119,6 @@
   "tuningCello": "Violoncello",
   "tuningUkulele": "Ukulele",
   "tuningBass": "Basso",
-  "tuningBassFive": "Basso 5",
   "tuningStrings": "Corde: {strings}",
   "tunerString": "Corda {number}",
   "tunerHeard": "Senti {note}",

@@ -405,9 +405,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tuningBass => 'Bass';
 
   @override
-  String get tuningBassFive => 'Bass 5';
-
-  @override
   String tuningStrings(String strings) {
     return 'Strings: $strings';
   }

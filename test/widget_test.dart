@@ -558,17 +558,21 @@ void main() {
     await scope.metronome.start();
     await tester.pump();
     expect(audio.state, MediaState.playing);
-    expect(audio.text, 'Metronome 80 BPM · 4/4');
+    // What plays and at what tempo is the title; the app's name sits under.
+    expect(audio.title, 'Metronome 80 BPM · 4/4');
+    expect(audio.text, 'Low End');
     scope.metronome.setBpm(100);
     await tester.pump();
-    expect(audio.text, 'Metronome 100 BPM · 4/4');
+    expect(audio.title, 'Metronome 100 BPM · 4/4');
     await scope.drone.start();
     await tester.pump();
-    expect(audio.text, 'Metronome 100 BPM · 4/4 · Harmony A');
+    expect(audio.title, 'Metronome 100 BPM · 4/4');
+    expect(audio.text, 'Harmony A');
 
     await scope.metronome.stop();
     await tester.pump();
-    expect(audio.text, 'Harmony A');
+    expect(audio.title, 'Harmony A');
+    expect(audio.text, 'Low End');
     await scope.drone.stop();
     await tester.pump();
     expect(audio.state, MediaState.off);
@@ -856,6 +860,7 @@ void main() {
 /// A [BackgroundAudio] that remembers what the notification shows.
 class _RecordingAudio implements BackgroundAudio {
   var state = MediaState.off;
+  var title = '';
   var text = '';
 
   @override
@@ -868,6 +873,7 @@ class _RecordingAudio implements BackgroundAudio {
     String text = '',
   }) async {
     this.state = state;
+    this.title = title;
     this.text = text;
   }
 }

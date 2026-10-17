@@ -231,15 +231,19 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     if (state == _shown && _nowPlaying == _shownText) return;
     _shown = state;
     _shownText = _nowPlaying;
+    // What plays, and at what tempo, on the first line: that is what the
+    // small notification shows beside the play button. The app's name and
+    // icon sit in its header, as on a music player.
+    final lines = _nowPlaying.split('\n').where((s) => s.isNotEmpty).toList();
     _background.show(
       state,
-      title: l10n.appTitle,
-      text: _nowPlaying.isEmpty ? l10n.backgroundPlaying : _nowPlaying,
+      title: lines.isEmpty ? l10n.backgroundPlaying : lines.first,
+      text: lines.length > 1 ? lines[1] : l10n.appTitle,
     );
   }
 
-  /// "Metronome 120 BPM · 4/4 · Drone A major": what is playing, for the
-  /// notification.
+  /// "Metronome 120 BPM · 4/4" and "Harmony A major", one per line: what is
+  /// playing, for the notification.
   String _describePlaying(AppLocalizations l10n) {
     final parts = <String>[];
     if (_metronome.isPlaying) {
@@ -257,7 +261,7 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
         '${chord == null ? root : chordSymbol(l10n, chord, root)}',
       );
     }
-    return parts.join(' · ');
+    return parts.join('\n');
   }
 
   void _onMediaCommand(MediaCommand command) {
