@@ -13,6 +13,11 @@ abstract final class DroneSound {
   /// Highest harmonic kept, in Hz: warmth without hiss.
   static const _brightness = 5000.0;
 
+  /// Below this root, in Hz, the tone is made richer in harmonics, to be
+  /// heard on a phone speaker (see [loop]); it is also where the drone warns
+  /// that the speaker will hardly play it.
+  static const lowRootHz = 120.0;
+
   /// Builds a seamless loop of about two seconds holding [frequencies]
   /// together (the first one is the root), each at its relative [gains], as
   /// samples from -1 to 1. Every voice and every slow movement completes a
@@ -20,6 +25,9 @@ abstract final class DroneSound {
   static Float64List loop(List<double> frequencies, List<double> gains) {
     assert(frequencies.isNotEmpty && frequencies.length == gains.length);
     final root = frequencies.first;
+    final low = root < lowRootHz;
+    final slope = low ? 0.6 : 1.4;
+    final maxHarmonics = low ? 40 : 24;
     // A number of root cycles that every chord ratio used (5/4, 6/5, 3/2,
     // 16/9) turns into whole cycles too: a multiple of 180.
     final rootCycles = 180 * math.max(1, (2 * root / 180).round());
@@ -31,12 +39,14 @@ abstract final class DroneSound {
       // The real frequency of this voice in the loop: off by far less than
       // a cent, the price of a seamless loop.
       final f = cycles * sampleRate / length;
-      for (var h = 1; h * f < _brightness && h <= 24; h++) {
+      for (var h = 1; h * f < _brightness && h <= maxHarmonics; h++) {
         // Softly falling harmonics, the second and third a little forward:
-        // the warm middle of a cello or a reed stop.
+        // the warm middle of a cello or a reed stop. For a low root the
+        // upper harmonics stay strong, since a phone speaker plays them and
+        // not the fundamental, and the ear rebuilds the pitch from them.
         final amp =
             gains[v] *
-            math.pow(h, -1.4) *
+            math.pow(h, -slope) *
             (h == 2 || h == 3 ? 1.3 : 1.0) /
             frequencies.length;
         // Each harmonic swells and fades slowly on its own (one or two

@@ -347,16 +347,28 @@ class _Hub extends StatelessWidget {
         ),
         // What touching does, or the figure the tempo counts and its name:
         // "♩ Andante", "♩. Allegro · ♪ = 180" in 6/8.
-        if (!waiting)
+        if (!waiting) ...[
           Text(
-            playing
-                ? tempoUnitCaption(metronome.signature, metronome.bpm)
-                : l10n.metronomeHint,
+            tempoUnitCaption(metronome.signature, metronome.bpm),
             textAlign: TextAlign.center,
+            // A little taller than the text: the note symbol comes from
+            // another font and was clipped at the top.
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
+              height: 1.35,
             ),
           ),
+          // Stopped: the tempo keeps its name, and under it what touching
+          // does.
+          if (!playing)
+            Text(
+              l10n.metronomeHint,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+        ],
       ],
     );
   }

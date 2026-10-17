@@ -6,6 +6,7 @@ import '../audio/pitch.dart';
 import '../features/metronome/feel.dart';
 import '../features/metronome/metronome_controller.dart';
 import '../features/metronome/time_signature.dart';
+import '../features/tuner/tuner_tuning.dart';
 
 /// How note names are chosen: from the app language, or fixed.
 enum NoteNaming { auto, solfege, letters }
@@ -44,6 +45,17 @@ class AppSettings extends ChangeNotifier {
           _circleLayoutKey,
         )] ??
         CircleLayout.fifths;
+    // Nothing saved (every install before this setting existed) means the
+    // scientific numbering, whatever the note names are.
+    _octaveNumbering =
+        OctaveNumbering.values.asNameMap()[_read<String>(
+          prefs,
+          _octaveNumberingKey,
+        )] ??
+        OctaveNumbering.scientific;
+    _tuning =
+        TunerTuning.values.asNameMap()[_read<String>(prefs, _tuningKey)] ??
+        TunerTuning.chromatic;
     _keepScreenOn = _read<bool>(prefs, _keepScreenOnKey) ?? true;
     _seenGuide = _read<bool>(prefs, _seenGuideKey) ?? false;
     _gesturesLocked = _read<bool>(prefs, _gesturesLockedKey) ?? false;
@@ -82,6 +94,8 @@ class AppSettings extends ChangeNotifier {
   static const _gesturesLockedKey = 'gestures_locked';
   static const _seenSwipeHintKey = 'seen_swipe_hint';
   static const _inTuneKey = 'in_tune_cents';
+  static const _octaveNumberingKey = 'octave_numbering';
+  static const _tuningKey = 'tuner_tuning';
 
   /// The widths of the "in tune" zone the player can choose, in cents on
   /// each side of the note.
@@ -143,6 +157,32 @@ class AppSettings extends ChangeNotifier {
   void setNaming(NoteNaming naming) {
     _naming = naming;
     _save(_prefs?.setString(_namingKey, naming.name));
+    notifyListeners();
+  }
+
+  var _octaveNumbering = OctaveNumbering.scientific;
+
+  /// How octave numbers are written, apart from the note names: scientific
+  /// (A4 = 440 Hz, the low E of a bass is E1) or Italian (La3, Mi0).
+  OctaveNumbering get octaveNumbering => _octaveNumbering;
+
+  void setOctaveNumbering(OctaveNumbering numbering) {
+    if (numbering == _octaveNumbering) return;
+    _octaveNumbering = numbering;
+    _save(_prefs?.setString(_octaveNumberingKey, numbering.name));
+    notifyListeners();
+  }
+
+  var _tuning = TunerTuning.chromatic;
+
+  /// What the tuner compares notes with: any note, or the open strings of
+  /// an instrument.
+  TunerTuning get tuning => _tuning;
+
+  void setTuning(TunerTuning tuning) {
+    if (tuning == _tuning) return;
+    _tuning = tuning;
+    _save(_prefs?.setString(_tuningKey, tuning.name));
     notifyListeners();
   }
 

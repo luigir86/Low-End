@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -37,6 +38,9 @@ class _HomeShellState extends State<HomeShell> {
   /// sections it crosses are not opened one after the other.
   var _sliding = false;
 
+  /// True while the guide of the first launch is open.
+  var _guideOpen = false;
+
   @override
   void initState() {
     super.initState();
@@ -45,10 +49,15 @@ class _HomeShellState extends State<HomeShell> {
       if (!mounted) return;
       final settings = AudioScope.of(context).settings;
       if (settings.seenGuide) return;
-      // The guide teaches the swipe too: no separate hint over it.
+      // The swipe hint waits for the guide to close, then still comes the
+      // first time the phone is sideways (see [_hintSwipe]).
       settings.markGuideSeen();
-      settings.markSwipeHintSeen();
-      showGuide(context);
+      _guideOpen = true;
+      showGuide(context).whenComplete(() {
+        _guideOpen = false;
+        // Builds again, so that a phone already sideways gets its hint.
+        if (mounted) setState(() {});
+      });
     });
   }
 
@@ -90,7 +99,11 @@ class _HomeShellState extends State<HomeShell> {
   void _hintSwipe({required bool landscape, required bool locked}) {
     final settings = AudioScope.of(context).settings;
     // Not at the very first launch: the guide opens then.
-    if (!landscape || locked || settings.seenSwipeHint || !settings.seenGuide) {
+    if (!landscape ||
+        locked ||
+        _guideOpen ||
+        settings.seenSwipeHint ||
+        !settings.seenGuide) {
       return;
     }
     settings.markSwipeHintSeen();
@@ -145,6 +158,10 @@ class _HomeShellState extends State<HomeShell> {
       return;
     }
     final scope = AudioScope.of(context);
+    // With the gestures locked for a rehearsal the current tab does nothing:
+    // a hand brushing it on the music stand must not stop the click. The
+    // ring (or the middle of the dial) starts and stops it.
+    if (scope.settings.gesturesLocked) return;
     switch (section) {
       case AppSection.metronome:
         scope.metronome.toggle();
@@ -172,14 +189,16 @@ class _HomeShellState extends State<HomeShell> {
         onLongPress: () => _toggle(section),
         // Shown only after a hold (the hold itself is the shortcut): a
         // tooltip of its own would take the long press away from it.
-        child: Tooltip(
-          key: _hints[section],
-          message: l10n.holdToToggle,
-          triggerMode: TooltipTriggerMode.manual,
-          excludeFromSemantics: true,
-          preferBelow: false,
-          verticalOffset: 42,
-          child: destination,
+        child: _HoldFeedback(
+          child: Tooltip(
+            key: _hints[section],
+            message: l10n.holdToToggle,
+            triggerMode: TooltipTriggerMode.manual,
+            excludeFromSemantics: true,
+            preferBelow: false,
+            verticalOffset: 42,
+            child: destination,
+          ),
         ),
       ),
     );
@@ -366,6 +385,67 @@ class _HomeShellState extends State<HomeShell> {
                 ),
         );
       },
+    );
+  }
+}
+
+/// Fills the tab with colour while a finger rests on it, for as long as a
+/// long press takes, so that the hold is seen coming and not only after it.
+class _HoldFeedback extends StatefulWidget {
+  const _HoldFeedback({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_HoldFeedback> createState() => _HoldFeedbackState();
+}
+
+class _HoldFeedbackState extends State<_HoldFeedback>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _fill = AnimationController(
+    vsync: this,
+    duration: kLongPressTimeout,
+  );
+
+  void _down() {
+    if (MediaQuery.disableAnimationsOf(context)) return;
+    _fill.forward(from: 0);
+  }
+
+  void _up() => _fill.reverse();
+
+  @override
+  void dispose() {
+    _fill.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Listener(
+      onPointerDown: (_) => _down(),
+      onPointerUp: (_) => _up(),
+      onPointerCancel: (_) => _up(),
+      child: Stack(
+        fit: StackFit.passthrough,
+        children: [
+          widget.child,
+          Positioned.fill(
+            child: IgnorePointer(
+              child: AnimatedBuilder(
+                animation: _fill,
+                builder: (context, _) => DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: colors.primary.withValues(alpha: 0.28 * _fill.value),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

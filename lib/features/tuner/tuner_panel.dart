@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import '../../app/app_navigation.dart';
+import '../../app/settings.dart';
 import '../../app/style.dart';
 import '../../app/theme.dart';
 import '../../audio/audio_scope.dart';
@@ -14,6 +15,7 @@ import '../../widgets/dial.dart';
 import '../../widgets/reference_pitch_row.dart';
 import 'tuner_controller.dart';
 import 'tuner_reading.dart';
+import 'tuner_tuning.dart';
 
 /// The tuner: listens to the microphone, names whatever note it hears (no
 /// tuning to choose) and shows how far off it is on a round strobe, like
@@ -76,6 +78,7 @@ class _TunerPanelState extends State<TunerPanel> {
                 hz,
                 a4: settings.a4,
                 tolerance: settings.inTuneCents,
+                tuning: settings.tuning,
               );
         final message = _statusMessage(l10n);
         return DialLayout(
@@ -85,6 +88,7 @@ class _TunerPanelState extends State<TunerPanel> {
             tolerance: settings.inTuneCents,
             listening: _tuner.isListening,
             names: names,
+            numbering: settings.octaveNumbering,
             onToggle: _tuner.toggle,
           ),
           // Announced by screen readers, e.g. when the microphone is denied.
@@ -125,7 +129,8 @@ class _TunerPanelState extends State<TunerPanel> {
           // other two tabs; the row below is the reference A, in the same
           // pieces as the rows of the metronome and the harmony.
           lower: const ReferencePitchRow(),
-          footer: const SizedBox.shrink(),
+          // Chromatic, or the open strings of a violin or a bass.
+          footer: _TuningSwitch(settings: settings),
         );
       },
     );
@@ -137,6 +142,64 @@ class _TunerPanelState extends State<TunerPanel> {
     TunerStatus.failed => l10n.micUnavailable,
     TunerStatus.starting || TunerStatus.listening => null,
   };
+}
+
+String _tuningName(AppLocalizations l10n, TunerTuning tuning) =>
+    switch (tuning) {
+      TunerTuning.chromatic => l10n.tuningChromatic,
+      TunerTuning.violin => l10n.tuningViolin,
+      TunerTuning.bass => l10n.tuningBass,
+      TunerTuning.bassFive => l10n.tuningBassFive,
+    };
+
+/// Chromatic or the strings of an instrument, full width, in the third row:
+/// with strings, the tuner names the nearest open string and says how far
+/// off it is.
+class _TuningSwitch extends StatelessWidget {
+  const _TuningSwitch({required this.settings});
+
+  final AppSettings settings;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final names = settings.noteNames(Localizations.localeOf(context));
+    return SizedBox(
+      width: double.infinity,
+      child: SegmentedButton<TunerTuning>(
+        key: const Key('tuningSwitch'),
+        showSelectedIcon: false,
+        style: SegmentedButton.styleFrom(
+          minimumSize: const Size(0, 64),
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+        ),
+        segments: [
+          for (final tuning in TunerTuning.values)
+            ButtonSegment(
+              value: tuning,
+              label: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(_tuningName(l10n, tuning), maxLines: 1),
+              ),
+              tooltip: tuning.isChromatic
+                  ? null
+                  : l10n.tuningStrings(
+                      tuning.strings
+                          .map(
+                            (n) => n.label(
+                              names,
+                              numbering: settings.octaveNumbering,
+                            ),
+                          )
+                          .join(' '),
+                    ),
+            ),
+        ],
+        selected: {settings.tuning},
+        onSelectionChanged: (s) => settings.setTuning(s.first),
+      ),
+    );
+  }
 }
 
 /// Green when in tune, ochre when close, red when far off: the shades live
@@ -163,6 +226,7 @@ class _StrobeDisc extends StatefulWidget {
     required this.tolerance,
     required this.listening,
     required this.names,
+    required this.numbering,
     required this.onToggle,
   });
 
@@ -175,6 +239,7 @@ class _StrobeDisc extends StatefulWidget {
   final double tolerance;
   final bool listening;
   final NoteNames names;
+  final OctaveNumbering numbering;
 
   /// Touching the middle pauses or resumes listening.
   final VoidCallback onToggle;
@@ -290,6 +355,7 @@ class _StrobeDiscState extends State<_StrobeDisc>
                         tolerance: widget.tolerance,
                         listening: widget.listening,
                         names: widget.names,
+                        numbering: widget.numbering,
                       ),
                     ),
                   ),
@@ -421,6 +487,7 @@ class _NoteDisplay extends StatelessWidget {
     required this.tolerance,
     required this.listening,
     required this.names,
+    required this.numbering,
   });
 
   final TunerReading? reading;
@@ -428,6 +495,7 @@ class _NoteDisplay extends StatelessWidget {
   final double tolerance;
   final bool listening;
   final NoteNames names;
+  final OctaveNumbering numbering;
 
   @override
   Widget build(BuildContext context) {
@@ -472,13 +540,20 @@ class _NoteDisplay extends StatelessWidget {
     return Semantics(
       container: true,
       liveRegion: true,
-      label: '${r.target.label(names)}, $direction',
+      label:
+          '${r.target.label(names, numbering: numbering)}, $direction'
+          '${r.onStrings && r.played != r.target ? ', ${l10n.tunerHeard(r.played.label(names, numbering: numbering))}' : ''}',
       child: ExcludeSemantics(
         // A note that is only held fades: the string has stopped.
         child: Opacity(
           opacity: held ? 0.55 : 1,
           child: fit([
-            _NoteName(note: r.target, names: names, color: color),
+            _NoteName(
+              note: r.target,
+              names: names,
+              numbering: numbering,
+              color: color,
+            ),
             // The verdict, large enough to read from the music stand.
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -501,8 +576,22 @@ class _NoteDisplay extends StatelessWidget {
                 ),
               ],
             ),
+            // With strings: the string being tuned, and what was heard when
+            // it is not that one.
+            if (r.onStrings)
+              Text(
+                r.played == r.target
+                    ? l10n.tunerString
+                    : l10n.tunerHeard(
+                        r.played.label(names, numbering: numbering),
+                      ),
+                style: muted,
+              ),
             Text(
-              l10n.frequencyHz(r.frequency.toStringAsFixed(1)),
+              // A held note says so in words, not only by fading.
+              held
+                  ? l10n.tunerHeld
+                  : l10n.frequencyHz(r.frequency.toStringAsFixed(1)),
               style: muted,
             ),
           ]),
@@ -520,11 +609,13 @@ class _NoteName extends StatelessWidget {
   const _NoteName({
     required this.note,
     required this.names,
+    required this.numbering,
     required this.color,
   });
 
   final Note note;
   final NoteNames names;
+  final OctaveNumbering numbering;
   final Color color;
 
   @override
@@ -536,7 +627,7 @@ class _NoteName extends StatelessWidget {
         children: [
           TextSpan(text: note.name(names)),
           TextSpan(
-            text: '${note.octaveIn(names)}',
+            text: '${note.octaveIn(names, numbering: numbering)}',
             style: LowEndType.octave(style),
           ),
         ],

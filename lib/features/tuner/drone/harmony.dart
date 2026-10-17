@@ -116,3 +116,29 @@ enum Progression {
 
   final List<ProgressionStep> steps;
 }
+
+/// A well-known song to practise on: its key (as a pitch class), progression
+/// and a comfortable tempo, set in one tap. The names are the songs' own and
+/// are not translated.
+class ExampleSong {
+  const ExampleSong(this.title, this.pitchClass, this.progression, this.bpm);
+
+  final String title;
+
+  /// The key, in semitones above C.
+  final int pitchClass;
+  final Progression progression;
+
+  /// Beats per minute, in 4/4.
+  final int bpm;
+}
+
+/// The songs offered; none needs a flat or sharp key, so there is no
+/// spelling to choose.
+const exampleSongs = [
+  ExampleSong('Autumn Leaves', 7, Progression.twoFiveOne, 120),
+  ExampleSong('Blue Bossa', 0, Progression.minorTwoFiveOne, 140),
+  ExampleSong('Twist and Shout', 2, Progression.oneFourFive, 124),
+  ExampleSong('Stand by Me', 9, Progression.oneSixFourFive, 118),
+  ExampleSong('Sweet Home Chicago', 4, Progression.blues, 100),
+];

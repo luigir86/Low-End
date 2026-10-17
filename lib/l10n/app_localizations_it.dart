@@ -254,10 +254,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get noteNamesAuto => 'Come la lingua';
 
   @override
-  String get noteNamesSolfege => 'Do Re Mi (La3 = 440 Hz)';
+  String get noteNamesSolfege => 'Do Re Mi';
 
   @override
-  String get noteNamesLetters => 'C D E (A4 = 440 Hz)';
+  String get noteNamesLetters => 'C D E';
 
   @override
   String get circleLayoutLabel => 'Cerchio dell\'armonia';
@@ -350,25 +350,81 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get octaveSpeakerNote =>
-      'Le note gravi si sentono poco dall’altoparlante del telefono: usa le cuffie o una cassa, oppure scegli l’ottava più alta.';
+      'Le note gravi si sentono poco dall’altoparlante del telefono: usa le cuffie o una cassa, oppure scegli un’ottava più alta.';
+
+  @override
+  String get lowRootNote => 'Nota grave: usa cuffie o cassa';
+
+  @override
+  String get bassPreset => 'Basso: ottava bassa, tono continuo';
+
+  @override
+  String get continuousToneTitle => 'Tono continuo';
+
+  @override
+  String get continuousToneSubtitle =>
+      'Un suono fisso al posto del pianoforte ribattuto. Sempre attivo nell’ottava 1.';
+
+  @override
+  String get octaveNumberingLabel => 'Numeri delle ottave';
+
+  @override
+  String get octaveNumberingHint =>
+      'Cambia solo il numero dopo il nome della nota: la nota è la stessa.';
+
+  @override
+  String get octaveScientific => 'Scientifica (predefinita)';
+
+  @override
+  String get octaveItalian => 'Italiana';
+
+  @override
+  String octaveExamples(String a4, String e1) {
+    return '$a4 = 440 Hz, il Mi grave del basso è $e1';
+  }
+
+  @override
+  String get tuningChromatic => 'Cromatico';
+
+  @override
+  String get tuningViolin => 'Violino';
+
+  @override
+  String get tuningBass => 'Basso';
+
+  @override
+  String get tuningBassFive => 'Basso 5';
+
+  @override
+  String tuningStrings(String strings) {
+    return 'Corde: $strings';
+  }
+
+  @override
+  String get tunerString => 'Corda a vuoto';
+
+  @override
+  String tunerHeard(String note) {
+    return 'Senti $note';
+  }
 
   @override
   String get swipeHint =>
-      'Scorri in alto o in basso sul cerchio o sui tab per cambiare sezione.';
+      'Scorri in alto o in basso sul cerchio o sulle schede per cambiare sezione.';
 
   @override
   String get gesturesLockedTitle => 'Blocca i gesti';
 
   @override
   String get gesturesLockedSubtitle =>
-      'Per le prove: niente scorrimenti tra le sezioni né pressione lunga sui tab, solo tocchi';
+      'Per le prove: niente scorrimenti tra le sezioni né pressione lunga sulle schede, e il tocco sulla scheda attiva non ferma più nulla';
 
   @override
   String get inTuneZoneTitle => 'Accordatore: intonato entro';
 
   @override
   String get inTuneZoneSubtitle =>
-      'Quanto può scostarsi una nota e risultare ancora intonata';
+      'Quanto può scostarsi una nota (in cent, centesimi di semitono) e risultare ancora intonata';
 
   @override
   String get shapeLabel => 'Posizione dell\'accordo';
@@ -402,7 +458,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get guideHold =>
-      'Tieni premuto un tab per avviare o fermare il suo suono da qualsiasi sezione.';
+      'Tieni premuto una scheda per avviare o fermare il suo suono da qualsiasi sezione.';
 
   @override
   String get guideDrone =>
@@ -423,6 +479,101 @@ class AppLocalizationsIt extends AppLocalizations {
   String writeAs(String note) {
     return 'Scrivi come $note';
   }
+
+  @override
+  String get guidePage1Title => 'Suonare';
+
+  @override
+  String get guidePage2Title => 'Muoversi';
+
+  @override
+  String get guidePage3Title => 'Accordare e volume';
+
+  @override
+  String get guideNext => 'Avanti';
+
+  @override
+  String guidePageOf(int n, int total) {
+    return 'Pagina $n di $total';
+  }
+
+  @override
+  String get guideLock =>
+      'Per le prove, blocca i gesti dalle impostazioni: anche il tocco sulla scheda attiva non ferma più nulla.';
+
+  @override
+  String get guideCents =>
+      'Il cent è un centesimo di semitono: entro pochi cent una nota è intonata.';
+
+  @override
+  String get progressionBluesShort => 'Blues';
+
+  @override
+  String keyLine(String progression, String key) {
+    return '$progression in $key';
+  }
+
+  @override
+  String keySheetTitle(String key) {
+    return 'Tonalità: $key';
+  }
+
+  @override
+  String get degreeName1 => 'Tonica';
+
+  @override
+  String get degreeName2 => 'Sopratonica';
+
+  @override
+  String get degreeName3 => 'Mediante';
+
+  @override
+  String get degreeName4 => 'Sottodominante';
+
+  @override
+  String get degreeName5 => 'Dominante';
+
+  @override
+  String get degreeName6 => 'Sopradominante';
+
+  @override
+  String get degreeName7 => 'Sensibile';
+
+  @override
+  String get legendTitle => 'Legenda';
+
+  @override
+  String get legendButton => 'Legenda e gradi';
+
+  @override
+  String get legendRoot => 'Nota che suona (la fondamentale)';
+
+  @override
+  String get legendChord => 'Altre note dell\'accordo che suona';
+
+  @override
+  String get legendInKey => 'Note della tonalità';
+
+  @override
+  String get legendOutOfKey => 'Note fuori tonalità, sbiadite';
+
+  @override
+  String get legendNumerals =>
+      'I numeri romani dicono il grado della tonalità su cui poggia ogni accordo. Tocca un numero sul cerchio per leggerlo qui.';
+
+  @override
+  String get legendDots =>
+      'I pallini sono le battute della progressione: quello pieno è l\'accordo che suona.';
+
+  @override
+  String get songsTitle => 'Brani d\'esempio';
+
+  @override
+  String get songsSubtitle =>
+      'Imposta tonalità, progressione e tempo in un tocco';
+
+  @override
+  String get tunerHeld => 'Nota in attesa';
 
   @override
   String aboutSource(String url) {

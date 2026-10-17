@@ -21,10 +21,11 @@ class SettingsPage extends StatelessWidget {
       body: ListenableBuilder(
         listenable: settings,
         builder: (context, _) {
+          final names = settings.noteNames(Localizations.localeOf(context));
           final example = const Note(
             9,
             4,
-          ).label(settings.noteNames(Localizations.localeOf(context)));
+          ).label(names, numbering: settings.octaveNumbering);
           return ListView(
             padding: const EdgeInsets.symmetric(vertical: 8),
             children: [
@@ -102,6 +103,7 @@ class SettingsPage extends StatelessWidget {
                   ],
                 ),
               ),
+              const Divider(),
               _Section(title: l10n.referencePitch),
               ListTile(
                 title: Text(l10n.referencePitchHint(example)),
@@ -135,6 +137,57 @@ class SettingsPage extends StatelessWidget {
                     RadioListTile(
                       value: CircleLayout.chromatic,
                       title: Text(l10n.circleLayoutChromatic),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(),
+              _Section(title: l10n.octaveNumberingLabel),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+                child: Text(
+                  l10n.octaveNumberingHint,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              RadioGroup<OctaveNumbering>(
+                groupValue: settings.octaveNumbering,
+                onChanged: (n) => settings.setOctaveNumbering(n!),
+                child: Column(
+                  children: [
+                    RadioListTile(
+                      value: OctaveNumbering.scientific,
+                      title: Text(l10n.octaveScientific),
+                      subtitle: Text(
+                        l10n.octaveExamples(
+                          const Note(
+                            9,
+                            4,
+                          ).label(names, numbering: OctaveNumbering.scientific),
+                          const Note(
+                            4,
+                            1,
+                          ).label(names, numbering: OctaveNumbering.scientific),
+                        ),
+                      ),
+                    ),
+                    RadioListTile(
+                      value: OctaveNumbering.italian,
+                      title: Text(l10n.octaveItalian),
+                      subtitle: Text(
+                        l10n.octaveExamples(
+                          const Note(
+                            9,
+                            4,
+                          ).label(names, numbering: OctaveNumbering.italian),
+                          const Note(
+                            4,
+                            1,
+                          ).label(names, numbering: OctaveNumbering.italian),
+                        ),
+                      ),
                     ),
                   ],
                 ),

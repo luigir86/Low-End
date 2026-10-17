@@ -251,10 +251,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noteNamesAuto => 'Follow the language';
 
   @override
-  String get noteNamesSolfege => 'Do Re Mi (La3 = 440 Hz)';
+  String get noteNamesSolfege => 'Do Re Mi';
 
   @override
-  String get noteNamesLetters => 'C D E (A4 = 440 Hz)';
+  String get noteNamesLetters => 'C D E';
 
   @override
   String get circleLayoutLabel => 'Harmony circle';
@@ -347,7 +347,63 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get octaveSpeakerNote =>
-      'Low notes are faint on the phone’s own speaker: use headphones or a speaker, or pick the highest octave.';
+      'Low notes are faint on the phone’s own speaker: use headphones or a speaker, or pick a higher octave.';
+
+  @override
+  String get lowRootNote => 'Low note: use headphones or a speaker';
+
+  @override
+  String get bassPreset => 'Bass: low octave, held tone';
+
+  @override
+  String get continuousToneTitle => 'Held tone';
+
+  @override
+  String get continuousToneSubtitle =>
+      'A steady tone instead of the piano struck again and again. Always used in octave 1.';
+
+  @override
+  String get octaveNumberingLabel => 'Octave numbers';
+
+  @override
+  String get octaveNumberingHint =>
+      'Only the number after the note name: the same note, a different number.';
+
+  @override
+  String get octaveScientific => 'Scientific (default)';
+
+  @override
+  String get octaveItalian => 'Italian';
+
+  @override
+  String octaveExamples(String a4, String e1) {
+    return '$a4 = 440 Hz, the bass low E is $e1';
+  }
+
+  @override
+  String get tuningChromatic => 'Chromatic';
+
+  @override
+  String get tuningViolin => 'Violin';
+
+  @override
+  String get tuningBass => 'Bass';
+
+  @override
+  String get tuningBassFive => 'Bass 5';
+
+  @override
+  String tuningStrings(String strings) {
+    return 'Strings: $strings';
+  }
+
+  @override
+  String get tunerString => 'Open string';
+
+  @override
+  String tunerHeard(String note) {
+    return 'Heard $note';
+  }
 
   @override
   String get swipeHint =>
@@ -358,14 +414,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gesturesLockedSubtitle =>
-      'For rehearsals: no swiping between sections and no holding a tab, only taps';
+      'For rehearsals: no swiping between sections and no holding a tab, and tapping the current tab no longer stops anything';
 
   @override
   String get inTuneZoneTitle => 'Tuner: in tune within';
 
   @override
   String get inTuneZoneSubtitle =>
-      'How far off a note can be and still show as in tune';
+      'How far off a note can be, in cents (hundredths of a semitone), and still show as in tune';
 
   @override
   String get shapeLabel => 'Chord position';
@@ -419,6 +475,101 @@ class AppLocalizationsEn extends AppLocalizations {
   String writeAs(String note) {
     return 'Write as $note';
   }
+
+  @override
+  String get guidePage1Title => 'Play';
+
+  @override
+  String get guidePage2Title => 'Move around';
+
+  @override
+  String get guidePage3Title => 'Tune and volume';
+
+  @override
+  String get guideNext => 'Next';
+
+  @override
+  String guidePageOf(int n, int total) {
+    return 'Page $n of $total';
+  }
+
+  @override
+  String get guideLock =>
+      'For rehearsals, lock the gestures in the settings: tapping the current tab then no longer stops anything.';
+
+  @override
+  String get guideCents =>
+      'A cent is a hundredth of a semitone: within a few cents a note is in tune.';
+
+  @override
+  String get progressionBluesShort => 'Blues';
+
+  @override
+  String keyLine(String progression, String key) {
+    return '$progression in $key';
+  }
+
+  @override
+  String keySheetTitle(String key) {
+    return 'Key: $key';
+  }
+
+  @override
+  String get degreeName1 => 'Tonic';
+
+  @override
+  String get degreeName2 => 'Supertonic';
+
+  @override
+  String get degreeName3 => 'Mediant';
+
+  @override
+  String get degreeName4 => 'Subdominant';
+
+  @override
+  String get degreeName5 => 'Dominant';
+
+  @override
+  String get degreeName6 => 'Submediant';
+
+  @override
+  String get degreeName7 => 'Leading tone';
+
+  @override
+  String get legendTitle => 'Legend';
+
+  @override
+  String get legendButton => 'Legend and degrees';
+
+  @override
+  String get legendRoot => 'Note sounding (the root)';
+
+  @override
+  String get legendChord => 'Other notes of the chord sounding';
+
+  @override
+  String get legendInKey => 'Notes of the key';
+
+  @override
+  String get legendOutOfKey => 'Notes outside the key, faded';
+
+  @override
+  String get legendNumerals =>
+      'The Roman numerals give the degree of the key each chord is built on. Tap one on the circle to read it here.';
+
+  @override
+  String get legendDots =>
+      'The dots are the bars of the progression: the filled one is the chord sounding.';
+
+  @override
+  String get songsTitle => 'Example songs';
+
+  @override
+  String get songsSubtitle =>
+      'Sets the key, the progression and the tempo in one tap';
+
+  @override
+  String get tunerHeld => 'Holding the last note';
 
   @override
   String aboutSource(String url) {

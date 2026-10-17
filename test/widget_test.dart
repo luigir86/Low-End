@@ -490,12 +490,10 @@ void main() {
     expect(find.text('Impostazioni'), findsOneWidget);
     expect(find.text('La di riferimento'), findsOneWidget);
 
-    await tester.tap(find.text('C D E (A4 = 440 Hz)'));
+    await tester.tap(find.text('C D E'));
     await tester.pumpAndSettle();
     // The reference A is further down the page now.
     await tester.scrollUntilVisible(find.text('440 Hz'), 100);
-    await tester.drag(find.byType(Scrollable).last, const Offset(0, -300));
-    await tester.pumpAndSettle();
     await tester.tap(find.text('440 Hz'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('442 Hz').last);
@@ -658,6 +656,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Gestures and shortcuts'), findsOneWidget);
     expect(settings.seenGuide, isTrue);
+    // Three short pages: Next, Next, Got it.
+    expect(find.text('Got it'), findsNothing);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Got it'));
     await tester.tap(find.text('Got it'));
     await tester.pumpAndSettle();
@@ -670,9 +674,11 @@ void main() {
     await tester.tap(find.byTooltip('Settings'));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text('Gestures and shortcuts'), 100);
+    await tester.ensureVisible(find.text('Gestures and shortcuts'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Gestures and shortcuts'));
     await tester.pumpAndSettle();
-    expect(find.text('Got it'), findsOneWidget);
+    expect(find.text('Next'), findsOneWidget);
   });
 
   testWidgets('the balance is named on both sides, the style is easy to hit', (

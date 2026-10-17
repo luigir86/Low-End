@@ -171,8 +171,8 @@
   "languageSystem": "Same as the phone",
   "noteNamesLabel": "Note names",
   "noteNamesAuto": "Follow the language",
-  "noteNamesSolfege": "Do Re Mi (La3 = 440 Hz)",
-  "noteNamesLetters": "C D E (A4 = 440 Hz)",
+  "noteNamesSolfege": "Do Re Mi",
+  "noteNamesLetters": "C D E",
   "circleLayoutLabel": "Harmony circle",
   "circleLayoutFifths": "Circle of fifths",
   "circleLayoutChromatic": "In semitones (C, C♯, D…)",
@@ -208,12 +208,53 @@
   "setTempo": "Type the tempo",
   "optionsLabel": "Sound options",
   "octaveLabel": "Octave of the root",
-  "octaveSpeakerNote": "Low notes are faint on the phone’s own speaker: use headphones or a speaker, or pick the highest octave.",
+  "octaveSpeakerNote": "Low notes are faint on the phone’s own speaker: use headphones or a speaker, or pick a higher octave.",
+  "lowRootNote": "Low note: use headphones or a speaker",
+  "bassPreset": "Bass: low octave, held tone",
+  "continuousToneTitle": "Held tone",
+  "continuousToneSubtitle": "A steady tone instead of the piano struck again and again. Always used in octave 1.",
+  "octaveNumberingLabel": "Octave numbers",
+  "octaveNumberingHint": "Only the number after the note name: the same note, a different number.",
+  "octaveScientific": "Scientific (default)",
+  "octaveItalian": "Italian",
+  "octaveExamples": "{a4} = 440 Hz, the bass low E is {e1}",
+  "@octaveExamples": {
+    "placeholders": {
+      "a4": {
+        "type": "String"
+      },
+      "e1": {
+        "type": "String"
+      }
+    }
+  },
+  "tuningChromatic": "Chromatic",
+  "tuningViolin": "Violin",
+  "tuningBass": "Bass",
+  "tuningBassFive": "Bass 5",
+  "tuningStrings": "Strings: {strings}",
+  "@tuningStrings": {
+    "placeholders": {
+      "strings": {
+        "type": "String"
+      }
+    }
+  },
+  "tunerString": "Open string",
+  "tunerHeard": "Heard {note}",
+  "@tunerHeard": {
+    "description": "In the tuner's string mode: the note actually heard, when it is not the string being tuned.",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
   "swipeHint": "Swipe up or down over the dial or the tabs to change section.",
   "gesturesLockedTitle": "Lock the gestures",
-  "gesturesLockedSubtitle": "For rehearsals: no swiping between sections and no holding a tab, only taps",
+  "gesturesLockedSubtitle": "For rehearsals: no swiping between sections and no holding a tab, and tapping the current tab no longer stops anything",
   "inTuneZoneTitle": "Tuner: in tune within",
-  "inTuneZoneSubtitle": "How far off a note can be and still show as in tune",
+  "inTuneZoneSubtitle": "How far off a note can be, in cents (hundredths of a semitone), and still show as in tune",
   "shapeLabel": "Chord position",
   "shapeStacked": "Stacked",
   "shapeClose": "Close",
@@ -237,6 +278,62 @@
       }
     }
   },
+  "guidePage1Title": "Play",
+  "guidePage2Title": "Move around",
+  "guidePage3Title": "Tune and volume",
+  "guideNext": "Next",
+  "guidePageOf": "Page {n} of {total}",
+  "@guidePageOf": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "guideLock": "For rehearsals, lock the gestures in the settings: tapping the current tab then no longer stops anything.",
+  "guideCents": "A cent is a hundredth of a semitone: within a few cents a note is in tune.",
+  "progressionBluesShort": "Blues",
+  "keyLine": "{progression} in {key}",
+  "@keyLine": {
+    "description": "The progression and its key: II–V–I in A major.",
+    "placeholders": {
+      "progression": {
+        "type": "String"
+      },
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "keySheetTitle": "Key: {key}",
+  "@keySheetTitle": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "degreeName1": "Tonic",
+  "degreeName2": "Supertonic",
+  "degreeName3": "Mediant",
+  "degreeName4": "Subdominant",
+  "degreeName5": "Dominant",
+  "degreeName6": "Submediant",
+  "degreeName7": "Leading tone",
+  "legendTitle": "Legend",
+  "legendButton": "Legend and degrees",
+  "legendRoot": "Note sounding (the root)",
+  "legendChord": "Other notes of the chord sounding",
+  "legendInKey": "Notes of the key",
+  "legendOutOfKey": "Notes outside the key, faded",
+  "legendNumerals": "The Roman numerals give the degree of the key each chord is built on. Tap one on the circle to read it here.",
+  "legendDots": "The dots are the bars of the progression: the filled one is the chord sounding.",
+  "songsTitle": "Example songs",
+  "songsSubtitle": "Sets the key, the progression and the tempo in one tap",
+  "tunerHeld": "Holding the last note",
   "aboutSource": "Source code: {url}",
   "@aboutSource": {
     "placeholders": {

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../audio/drone_sound.dart';
 import '../../../audio/piano_output.dart';
 import '../../../audio/piano_sound.dart';
 import '../../../audio/pitch.dart';
@@ -123,9 +124,21 @@ class DroneController extends ChangeNotifier {
   /// phone speaker, and easy to hear against a bass.
   static const defaultOctave = 4;
 
-  /// The octaves it can play the root in: lower ones for a bass, to hear the
-  /// beats against its note on headphones or a speaker that reaches them.
-  static const octaves = [2, 3, 4];
+  /// The octaves it can play the root in (scientific numbering: E1 is the
+  /// low E of a bass, 41.2 Hz): lower ones for a bass, to hear the beats
+  /// against its note on headphones or a speaker that reaches them.
+  static const octaves = [1, 2, 3, 4];
+
+  /// The octave the bass preset plays in: E2 is 82 Hz, A2 110 Hz.
+  static const bassOctave = 2;
+
+  /// Below this root, in Hz, the phone's speaker hardly plays the drone: the
+  /// screen says so (see [rootIsLow]).
+  static const lowRootHz = DroneSound.lowRootHz;
+
+  /// The lowest octave the piano samples can still play decently (they
+  /// start at A2): below it the drone is a sustained tone.
+  static const _lowestPianoOctave = 2;
 
   /// Loudness at full level.
   static const _fullVolume = 0.8;
@@ -195,11 +208,54 @@ class DroneController extends ChangeNotifier {
 
   DroneStyle get style => _style;
 
-  /// True when the piano plays (always, bar in tests: see the class).
-  bool get _patterned => _piano != null;
+  /// True when the piano plays (always, bar in tests, in the lowest octave
+  /// and when the player chose a continuous tone: see the class).
+  bool get _patterned => usesPiano;
 
   /// Whether the piano can play at all (the styles are offered only then).
   bool get hasPiano => _piano != null;
+
+  var _continuous = false;
+
+  /// Whether the player chose a continuous tone instead of the piano struck
+  /// again and again.
+  bool get continuous => _continuous;
+
+  /// True when the sound is the piano, false when it is the sustained tone:
+  /// the player's choice, or the only way to play octave 1.
+  bool get usesPiano =>
+      _piano != null && !_continuous && _octave >= _lowestPianoOctave;
+
+  /// Whether the tone (not the piano) has been started and may still sound.
+  var _toneSounding = false;
+
+  /// True when the root is so low that the phone's speaker hardly plays it
+  /// (see [lowRootHz]), whether the drone is playing or not: the warning
+  /// belongs on the screen where the note is chosen.
+  bool get rootIsLow => _note.frequency(a4: _a4) < lowRootHz;
+
+  /// Whether the settings are those of the bass preset (see [bassPreset]).
+  bool get isBassPreset =>
+      _continuous && _octave <= bassOctave && _voicing == DroneVoicing.root;
+
+  /// The settings for playing along with a bass in one tap: a low octave,
+  /// the root alone, and a continuous tone rich in harmonics, which a phone
+  /// speaker can play better than a low piano note.
+  void bassPreset() {
+    _update(() {
+      _octave = bassOctave;
+      _note = Note(_note.pitchClass, bassOctave);
+      _continuous = true;
+      _voicing = DroneVoicing.root;
+    }, restart: true);
+  }
+
+  /// Chooses between the piano struck again and again, and a tone that
+  /// holds on.
+  void setContinuous(bool continuous) {
+    if (continuous == _continuous) return;
+    _update(() => _continuous = continuous, restart: true);
+  }
 
   /// The chord of the progression playing now, 0 for the first.
   int get step => _step;
@@ -367,10 +423,11 @@ class DroneController extends ChangeNotifier {
 
   void setOctave(int octave) {
     if (octave == _octave || !octaves.contains(octave)) return;
+    final wasPiano = usesPiano;
     _update(() {
       _octave = octave;
       _note = Note(_note.pitchClass, octave);
-    });
+    }, restart: wasPiano != usesPiano);
   }
 
   void setShape(ChordShape shape) {
@@ -593,6 +650,7 @@ class DroneController extends ChangeNotifier {
         final piano = _piano;
         if (piano != null) await piano.stop();
         final f = frequencies;
+        _toneSounding = true;
         await _output.play(f, _gainsFor(f.length), _volume);
       }
     } catch (error) {
@@ -610,6 +668,11 @@ class DroneController extends ChangeNotifier {
   /// Starts (or replaces) the piano's loop, and lines the chord shown up
   /// with it.
   Future<void> _playPiano() async {
+    // Coming from the sustained tone: it must not go on under the piano.
+    if (_toneSounding) {
+      _toneSounding = false;
+      await _output.stop();
+    }
     final fromTheTop = _fromTheTop;
     _fromTheTop = false;
     final chords = _pianoChords;
@@ -650,6 +713,7 @@ class DroneController extends ChangeNotifier {
 
   Future<void> _silence() async {
     try {
+      _toneSounding = false;
       await _output.stop();
       final piano = _piano;
       if (piano != null) await piano.stop();
