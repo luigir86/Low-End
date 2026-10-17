@@ -65,6 +65,10 @@ void main() {
           contrast(c.outline, extra.strobeBackground),
           greaterThanOrEqualTo(3),
         );
+        expect(
+          contrast(extra.strobeSegments, extra.strobeBackground),
+          greaterThanOrEqualTo(3),
+        );
         for (final v in [extra.inTune, extra.close, extra.off]) {
           expect(contrast(v, extra.strobeBackground), greaterThanOrEqualTo(3));
           expect(contrast(v, c.surface), greaterThanOrEqualTo(3));

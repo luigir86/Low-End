@@ -290,6 +290,12 @@ abstract class AppLocalizations {
   /// **'{note} diminished'**
   String droneChordDiminished(String note);
 
+  /// The word over the balance slider, so that its two side icons do not read as tabs
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get balanceTitle;
+
   /// No description provided for @balanceLabel.
   ///
   /// In en, this message translates to:

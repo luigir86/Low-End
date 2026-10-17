@@ -113,6 +113,9 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
+  String get balanceTitle => 'Bilanciamento';
+
+  @override
   String get balanceLabel => 'Bilanciamento tra metronomo e armonia';
 
   @override

@@ -32,6 +32,7 @@
   "thanksText": "Grazie alla Power Flower Orchestra di Fossano, che ha ispirato e provato quest’app.",
   "addSevenths": "Aggiungi la settima agli accordi",
   "droneChordDiminished": "{note} diminuito",
+  "balanceTitle": "Bilanciamento",
   "balanceLabel": "Bilanciamento tra metronomo e armonia",
   "balanceValue": "Metronomo {metronome}%, armonia {drone}%",
   "referencePitch": "La di riferimento",

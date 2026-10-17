@@ -32,7 +32,8 @@ class BalanceSlider extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, color: muted),
+                // Smaller than the tabs' icons, so they do not read as tabs.
+                Icon(icon, color: muted, size: 20),
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
@@ -60,44 +61,62 @@ class BalanceSlider extends StatelessWidget {
             // both.
             side(Icons.timer_outlined, l10n.metronomeTab, -1),
             Expanded(
-              child: Semantics(
-                label: l10n.balanceLabel,
-                // One colour on both sides: a balance, not an amount that
-                // fills from the left.
-                child: SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: theme.colorScheme.outlineVariant,
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // The middle, where both are at full level: under the
-                      // thumb, so that it can be found again.
-                      ExcludeSemantics(
-                        child: IgnorePointer(
-                          child: Container(
-                            width: 2,
-                            height: 16,
-                            color: theme.colorScheme.outline,
-                          ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // A word over the track says what it does; the Semantics
+                  // label of the slider says it for screen readers.
+                  ExcludeSemantics(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        l10n.balanceTitle,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: muted,
                         ),
                       ),
-                      Slider(
-                        min: -1,
-                        max: 1,
-                        // Steps of a tenth, so the middle is easy to find
-                        // again.
-                        divisions: 20,
-                        value: settings.balance,
-                        // Near the middle it stops there: both at full level is
-                        // what most players want, and the hardest to hit.
-                        onChanged: (v) =>
-                            settings.setBalance(v.abs() <= 0.1 ? 0 : v),
-                        semanticFormatterCallback: (_) => value,
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                  Semantics(
+                    label: l10n.balanceLabel,
+                    // One colour on both sides: a balance, not an amount that
+                    // fills from the left.
+                    child: SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: theme.colorScheme.outlineVariant,
+                      ),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // The middle, where both are at full level: under the
+                          // thumb, so that it can be found again.
+                          ExcludeSemantics(
+                            child: IgnorePointer(
+                              child: Container(
+                                width: 2,
+                                height: 16,
+                                color: theme.colorScheme.outline,
+                              ),
+                            ),
+                          ),
+                          Slider(
+                            min: -1,
+                            max: 1,
+                            // Steps of a tenth, so the middle is easy to find
+                            // again.
+                            divisions: 20,
+                            value: settings.balance,
+                            // Near the middle it stops there: both at full level is
+                            // what most players want, and the hardest to hit.
+                            onChanged: (v) =>
+                                settings.setBalance(v.abs() <= 0.1 ? 0 : v),
+                            semanticFormatterCallback: (_) => value,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             side(Icons.graphic_eq, l10n.harmonyTab, 1),

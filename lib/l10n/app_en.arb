@@ -57,6 +57,10 @@
       }
     }
   },
+  "balanceTitle": "Balance",
+  "@balanceTitle": {
+    "description": "The word over the balance slider, so that its two side icons do not read as tabs"
+  },
   "balanceLabel": "Balance between the metronome and the harmony",
   "balanceValue": "Metronome {metronome}%, harmony {drone}%",
   "@balanceValue": {

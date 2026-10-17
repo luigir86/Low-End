@@ -426,12 +426,12 @@ class _StrobeDiscState extends State<_StrobeDisc>
     final r = widget.reading;
     // The segments stay the tuner's own colour (silver) whatever the pitch:
     // the verdict is told by the note, its words and its arrow, and by the
-    // direction the segments turn. A step softer than the full silver, so
-    // that the ring, with its many segments, weighs no more than the other
-    // tabs' and the note leads.
+    // direction the segments turn. Softer than the full silver, and in dark
+    // softer than the borders too, so that the ring, with its many segments,
+    // weighs no more than the other tabs' and the note leads.
     final segments = r == null || widget.held
         ? theme.colorScheme.outlineVariant
-        : theme.colorScheme.outline;
+        : LowEndColors.of(context).strobeSegments;
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -531,7 +531,8 @@ class _DiscPainter extends CustomPainter {
         dial.paintSegment(
           canvas,
           startAngle: i * step + turn,
-          sweep: step / 2,
+          // Narrower than the gaps between them: a lighter ring.
+          sweep: step * 0.4,
           color: segments,
           inner: band == 0 ? split + bandGap / 2 : dial.ringInner,
           outer: band == 0 ? dial.ringOuter : split - bandGap / 2,
@@ -806,29 +807,48 @@ class _CentsBar extends StatelessWidget {
     final theme = Theme.of(context);
     final r = reading;
     final show = listening && r != null;
+    final label = theme.textTheme.labelMedium?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
     // The note and its verdict are read by the middle of the dial.
     return ExcludeSemantics(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: _inset),
-        child: SizedBox(
-          height: 48,
-          width: double.infinity,
-          child: CustomPaint(
-            painter: _CentsBarPainter(
-              cents: show ? r.cents : null,
-              // Silver like the dial: the note alone turns green, ochre or red.
-              marker: show && !held
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.outline,
-              // A neutral zone, the colour of the chosen half of the switches:
-              // the marker alone turns green when it is in it.
-              zone: theme.colorScheme.primaryContainer,
-              tolerance: tolerance,
-              track: theme.colorScheme.outlineVariant,
-              middle: theme.colorScheme.outline,
-              hub: theme.colorScheme.surface,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 32,
+              width: double.infinity,
+              child: CustomPaint(
+                painter: _CentsBarPainter(
+                  cents: show ? r.cents : null,
+                  // Silver like the dial: the note alone turns green, ochre or red.
+                  marker: show && !held
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.outline,
+                  // A neutral zone, the colour of the chosen half of the switches:
+                  // the marker alone turns green when it is in it.
+                  zone: theme.colorScheme.primaryContainer,
+                  tolerance: tolerance,
+                  track: theme.colorScheme.outlineVariant,
+                  middle: theme.colorScheme.outline,
+                  hub: theme.colorScheme.surface,
+                ),
+              ),
             ),
-          ),
+            // The scale under the track, so that the thumb's place reads as
+            // cents: its ends and its middle.
+            Row(
+              children: [
+                Expanded(child: Text('−50', style: label)),
+                Text('0', style: label),
+                Expanded(
+                  child: Text('+50', style: label, textAlign: TextAlign.end),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

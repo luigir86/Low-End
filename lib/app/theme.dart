@@ -66,6 +66,7 @@ class LowEndColors extends ThemeExtension<LowEndColors> {
     required this.close,
     required this.off,
     required this.strobeBackground,
+    required this.strobeSegments,
     required this.downbeat,
   });
 
@@ -80,6 +81,11 @@ class LowEndColors extends ThemeExtension<LowEndColors> {
 
   final Color strobeBackground;
 
+  /// The tuner's turning segments. In dark a step softer than the borders:
+  /// many bright segments on the ebony weighed more than the note in the
+  /// middle. Still 3 : 1 on the disc.
+  final Color strobeSegments;
+
   /// The first beat of the bar on the metronome's ring.
   final Color downbeat;
 
@@ -92,12 +98,14 @@ class LowEndColors extends ThemeExtension<LowEndColors> {
     Color? close,
     Color? off,
     Color? strobeBackground,
+    Color? strobeSegments,
     Color? downbeat,
   }) => LowEndColors(
     inTune: inTune ?? this.inTune,
     close: close ?? this.close,
     off: off ?? this.off,
     strobeBackground: strobeBackground ?? this.strobeBackground,
+    strobeSegments: strobeSegments ?? this.strobeSegments,
     downbeat: downbeat ?? this.downbeat,
   );
 
@@ -113,6 +121,7 @@ class LowEndColors extends ThemeExtension<LowEndColors> {
         other.strobeBackground,
         t,
       )!,
+      strobeSegments: Color.lerp(strobeSegments, other.strobeSegments, t)!,
       downbeat: Color.lerp(downbeat, other.downbeat, t)!,
     );
   }
@@ -180,6 +189,7 @@ abstract final class LowEndTheme {
       close: Palette.closeLight,
       off: Palette.offLight,
       strobeBackground: Palette.mapleShade2,
+      strobeSegments: Palette.grainLight,
       downbeat: Palette.brassDeep,
     ),
   );
@@ -191,6 +201,7 @@ abstract final class LowEndTheme {
       close: Palette.closeDark,
       off: Palette.offDark,
       strobeBackground: Palette.ebonyShade2,
+      strobeSegments: Palette.grainDark,
       downbeat: Palette.brassLight,
     ),
   );
@@ -234,6 +245,12 @@ abstract final class LowEndTheme {
         ),
         extra.copyWith(
           strobeBackground: tint(0.1),
+          // Only the tuner has a strobe. In light the borders' 90 % is
+          // already the least that keeps 3 : 1 on the disc; in dark the
+          // silver keeps it at 55 %.
+          strobeSegments: tint(
+            dark && section == AppSection.tuner ? 0.55 : (dark ? 0.75 : 0.9),
+          ),
           // The "one" is the accent at full strength, drawn thicker; the
           // other beats are the accent too, a step softer.
           downbeat: accent,

@@ -26,7 +26,7 @@ Sfondi e inchiostri: chiaro = sfondo #F1F0EE, testo #1E1C1A; scuro = sfondo #141
 
 Verdetti dell'accordatore: intonato #2E6B3A / #8FD19E, quasi #A64B00 / #FFA05A (arancio), lontano #C62828 / #FF8A80 (chiaro / scuro).
 
-Ogni altra tinta di una scheda è il suo colore **mescolato nello sfondo**: disco 10%, segmenti spenti 26%, pillola scelta e TAP 20%, note dell'accordo 55%, bordi, battiti accesi e segmenti dell'accordatore 90% in chiaro e 75% in scuro.
+Ogni altra tinta di una scheda è il suo colore **mescolato nello sfondo**: disco 10%, segmenti spenti 26%, pillola scelta e TAP 20%, note dell'accordo 55%, bordi, battiti accesi e segmenti dell'accordatore 90% in chiaro e 75% in scuro; in scuro i segmenti dell'accordatore scendono al 55% (e sono più sottili), perché lo strobo non pesi più della nota.
 
 Cosa è tinto da una scheda: cerchio (disco, anello, segmenti), bordi, cursore, pillola e pallino della scheda in basso, seconda voce dell'accordo. **Non** è tinto: sfondo, barra dei tab, testo, la nota al centro dell'Armonia e dell'Accordatore, icone dei pulsanti, scelte non selezionate degli interruttori, verdetti dell'accordatore.
 

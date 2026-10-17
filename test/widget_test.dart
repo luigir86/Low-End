@@ -757,8 +757,9 @@ void main() {
       LowEndApp(toneOutput: SilentToneOutput(), micInput: FakeMicInput()),
     );
     await tester.pumpAndSettle();
-    // Under the slider the same names as the tabs; the slider itself is named for screen readers.
-    expect(find.text('Balance'), findsNothing);
+    // Over the slider one word says what it does, and under it the same
+    // names as the tabs; the slider itself is named for screen readers.
+    expect(find.text('Balance'), findsOneWidget);
     expect(find.text('Metronome'), findsNWidgets(2));
     expect(find.text('Harmony'), findsNWidgets(2));
     // The time signature field has no title, but a name for screen readers.
