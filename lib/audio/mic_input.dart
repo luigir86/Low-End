@@ -24,12 +24,15 @@ class RecordMicInput implements MicInput {
 
   AudioRecorder get _rec => _recorder ??= AudioRecorder();
 
-  /// The microphone as it comes, without the filters phones put on it for
-  /// the voice (many cut below 100 Hz or so, where a bass lives); the plain
-  /// microphone where a phone does not offer it.
+  /// The plain microphone first: the "unprocessed" source, though meant for
+  /// music, is 10 to 20 times fainter on some phones (measured on a Galaxy
+  /// S20 FE: room noise at 0.0001 against 0.001 to 0.003), and an acoustic
+  /// bass played unamplified then drowns in the noise. Auto gain, echo
+  /// cancelling and noise suppression stay off (see [_config]). The
+  /// unprocessed source is the fallback.
   static const _sources = [
-    AndroidAudioSource.unprocessed,
     AndroidAudioSource.mic,
+    AndroidAudioSource.unprocessed,
   ];
   var _source = 0;
 

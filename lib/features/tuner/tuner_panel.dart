@@ -153,7 +153,6 @@ String _tuningName(AppLocalizations l10n, TunerTuning tuning) =>
       TunerTuning.cello => l10n.tuningCello,
       TunerTuning.ukulele => l10n.tuningUkulele,
       TunerTuning.bass => l10n.tuningBass,
-      TunerTuning.bassFive => l10n.tuningBassFive,
     };
 
 /// Chromatic, or the strings of an instrument chosen from a menu, in the

@@ -812,12 +812,6 @@ abstract class AppLocalizations {
   /// **'Bass'**
   String get tuningBass;
 
-  /// No description provided for @tuningBassFive.
-  ///
-  /// In en, this message translates to:
-  /// **'Bass 5'**
-  String get tuningBassFive;
-
   /// No description provided for @tuningStrings.
   ///
   /// In en, this message translates to:

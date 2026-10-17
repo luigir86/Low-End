@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io' show Platform;
+import 'dart:io' show File, Platform, Directory;
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
@@ -48,6 +48,10 @@ class MediaNotificationAudio implements BackgroundAudio {
           androidNotificationChannelName: 'Low End',
           // Paused, the notification stays: it is how the sound is resumed.
           androidStopForegroundOnPause: false,
+          // A plain white lion: Android paints the small icon of the
+          // notification one colour, and the coloured launcher icon would
+          // come out as a blob.
+          androidNotificationIcon: 'drawable/ic_stat_low_end',
         ),
       ).then((h) => _handler = h).catchError((Object error) {
         _starting = null;
@@ -79,10 +83,28 @@ class MediaNotificationAudio implements BackgroundAudio {
           playing: state == MediaState.playing,
           title: title,
           text: text,
+          art: await _artwork(),
         );
       }
     } catch (error) {
       debugPrint('Background audio could not change: $error');
+    }
+  }
+
+  Uri? _art;
+
+  /// The logo as a file, for the cover of the notification, as a music
+  /// player shows its album art. Null where it cannot be written.
+  Future<Uri?> _artwork() async {
+    if (_art != null) return _art;
+    try {
+      final data = await rootBundle.load('assets/brand/logo.png');
+      final file = File('${Directory.systemTemp.path}/low_end_cover.png');
+      await file.writeAsBytes(data.buffer.asUint8List(), flush: true);
+      return _art = file.uri;
+    } catch (error) {
+      debugPrint('Notification cover not written: $error');
+      return null;
     }
   }
 }
@@ -96,14 +118,15 @@ class _Handler extends BaseAudioHandler {
     required bool playing,
     required String title,
     required String text,
+    Uri? art,
   }) {
-    mediaItem.add(MediaItem(id: 'low_end', title: title, artist: text));
+    mediaItem.add(
+      MediaItem(id: 'low_end', title: title, artist: text, artUri: art),
+    );
     playbackState.add(
       PlaybackState(
-        controls: [
-          if (playing) MediaControl.pause else MediaControl.play,
-          MediaControl.stop,
-        ],
+        // Only play and pause, on the right, as on a music player.
+        controls: [if (playing) MediaControl.pause else MediaControl.play],
         systemActions: const {
           MediaAction.play,
           MediaAction.pause,

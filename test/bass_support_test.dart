@@ -94,7 +94,6 @@ void main() {
           t.strings.map((s) => s.label(NoteNames.letters)).join(' ');
       expect(names(TunerTuning.violin), 'G3 D4 A4 E5');
       expect(names(TunerTuning.bass), 'E1 A1 D2 G2');
-      expect(names(TunerTuning.bassFive), 'B0 E1 A1 D2 G2');
       expect(TunerTuning.chromatic.isChromatic, isTrue);
     });
 
@@ -129,13 +128,11 @@ void main() {
       },
     );
 
-    test('the five-string bass has its B', () {
-      final r = TunerReading.of(30.87, tuning: TunerTuning.bassFive);
+    test('the bass finds a fifth string, unannounced', () {
+      final r = TunerReading.of(30.87, tuning: TunerTuning.bass);
       expect(r.target, const Note(11, 0));
       expect(r.inTune, isTrue);
-      // The four-string bass has no such string: the nearest is the E.
-      final four = TunerReading.of(30.87, tuning: TunerTuning.bass);
-      expect(four.target, const Note(4, 1));
+      expect(TunerTuning.bass.strings, hasLength(4));
     });
 
     test('the violin follows the reference A', () {
@@ -154,7 +151,13 @@ void main() {
       expect(number(TunerTuning.violin, 196), 'IV');
       expect(number(TunerTuning.bass, 41.2), 'IV');
       expect(number(TunerTuning.bass, 98), 'I');
-      expect(number(TunerTuning.bassFive, 30.87), 'V');
+      expect(number(TunerTuning.bass, 30.87), 'V');
+      // A six-string bass's high C is found, with no number to show.
+      expect(TunerReading.of(130.81, tuning: TunerTuning.bass).target.midi, 48);
+      expect(
+        TunerReading.of(130.81, tuning: TunerTuning.bass).stringNumber,
+        isNull,
+      );
       expect(number(TunerTuning.guitar, 82.41), 'VI');
       expect(number(TunerTuning.guitar, 329.63), 'I');
       expect(number(TunerTuning.cello, 65.41), 'IV');
@@ -228,16 +231,16 @@ void main() {
       var settings = await AppSettings.load();
       expect(settings.tuning, TunerTuning.chromatic);
       expect(settings.tunerInstrument, TunerTuning.guitar);
-      settings.setTunerInstrument(TunerTuning.bassFive);
+      settings.setTunerInstrument(TunerTuning.violin);
       await Future<void>.delayed(Duration.zero);
       settings = await AppSettings.load();
-      expect(settings.tuning, TunerTuning.bassFive);
+      expect(settings.tuning, TunerTuning.violin);
       // Back to chromatic: the instrument stays chosen.
       settings.setTunerChromatic(true);
       await Future<void>.delayed(Duration.zero);
       settings = await AppSettings.load();
       expect(settings.tuning, TunerTuning.chromatic);
-      expect(settings.tunerInstrument, TunerTuning.bassFive);
+      expect(settings.tunerInstrument, TunerTuning.violin);
     });
   });
 
@@ -387,13 +390,13 @@ void main() {
         await tester.tap(find.byKey(const Key('tuningInstrument')));
         await tester.pumpAndSettle();
         expect(settings.tuning, TunerTuning.guitar);
-        await tester.tap(find.text('Bass 5').last);
+        await tester.tap(find.text('Violin').last);
         await tester.pumpAndSettle();
-        expect(settings.tuning, TunerTuning.bassFive);
+        expect(settings.tuning, TunerTuning.violin);
         await tester.tap(find.byKey(const Key('tuningChromatic')));
         await tester.pumpAndSettle();
         expect(settings.tuning, TunerTuning.chromatic);
-        expect(settings.tunerInstrument, TunerTuning.bassFive);
+        expect(settings.tunerInstrument, TunerTuning.violin);
       },
     );
   });

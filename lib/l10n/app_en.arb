@@ -236,7 +236,6 @@
   "tuningCello": "Cello",
   "tuningUkulele": "Ukulele",
   "tuningBass": "Bass",
-  "tuningBassFive": "Bass 5",
   "tuningStrings": "Strings: {strings}",
   "@tuningStrings": {
     "placeholders": {
