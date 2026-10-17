@@ -40,6 +40,7 @@ class _Guide extends StatelessWidget {
             tip(Icons.touch_app_outlined, l10n.guideRing),
             tip(Icons.pin_outlined, l10n.guideTempo),
             tip(Icons.swipe, l10n.guideSwipe),
+            tip(Icons.swipe_vertical, l10n.guideSwipeVertical),
             tip(Icons.ads_click, l10n.guideHold),
             tip(Icons.graphic_eq, l10n.guideDrone),
             tip(Icons.mic_none, l10n.guideTuner),

@@ -6,9 +6,9 @@ Low End is a metronome, a piano harmony section and a tuner in one app. It was m
 
 ## The three sections
 
-The tabs at the bottom are **Metronome**, **Harmony** and **Tuner**. The app opens on the metronome.
+The tabs at the bottom (on the left when the phone is sideways) are **Metronome**, **Harmony** and **Tuner**. The app opens on the metronome.
 
-- **Swipe** left or right to change section.
+- **Swipe** left or right to change section. With the phone turned sideways the tabs move to a column on the left and the settings gear stays top right: **swipe up or down** over the dial or the tabs (not over the rows on the right, which may scroll) to change section.
 - **Touch the tab you are on** to start or stop its sound, like the middle of its dial. **Hold another tab** to start or stop that section's sound from anywhere (the metronome, or the harmony).
 - A **pulsing dot** on a tab says that section is making sound: the metronome and the harmony while they play, the tuner while it listens.
 - The first time you open the app a short **gesture guide** appears. It is also in *Settings → Gestures and shortcuts*.

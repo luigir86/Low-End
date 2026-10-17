@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 'flip_detector.dart';
+
 /// The round dial at the heart of every section: the strobe of the tuner,
 /// the circle of fifths of the drone, the beats of the metronome. One
 /// geometry and one place on screen for all three, so moving between tabs
@@ -157,8 +159,28 @@ class DialLayout extends StatelessWidget {
   static const _dialGap = 16.0;
   static const _controlsRoom = 3 * rowHeight + _dialGap + 32;
 
+  /// Landscape: the screen is wider than tall. The dial then sits on the
+  /// left, next to the tab rail, and the three rows form a column on its
+  /// right, at least [columnMinWidth] wide.
+  static bool isLandscape(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    return size.width > size.height;
+  }
+
+  static const columnMinWidth = 320.0;
+
+  /// Marks the box of the dial, for tests.
+  static const dialKey = ValueKey('dial');
+
+  /// The smallest dial in landscape, when the screen is too narrow for both.
+  static const _minLandscapeDial = 160.0;
+
+  /// Room kept above the rows for the settings button, in the corner.
+  static const _cornerRoom = 56.0;
+
   @override
   Widget build(BuildContext context) {
+    if (isLandscape(context)) return _landscape();
     return LayoutBuilder(
       builder: (context, constraints) {
         final size = math.max(
@@ -186,7 +208,7 @@ class DialLayout extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SizedBox(height: top),
-                SizedBox.square(dimension: size, child: dial),
+                SizedBox.square(key: dialKey, dimension: size, child: dial),
                 const SizedBox(height: _dialGap),
                 for (final row in [upper, lower, footer])
                   ConstrainedBox(
@@ -198,6 +220,67 @@ class DialLayout extends StatelessWidget {
                   ),
               ],
             ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _landscape() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final height = constraints.maxHeight;
+        // Nearly the whole height, but never so wide that the column of rows
+        // loses its minimum width; very narrow phones get a smaller dial.
+        final size = math
+            .min(
+              math.min(_maxSize, height - 56),
+              constraints.maxWidth - columnMinWidth - 48,
+            )
+            .clamp(_minLandscapeDial, _maxSize)
+            .toDouble();
+        // As in portrait, the rows start where the block would if it were
+        // centred with every row at its minimum height, so they never move
+        // between tabs; the settings button has the room above.
+        final room = height - _cornerRoom - 16;
+        final top = math.max(0.0, (room - 3 * rowHeight) / 2);
+        return SizedBox(
+          height: height,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(width: 16),
+              FlipDetector(
+                child: Center(
+                  child: SizedBox.square(
+                    key: dialKey,
+                    dimension: size,
+                    child: dial,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, _cornerRoom, 16, 16),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: math.max(0, room)),
+                    child: Column(
+                      children: [
+                        SizedBox(height: top),
+                        for (final row in [upper, lower, footer])
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              minHeight: rowHeight,
+                              maxWidth: _maxSize,
+                            ),
+                            child: Center(child: row),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },

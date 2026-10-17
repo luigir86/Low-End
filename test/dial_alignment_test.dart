@@ -34,9 +34,16 @@ void main() {
   /// The dial box and the three rows of the section on screen.
   List<Rect> geometry(WidgetTester tester) {
     final layouts = find.byType(DialLayout);
+    // Sideways pages in portrait, one above the other in landscape (beside
+    // the tab rail): the one on screen is at the origin of its axis.
+    final wide = tester.view.physicalSize.aspectRatio > 1;
     final onScreen = [
       for (var i = 0; i < layouts.evaluate().length; i++)
-        if (tester.getRect(layouts.at(i)).left == 0) i,
+        if ((wide
+                ? tester.getRect(layouts.at(i)).top
+                : tester.getRect(layouts.at(i)).left) ==
+            0)
+          i,
     ];
     expect(onScreen, hasLength(1), reason: 'one section on screen');
     final layout = layouts.at(onScreen.single);
@@ -66,7 +73,12 @@ void main() {
   Future<List<List<Rect>>> allTabs(WidgetTester tester) async {
     final all = <List<Rect>>[];
     for (final tab in ['Metronome', 'Harmony', 'Tuner']) {
-      await tester.tap(find.text(tab).last);
+      final rail = find.byKey(const Key('tabRail'));
+      await tester.tap(
+        rail.evaluate().isEmpty
+            ? find.text(tab).last
+            : find.descendant(of: rail, matching: find.text(tab)),
+      );
       await tester.pump(const Duration(milliseconds: 400));
       all.add(geometry(tester));
     }
@@ -77,6 +89,11 @@ void main() {
     (const Size(390, 844), 1.0),
     (const Size(360, 640), 1.0),
     (const Size(360, 640), 1.5),
+    (const Size(915, 412), 1.0),
+    (const Size(915, 412), 2.0),
+    (const Size(640, 360), 1.0),
+    (const Size(640, 360), 1.5),
+    (const Size(1280, 800), 1.0),
   ]) {
     testWidgets('dials and rows are aligned on $size at x$scale', (
       tester,
@@ -119,5 +136,32 @@ void main() {
     final tabs = await allTabs(tester);
     expect(tabs[2][0].center.dy, tabs[0][0].center.dy);
     expect(tabs[2][0].size, tabs[0][0].size);
+  });
+
+  testWidgets('landscape: dial on the left, three equal rows to its right', (
+    tester,
+  ) async {
+    await open(tester, const Size(915, 412), 1.0);
+    for (final g in await allTabs(tester)) {
+      expect(g[0].height, inInclusiveRange(300, 360));
+      expect(g[0].left, lessThan(150), reason: 'the dial is by the rail');
+      for (var i = 1; i < 4; i++) {
+        expect(g[i].height, DialLayout.rowHeight);
+        expect(g[i].left, greaterThanOrEqualTo(g[0].right));
+        expect(g[i].width, greaterThanOrEqualTo(DialLayout.columnMinWidth));
+      }
+      expect(g[2].top, g[1].bottom);
+      expect(g[3].top, g[2].bottom);
+    }
+  });
+
+  testWidgets('landscape on a narrow phone: smaller dial, column kept', (
+    tester,
+  ) async {
+    await open(tester, const Size(640, 360), 1.0);
+    final g = (await allTabs(tester)).first;
+    expect(g[0].width, lessThan(260));
+    expect(g[0].width, greaterThanOrEqualTo(160));
+    expect(g[1].width, greaterThanOrEqualTo(DialLayout.columnMinWidth));
   });
 }

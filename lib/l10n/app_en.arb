@@ -207,6 +207,7 @@
   "guideRing": "Tap the metronome's ring to start and stop it.",
   "guideTempo": "Tap the number to type the tempo. Hold − or + to move in steps of 5 and 10.",
   "guideSwipe": "Swipe left and right to change section.",
+  "guideSwipeVertical": "Turned sideways, swipe up and down over the dial or the tabs to change section.",
   "guideHold": "Hold a tab to start or stop its sound from any section.",
   "guideDrone": "In Harmony, tap a note to play it. Hold C♯ or F♯ to write them D♭ or G♭.",
   "guideTuner": "The tuner listens by itself. Going there pauses the metronome and the harmony.",
