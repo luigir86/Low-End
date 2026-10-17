@@ -525,6 +525,60 @@ String progressionName(AppLocalizations l10n, Progression p) => switch (p) {
   Progression.blues => l10n.progressionBlues,
 };
 
+/// The well-known song a progression is named after in the menu.
+String progressionSong(Progression p) => switch (p) {
+  Progression.twoFiveOne => 'Autumn Leaves',
+  Progression.minorTwoFiveOne => 'Blue Bossa',
+  Progression.oneFourFive => 'Twist and Shout',
+  Progression.oneSixFourFive => 'Stand by Me',
+  Progression.blues => 'Sweet Home Chicago',
+};
+
+/// The genre the progression belongs to.
+String progressionGenre(AppLocalizations l10n, Progression p) => switch (p) {
+  Progression.twoFiveOne => l10n.progressionGenreJazz,
+  Progression.minorTwoFiveOne => l10n.progressionGenreMinorJazz,
+  Progression.oneFourFive => l10n.progressionGenreRock,
+  Progression.oneSixFourFive => l10n.progressionGenrePop,
+  Progression.blues => l10n.progressionGenreBlues,
+};
+
+/// The line under the name in the menu: "Jazz standard, like Autumn Leaves".
+String progressionNote(AppLocalizations l10n, Progression p) =>
+    l10n.progressionLike(progressionGenre(l10n, p), progressionSong(p));
+
+/// What the closed field shows: the name, and the song when it fits. The
+/// blues is "Blues" there, since its full name leaves no room.
+String progressionFieldText(AppLocalizations l10n, Progression p) =>
+    '${p == Progression.blues ? l10n.progressionGenreBlues : progressionName(l10n, p)}'
+    ' · ${progressionSong(p)}';
+
+/// A progression in the menu: its name, and under it the genre and a song.
+class _ProgressionEntry extends StatelessWidget {
+  const _ProgressionEntry({required this.name, required this.note});
+
+  final String name;
+  final String note;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(name, style: theme.textTheme.titleMedium),
+        Text(
+          note,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 /// Root, Chord or Progression, full width, as tall as the other sections'
 /// first row.
 class _VoicingSwitch extends StatelessWidget {
@@ -599,7 +653,13 @@ class _ChordMenu extends StatelessWidget {
                             for (final p in Progression.values)
                               DropdownMenuEntry(
                                 value: p,
-                                label: progressionName(l10n, p),
+                                // What the field shows once chosen; the menu
+                                // lists the name with its note under it.
+                                label: progressionFieldText(l10n, p),
+                                labelWidget: _ProgressionEntry(
+                                  name: progressionName(l10n, p),
+                                  note: progressionNote(l10n, p),
+                                ),
                               ),
                           ],
                           onSelected: (p) {

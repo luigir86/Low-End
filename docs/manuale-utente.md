@@ -17,11 +17,11 @@ Il volume è quello del telefono: usa i suoi tasti. Il cursore in basso, in Metr
 
 ## Metronomo
 
-- **Avvio e stop**: tocca l'anello o il numero al centro. L'anello si accende movimento per movimento, con il primo tempo in evidenza, e il suono di un piatto ride jazz tiene il tempo, con la campana sul primo tempo.
-- **Tempo**: da 30 a 250 BPM. Tocca la matita per scriverlo; tocca **+** o **−** per spostarti di uno, oppure tienili premuti per andare a passi di 5 e 10; oppure batti **TAP** al ritmo che vuoi.
-- **Dritto / Swing / Shuffle**: come viene suonato il tempo. Lo swing aggiunge la nota di passaggio dopo il 2 e il 4 (lunga, breve) e l'hi-hat sul 2 e sul 4, come un batterista jazz; lo shuffle suona ogni battito in due metà diseguali. Nelle misure in ottavi (6/8, 7/8, 9/8, 12/8) è sempre dritto.
+- **Avvio e stop**: tocca l'anello o il numero al centro. L'anello si accende movimento per movimento, con il primo tempo in evidenza, e il suono di un batterista jazz tiene il tempo: un piatto ride, con la campana e la grancassa sul primo tempo.
+- **Tempo**: da 30 a 250 BPM. Tocca la matita per scriverlo; tocca **+** o **−** per spostarti di uno, oppure tienili premuti per andare a passi di 5 e 10; oppure batti **TAP** (il pulsante colorato) al ritmo che vuoi.
+- **Dritto / Swing / Shuffle**: come viene suonato il tempo. Lo swing aggiunge la nota di passaggio dopo il 2 e il 4 (lunga, breve) e l'hi-hat sul 2 e sul 4, come un batterista jazz; lo shuffle suona ogni battito in due metà diseguali, con un rullante leggero sul 2 e sul 4. Il pianoforte della scheda Armonia lo segue: negli stili «a ogni tempo» e «arpeggio» suona anche le note di passaggio, a tempo con la batteria. Nelle misure in ottavi (6/8, 7/8, 9/8, 12/8) è sempre dritto.
 - Tempo, misura e andamento restano salvati quando chiudi l'app.
-- **Misura**: 1/1 (un solo click a battuta, per tenere un tempo senza contare), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 e 12/8. In 6/8, 9/8 e 12/8 il tempo conta le semiminime puntate (♩.), come si dirige; in 7/8 conta le crome.
+- **Misura**: il riquadro con «4/4» dentro (senza titolo: toccalo per scegliere). 1/1 (un solo click a battuta, per tenere un tempo senza contare), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 e 12/8. In 6/8, 9/8 e 12/8 il tempo conta le semiminime puntate (♩.), come si dirige; in 7/8 conta le crome.
 - Se cambi tempo o misura mentre suona, il cambio è immediato e senza stacchi.
 
 ## Armonia
@@ -30,7 +30,7 @@ Dodici tasti intorno a un quadrante (di norma nel cerchio delle quinte; nelle im
 
 - **Tocca un tasto** per sentirlo su un vero pianoforte, a tempo con il metronomo. **Toccalo di nuovo** per fermarlo. Armonia e metronomo possono suonare insieme o da soli.
 - **Tieni premuto Do♯ o Fa♯** per scriverli Re♭ o Sol♭.
-- **Fondamentale**: la nota da sola. **Accordo**: maggiore, minore o di settima, costruito sulla nota. **Progressione**: un accordo per battuta, nella tonalità della nota toccata: II–V–I (maggiore e minore), I–IV–V, I–VI–IV–V e il blues di dodici battute. Il quadrante attenua le note fuori dalla tonalità e scrive in piccolo i numeri romani (II, V, I) sulle note su cui stanno; restano fermi: leggi II, poi vai al V. «Aggiungi la settima agli accordi» li trasforma in accordi di settima.
+- **Fondamentale**: la nota da sola. **Accordo**: maggiore, minore o di settima, costruito sulla nota. **Progressione**: un accordo per battuta, nella tonalità della nota toccata: II–V–I (maggiore e minore), I–IV–V, I–VI–IV–V e il blues di dodici battute. Il menu dice cos'è ognuna: *Standard jazz, come Autumn Leaves* (II–V–I), *Jazz in tonalità minore, come Blue Bossa*, *Rock ’n’ roll, come Twist and Shout* (I–IV–V), *Pop anni ’50–’60, come Stand by Me* (I–VI–IV–V) e *Blues, come Sweet Home Chicago*. Il quadrante attenua le note fuori dalla tonalità e scrive in piccolo i numeri romani (II, V, I) sulle note su cui stanno; restano fermi: leggi II, poi vai al V. «Aggiungi la settima agli accordi» li trasforma in accordi di settima.
 - **Stile**: accordo battuto una volta a battuta, a ogni tempo, oppure arpeggiato, secondo tempo e misura del metronomo.
 - **Opzioni del suono**: l'ottava della fondamentale e la posizione dell'accordo (impilato, vicino, oppure senza fondamentale, per suonarla tu).
 - **Bilanciamento**: un solo cursore mescola metronomo e armonia.
@@ -59,7 +59,7 @@ L'ingranaggio in alto apre le impostazioni:
 | Tieni lo schermo acceso | Mentre suona o l'accordatore ascolta |
 | Gesti e scorciatoie | Mostra di nuovo la guida |
 
-**Informazioni su Low End** (in fondo alle impostazioni) mostra la licenza, il link al codice sorgente e, sotto *Visualizza licenze*, le licenze di tutto ciò con cui l'app è costruita, font e suoni del pianoforte compresi.
+**Informazioni su Low End** (in fondo alle impostazioni) mostra la licenza, il link al codice sorgente e, sotto *Visualizza licenze*, le licenze di tutto ciò con cui l'app è costruita, font e suoni di pianoforte e batteria compresi. Sotto le scelte, **Ringraziamenti** va alla Power Flower Orchestra di Fossano, che ha ispirato e provato quest’app.
 
 ## Suonare con lo schermo spento
 

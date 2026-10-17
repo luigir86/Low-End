@@ -8,7 +8,8 @@ The metronome, the harmony and the tuner do different things, but they must look
 
 - The dial is the same size, in the same place, on all three tabs; its middle is the button and says the state in the same two sizes (display, then caption).
 - Under it, the same three rows: a switch (Root / Chord / Progression, Straight / Swing / Shuffle) or a message, then the row of controls, then the balance slider.
-- The row of controls is built from the same pieces everywhere (`lib/widgets/row_controls.dart`): a **field with its name on the border** (the chord or progression, the time signature, the reference A), **chips** (+7, TAP, −, +) and an **icon button** at the end (the sound options, the pencil). A new control is made from these; if none fits, change them for everyone.
+- The row of controls is built from the same pieces everywhere (`lib/widgets/row_controls.dart`): a **field with its name on the border** (the chord or progression, the reference A; the time signature is a bare border with "4/4" in it, since its title did not fit, but it keeps its name for screen readers: `LabeledField(showLabel: false)`), **chips** (+7, TAP, −, +) and an **icon button** at the end (the sound options, the pencil). A new control is made from these; if none fits, change them for everyone.
+- **A chip that is a button to press is filled.** The chips that show a value or step it (+7, −, +) are outlined; TAP, which you play rather than set, is filled with `primaryContainer` and its text is `onPrimaryContainer` (`RowChip(filled: true)`), so that it reads as pressable. The pair keeps the contrast checked by `theme_test.dart` and `accessibility_test.dart`.
 - − and + step a value, the pencil types it or chooses from a list, a touch on the field opens the same choice.
 
 ## Type
@@ -22,7 +23,7 @@ Font: Edwin (Noto Music for ♩). Sizes in sp, they grow with the phone's text s
 | title | 22 | `titleLarge`, weight 700 | A value on a control: the time signature, TAP. |
 | body | 16 | `titleMedium`, `bodyLarge` | The chord on the harmony dial, the notes on the keys, the chord menu, dialog titles. |
 | caption | 14 | `bodyMedium`, `titleSmall`, `labelLarge` | Hints in the middle of a dial ("Tap to start", "Touch a note to play", "Play a note", "Listen"), the unit under the tempo, messages, settings. |
-| small | 13 | `labelMedium`, `labelSmall`, `bodySmall`, tab labels | The smallest text anywhere: the names under the icons of the balance slider and of the tabs, the "Time signature" label, the second name of a note (D♭). Nothing is smaller. |
+| small | 13 | `labelMedium`, `labelSmall`, `bodySmall`, tab labels | The smallest text anywhere: the names under the icons of the balance slider and of the tabs, the note under a progression's name in the menu ("Jazz standard, like Autumn Leaves"), the second name of a note (D♭). Nothing is smaller. |
 
 Rules: pick a role, never a number; the three dials show their value in `display`, and their hint in `caption`; text smaller than `small` is not allowed, so if something does not fit, shorten it or let it shrink with the user's text size, do not make it tiny.
 

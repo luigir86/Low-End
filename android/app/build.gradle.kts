@@ -16,6 +16,15 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    // The app speaks English and Italian (lib/l10n). Both must be in the
+    // APK as resources: Android hands the app the phone's languages only as
+    // far as the app declares them, so an app with no Italian resources is
+    // told the phone is in English. res/values-it holds the Italian one;
+    // the filter keeps the libraries' other translations out of the APK.
+    androidResources {
+        localeFilters += listOf("en", "it")
+    }
+
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.luigir86.low_end"

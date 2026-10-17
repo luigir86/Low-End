@@ -7,6 +7,7 @@ import 'package:low_end/audio/loop_transport.dart';
 import 'package:low_end/audio/piano_output.dart';
 import 'package:low_end/audio/piano_sound.dart';
 import 'package:low_end/audio/tone_output.dart';
+import 'package:low_end/features/metronome/feel.dart';
 import 'package:low_end/features/metronome/time_signature.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
 
@@ -350,6 +351,110 @@ void main() {
     });
   });
 
+  group('swing and shuffle', () {
+    // Quiet notes, so that no loop is turned down as a whole (which would
+    // change every sample, not just where a note was added).
+    final quiet = PianoSamples({
+      for (final e in samples.notes.entries)
+        e.key: Float32List.fromList([for (final v in e.value) v * 0.1]),
+    });
+
+    Float64List render(
+      PianoStyle style,
+      MetronomeFeel feel, {
+      TimeSignature signature = TimeSignature.fourFour,
+    }) => PianoSound.loop(
+      samples: quiet,
+      chords: [cMajor],
+      style: style,
+      bpm: 120,
+      signature: signature,
+      feel: feel,
+    );
+
+    /// The first sample at which [a] and [b] differ, or -1, looking from
+    /// [from] on: the tail of the last skip note wraps round into the start
+    /// of the loop, where the first beat has nothing to compare it with.
+    int firstDifference(Float64List a, Float64List b, [int from = 0]) {
+      for (var i = from; i < a.length; i++) {
+        if (a[i] != b[i]) return i;
+      }
+      return -1;
+    }
+
+    const beat = ClickSound.sampleRate ~/ 2;
+    const skip = beat * 2 ~/ 3;
+
+    test('the bar keeps its length, so the piano stays with the clicks', () {
+      for (final feel in MetronomeFeel.values) {
+        for (final style in [PianoStyle.beat, PianoStyle.arpeggio]) {
+          expect(render(style, feel).length, beat * 4);
+        }
+      }
+    });
+
+    test('the shuffle strikes the skip note after the first beat', () {
+      const style = PianoStyle.beat;
+      final straight = render(style, MetronomeFeel.straight);
+      final shuffle = render(style, MetronomeFeel.shuffle);
+      // The first difference is the triplet: two thirds into the beat.
+      expect(
+        firstDifference(straight, shuffle, beat ~/ 2),
+        inInclusiveRange(skip, skip + 2),
+      );
+    });
+
+    test('the arpeggio plays the skip notes between its own', () {
+      const style = PianoStyle.arpeggio;
+      final straight = render(style, MetronomeFeel.straight);
+      for (final feel in [MetronomeFeel.swing, MetronomeFeel.shuffle]) {
+        expect(render(style, feel), isNot(equals(straight)));
+      }
+      expect(render(style, MetronomeFeel.shuffle).length, straight.length);
+    });
+
+    test('the swing waits for beat 2 to strike the skip note', () {
+      const style = PianoStyle.beat;
+      final straight = render(style, MetronomeFeel.straight);
+      final swing = render(style, MetronomeFeel.swing);
+      // Nothing on the first beat's skip: it is the same up to beat 2's.
+      expect(
+        firstDifference(straight, swing, beat ~/ 2),
+        inInclusiveRange(beat + skip, beat + skip + 2),
+      );
+    });
+
+    test('the skip note is lighter than the beat', () {
+      final straight = render(PianoStyle.beat, MetronomeFeel.straight);
+      final shuffle = render(PianoStyle.beat, MetronomeFeel.shuffle);
+      final added = Float64List.fromList([
+        for (var i = 0; i < straight.length; i++) shuffle[i] - straight[i],
+      ]);
+      expect(_energy(added, skip, 2000), lessThan(_energy(straight, 0, 2000)));
+      expect(_energy(added, skip, 2000), greaterThan(0.1));
+    });
+
+    test('held chords do not change', () {
+      for (final feel in MetronomeFeel.values) {
+        expect(
+          render(PianoStyle.bar, feel),
+          equals(render(PianoStyle.bar, MetronomeFeel.straight)),
+        );
+      }
+    });
+
+    test('bars in eighths stay straight', () {
+      for (final signature in [TimeSignature.sixEight]) {
+        for (final style in [PianoStyle.beat, PianoStyle.arpeggio]) {
+          expect(
+            render(style, MetronomeFeel.swing, signature: signature),
+            equals(render(style, MetronomeFeel.straight, signature: signature)),
+          );
+        }
+      }
+    });
+  });
+
   group('the drone on the piano', () {
     late SilentToneOutput tone;
     late SilentPianoOutput piano;
@@ -388,6 +493,20 @@ void main() {
       // The tone is silent, and the piano starts on the first beat.
       expect(tone.frequencies, isEmpty);
       expect(piano.startAt, Duration.zero);
+    });
+
+    test('the piano is rendered again when the feel changes', () async {
+      drone.setVoicing(DroneVoicing.chord);
+      await drone.tapNote(0);
+      expect(piano.feel, MetronomeFeel.straight);
+      final plays = piano.plays;
+      clock.feel = MetronomeFeel.swing;
+      clock.announce();
+      await Future<void>.delayed(Duration.zero);
+      expect(piano.plays, plays + 1);
+      expect(piano.feel, MetronomeFeel.swing);
+      // Carries on from where it was: no restart from the top.
+      expect(piano.startAt, isNull);
     });
 
     test('a seventh chord adds the seventh', () async {
@@ -593,6 +712,7 @@ class _SlowPianoOutput extends SilentPianoOutput {
     required double volume,
     Duration? startAt,
     bool rootless = false,
+    MetronomeFeel feel = MetronomeFeel.straight,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 20));
     return super.play(
@@ -604,6 +724,7 @@ class _SlowPianoOutput extends SilentPianoOutput {
       volume: volume,
       startAt: startAt,
       rootless: rootless,
+      feel: feel,
     );
   }
 }
@@ -620,6 +741,9 @@ class _Clock extends ChangeNotifier implements BarClock {
 
   @override
   TimeSignature signature = TimeSignature.fourFour;
+
+  @override
+  MetronomeFeel feel = MetronomeFeel.straight;
 
   /// Tells the listeners that the tempo or the time signature changed.
   void announce() => notifyListeners();

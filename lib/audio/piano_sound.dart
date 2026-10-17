@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import '../features/metronome/feel.dart';
 import '../features/metronome/time_signature.dart';
 import 'click_sound.dart';
 
@@ -124,6 +125,10 @@ abstract final class PianoSound {
   /// strike.
   static const _renewGain = 0.6;
 
+  /// Level of the strike on the skip note of the swing and the shuffle,
+  /// against the one on the beat.
+  static const _skipGain = 0.5;
+
   /// The level of each note of a chord of [notes] struck together: full up
   /// to [_fullChord] notes, then lower, so that a fuller chord is not louder
   /// and its sum keeps clear of the top. A plain gain, which leaves the
@@ -175,6 +180,7 @@ abstract final class PianoSound {
     required TimeSignature signature,
     double a4 = 440,
     bool rootless = false,
+    MetronomeFeel feel = MetronomeFeel.straight,
   }) => ClickSound.wav(
     loop(
       samples: samples,
@@ -184,12 +190,16 @@ abstract final class PianoSound {
       signature: signature,
       a4: a4,
       rootless: rootless,
+      feel: feel,
     ),
   );
 
   /// The samples of the loop, from -1 to 1 (see [loopWav]). With [rootless],
   /// the chords have no root to double an octave down: their first note is
-  /// not one.
+  /// not one. With a [feel] other than straight, the beat and arpeggio
+  /// styles also play the skip note, two thirds of the way through the
+  /// beat, where the metronome does (not in bars counted in eighths); the
+  /// bar keeps its length.
   static Float64List loop({
     required PianoSamples samples,
     required List<PianoChord> chords,
@@ -198,7 +208,9 @@ abstract final class PianoSound {
     required TimeSignature signature,
     double a4 = 440,
     bool rootless = false,
+    MetronomeFeel feel = MetronomeFeel.straight,
   }) {
+    final felt = signature.denominator == 8 ? MetronomeFeel.straight : feel;
     final beat = (ClickSound.sampleRate * 60 / bpm).round();
     final barLength = beat * signature.beats;
     final out = Float64List(barLength * chords.length);
@@ -303,19 +315,36 @@ abstract final class PianoSound {
             final gain = accent == 0 ? 1.0 : (accent == 1 ? 0.85 : 0.72);
             final next = _nextStrike(signature, pulse);
             holdChord(chord, gain, start, pulse, pulse + next);
+            if (felt.skipsAfter(pulse, signature.beats)) {
+              final skip = MetronomeFeel.skipAt(beat);
+              strikeChord(
+                chord,
+                gain * _skipGain,
+                start + pulse * beat + skip,
+                beat - skip,
+              );
+            }
           }
         case PianoStyle.arpeggio:
+          // The notes go up and down the chord one after another, the skip
+          // notes of a swing or a shuffle included.
+          var count = 0;
           for (var pulse = 0; pulse < signature.beats; pulse++) {
             final accent = signature.accent(pulse);
-            final tone = _arpeggioTone(signature, pulse, chord.length);
+            final tone = _arpeggioTone(signature, count++, chord.length);
             final gain = accent == 0 ? 1.0 : (accent == 1 ? 0.88 : 0.76);
+            final hold = (_arpeggioHold * beat).round();
             // A single note is quieter than a chord: lift it.
-            strike(
-              chord[tone],
-              gain * 1.6,
-              start + pulse * beat,
-              (_arpeggioHold * beat).round(),
-            );
+            strike(chord[tone], gain * 1.6, start + pulse * beat, hold);
+            if (felt.skipsAfter(pulse, signature.beats)) {
+              final skipTone = _arpeggioTone(signature, count++, chord.length);
+              strike(
+                chord[skipTone],
+                gain * 1.6 * _skipGain,
+                start + pulse * beat + MetronomeFeel.skipAt(beat),
+                hold,
+              );
+            }
           }
       }
     }

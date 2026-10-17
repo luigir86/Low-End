@@ -29,6 +29,25 @@
   "progressionLabel": "Progression",
   "progressionMinorTwoFiveOne": "II–V–I minor",
   "progressionBlues": "12-bar blues",
+  "progressionGenreJazz": "Jazz standard",
+  "progressionGenreMinorJazz": "Jazz in a minor key",
+  "progressionGenreRock": "Rock ’n’ roll",
+  "progressionGenrePop": "’50s–’60s pop",
+  "progressionGenreBlues": "Blues",
+  "progressionLike": "{genre}, like {song}",
+  "@progressionLike": {
+    "description": "A progression described by its genre and a well-known song that uses it, in the progression menu.",
+    "placeholders": {
+      "genre": {
+        "type": "String"
+      },
+      "song": {
+        "type": "String"
+      }
+    }
+  },
+  "thanksTitle": "Thanks",
+  "thanksText": "Thanks to the Power Flower Orchestra of Fossano, who inspired this app and put it to the test.",
   "addSevenths": "Add the seventh to the chords",
   "droneChordDiminished": "{note} diminished",
   "@droneChordDiminished": {
@@ -153,6 +172,7 @@
   "aboutLegalese": "Free and open-source software, released under the MIT License.",
   "aboutDescription": "Metronome, harmony and tuner for musicians. Made by an amateur double bass player with the friends from the orchestra in mind, and useful to everyone. Low End works offline: the microphone is used only while the tuner is listening, and no sound or data leaves your phone.",
   "aboutPiano": "Piano sounds: Salamander Grand Piano by Alexander Holm (public domain).",
+  "aboutDrums": "Drum sounds: Versilian Community Sample Library by Versilian Studios (CC0, public domain).",
   "styleLabel": "Style",
   "styleHeld": "Chord every bar",
   "styleBeat": "Chord on every beat",

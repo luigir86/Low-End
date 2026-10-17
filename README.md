@@ -16,12 +16,12 @@ The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens o
 
 - Tempo from 30 to 250 BPM: touch the number to type it, hold − or + to move in steps, or tap TAP.
 - Time signatures 1/1 (one click a bar), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8, with the beats grouped the way you count them.
-- A ring that lights up beat by beat (the downbeat marked) and the sound of a jazz ride cymbal (the bell on the downbeat), in a straight, swing or shuffle feel, with the hi-hat on 2 and 4 in swing. The audio engine loops a whole bar, so the time stays steady.
+- A ring that lights up beat by beat (the downbeat marked) and the sound of a jazz drummer (recordings of a ride cymbal with its bell and the bass drum on the downbeat), in a straight, swing or shuffle feel, with the hi-hat on 2 and 4 in swing and a light snare on 2 and 4 in shuffle. The audio engine loops a whole bar, so the time stays steady.
 
 ### Harmony
 
 - Twelve note keys round a dial: touch one to play it on a real piano, in time with the metronome, and touch it again to stop.
-- The note alone (**Root**), a major, minor or seventh **Chord**, or a **Progression** of one chord per bar: II–V–I (major and minor), I–IV–V, I–VI–IV–V and the twelve-bar blues, in the key of the note touched.
+- The note alone (**Root**), a major, minor or seventh **Chord**, or a **Progression** of one chord per bar: II–V–I (major and minor), I–IV–V, I–VI–IV–V and the twelve-bar blues, in the key of the note touched. The menu names each with a well-known song (Autumn Leaves, Blue Bossa, Twist and Shout, Stand by Me, Sweet Home Chicago). The piano follows the metronome's swing and shuffle.
 - Held for the bar, struck on every beat or arpeggiated; choose the octave of the root and where the chord sits (stacked, close or without the root).
 - One **Balance** slider mixes the metronome and the harmony. The volume itself is the phone's.
 
@@ -45,6 +45,10 @@ With the screen off or the app in the background the metronome and the harmony k
 - **LLM first**: everything on screen is also an action an assistant can call, with a JSON answer, through `lowend://action/...` links. See [docs/llm.md](docs/llm.md).
 - **Fast to open**: nothing heavy runs at launch. The audio engine starts only the first time a sound plays and the microphone only after the first frame is drawn (`test/startup_test.dart` checks this), and the launch screen uses the app's own background colour, so there is no white flash.
 - **Accessible**: built to follow WCAG 2.1 level AA. Every control has a screen-reader label, the tuner announces the note and whether it is flat, sharp or in tune, colours keep a 3:1 contrast or better and are never the only cue, text can be enlarged, and the playing dot stops moving when the phone asks for fewer animations. `test/accessibility_test.dart` checks this automatically.
+
+## Thanks
+
+To the **Power Flower Orchestra of Fossano**, who inspired this app and put it to the test. The drum sounds are from the [Versilian Community Sample Library](https://github.com/sgossner/VCSL) (CC0).
 
 ## Ideas for later
 

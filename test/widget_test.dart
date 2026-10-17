@@ -578,8 +578,11 @@ void main() {
     expect(find.text('Balance'), findsNothing);
     expect(find.text('Metronome'), findsNWidgets(2));
     expect(find.text('Harmony'), findsNWidgets(2));
-    // The time signature button says what it is.
-    expect(find.text('Time signature'), findsOneWidget);
+    // The time signature field has no title, but a name for screen readers.
+    final semantics = tester.ensureSemantics();
+    expect(find.text('Time signature'), findsNothing);
+    expect(find.bySemanticsLabel('Time signature'), findsOneWidget);
+    semantics.dispose();
     // The tuner tab is a microphone.
     expect(find.byIcon(Icons.mic_none), findsOneWidget);
   });

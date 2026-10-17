@@ -3,15 +3,25 @@ import 'dart:typed_data';
 
 import '../features/metronome/feel.dart';
 import '../features/metronome/time_signature.dart';
+import 'drum_kit.dart';
 
-/// The metronome's sound, made in code: a jazz drummer's ride cymbal, a
-/// stick on it with its wash and a ring of uneven partials, clearer than a
-/// click yet warmer, so that it sits beside a piano without fighting it.
-/// The first beat of the bar is the bell, higher and brighter, the first
-/// pulse of a group (6/8) in between, and the swing and the shuffle add the
-/// skip note, softly, and the hi-hat on 2 and 4.
+/// The metronome's sound: a jazz drummer's ride cymbal, clearer than a click
+/// yet warmer, so that it sits beside a piano without fighting it. The first
+/// beat of the bar is the bell with the bass drum, the first pulse of a
+/// group (6/8) in between, and the swing and the shuffle add the skip note,
+/// softly, the hi-hat on 2 and 4 (swing) and a light snare on 2 and 4
+/// (shuffle).
+///
+/// The strokes are recordings (see [DrumKit]); until [kit] is loaded, or
+/// where it cannot be (a test, a phone that failed to read it), a ride made
+/// in code stands in: a stick on a cymbal with its wash and a ring of
+/// uneven partials.
 abstract final class ClickSound {
   static const sampleRate = 44100;
+
+  /// The recorded strokes, read once at launch (see `main`); null makes the
+  /// synthesised ride play instead.
+  static DrumKit? kit;
 
   /// How long a ride stroke rings; the bar is never shorter than a beat
   /// of 250 BPM, so a stroke ends before the next one in a plain bar.
@@ -24,6 +34,8 @@ abstract final class ClickSound {
   static const _accentPeak = 0.92;
   static const _ghostPeak = 0.42;
   static const _chickPeak = 0.6;
+  static const _snarePeak = 0.4;
+  static const _kickLevel = 0.6;
 
   // The partials of the ride: frequency, weight, decay (s).
   static const _ride = [
@@ -77,6 +89,10 @@ abstract final class ClickSound {
 
   /// The hi-hat closing with the foot (the "chick" on 2 and 4).
   static Float64List chick() {
+    final drums = kit;
+    if (drums != null) {
+      return _scaled(Float64List.fromList(drums.chick), _chickPeak);
+    }
     final n = _chickLength.inMicroseconds * sampleRate ~/ 1000000;
     final random = math.Random(11);
     final out = Float64List(n);
@@ -110,13 +126,50 @@ abstract final class ClickSound {
   /// of it on the first pulse of a group ([group]), the plain ride
   /// otherwise.
   static Float64List click({required bool accent, bool group = false}) {
+    final drums = kit;
+    if (drums != null) {
+      if (accent) {
+        // The bell and the bass drum together, the bell on top.
+        return _scaled(_sum(drums.bell, drums.kick, _kickLevel), _accentPeak);
+      }
+      return _scaled(
+        Float64List.fromList(drums.ride),
+        group ? _groupPeak : _plainPeak,
+      );
+    }
     if (accent) return ride(peak: _accentPeak, bell: 1);
     if (group) return ride(peak: _groupPeak, bell: 0.5);
     return ride(peak: _plainPeak);
   }
 
   /// The skip note of the swing and the shuffle: the ride, soft.
-  static Float64List ghost() => ride(peak: _ghostPeak);
+  static Float64List ghost() {
+    final drums = kit;
+    if (drums == null) return ride(peak: _ghostPeak);
+    return _scaled(Float64List.fromList(drums.ghost), _ghostPeak);
+  }
+
+  /// The light snare on 2 and 4 of the shuffle; a short noise burst
+  /// without the recordings.
+  static Float64List snare() {
+    final drums = kit;
+    if (drums != null) {
+      return _scaled(Float64List.fromList(drums.snare), _snarePeak);
+    }
+    return chick();
+  }
+
+  /// [a] and [b] (at level [k]) played together.
+  static Float64List _sum(Float64List a, Float64List b, double k) {
+    final out = Float64List(a.length > b.length ? a.length : b.length);
+    for (var i = 0; i < a.length; i++) {
+      out[i] += a[i];
+    }
+    for (var i = 0; i < b.length; i++) {
+      out[i] += b[i] * k;
+    }
+    return out;
+  }
 
   /// One whole bar at [bpm] with [feel], a stroke at the start of each
   /// beat, as a WAV file: the audio engine loops it, so the beats stay
@@ -144,6 +197,7 @@ abstract final class ClickSound {
     final group = click(accent: false, group: true);
     final ghostNote = ghost();
     final hat = chick();
+    final backbeat = snare();
     final felt = signature.denominator == 8 ? MetronomeFeel.straight : feel;
     // The skip note is two thirds of the way through the beat.
     final skip = beatLength * 2 ~/ 3;
@@ -165,6 +219,8 @@ abstract final class ClickSound {
           if (b.isOdd) mix(hat, at);
         case MetronomeFeel.shuffle:
           mix(ghostNote, at + skip);
+          // A light snare on 2 and 4, as in a blues shuffle.
+          if (b.isOdd) mix(backbeat, at);
       }
     }
     // Strokes pile up where they overlap: turn the bar down evenly if need

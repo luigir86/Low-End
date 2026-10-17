@@ -41,6 +41,7 @@ flutter:
   assets:
     - assets/brand/
     - assets/piano/
+    - assets/drums/
     - assets/fonts/OFL-Edwin.txt
     - assets/fonts/OFL-NotoMusic.txt
 

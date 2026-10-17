@@ -46,6 +46,26 @@ void main() {
     });
   }
 
+  // TAP is filled to say it is a button to press (docs/style.md): its text
+  // must read on the fill.
+  for (final (name, theme) in [
+    ('light', LowEndTheme.light),
+    ('dark', LowEndTheme.dark),
+  ]) {
+    test('$name: TAP reads on its filled chip', () {
+      final colors = theme.colorScheme;
+      expect(
+        contrast(colors.onPrimaryContainer, colors.primaryContainer),
+        greaterThanOrEqualTo(4.5),
+      );
+      // And the chip stands out from the page.
+      expect(
+        contrast(colors.primaryContainer, colors.surface),
+        greaterThan(1.1),
+      );
+    });
+  }
+
   test('the signature colour is PANTONE 17-1230 Mocha Mousse', () {
     expect(_hex(Palette.mochaMousse), '#A47864');
     expect(LowEndTheme.light.colorScheme.secondary, Palette.mochaMousse);

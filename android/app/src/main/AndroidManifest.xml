@@ -11,7 +11,8 @@
     <!-- No backup to the cloud: the settings stay on this phone only, as
          PRIVACY.md promises. -->
     <application
-        android:label="Low End"
+        android:label="@string/app_name"
+        android:localeConfig="@xml/locales_config"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="false">

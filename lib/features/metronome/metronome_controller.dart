@@ -70,6 +70,7 @@ class MetronomeController extends ChangeNotifier implements BarClock {
   TimeSignature get signature => _signature;
 
   /// Straight, swing or shuffle (only felt in bars counted in quarters).
+  @override
   MetronomeFeel get feel => _feel;
 
   /// True when [feel] changes the sound: not in the bars counted in eighths.
