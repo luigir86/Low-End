@@ -245,6 +245,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sharp => 'Sharp';
 
   @override
+  String get centsTitle => 'Cents';
+
+  @override
   String centsValue(String cents) {
     return '$cents cents';
   }

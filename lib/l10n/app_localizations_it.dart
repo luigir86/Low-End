@@ -248,6 +248,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get sharp => 'Crescente';
 
   @override
+  String get centsTitle => 'Cent';
+
+  @override
   String centsValue(String cents) {
     return '$cents cent';
   }

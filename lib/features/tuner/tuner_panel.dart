@@ -817,6 +817,9 @@ class _CentsBar extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // A word over the track, as over the balance slider of the other
+            // tabs.
+            Text(AppLocalizations.of(context).centsTitle, style: label),
             SizedBox(
               height: 32,
               width: double.infinity,

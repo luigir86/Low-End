@@ -512,6 +512,12 @@ abstract class AppLocalizations {
   /// **'Sharp'**
   String get sharp;
 
+  /// The word over the tuner's cents bar, like 'Balance' over the slider of the other tabs
+  ///
+  /// In en, this message translates to:
+  /// **'Cents'**
+  String get centsTitle;
+
   /// No description provided for @centsValue.
   ///
   /// In en, this message translates to:

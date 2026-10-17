@@ -69,6 +69,7 @@
   "inTune": "Intonato",
   "flat": "Calante",
   "sharp": "Crescente",
+  "centsTitle": "Cent",
   "centsValue": "{cents} cent",
   "settingsTitle": "Impostazioni",
   "languageLabel": "Lingua",
