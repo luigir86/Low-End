@@ -2,20 +2,33 @@ import '../../audio/pitch.dart';
 
 /// What the tuner shows for one detected frequency.
 class TunerReading {
-  const TunerReading._(this.frequency, this.played, this.target, this.cents);
+  const TunerReading._(
+    this.frequency,
+    this.played,
+    this.target,
+    this.cents,
+    this.tolerance,
+  );
 
-  /// Compares [frequency] with the nearest note.
-  factory TunerReading.of(double frequency, {double a4 = 440}) {
+  /// Compares [frequency] with the nearest note; it counts as in tune within
+  /// [tolerance] cents.
+  factory TunerReading.of(
+    double frequency, {
+    double a4 = 440,
+    double tolerance = inTuneCents,
+  }) {
     final played = Note.nearest(frequency, a4: a4);
     return TunerReading._(
       frequency,
       played,
       played,
       played.centsOf(frequency, a4: a4),
+      tolerance,
     );
   }
 
-  /// Within this many cents a note counts as in tune.
+  /// Within this many cents a note counts as in tune, unless the player
+  /// chose another width in the settings.
   static const inTuneCents = 5.0;
 
   final double frequency;
@@ -29,5 +42,8 @@ class TunerReading {
   /// Distance from [target]: negative when flat, positive when sharp.
   final double cents;
 
-  bool get inTune => cents.abs() <= inTuneCents;
+  /// How many cents either side of [target] still count as in tune.
+  final double tolerance;
+
+  bool get inTune => cents.abs() <= tolerance;
 }

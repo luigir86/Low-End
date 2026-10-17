@@ -23,6 +23,10 @@ class TunerController extends ChangeNotifier {
   /// second and a half), so the note stays up while the string dies away.
   static const _holdReadings = 30;
 
+  /// Readings without a note (a third of a second) before the note counts as
+  /// held rather than heard, so a gap between two readings does not flicker.
+  static const _heldAfter = 6;
+
   late final _window = Float64List(_detector.windowSize);
   var _filled = 0;
   var _sinceReading = 0;
@@ -47,6 +51,11 @@ class TunerController extends ChangeNotifier {
 
   /// The detected frequency in Hz, smoothed, or null when no note is heard.
   double? get frequency => _frequency;
+
+  /// True while the note on screen is only being held: nothing has been heard
+  /// for a moment, and the display keeps the last note while the string dies
+  /// away (see [_holdReadings]).
+  bool get held => _frequency != null && _missed >= _heldAfter;
 
   /// True when the player paused the tuner: coming back to the tab or to
   /// the app then leaves it paused (see [resume]). It always starts out
@@ -161,6 +170,7 @@ class TunerController extends ChangeNotifier {
 
   void _addReading(double? hz) {
     final previous = _frequency;
+    final wasHeld = held;
     if (hz == null) {
       if (++_missed >= _holdReadings) {
         _recent.clear();
@@ -174,7 +184,7 @@ class TunerController extends ChangeNotifier {
       final sorted = List.of(_recent)..sort();
       _frequency = sorted[sorted.length ~/ 2];
     }
-    if (_frequency != previous) _notify();
+    if (_frequency != previous || held != wasHeld) _notify();
   }
 
   @override

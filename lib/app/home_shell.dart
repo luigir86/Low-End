@@ -45,7 +45,9 @@ class _HomeShellState extends State<HomeShell> {
       if (!mounted) return;
       final settings = AudioScope.of(context).settings;
       if (settings.seenGuide) return;
+      // The guide teaches the swipe too: no separate hint over it.
       settings.markGuideSeen();
+      settings.markSwipeHintSeen();
       showGuide(context);
     });
   }
@@ -80,6 +82,24 @@ class _HomeShellState extends State<HomeShell> {
     final i = navigation.section.index + direction;
     if (i < 0 || i >= AppSection.values.length) return;
     navigation.open(AppSection.values[i]);
+  }
+
+  /// The first time the phone is turned sideways, says once how to change
+  /// section there: the guide shown at the first launch was read with the
+  /// phone upright, where the swipe is the other way.
+  void _hintSwipe({required bool landscape, required bool locked}) {
+    final settings = AudioScope.of(context).settings;
+    // Not at the very first launch: the guide opens then.
+    if (!landscape || locked || settings.seenSwipeHint || !settings.seenGuide) {
+      return;
+    }
+    settings.markSwipeHintSeen();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).swipeHint)),
+      );
+    });
   }
 
   /// The hint shown over a tab after holding it, one per section.
@@ -137,8 +157,10 @@ class _HomeShellState extends State<HomeShell> {
 
   Widget _tab(AppSection section, Widget destination, {required bool active}) {
     final l10n = AppLocalizations.of(context);
-    if (section == AppSection.tuner) {
-      // Holding does nothing here, but the tab still says it is listening.
+    // The tuner has nothing to hold for, and with the gestures locked for a
+    // rehearsal no tab does: it only answers a tap, but still says it plays.
+    if (section == AppSection.tuner ||
+        AudioScope.of(context).settings.gesturesLocked) {
       return Semantics(value: active ? l10n.playing : null, child: destination);
     }
     return Semantics(
@@ -185,13 +207,21 @@ class _HomeShellState extends State<HomeShell> {
     final metronome = scope.metronome;
     final navigation = scope.navigation;
     return ListenableBuilder(
-      listenable: Listenable.merge([drone, metronome, navigation, scope.tuner]),
+      listenable: Listenable.merge([
+        drone,
+        metronome,
+        navigation,
+        scope.tuner,
+        scope.settings,
+      ]),
       builder: (context, _) {
         final section = navigation.section;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) _showSection(navigation.section);
         });
         final landscape = DialLayout.isLandscape(context);
+        final locked = scope.settings.gesturesLocked;
+        _hintSwipe(landscape: landscape, locked: locked);
         final pages = Stack(
           children: [
             PageView(
@@ -201,7 +231,9 @@ class _HomeShellState extends State<HomeShell> {
               // vertically, by a flick on the dial or the rail (see
               // FlipDetector), not on the rows, which scroll.
               scrollDirection: landscape ? Axis.vertical : Axis.horizontal,
-              physics: landscape ? const NeverScrollableScrollPhysics() : null,
+              physics: landscape || locked
+                  ? const NeverScrollableScrollPhysics()
+                  : null,
               onPageChanged: (i) {
                 if (!_sliding) navigation.open(AppSection.values[i]);
               },
@@ -247,7 +279,7 @@ class _HomeShellState extends State<HomeShell> {
           // No title bar: the three sections share the whole height, and the
           // name lives in About. Settings is the one button left, in the corner.
           body: SectionFlip(
-            onFlip: _flip,
+            onFlip: locked ? null : _flip,
             child: SafeArea(
               bottom: false,
               child: landscape
@@ -373,7 +405,7 @@ class _TabRail extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return Container(
       key: const Key('tabRail'),
-      width: 88,
+      width: 96,
       color: colors.surfaceContainer,
       child: Center(
         child: SingleChildScrollView(
@@ -411,7 +443,7 @@ class _RailItem extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 72, minWidth: 88),
+          constraints: const BoxConstraints(minHeight: 72, minWidth: 96),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
             child: Column(

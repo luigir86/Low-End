@@ -177,7 +177,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chordMinor => 'Minor';
 
   @override
-  String get chordSeventh => '7';
+  String get chordSeventh => 'Dominant 7th';
+
+  @override
+  String droneChordHalfDiminished(String note) {
+    return '$note half-diminished';
+  }
 
   @override
   String droneChordMajor(String note) {
@@ -339,6 +344,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get octaveLabel => 'Octave of the root';
+
+  @override
+  String get octaveSpeakerNote =>
+      'Low notes are faint on the phone’s own speaker: use headphones or a speaker, or pick the highest octave.';
+
+  @override
+  String get swipeHint =>
+      'Swipe up or down over the dial or the tabs to change section.';
+
+  @override
+  String get gesturesLockedTitle => 'Lock the gestures';
+
+  @override
+  String get gesturesLockedSubtitle =>
+      'For rehearsals: no swiping between sections and no holding a tab, only taps';
+
+  @override
+  String get inTuneZoneTitle => 'Tuner: in tune within';
+
+  @override
+  String get inTuneZoneSubtitle =>
+      'How far off a note can be and still show as in tune';
 
   @override
   String get shapeLabel => 'Chord position';

@@ -364,7 +364,9 @@ class AppActions {
   /// Everything an assistant needs to know about the app right now.
   Map<String, Object?> state() {
     final hz = tuner.frequency;
-    final reading = hz == null ? null : TunerReading.of(hz, a4: settings.a4);
+    final reading = hz == null
+        ? null
+        : TunerReading.of(hz, a4: settings.a4, tolerance: settings.inTuneCents);
     return {
       'section': navigation.section.name,
       'settings': {

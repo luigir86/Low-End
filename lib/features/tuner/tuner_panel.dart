@@ -72,18 +72,29 @@ class _TunerPanelState extends State<TunerPanel> {
         final hz = _tuner.frequency;
         final reading = hz == null
             ? null
-            : TunerReading.of(hz, a4: settings.a4);
+            : TunerReading.of(
+                hz,
+                a4: settings.a4,
+                tolerance: settings.inTuneCents,
+              );
         final message = _statusMessage(l10n);
         return DialLayout(
           dial: _StrobeDisc(
             reading: reading,
+            held: _tuner.held,
+            tolerance: settings.inTuneCents,
             listening: _tuner.isListening,
             names: names,
             onToggle: _tuner.toggle,
           ),
           // Announced by screen readers, e.g. when the microphone is denied.
           upper: message == null
-              ? const SizedBox.shrink()
+              ? _CentsBar(
+                  reading: reading,
+                  held: _tuner.held,
+                  tolerance: settings.inTuneCents,
+                  listening: _tuner.isListening,
+                )
               : Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -130,11 +141,11 @@ class _TunerPanelState extends State<TunerPanel> {
 
 /// Green when in tune, ochre when close, red when far off: the shades live
 /// in lib/app/theme.dart and keep at least 3:1 contrast (WCAG 1.4.3, 1.4.11).
-Color _centsColor(ThemeData theme, double cents) {
+Color _centsColor(ThemeData theme, double cents, double tolerance) {
   final colors = theme.extension<LowEndColors>()!;
   final off = cents.abs();
-  if (off <= TunerReading.inTuneCents) return colors.inTune;
-  if (off <= 15) return colors.close;
+  if (off <= tolerance) return colors.inTune;
+  if (off <= math.max(15, tolerance)) return colors.close;
   return colors.off;
 }
 
@@ -148,12 +159,20 @@ Color _centsColor(ThemeData theme, double cents) {
 class _StrobeDisc extends StatefulWidget {
   const _StrobeDisc({
     required this.reading,
+    required this.held,
+    required this.tolerance,
     required this.listening,
     required this.names,
     required this.onToggle,
   });
 
   final TunerReading? reading;
+
+  /// The note is only kept on screen while the string dies away.
+  final bool held;
+
+  /// How many cents either side of a note count as in tune.
+  final double tolerance;
   final bool listening;
   final NoteNames names;
 
@@ -204,7 +223,8 @@ class _StrobeDiscState extends State<_StrobeDisc>
   void _tick(Duration elapsed) {
     final seconds = (elapsed - _last).inMicroseconds / 1e6;
     _last = elapsed;
-    final cents = widget.reading?.cents ?? 0;
+    // A note that is only held stands still: it is not being heard.
+    final cents = widget.held ? 0.0 : (widget.reading?.cents ?? 0);
     final speed = (cents * _speed).clamp(-_maxSpeed, _maxSpeed);
     _phase.value = (_phase.value + speed * seconds) % 1024;
   }
@@ -220,9 +240,9 @@ class _StrobeDiscState extends State<_StrobeDisc>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final r = widget.reading;
-    final segments = r == null
+    final segments = r == null || widget.held
         ? theme.colorScheme.outlineVariant
-        : _centsColor(theme, r.cents);
+        : _centsColor(theme, r.cents, widget.tolerance);
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -266,6 +286,8 @@ class _StrobeDiscState extends State<_StrobeDisc>
                       heightFactor: 0.5 / DialGeometry.hubFraction,
                       child: _NoteDisplay(
                         reading: r,
+                        held: widget.held,
+                        tolerance: widget.tolerance,
                         listening: widget.listening,
                         names: widget.names,
                       ),
@@ -395,11 +417,15 @@ class _DiscPainter extends CustomPainter {
 class _NoteDisplay extends StatelessWidget {
   const _NoteDisplay({
     required this.reading,
+    required this.held,
+    required this.tolerance,
     required this.listening,
     required this.names,
   });
 
   final TunerReading? reading;
+  final bool held;
+  final double tolerance;
   final bool listening;
   final NoteNames names;
 
@@ -440,7 +466,7 @@ class _NoteDisplay extends StatelessWidget {
     final centsText = l10n.centsValue(
       cents > 0 ? '+$cents' : (cents < 0 ? '−${-cents}' : '$cents'),
     );
-    final color = _centsColor(theme, r.cents);
+    final color = _centsColor(theme, r.cents, tolerance);
     // Screen readers hear the note and whether it is flat, sharp or in tune,
     // only when that changes: reading every cent aloud would never stop.
     return Semantics(
@@ -448,32 +474,39 @@ class _NoteDisplay extends StatelessWidget {
       liveRegion: true,
       label: '${r.target.label(names)}, $direction',
       child: ExcludeSemantics(
-        child: fit([
-          _NoteName(note: r.target, names: names, color: color),
-          // The verdict, large enough to read from the music stand.
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // A shape as well as a colour, for colour-blind players.
-              Icon(
-                r.inTune
-                    ? Icons.check_circle
-                    : (cents < 0 ? Icons.arrow_downward : Icons.arrow_upward),
-                color: color,
-                size: LowEndType.headline,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                r.inTune ? direction : '$direction $centsText',
-                style: theme.textTheme.headlineSmall?.copyWith(
+        // A note that is only held fades: the string has stopped.
+        child: Opacity(
+          opacity: held ? 0.55 : 1,
+          child: fit([
+            _NoteName(note: r.target, names: names, color: color),
+            // The verdict, large enough to read from the music stand.
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // A shape as well as a colour, for colour-blind players.
+                Icon(
+                  r.inTune
+                      ? Icons.check_circle
+                      : (cents < 0 ? Icons.arrow_downward : Icons.arrow_upward),
                   color: color,
-                  fontWeight: FontWeight.w600,
+                  size: LowEndType.headline,
                 ),
-              ),
-            ],
-          ),
-          Text(l10n.frequencyHz(r.frequency.toStringAsFixed(1)), style: muted),
-        ]),
+                const SizedBox(width: 6),
+                Text(
+                  r.inTune ? direction : '$direction $centsText',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            Text(
+              l10n.frequencyHz(r.frequency.toStringAsFixed(1)),
+              style: muted,
+            ),
+          ]),
+        ),
       ),
     );
   }
@@ -512,4 +545,119 @@ class _NoteName extends StatelessWidget {
       textAlign: TextAlign.center,
     );
   }
+}
+
+/// A straight scale of the cents, 50 flat to 50 sharp, in the first row
+/// under the dial: a marker on it says how far off the note is, with the
+/// "in tune" zone shaded. The strobe shows the same thing by turning, which
+/// is hard to read at a glance, and this by position, which is not.
+class _CentsBar extends StatelessWidget {
+  const _CentsBar({
+    required this.reading,
+    required this.held,
+    required this.tolerance,
+    required this.listening,
+  });
+
+  final TunerReading? reading;
+  final bool held;
+  final double tolerance;
+  final bool listening;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = LowEndColors.of(context);
+    final r = reading;
+    final show = listening && r != null;
+    // The note and its verdict are read by the middle of the dial.
+    return ExcludeSemantics(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: SizedBox(
+          height: 48,
+          width: double.infinity,
+          child: CustomPaint(
+            painter: _CentsBarPainter(
+              cents: show ? r.cents : null,
+              marker: show && !held
+                  ? _centsColor(theme, r.cents, tolerance)
+                  : theme.colorScheme.outline,
+              zone: colors.inTune,
+              tolerance: tolerance,
+              scale: theme.colorScheme.outline,
+              hub: theme.colorScheme.surface,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CentsBarPainter extends CustomPainter {
+  _CentsBarPainter({
+    required this.cents,
+    required this.marker,
+    required this.zone,
+    required this.tolerance,
+    required this.scale,
+    required this.hub,
+  });
+
+  final double? cents;
+  final Color marker;
+  final Color zone;
+  final double tolerance;
+  final Color scale;
+  final Color hub;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final mid = size.height / 2;
+    double x(double c) =>
+        size.width / 2 + c.clamp(-50, 50) / 50 * size.width / 2;
+    // The in-tune zone behind the ticks.
+    canvas.drawRRect(
+      RRect.fromLTRBR(
+        x(-tolerance),
+        mid - 14,
+        x(tolerance),
+        mid + 14,
+        const Radius.circular(6),
+      ),
+      Paint()..color = zone.withValues(alpha: 0.28),
+    );
+    final tick = Paint()
+      ..color = scale
+      ..strokeWidth = 2;
+    for (var c = -50; c <= 50; c += 10) {
+      // The tick for "in tune" is longer and thicker: told by shape.
+      final zero = c == 0;
+      canvas.drawLine(
+        Offset(x(c.toDouble()), mid - (zero ? 14 : 7)),
+        Offset(x(c.toDouble()), mid + (zero ? 14 : 7)),
+        zero
+            ? (Paint()
+                ..color = scale
+                ..strokeWidth = 4)
+            : tick,
+      );
+    }
+    final c = cents;
+    if (c == null) return;
+    // A round marker on the scale, with a halo against the ticks.
+    final at = Offset(x(c), mid);
+    canvas.drawCircle(at, 11, Paint()..color = hub);
+    canvas.drawCircle(at, 8, Paint()..color = marker);
+  }
+
+  @override
+  bool shouldRepaint(_CentsBarPainter old) =>
+      old.cents != cents ||
+      old.marker != marker ||
+      old.zone != zone ||
+      old.tolerance != tolerance ||
+      old.scale != scale ||
+      old.hub != hub;
 }
