@@ -67,8 +67,14 @@ class _TunerPanelState extends State<TunerPanel> {
     final settings = AudioScope.of(context).settings;
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final scope = AudioScope.of(context);
     return ListenableBuilder(
-      listenable: Listenable.merge([_tuner, settings]),
+      listenable: Listenable.merge([
+        _tuner,
+        settings,
+        scope.drone,
+        scope.metronome,
+      ]),
       builder: (context, _) {
         final names = settings.noteNames(Localizations.localeOf(context));
         final hz = _tuner.frequency;
@@ -87,6 +93,7 @@ class _TunerPanelState extends State<TunerPanel> {
             held: _tuner.held,
             tolerance: settings.inTuneCents,
             listening: _tuner.isListening,
+            soundPlaying: scope.drone.isPlaying || scope.metronome.isPlaying,
             names: names,
             numbering: settings.octaveNumbering,
             onToggle: _tuner.toggle,
@@ -326,6 +333,7 @@ class _StrobeDisc extends StatefulWidget {
     required this.held,
     required this.tolerance,
     required this.listening,
+    required this.soundPlaying,
     required this.names,
     required this.numbering,
     required this.onToggle,
@@ -339,6 +347,9 @@ class _StrobeDisc extends StatefulWidget {
   /// How many cents either side of a note count as in tune.
   final double tolerance;
   final bool listening;
+
+  /// The metronome or the drone plays: listening will pause it.
+  final bool soundPlaying;
   final NoteNames names;
   final OctaveNumbering numbering;
 
@@ -455,6 +466,7 @@ class _StrobeDiscState extends State<_StrobeDisc>
                         held: widget.held,
                         tolerance: widget.tolerance,
                         listening: widget.listening,
+                        soundPlaying: widget.soundPlaying,
                         names: widget.names,
                         numbering: widget.numbering,
                       ),
@@ -587,6 +599,7 @@ class _NoteDisplay extends StatelessWidget {
     required this.held,
     required this.tolerance,
     required this.listening,
+    required this.soundPlaying,
     required this.names,
     required this.numbering,
   });
@@ -595,6 +608,7 @@ class _NoteDisplay extends StatelessWidget {
   final bool held;
   final double tolerance;
   final bool listening;
+  final bool soundPlaying;
   final NoteNames names;
   final OctaveNumbering numbering;
 
@@ -619,6 +633,14 @@ class _NoteDisplay extends StatelessWidget {
       return fit([
         Icon(Icons.mic, size: 32, color: theme.colorScheme.primary),
         Text(l10n.startListening, style: muted, textAlign: TextAlign.center),
+        // Something sounds: touching will pause it, and the player is told
+        // before, not after.
+        if (soundPlaying)
+          Text(
+            l10n.tunerWillPause,
+            style: muted?.copyWith(fontWeight: FontWeight.w600),
+            textAlign: TextAlign.center,
+          ),
       ]);
     }
     if (r == null) {

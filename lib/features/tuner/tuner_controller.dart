@@ -72,9 +72,16 @@ class TunerController extends ChangeNotifier {
     return _starting = _start(++_generation);
   }
 
-  /// Starts listening unless the player paused the tuner: used when the
-  /// tuner comes back on screen by itself.
-  Future<void> resume() => _userPaused ? Future.value() : start();
+  /// Asked before the tuner starts by itself, when it comes back on screen:
+  /// false keeps it still, for the player to start it (the app says no while
+  /// the metronome or the drone plays, which listening would stop).
+  bool Function()? autoStartAllowed;
+
+  /// Starts listening unless the player paused the tuner or [autoStartAllowed]
+  /// says no: used when the tuner comes back on screen by itself.
+  Future<void> resume() => _userPaused || autoStartAllowed?.call() == false
+      ? Future.value()
+      : start();
 
   /// Stops listening at the player's request, and remembers it.
   Future<void> pause() {

@@ -113,11 +113,12 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     // plays, so nothing starts yet).
     if (_drone.hasPiano) _drone.setVoicing(DroneVoicing.chord);
     _settings.addListener(_onSettingsChanged);
-    _lastSection = _navigation.section;
     _navigation.addListener(_onNavigationChanged);
     _drone.addListener(_onPlayingChanged);
     _metronome.addListener(_onPlayingChanged);
-    _tuner.addListener(_keepScreenOn);
+    // Coming to the tuner starts it only when nothing plays.
+    _tuner.autoStartAllowed = () => !_drone.isPlaying && !_metronome.isPlaying;
+    _tuner.addListener(_onTunerChanged);
     _commands = _background.commands.listen(_onMediaCommand);
     // If the app opens on the tuner (a link), start listening once the first
     // frame is up, so the microphone never delays it.
@@ -152,24 +153,24 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
   /// The tuner listens whenever it is on screen, and only then; coming back
   /// it listens again, unless the player paused it.
   ///
-  /// Coming to the Tuner tab, the drone and the metronome pause, or the
-  /// microphone would hear them instead of the bass, and a notice says so,
-  /// with a button to play them again. Leaving the tab, nothing starts by
-  /// itself: a swipe too far must not bring the click back unasked, out of
-  /// time with the band.
+  /// Coming to the Tuner tab, it listens only when nothing plays: a swipe too
+  /// far must not stop the click or the drone. Then the player starts it
+  /// with a touch (see [_onTunerChanged]). Leaving the tab, nothing starts by
+  /// itself: the click must not come back unasked, out of time with the band.
   void _onNavigationChanged() {
     _navigation.tunerVisible ? _tuner.resume() : _tuner.stop();
-    final section = _navigation.section;
-    final arrived =
-        section == AppSection.tuner && _lastSection != AppSection.tuner;
-    _lastSection = section;
-    if (arrived) _pauseForTuner();
     _keepScreenOn();
   }
 
-  /// The section on screen when the navigation last changed, to tell a
-  /// move to the tuner from a page opened on top of it.
-  AppSection _lastSection = AppSection.metronome;
+  /// Whenever the tuner starts listening, whatever sounds is paused, or the
+  /// microphone would hear it instead of the instrument; a notice says so,
+  /// with a button to play it again.
+  void _onTunerChanged() {
+    _keepScreenOn();
+    if (_tuner.isListening && (_drone.isPlaying || _metronome.isPlaying)) {
+      _pauseForTuner();
+    }
+  }
 
   void _pauseForTuner() {
     final drone = _drone.isPlaying, metronome = _metronome.isPlaying;
@@ -334,7 +335,7 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     _drone.removeListener(_onPlayingChanged);
     _metronome.removeListener(_onPlayingChanged);
     _metronome.removeListener(_rememberMetronome);
-    _tuner.removeListener(_keepScreenOn);
+    _tuner.removeListener(_onTunerChanged);
     _commands?.cancel();
     _background.show(MediaState.off, title: '');
     _screenAwake.keepOn(false);

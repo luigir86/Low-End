@@ -452,6 +452,12 @@ abstract class AppLocalizations {
   /// **'Pause'**
   String get stopListening;
 
+  /// No description provided for @tunerWillPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Listening pauses what is playing'**
+  String get tunerWillPause;
+
   /// No description provided for @tunerIdleHint.
   ///
   /// In en, this message translates to:

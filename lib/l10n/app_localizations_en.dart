@@ -212,6 +212,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stopListening => 'Pause';
 
   @override
+  String get tunerWillPause => 'Listening pauses what is playing';
+
+  @override
   String get tunerIdleHint => 'Tuner paused: tap Listen';
 
   @override
