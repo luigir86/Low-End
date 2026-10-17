@@ -66,9 +66,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feelSwing => 'Swing';
 
   @override
-  String get feelShuffle => 'Shuffle';
-
-  @override
   String get progressionLabel => 'Progression';
 
   @override
@@ -277,10 +274,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get aboutPiano =>
       'Piano sounds: Salamander Grand Piano by Alexander Holm (public domain).';
-
-  @override
-  String get aboutDrums =>
-      'Drum sounds: Versilian Community Sample Library by Versilian Studios (CC0, public domain).';
 
   @override
   String get styleLabel => 'Style';

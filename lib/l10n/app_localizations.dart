@@ -206,12 +206,6 @@ abstract class AppLocalizations {
   /// **'Swing'**
   String get feelSwing;
 
-  /// No description provided for @feelShuffle.
-  ///
-  /// In en, this message translates to:
-  /// **'Shuffle'**
-  String get feelShuffle;
-
   /// No description provided for @progressionLabel.
   ///
   /// In en, this message translates to:
@@ -577,12 +571,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Piano sounds: Salamander Grand Piano by Alexander Holm (public domain).'**
   String get aboutPiano;
-
-  /// No description provided for @aboutDrums.
-  ///
-  /// In en, this message translates to:
-  /// **'Drum sounds: Versilian Community Sample Library by Versilian Studios (CC0, public domain).'**
-  String get aboutDrums;
 
   /// No description provided for @styleLabel.
   ///
