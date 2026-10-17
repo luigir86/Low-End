@@ -819,7 +819,6 @@ class _ChordMenu extends StatelessWidget {
                   ),
                 ),
         ),
-        const SizedBox(width: 8),
         RowIconButton(
           icon: Icons.tune,
           tooltip: l10n.optionsLabel,

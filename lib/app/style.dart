@@ -64,7 +64,4 @@ abstract final class LowEndShape {
   /// − + and the pencil, the chord menu, the Root / Chord / Progression
   /// switch.
   static const row = 64.0;
-
-  /// The icon button at the end of a row (the pencil, the sound options).
-  static const iconButton = 52.0;
 }
