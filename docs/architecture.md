@@ -56,7 +56,7 @@ Every outside thing sits behind an interface with a silent or fake twin (`ToneOu
 
 ## Settings
 
-`AppSettings` keeps language, note names, reference A (415, 430, 432 or 438–445 Hz), theme, screen-on, circle layout, balance and the "guide seen" flag in `shared_preferences`, on the phone only (Android backup is off in the manifest). Unreadable settings never stop the app: it starts with the defaults.
+`AppSettings` keeps language, note names, reference A (every hertz from 415 to 445), theme, screen-on, circle layout, balance and the "guide seen" flag in `shared_preferences`, on the phone only (Android backup is off in the manifest). Unreadable settings never stop the app: it starts with the defaults.
 
 ## Look
 

@@ -34,7 +34,7 @@ The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens o
 
 ### Settings
 
-The gear in the top corner opens the settings: language (English, Italian, or the phone's), note names (Do Re Mi with Italian octave numbers, La3 = 440 Hz, or C D E, A4 = 440 Hz), reference A (415, 430, 432 or 438 to 445 Hz), light or dark theme, and an option to keep the screen on. They are kept on the phone. The gesture guide is shown at the first launch and from the settings.
+The gear in the top corner opens the settings: language (English, Italian, or the phone's), note names (Do Re Mi with Italian octave numbers, La3 = 440 Hz, or C D E, A4 = 440 Hz), reference A (every hertz from 415 to 445), light or dark theme, and an option to keep the screen on. They are kept on the phone. The gesture guide is shown at the first launch and from the settings.
 
 With the screen off or the app in the background the metronome and the harmony keep playing, with a notification that says what is sounding.
 

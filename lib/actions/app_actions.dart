@@ -154,7 +154,8 @@ class AppActions {
       parameters: {
         'hz': {
           'type': 'number',
-          'enum': referencePitches,
+          'minimum': minReferencePitch,
+          'maximum': maxReferencePitch,
           'description': 'Frequency of A4 in Hz.',
         },
       },
@@ -304,8 +305,8 @@ class AppActions {
         _droneChange(args)();
       case 'set_reference_pitch':
         final hz = _number(args['hz'], 'hz');
-        if (!referencePitches.contains(hz)) {
-          throw ActionError('"hz" must be one of $referencePitches.');
+        if (!isReferencePitch(hz)) {
+          throw ActionError('"hz" must be a whole number from 415 to 445.');
         }
         settings.setReferencePitch(hz);
       case 'settings_set':

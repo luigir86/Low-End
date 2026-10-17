@@ -135,6 +135,48 @@ void main() {
       expect(tester.widget<ActionChip>(lower).onPressed, isNotNull);
     });
 
+    testWidgets('− and + move one hertz at a time, also between standards', (
+      tester,
+    ) async {
+      final scope = await openTuner(tester);
+      scope.settings.setReferencePitch(432);
+      await tester.pump();
+      await tester.tap(find.byTooltip('Raise the reference A'));
+      await tester.pump();
+      expect(scope.settings.a4, 433);
+      scope.settings.setReferencePitch(430);
+      await tester.pump();
+      await tester.tap(find.byTooltip('Lower the reference A'));
+      await tester.pump();
+      expect(scope.settings.a4, 429);
+    });
+
+    testWidgets('the pencil also takes a typed pitch, kept in range', (
+      tester,
+    ) async {
+      final scope = await openTuner(tester);
+      await tester.tap(find.byTooltip('Choose a standard reference A'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('pitchField')), '437');
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      expect(scope.settings.a4, 437);
+
+      await tester.tap(find.byTooltip('Choose a standard reference A'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('pitchField')), '999');
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      expect(scope.settings.a4, 445);
+
+      await tester.tap(find.byTooltip('Choose a standard reference A'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('pitchField')), '');
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      expect(scope.settings.a4, 445);
+    });
+
     testWidgets('the pencil offers the four standard pitches', (tester) async {
       final scope = await openTuner(tester);
       await tester.tap(find.byTooltip('Choose a standard reference A'));
@@ -160,5 +202,25 @@ void main() {
     expect(find.text('D F A'), findsOneWidget);
     expect(find.textContaining(' of C'), findsNothing);
     scope.drone.stop();
+  });
+
+  testWidgets('the tuning switch keeps its press glow inside the pill', (
+    tester,
+  ) async {
+    await _pump(tester, AppSettings());
+    await tester.tap(find.text('Tuner'));
+    await tester.pumpAndSettle();
+    for (final key in ['tuningChromatic', 'tuningInstrument']) {
+      expect(
+        find.ancestor(
+          of: find.byKey(Key(key)),
+          matching: find.byType(ClipPath),
+        ),
+        findsWidgets,
+        reason: key,
+      );
+    }
+    final size = tester.getSize(find.byKey(const Key('tuningChromatic')));
+    expect(size.height, 48);
   });
 }

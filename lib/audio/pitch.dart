@@ -1,11 +1,19 @@
 import 'dart:math' as math;
 
-/// Reference pitches for A4 offered in the settings, in ascending order: the
-/// baroque 415, 430 and 432 Hz, then 438 to 445 Hz around the 440 to 443 that
-/// most orchestras tune to.
-const referencePitches = [
-  415.0, 430.0, 432.0, 438.0, 439.0, 440.0, 441.0, 442.0, 443.0, 444.0, //
-  445.0,
+/// The range of the reference A4, in whole hertz: from the baroque 415 to
+/// 445, above what any orchestra tunes to.
+const minReferencePitch = 415.0;
+const maxReferencePitch = 445.0;
+
+/// Whether [hz] is a whole number of hertz within the range of the reference A.
+bool isReferencePitch(double hz) =>
+    hz == hz.roundToDouble() &&
+    hz >= minReferencePitch &&
+    hz <= maxReferencePitch;
+
+/// Every reference pitch in ascending order: 415, 416… 445 Hz.
+final referencePitches = [
+  for (var hz = minReferencePitch; hz <= maxReferencePitch; hz++) hz,
 ];
 
 /// How note names are written.
