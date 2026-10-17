@@ -510,6 +510,8 @@ void main() {
     await tester.scrollUntilVisible(find.text('440 Hz'), 100);
     await tester.tap(find.text('440 Hz'));
     await tester.pumpAndSettle();
+    await tester.drag(find.text('440 Hz').last, const Offset(0, -120));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('442 Hz').last);
     await tester.pumpAndSettle();
 

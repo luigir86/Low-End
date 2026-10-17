@@ -220,19 +220,8 @@
       "properties": {
         "hz": {
           "type": "number",
-          "enum": [
-            415.0,
-            430.0,
-            432.0,
-            438.0,
-            439.0,
-            440.0,
-            441.0,
-            442.0,
-            443.0,
-            444.0,
-            445.0
-          ],
+          "minimum": 415.0,
+          "maximum": 445.0,
           "description": "Frequency of A4 in Hz."
         }
       },

@@ -108,8 +108,8 @@ void main() {
       'error': 'Unknown action "fly".',
     });
     expect(
-      (await actions.call('set_reference_pitch', {'hz': 437}))['error'],
-      contains('must be one of'),
+      (await actions.call('set_reference_pitch', {'hz': 446}))['error'],
+      contains('whole number from 415 to 445'),
     );
     expect(
       (await actions.call('drone_set', {'chord': 'ninth'}))['error'],

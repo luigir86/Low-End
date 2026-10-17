@@ -44,9 +44,14 @@ void main() {
     expect(const Note(6, 4).name(NoteNames.solfege, flat: true), 'Sol♭');
   });
 
-  test('the reference pitches include the baroque ones, in order', () {
-    expect(referencePitches, containsAll([415.0, 430.0, 432.0, 440.0]));
-    expect(referencePitches, orderedEquals([...referencePitches]..sort()));
-    expect(referencePitches.toSet(), hasLength(referencePitches.length));
+  test('the reference pitches are every whole hertz from 415 to 445', () {
+    expect(referencePitches, hasLength(31));
+    expect(referencePitches.first, 415);
+    expect(referencePitches.last, 445);
+    expect(referencePitches, containsAll([430.0, 432.0, 437.0, 440.0]));
+    expect(referencePitches.every(isReferencePitch), isTrue);
+    for (final hz in [414.0, 446.0, 440.5, double.nan, double.infinity]) {
+      expect(isReferencePitch(hz), isFalse, reason: '$hz');
+    }
   });
 }

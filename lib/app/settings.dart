@@ -31,7 +31,7 @@ class AppSettings extends ChangeNotifier {
         NoteNaming.values.asNameMap()[_read<String>(prefs, _namingKey)] ??
         NoteNaming.auto;
     final a4 = _read<num>(prefs, _a4Key)?.toDouble();
-    _a4 = referencePitches.contains(a4) ? a4! : 440;
+    _a4 = a4 != null && isReferencePitch(a4) ? a4 : 440;
     final balance = _read<num>(prefs, _balanceKey)?.toDouble();
     _balance = balance != null && balance.isFinite
         ? balance.clamp(-1.0, 1.0)
@@ -208,7 +208,7 @@ class AppSettings extends ChangeNotifier {
   }
 
   void setReferencePitch(double hz) {
-    assert(referencePitches.contains(hz));
+    assert(isReferencePitch(hz));
     _a4 = hz;
     _save(_prefs?.setDouble(_a4Key, hz));
     notifyListeners();
