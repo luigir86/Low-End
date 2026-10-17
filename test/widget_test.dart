@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -578,6 +580,52 @@ void main() {
     expect(audio.state, MediaState.off);
   });
 
+  testWidgets('play on the notification starts again what pause stopped', (
+    tester,
+  ) async {
+    final audio = _RecordingAudio();
+    await tester.pumpWidget(
+      LowEndApp(
+        toneOutput: SilentToneOutput(),
+        clickOutput: SilentClickOutput(),
+        micInput: FakeMicInput(),
+        backgroundAudio: audio,
+      ),
+    );
+    await tester.pumpAndSettle();
+    final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
+
+    await scope.metronome.start();
+    await scope.drone.start();
+    await tester.pump();
+    expect(audio.state, MediaState.playing);
+
+    // The drone is stopped first, with the metronome still sounding: that
+    // must not count as a restart and forget the pause.
+    audio.input.add(MediaCommand.pause);
+    await tester.pump();
+    expect(scope.metronome.isPlaying, isFalse);
+    expect(scope.drone.isPlaying, isFalse);
+    expect(audio.state, MediaState.paused);
+
+    audio.input.add(MediaCommand.play);
+    await tester.pump();
+    expect(scope.metronome.isPlaying, isTrue);
+    expect(scope.drone.isPlaying, isTrue);
+    expect(audio.state, MediaState.playing);
+
+    // Only the metronome: the same.
+    await scope.drone.stop();
+    audio.input.add(MediaCommand.pause);
+    await tester.pump();
+    expect(audio.state, MediaState.paused);
+    audio.input.add(MediaCommand.play);
+    await tester.pump();
+    expect(scope.metronome.isPlaying, isTrue);
+    expect(scope.drone.isPlaying, isFalse);
+    expect(audio.state, MediaState.playing);
+  });
+
   testWidgets('the theme can be forced, and the screen kept on or not', (
     tester,
   ) async {
@@ -862,9 +910,10 @@ class _RecordingAudio implements BackgroundAudio {
   var state = MediaState.off;
   var title = '';
   var text = '';
+  final input = StreamController<MediaCommand>.broadcast();
 
   @override
-  Stream<MediaCommand> get commands => const Stream.empty();
+  Stream<MediaCommand> get commands => input.stream;
 
   @override
   Future<void> show(

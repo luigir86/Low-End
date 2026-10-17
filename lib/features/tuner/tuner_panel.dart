@@ -160,9 +160,10 @@ String _tuningName(AppLocalizations l10n, TunerTuning tuning) =>
 
 /// Chromatic, or the strings of an instrument chosen from a menu, in the
 /// first row under the dial, drawn like the Straight / Swing and Root /
-/// Chord / Progression switches of the other tabs. With strings, the tuner
-/// names the nearest open string, its number, and says how far off it is.
-/// The last instrument stays chosen.
+/// Chord / Progression switches of the other tabs: 40 dp high to the eye,
+/// with 48 dp to touch. With strings, the tuner names the nearest open
+/// string, its number, and says how far off it is. The last instrument
+/// stays chosen.
 class _TuningSwitch extends StatelessWidget {
   const _TuningSwitch({required this.settings});
 
@@ -178,15 +179,12 @@ class _TuningSwitch extends StatelessWidget {
         .map((n) => n.label(names, numbering: settings.octaveNumbering))
         .join(' ');
     final chromatic = settings.tunerChromatic;
-    Widget half({required bool selected, required Widget child}) => Ink(
-      color: selected ? scheme.primaryContainer : null,
-      child: Center(
-        child: DefaultTextStyle.merge(
-          style: theme.textTheme.labelLarge?.copyWith(
-            color: selected ? scheme.onPrimaryContainer : scheme.onSurface,
-          ),
-          child: FittedBox(fit: BoxFit.scaleDown, child: child),
+    Widget label(bool selected, Widget child) => Center(
+      child: DefaultTextStyle.merge(
+        style: theme.textTheme.labelLarge?.copyWith(
+          color: selected ? scheme.onPrimaryContainer : scheme.onSurface,
         ),
+        child: FittedBox(fit: BoxFit.scaleDown, child: child),
       ),
     );
     return Semantics(
@@ -194,78 +192,111 @@ class _TuningSwitch extends StatelessWidget {
       child: SizedBox(
         key: const Key('tuningSwitch'),
         width: double.infinity,
-        // As tall as a SegmentedButton, which the other tabs use.
-        height: 40,
-        child: Material(
-          type: MaterialType.transparency,
-          shape: StadiumBorder(side: BorderSide(color: scheme.outline)),
-          clipBehavior: Clip.antiAlias,
-          child: Row(
-            children: [
-              Expanded(
-                child: Semantics(
-                  button: true,
-                  selected: chromatic,
-                  child: InkWell(
-                    key: const Key('tuningChromatic'),
-                    onTap: () => settings.setTunerChromatic(true),
-                    child: half(
-                      selected: chromatic,
-                      child: Text(l10n.tuningChromatic, maxLines: 1),
-                    ),
+        height: 48,
+        child: Stack(
+          children: [
+            // What is seen: the pill, with the chosen half filled.
+            Center(
+              child: SizedBox(
+                height: 40,
+                child: Material(
+                  type: MaterialType.transparency,
+                  shape: StadiumBorder(side: BorderSide(color: scheme.outline)),
+                  clipBehavior: Clip.antiAlias,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: ColoredBox(
+                          color: chromatic
+                              ? scheme.primaryContainer
+                              : Colors.transparent,
+                        ),
+                      ),
+                      VerticalDivider(width: 1, color: scheme.outline),
+                      Expanded(
+                        child: ColoredBox(
+                          color: chromatic
+                              ? Colors.transparent
+                              : scheme.primaryContainer,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              VerticalDivider(width: 1, color: scheme.outline),
-              Expanded(
-                child: Semantics(
-                  button: true,
-                  selected: !chromatic,
-                  child: PopupMenuButton<TunerTuning>(
-                    key: const Key('tuningInstrument'),
-                    tooltip: l10n.tuningInstrument,
-                    position: PopupMenuPosition.over,
-                    initialValue: settings.tunerInstrument,
-                    padding: EdgeInsets.zero,
-                    onOpened: () => settings.setTunerChromatic(false),
-                    onSelected: settings.setTunerInstrument,
-                    itemBuilder: (context) => [
-                      for (final t in TunerTuning.instruments)
-                        PopupMenuItem(
-                          value: t,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(_tuningName(l10n, t)),
-                              Text(
-                                strings(t),
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: scheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
+            ),
+            // What is touched: the two halves, as high as a finger.
+            Material(
+              type: MaterialType.transparency,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Semantics(
+                      button: true,
+                      selected: chromatic,
+                      child: InkWell(
+                        key: const Key('tuningChromatic'),
+                        onTap: () => settings.setTunerChromatic(true),
+                        child: label(
+                          chromatic,
+                          Text(l10n.tuningChromatic, maxLines: 1),
                         ),
-                    ],
-                    child: half(
-                      selected: !chromatic,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            _tuningName(l10n, settings.tunerInstrument),
-                            maxLines: 1,
-                          ),
-                          const Icon(Icons.arrow_drop_down),
-                        ],
                       ),
                     ),
                   ),
-                ),
+                  const SizedBox(width: 1),
+                  Expanded(
+                    child: Semantics(
+                      button: true,
+                      selected: !chromatic,
+                      child: PopupMenuButton<TunerTuning>(
+                        key: const Key('tuningInstrument'),
+                        tooltip: l10n.tuningInstrument,
+                        position: PopupMenuPosition.over,
+                        initialValue: settings.tunerInstrument,
+                        padding: EdgeInsets.zero,
+                        onOpened: () => settings.setTunerChromatic(false),
+                        onSelected: settings.setTunerInstrument,
+                        itemBuilder: (context) => [
+                          for (final t in TunerTuning.instruments)
+                            PopupMenuItem(
+                              value: t,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(_tuningName(l10n, t)),
+                                  Text(
+                                    strings(t),
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: scheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                        child: label(
+                          !chromatic,
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                _tuningName(l10n, settings.tunerInstrument),
+                                maxLines: 1,
+                              ),
+                              const Icon(Icons.arrow_drop_down),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

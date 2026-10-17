@@ -206,6 +206,7 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
   /// pause from the notification, to resume from.
   var _shown = MediaState.off;
   var _pausedFromNotification = false;
+  var _stoppingFromNotification = false;
   var _heldDrone = false;
   var _heldMetronome = false;
   StreamSubscription<MediaCommand>? _commands;
@@ -218,7 +219,10 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     _keepScreenOn();
     final playing = _drone.isPlaying || _metronome.isPlaying;
     final l10n = _notificationTexts();
-    if (playing) {
+    // Not while the notification's own pause is stopping things: stopping
+    // the drone first, with the metronome still sounding, would otherwise
+    // look like a restart and forget the pause (and play would do nothing).
+    if (playing && !_stoppingFromNotification) {
       _pausedFromNotification = false;
       _nowPlaying = _describePlaying(l10n);
     }
@@ -271,8 +275,12 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
         _heldDrone = _drone.isPlaying;
         _heldMetronome = _metronome.isPlaying;
         _pausedFromNotification = true;
+        _stoppingFromNotification = true;
         _drone.stop();
         _metronome.stop();
+        _stoppingFromNotification = false;
+        // Shows the paused notification, whatever the stops showed.
+        _onPlayingChanged();
       case MediaCommand.play:
         if (!_pausedFromNotification) return;
         if (_heldDrone) _drone.start();
