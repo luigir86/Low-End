@@ -771,10 +771,12 @@ class _NoteName extends StatelessWidget {
   }
 }
 
-/// A straight scale of the cents, 50 flat to 50 sharp, in the first row
-/// under the dial: a marker on it says how far off the note is, with the
-/// "in tune" zone shaded. The strobe shows the same thing by turning, which
-/// is hard to read at a glance, and this by position, which is not.
+/// The cents, 50 flat to 50 sharp, in the first row under the dial, drawn
+/// like the balance slider of the other tabs: the same thin track, the same
+/// short mark in the middle, the same round thumb and the same room at the
+/// sides. The thumb says how far off the note is, with the "in tune" zone
+/// shaded behind the middle. The strobe shows the same thing by turning,
+/// which is hard to read at a glance, and this by position, which is not.
 class _CentsBar extends StatelessWidget {
   const _CentsBar({
     required this.reading,
@@ -788,6 +790,10 @@ class _CentsBar extends StatelessWidget {
   final double tolerance;
   final bool listening;
 
+  /// Where the track of the balance slider starts: the width of an icon with
+  /// its name, plus the room a slider leaves for its thumb.
+  static const _inset = 72.0 + 24;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -796,9 +802,9 @@ class _CentsBar extends StatelessWidget {
     // The note and its verdict are read by the middle of the dial.
     return ExcludeSemantics(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: _inset),
         child: SizedBox(
-          height: 28,
+          height: 48,
           width: double.infinity,
           child: CustomPaint(
             painter: _CentsBarPainter(
@@ -810,7 +816,8 @@ class _CentsBar extends StatelessWidget {
               // the marker alone turns green when it is in it.
               zone: theme.colorScheme.primaryContainer,
               tolerance: tolerance,
-              scale: theme.colorScheme.outline,
+              track: theme.colorScheme.outlineVariant,
+              middle: theme.colorScheme.outline,
               hub: theme.colorScheme.surface,
             ),
           ),
@@ -826,7 +833,8 @@ class _CentsBarPainter extends CustomPainter {
     required this.marker,
     required this.zone,
     required this.tolerance,
-    required this.scale,
+    required this.track,
+    required this.middle,
     required this.hub,
   });
 
@@ -834,47 +842,48 @@ class _CentsBarPainter extends CustomPainter {
   final Color marker;
   final Color zone;
   final double tolerance;
-  final Color scale;
+  final Color track;
+  final Color middle;
   final Color hub;
 
   @override
   void paint(Canvas canvas, Size size) {
     final mid = size.height / 2;
-    double x(double c) =>
-        size.width / 2 + c.clamp(-50, 50) / 50 * size.width / 2;
-    // The in-tune zone behind the ticks.
+    double x(double c) => (c.clamp(-50, 50) + 50) / 100 * size.width;
+    // The track of a slider: 4 dp, with round ends.
+    canvas.drawRRect(
+      RRect.fromLTRBR(
+        0,
+        mid - 2,
+        size.width,
+        mid + 2,
+        const Radius.circular(2),
+      ),
+      Paint()..color = track,
+    );
+    // The in-tune zone, behind the mark in the middle.
     canvas.drawRRect(
       RRect.fromLTRBR(
         x(-tolerance),
-        mid - 9,
+        mid - 8,
         x(tolerance),
-        mid + 9,
-        const Radius.circular(5),
+        mid + 8,
+        const Radius.circular(4),
       ),
       Paint()..color = zone,
     );
-    final tick = Paint()
-      ..color = scale
-      ..strokeWidth = 2;
-    for (var c = -50; c <= 50; c += 10) {
-      // The tick for "in tune" is longer and thicker: told by shape.
-      final zero = c == 0;
-      canvas.drawLine(
-        Offset(x(c.toDouble()), mid - (zero ? 9 : 5)),
-        Offset(x(c.toDouble()), mid + (zero ? 9 : 5)),
-        zero
-            ? (Paint()
-                ..color = scale
-                ..strokeWidth = 4)
-            : tick,
-      );
-    }
+    // The middle, as on the balance slider: 2 by 16 dp.
+    canvas.drawRect(
+      Rect.fromCenter(center: Offset(x(0), mid), width: 2, height: 16),
+      Paint()..color = middle,
+    );
     final c = cents;
     if (c == null) return;
-    // A round marker on the scale, with a halo against the ticks.
+    // A round thumb of the size of a slider's, with a thin halo against the
+    // zone and the mark.
     final at = Offset(x(c), mid);
-    canvas.drawCircle(at, 9, Paint()..color = hub);
-    canvas.drawCircle(at, 6.5, Paint()..color = marker);
+    canvas.drawCircle(at, 11.5, Paint()..color = hub);
+    canvas.drawCircle(at, 10, Paint()..color = marker);
   }
 
   @override
@@ -883,7 +892,8 @@ class _CentsBarPainter extends CustomPainter {
       old.marker != marker ||
       old.zone != zone ||
       old.tolerance != tolerance ||
-      old.scale != scale ||
+      old.track != track ||
+      old.middle != middle ||
       old.hub != hub;
 }
 
