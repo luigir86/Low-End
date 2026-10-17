@@ -1,4 +1,5 @@
 import '../../audio/pitch.dart';
+import 'tuner_tuning.dart';
 
 /// What the tuner shows for one detected frequency.
 class TunerReading {
@@ -8,22 +9,31 @@ class TunerReading {
     this.target,
     this.cents,
     this.tolerance,
+    this.onStrings,
   );
 
-  /// Compares [frequency] with the nearest note; it counts as in tune within
+  /// True when [target] is an open string chosen from an instrument's
+  /// tuning, rather than the note heard.
+  final bool onStrings;
+
+  /// Compares [frequency] with the nearest note, or with the nearest open
+  /// string of [tuning] when it has any; it counts as in tune within
   /// [tolerance] cents.
   factory TunerReading.of(
     double frequency, {
     double a4 = 440,
     double tolerance = inTuneCents,
+    TunerTuning tuning = TunerTuning.chromatic,
   }) {
     final played = Note.nearest(frequency, a4: a4);
+    final target = tuning.nearestString(frequency, a4: a4) ?? played;
     return TunerReading._(
       frequency,
       played,
-      played,
-      played.centsOf(frequency, a4: a4),
+      target,
+      target.centsOf(frequency, a4: a4),
       tolerance,
+      !tuning.isChromatic,
     );
   }
 

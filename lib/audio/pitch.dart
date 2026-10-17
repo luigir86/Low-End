@@ -18,6 +18,17 @@ enum NoteNames {
   solfege,
 }
 
+/// How octaves are numbered, independently of how notes are named.
+enum OctaveNumbering {
+  /// Scientific: middle C is C4, A4 = 440 Hz, the double bass low E is E1
+  /// (41.2 Hz). The default.
+  scientific,
+
+  /// As often taught in Italy and France: one lower, so La3 = 440 Hz and the
+  /// low E is Mi0.
+  italian,
+}
+
 /// Names of the 12 pitch classes, starting from C, in the spelling a bassist
 /// usually reads (flats for E♭, A♭ and B♭).
 const _englishNames = [
@@ -97,13 +108,20 @@ class Note {
             ? _italianNames
             : _englishNames)[pitchClass];
 
-  /// The octave number as written with [names].
-  int octaveIn(NoteNames names) =>
-      names == NoteNames.solfege ? octave - 1 : octave;
+  /// The octave number as written with [numbering]. Without it, the number
+  /// follows [names] as it used to: the Italian numbering for solfège. The
+  /// app always passes the player's choice.
+  int octaveIn(NoteNames names, {OctaveNumbering? numbering}) {
+    final italian = numbering != null
+        ? numbering == OctaveNumbering.italian
+        : names == NoteNames.solfege;
+    return italian ? octave - 1 : octave;
+  }
 
-  /// The note name with its octave number, such as "A4" or "La3" (the same
-  /// note, 440 Hz).
-  String label(NoteNames names) => '${name(names)}${octaveIn(names)}';
+  /// The note name with its octave number, such as "A4", or "La3" with the
+  /// Italian numbering (the same note, 440 Hz).
+  String label(NoteNames names, {OctaveNumbering? numbering}) =>
+      '${name(names)}${octaveIn(names, numbering: numbering)}';
 
   @override
   bool operator ==(Object other) =>

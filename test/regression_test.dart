@@ -272,7 +272,7 @@ void main() {
       expect(find.byType(DropdownMenu<ChordType>).hitTestable(), findsNothing);
       await tester.tap(find.text('La'));
       await _settle(tester);
-      expect(find.text('La3'), findsOneWidget);
+      expect(find.text('La4'), findsOneWidget);
       expect(find.text('Fondamentale'), findsOneWidget, reason: 'switch only');
 
       await tester.tap(find.text('Accordo').first);

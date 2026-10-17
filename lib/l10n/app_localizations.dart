@@ -527,13 +527,13 @@ abstract class AppLocalizations {
   /// No description provided for @noteNamesSolfege.
   ///
   /// In en, this message translates to:
-  /// **'Do Re Mi (La3 = 440 Hz)'**
+  /// **'Do Re Mi'**
   String get noteNamesSolfege;
 
   /// No description provided for @noteNamesLetters.
   ///
   /// In en, this message translates to:
-  /// **'C D E (A4 = 440 Hz)'**
+  /// **'C D E'**
   String get noteNamesLetters;
 
   /// No description provided for @circleLayoutLabel.
@@ -707,8 +707,104 @@ abstract class AppLocalizations {
   /// No description provided for @octaveSpeakerNote.
   ///
   /// In en, this message translates to:
-  /// **'Low notes are faint on the phone’s own speaker: use headphones or a speaker, or pick the highest octave.'**
+  /// **'Low notes are faint on the phone’s own speaker: use headphones or a speaker, or pick a higher octave.'**
   String get octaveSpeakerNote;
+
+  /// No description provided for @lowRootNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Low note: use headphones or a speaker'**
+  String get lowRootNote;
+
+  /// No description provided for @bassPreset.
+  ///
+  /// In en, this message translates to:
+  /// **'Bass: low octave, held tone'**
+  String get bassPreset;
+
+  /// No description provided for @continuousToneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Held tone'**
+  String get continuousToneTitle;
+
+  /// No description provided for @continuousToneSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A steady tone instead of the piano struck again and again. Always used in octave 1.'**
+  String get continuousToneSubtitle;
+
+  /// No description provided for @octaveNumberingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Octave numbers'**
+  String get octaveNumberingLabel;
+
+  /// No description provided for @octaveNumberingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the number after the note name: the same note, a different number.'**
+  String get octaveNumberingHint;
+
+  /// No description provided for @octaveScientific.
+  ///
+  /// In en, this message translates to:
+  /// **'Scientific (default)'**
+  String get octaveScientific;
+
+  /// No description provided for @octaveItalian.
+  ///
+  /// In en, this message translates to:
+  /// **'Italian'**
+  String get octaveItalian;
+
+  /// No description provided for @octaveExamples.
+  ///
+  /// In en, this message translates to:
+  /// **'{a4} = 440 Hz, the bass low E is {e1}'**
+  String octaveExamples(String a4, String e1);
+
+  /// No description provided for @tuningChromatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Chromatic'**
+  String get tuningChromatic;
+
+  /// No description provided for @tuningViolin.
+  ///
+  /// In en, this message translates to:
+  /// **'Violin'**
+  String get tuningViolin;
+
+  /// No description provided for @tuningBass.
+  ///
+  /// In en, this message translates to:
+  /// **'Bass'**
+  String get tuningBass;
+
+  /// No description provided for @tuningBassFive.
+  ///
+  /// In en, this message translates to:
+  /// **'Bass 5'**
+  String get tuningBassFive;
+
+  /// No description provided for @tuningStrings.
+  ///
+  /// In en, this message translates to:
+  /// **'Strings: {strings}'**
+  String tuningStrings(String strings);
+
+  /// No description provided for @tunerString.
+  ///
+  /// In en, this message translates to:
+  /// **'Open string'**
+  String get tunerString;
+
+  /// In the tuner's string mode: the note actually heard, when it is not the string being tuned.
+  ///
+  /// In en, this message translates to:
+  /// **'Heard {note}'**
+  String tunerHeard(String note);
 
   /// No description provided for @swipeHint.
   ///
@@ -725,7 +821,7 @@ abstract class AppLocalizations {
   /// No description provided for @gesturesLockedSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'For rehearsals: no swiping between sections and no holding a tab, only taps'**
+  /// **'For rehearsals: no swiping between sections and no holding a tab, and tapping the current tab no longer stops anything'**
   String get gesturesLockedSubtitle;
 
   /// No description provided for @inTuneZoneTitle.
@@ -737,7 +833,7 @@ abstract class AppLocalizations {
   /// No description provided for @inTuneZoneSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'How far off a note can be and still show as in tune'**
+  /// **'How far off a note can be, in cents (hundredths of a semitone), and still show as in tune'**
   String get inTuneZoneSubtitle;
 
   /// No description provided for @shapeLabel.
@@ -829,6 +925,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Write as {note}'**
   String writeAs(String note);
+
+  /// No description provided for @guidePage1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get guidePage1Title;
+
+  /// No description provided for @guidePage2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Move around'**
+  String get guidePage2Title;
+
+  /// No description provided for @guidePage3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Tune and volume'**
+  String get guidePage3Title;
+
+  /// No description provided for @guideNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get guideNext;
+
+  /// No description provided for @guidePageOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {n} of {total}'**
+  String guidePageOf(int n, int total);
+
+  /// No description provided for @guideLock.
+  ///
+  /// In en, this message translates to:
+  /// **'For rehearsals, lock the gestures in the settings: tapping the current tab then no longer stops anything.'**
+  String get guideLock;
+
+  /// No description provided for @guideCents.
+  ///
+  /// In en, this message translates to:
+  /// **'A cent is a hundredth of a semitone: within a few cents a note is in tune.'**
+  String get guideCents;
+
+  /// No description provided for @progressionBluesShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Blues'**
+  String get progressionBluesShort;
+
+  /// The progression and its key: II–V–I in A major.
+  ///
+  /// In en, this message translates to:
+  /// **'{progression} in {key}'**
+  String keyLine(String progression, String key);
+
+  /// No description provided for @keySheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Key: {key}'**
+  String keySheetTitle(String key);
+
+  /// No description provided for @degreeName1.
+  ///
+  /// In en, this message translates to:
+  /// **'Tonic'**
+  String get degreeName1;
+
+  /// No description provided for @degreeName2.
+  ///
+  /// In en, this message translates to:
+  /// **'Supertonic'**
+  String get degreeName2;
+
+  /// No description provided for @degreeName3.
+  ///
+  /// In en, this message translates to:
+  /// **'Mediant'**
+  String get degreeName3;
+
+  /// No description provided for @degreeName4.
+  ///
+  /// In en, this message translates to:
+  /// **'Subdominant'**
+  String get degreeName4;
+
+  /// No description provided for @degreeName5.
+  ///
+  /// In en, this message translates to:
+  /// **'Dominant'**
+  String get degreeName5;
+
+  /// No description provided for @degreeName6.
+  ///
+  /// In en, this message translates to:
+  /// **'Submediant'**
+  String get degreeName6;
+
+  /// No description provided for @degreeName7.
+  ///
+  /// In en, this message translates to:
+  /// **'Leading tone'**
+  String get degreeName7;
+
+  /// No description provided for @legendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Legend'**
+  String get legendTitle;
+
+  /// No description provided for @legendButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Legend and degrees'**
+  String get legendButton;
+
+  /// No description provided for @legendRoot.
+  ///
+  /// In en, this message translates to:
+  /// **'Note sounding (the root)'**
+  String get legendRoot;
+
+  /// No description provided for @legendChord.
+  ///
+  /// In en, this message translates to:
+  /// **'Other notes of the chord sounding'**
+  String get legendChord;
+
+  /// No description provided for @legendInKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes of the key'**
+  String get legendInKey;
+
+  /// No description provided for @legendOutOfKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes outside the key, faded'**
+  String get legendOutOfKey;
+
+  /// No description provided for @legendNumerals.
+  ///
+  /// In en, this message translates to:
+  /// **'The Roman numerals give the degree of the key each chord is built on. Tap one on the circle to read it here.'**
+  String get legendNumerals;
+
+  /// No description provided for @legendDots.
+  ///
+  /// In en, this message translates to:
+  /// **'The dots are the bars of the progression: the filled one is the chord sounding.'**
+  String get legendDots;
+
+  /// No description provided for @songsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Example songs'**
+  String get songsTitle;
+
+  /// No description provided for @songsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets the key, the progression and the tempo in one tap'**
+  String get songsSubtitle;
+
+  /// No description provided for @tunerHeld.
+  ///
+  /// In en, this message translates to:
+  /// **'Holding the last note'**
+  String get tunerHeld;
 
   /// No description provided for @aboutSource.
   ///

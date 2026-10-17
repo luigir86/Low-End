@@ -199,6 +199,7 @@ void main() {
           find.byIcon(Icons.info_outline),
           200,
           scrollable: find.byType(Scrollable).last,
+          maxScrolls: 120,
         );
         await h.settle('scroll');
         await tester.tap(find.byIcon(Icons.info_outline));
@@ -231,7 +232,7 @@ void main() {
         }
         expect((h.mic as FakeMicInput).isCapturing, tab == AppSection.tuner);
         expect(h.scope.navigation.section, tab);
-        if (tab == AppSection.drone) expect(find.text('La3'), findsOneWidget);
+        if (tab == AppSection.drone) expect(find.text('La4'), findsOneWidget);
         h.expectClean();
       });
     }

@@ -79,8 +79,16 @@ class PitchDetector {
     // before (the hold search below would otherwise find such a multiple).
     for (var lag = 2; lag < maxLag; lag++) {
       if (d[lag] >= threshold) continue;
-      while (lag + 1 < maxLag && d[lag + 1] < d[lag]) {
-        lag++;
+      // The bottom of the dip is its lowest point, not the first place the
+      // curve stops falling: with noise (a low string heard through room
+      // sound has only three periods in the window) the curve ripples on
+      // the way down and stopping at the first ripple reads sharp.
+      var end = lag;
+      while (end + 1 < maxLag && d[end + 1] < threshold) {
+        end++;
+      }
+      for (var i = lag; i <= end; i++) {
+        if (d[i] < d[lag]) lag = i;
       }
       if (lag < _minLag) return null;
       return sampleRate / _refine(d, lag);
