@@ -762,7 +762,6 @@ class _CentsBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colors = LowEndColors.of(context);
     final r = reading;
     final show = listening && r != null;
     // The note and its verdict are read by the middle of the dial.
@@ -770,7 +769,7 @@ class _CentsBar extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: SizedBox(
-          height: 48,
+          height: 28,
           width: double.infinity,
           child: CustomPaint(
             painter: _CentsBarPainter(
@@ -778,7 +777,9 @@ class _CentsBar extends StatelessWidget {
               marker: show && !held
                   ? _centsColor(theme, r.cents, tolerance)
                   : theme.colorScheme.outline,
-              zone: colors.inTune,
+              // A neutral zone, the colour of the chosen half of the switches:
+              // the marker alone turns green when it is in it.
+              zone: theme.colorScheme.primaryContainer,
               tolerance: tolerance,
               scale: theme.colorScheme.outline,
               hub: theme.colorScheme.surface,
@@ -816,12 +817,12 @@ class _CentsBarPainter extends CustomPainter {
     canvas.drawRRect(
       RRect.fromLTRBR(
         x(-tolerance),
-        mid - 14,
+        mid - 9,
         x(tolerance),
-        mid + 14,
-        const Radius.circular(6),
+        mid + 9,
+        const Radius.circular(5),
       ),
-      Paint()..color = zone.withValues(alpha: 0.28),
+      Paint()..color = zone,
     );
     final tick = Paint()
       ..color = scale
@@ -830,8 +831,8 @@ class _CentsBarPainter extends CustomPainter {
       // The tick for "in tune" is longer and thicker: told by shape.
       final zero = c == 0;
       canvas.drawLine(
-        Offset(x(c.toDouble()), mid - (zero ? 14 : 7)),
-        Offset(x(c.toDouble()), mid + (zero ? 14 : 7)),
+        Offset(x(c.toDouble()), mid - (zero ? 9 : 5)),
+        Offset(x(c.toDouble()), mid + (zero ? 9 : 5)),
         zero
             ? (Paint()
                 ..color = scale
@@ -843,8 +844,8 @@ class _CentsBarPainter extends CustomPainter {
     if (c == null) return;
     // A round marker on the scale, with a halo against the ticks.
     final at = Offset(x(c), mid);
-    canvas.drawCircle(at, 11, Paint()..color = hub);
-    canvas.drawCircle(at, 8, Paint()..color = marker);
+    canvas.drawCircle(at, 9, Paint()..color = hub);
+    canvas.drawCircle(at, 6.5, Paint()..color = marker);
   }
 
   @override
