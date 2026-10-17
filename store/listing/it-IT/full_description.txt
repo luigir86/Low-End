@@ -3,7 +3,7 @@ Low End è un compagno di studio per musicisti: un metronomo, una sezione di arm
 METRONOMO
 • Tempo da 30 a 250 BPM: tocca il numero per scriverlo, tieni premuto − o + per muoverti a scatti, oppure usa TAP.
 • Tempi 1/1, 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 e 12/8, con i movimenti raggruppati come si contano.
-• Un anello che si accende movimento per movimento, con il primo tempo in evidenza, e il suono di un batterista jazz (ride, campana, grancassa e hi-hat) sempre stabile, dritto, swing o shuffle. Anche il pianoforte segue lo swing.
+• Un anello che si accende movimento per movimento, con il primo tempo in evidenza, e un click breve e secco sempre stabile, dritto o swing. Anche il pianoforte segue lo swing.
 
 ARMONIA
 • Dodici tasti su un quadrante: tocca una nota e suona su un vero pianoforte, a tempo con il metronomo.

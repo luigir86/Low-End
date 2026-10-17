@@ -36,14 +36,14 @@ void main() {
       first.rememberMetronome(
         bpm: 132,
         signature: TimeSignature.sixEight,
-        feel: MetronomeFeel.shuffle,
+        feel: MetronomeFeel.swing,
       );
       // Written by the time the next launch reads them.
       await Future<void>.delayed(Duration.zero);
       final second = await AppSettings.load();
       expect(second.metronomeBpm, 132);
       expect(second.metronomeSignature, TimeSignature.sixEight);
-      expect(second.metronomeFeel, MetronomeFeel.shuffle);
+      expect(second.metronomeFeel, MetronomeFeel.swing);
     });
 
     test('unreadable values fall back, and the tempo stays in range', () async {

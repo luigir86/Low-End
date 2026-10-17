@@ -547,12 +547,6 @@ String progressionGenre(AppLocalizations l10n, Progression p) => switch (p) {
 String progressionNote(AppLocalizations l10n, Progression p) =>
     l10n.progressionLike(progressionGenre(l10n, p), progressionSong(p));
 
-/// What the closed field shows: the name, and the song when it fits. The
-/// blues is "Blues" there, since its full name leaves no room.
-String progressionFieldText(AppLocalizations l10n, Progression p) =>
-    '${p == Progression.blues ? l10n.progressionGenreBlues : progressionName(l10n, p)}'
-    ' · ${progressionSong(p)}';
-
 /// A progression in the menu: its name, and under it the genre and a song.
 class _ProgressionEntry extends StatelessWidget {
   const _ProgressionEntry({required this.name, required this.note});
@@ -653,9 +647,10 @@ class _ChordMenu extends StatelessWidget {
                             for (final p in Progression.values)
                               DropdownMenuEntry(
                                 value: p,
-                                // What the field shows once chosen; the menu
-                                // lists the name with its note under it.
-                                label: progressionFieldText(l10n, p),
+                                // The field shows just the name once chosen
+                                // (the song would not fit); the menu lists it
+                                // with its note under it.
+                                label: progressionName(l10n, p),
                                 labelWidget: _ProgressionEntry(
                                   name: progressionName(l10n, p),
                                   note: progressionNote(l10n, p),

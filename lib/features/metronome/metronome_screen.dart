@@ -21,7 +21,7 @@ import 'time_signature.dart';
 /// in its own colour, and the tempo in the middle. In bars felt in groups
 /// (6/8) wider gaps split the groups, and a bar of one beat is a single
 /// segment that flashes. Touching the ring starts and stops it; below it,
-/// the feel (straight, swing, shuffle), and a row like the harmony's with
+/// the feel (straight or swing), and a row like the harmony's with
 /// the time signature, TAP, − + and a pencil to type the tempo.
 class MetronomeScreen extends StatelessWidget {
   const MetronomeScreen({super.key});
@@ -377,7 +377,7 @@ String beatUnitName(AppLocalizations l10n, BeatUnit unit) => switch (unit) {
   BeatUnit.eighth => l10n.beatUnitEighth,
 };
 
-/// How the beat is felt: straight, swing or shuffle, chosen as Root, Chord
+/// How the beat is felt: straight or swing, chosen as Root, Chord
 /// and Progression are on the harmony tab. Bars counted in eighths are
 /// always straight, so it is off there.
 class _FeelSwitch extends StatelessWidget {
@@ -408,10 +408,6 @@ class _FeelSwitch extends StatelessWidget {
             ButtonSegment(
               value: MetronomeFeel.swing,
               label: label(l10n.feelSwing),
-            ),
-            ButtonSegment(
-              value: MetronomeFeel.shuffle,
-              label: label(l10n.feelShuffle),
             ),
           ],
           selected: {metronome.feel},

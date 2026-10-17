@@ -32,8 +32,6 @@ void showLowEndAbout(BuildContext context) {
       const SizedBox(height: 8),
       Text(l10n.aboutPiano),
       const SizedBox(height: 8),
-      Text(l10n.aboutDrums),
-      const SizedBox(height: 8),
       // A link, not a text to copy from.
       Align(
         alignment: AlignmentDirectional.centerStart,

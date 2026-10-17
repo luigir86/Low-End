@@ -351,7 +351,7 @@ void main() {
     });
   });
 
-  group('swing and shuffle', () {
+  group('swing', () {
     // Quiet notes, so that no loop is turned down as a whole (which would
     // change every sample, not just where a note was added).
     final quiet = PianoSamples({
@@ -393,24 +393,12 @@ void main() {
       }
     });
 
-    test('the shuffle strikes the skip note after the first beat', () {
-      const style = PianoStyle.beat;
-      final straight = render(style, MetronomeFeel.straight);
-      final shuffle = render(style, MetronomeFeel.shuffle);
-      // The first difference is the triplet: two thirds into the beat.
-      expect(
-        firstDifference(straight, shuffle, beat ~/ 2),
-        inInclusiveRange(skip, skip + 2),
-      );
-    });
-
     test('the arpeggio plays the skip notes between its own', () {
       const style = PianoStyle.arpeggio;
       final straight = render(style, MetronomeFeel.straight);
-      for (final feel in [MetronomeFeel.swing, MetronomeFeel.shuffle]) {
-        expect(render(style, feel), isNot(equals(straight)));
-      }
-      expect(render(style, MetronomeFeel.shuffle).length, straight.length);
+      final swing = render(style, MetronomeFeel.swing);
+      expect(swing, isNot(equals(straight)));
+      expect(swing.length, straight.length);
     });
 
     test('the swing waits for beat 2 to strike the skip note', () {
@@ -426,12 +414,13 @@ void main() {
 
     test('the skip note is lighter than the beat', () {
       final straight = render(PianoStyle.beat, MetronomeFeel.straight);
-      final shuffle = render(PianoStyle.beat, MetronomeFeel.shuffle);
+      final swing = render(PianoStyle.beat, MetronomeFeel.swing);
       final added = Float64List.fromList([
-        for (var i = 0; i < straight.length; i++) shuffle[i] - straight[i],
+        for (var i = 0; i < straight.length; i++) swing[i] - straight[i],
       ]);
-      expect(_energy(added, skip, 2000), lessThan(_energy(straight, 0, 2000)));
-      expect(_energy(added, skip, 2000), greaterThan(0.1));
+      const at = beat + skip;
+      expect(_energy(added, at, 2000), lessThan(_energy(straight, 0, 2000)));
+      expect(_energy(added, at, 2000), greaterThan(0.1));
     });
 
     test('held chords do not change', () {

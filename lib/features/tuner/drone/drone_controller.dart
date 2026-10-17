@@ -64,7 +64,7 @@ abstract interface class BarClock implements Listenable {
   int get bpm;
   TimeSignature get signature;
 
-  /// How the beat is felt (swing, shuffle): the piano follows it.
+  /// How the beat is felt (swing): the piano follows it.
   MetronomeFeel get feel;
 
   Duration get barLength;
