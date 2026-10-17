@@ -62,6 +62,12 @@ class LabeledField extends StatelessWidget {
   }
 }
 
+/// The height of a line of text in a row, and the padding above and below
+/// the label of a chip that makes a chip as tall as the field beside it (a
+/// line, 16 dp of padding on both sides, and the border).
+const rowLineHeight = 24.0;
+const chipPadding = 15.0;
+
 /// A chip of the row: "+7" on the harmony, TAP, − and + on the metronome.
 /// With [onPressed] null it is dimmed (the end of a range). With [filled]
 /// it is coloured in the container colour, to say that it is a button to
@@ -82,13 +88,20 @@ class RowChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ActionChip(
-    label: label,
+    // At least as tall as a line of text, so that an icon chip grows with
+    // large text as the field beside it does.
+    label: ConstrainedBox(
+      constraints: BoxConstraints(
+        minHeight: MediaQuery.textScalerOf(context).scale(rowLineHeight),
+      ),
+      child: Center(widthFactor: 1, child: label),
+    ),
     tooltip: tooltip,
     onPressed: onPressed,
     backgroundColor: filled
         ? Theme.of(context).colorScheme.primaryContainer
         : null,
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: chipPadding),
     labelPadding: const EdgeInsets.symmetric(horizontal: 4),
     side: BorderSide(
       color: Theme.of(context).colorScheme.outline

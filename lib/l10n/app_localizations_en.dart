@@ -98,6 +98,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get thanksTitle => 'Thanks';
 
   @override
+  String get thanksInstagram => 'Follow them on Instagram';
+
+  @override
   String get thanksText =>
       'Thanks to the Power Flower Orchestra of Fossano, who inspired this app and put it to the test.';
 
@@ -403,11 +406,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tuningBass => 'Bass';
-
-  @override
-  String tuningStrings(String strings) {
-    return 'Strings: $strings';
-  }
 
   @override
   String tunerString(String number) {
