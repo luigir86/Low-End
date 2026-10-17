@@ -774,10 +774,10 @@ class _NoteName extends StatelessWidget {
   }
 }
 
-/// The cents, 50 flat to 50 sharp, in the first row under the dial, drawn
-/// like the balance slider of the other tabs: the same thin track, the same
-/// short mark in the middle, the same round thumb and the same room at the
-/// sides. The thumb says how far off the note is, with the "in tune" zone
+/// The cents, 50 flat to 50 sharp, in the third row under the dial, drawn
+/// like the balance slider of the other tabs but as wide as the rows above
+/// it: the same thin track, the same short mark in the middle and the same
+/// round thumb. The thumb says how far off the note is, with the "in tune" zone
 /// shaded behind the middle. The strobe shows the same thing by turning,
 /// which is hard to read at a glance, and this by position, which is not.
 class _CentsBar extends StatelessWidget {
@@ -793,9 +793,9 @@ class _CentsBar extends StatelessWidget {
   final double tolerance;
   final bool listening;
 
-  /// Where the track of the balance slider starts: the width of an icon with
-  /// its name, plus the room a slider leaves for its thumb.
-  static const _inset = 72.0 + 24;
+  /// The room left at each side so that the thumb at the ends stays inside
+  /// the width of the rows above it, as a slider leaves for its thumb.
+  static const _inset = 24.0;
 
   @override
   Widget build(BuildContext context) {
