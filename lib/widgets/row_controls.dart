@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../app/style.dart';
-
 /// The pieces of the row of controls under a dial, shared by the metronome,
 /// the harmony and the tuner so that the three look the same: a field with
 /// its name on the border, round-cornered chips (like +7) and a plain icon
@@ -117,7 +115,9 @@ TextStyle? rowChipStyle(BuildContext context, {Color? color}) =>
       color: color ?? Theme.of(context).colorScheme.onSurface,
     );
 
-/// The icon button at the end of the row: the pencil, the sound options.
+/// The button at the end of the row (the pencil, the sound options): boxed
+/// like the chips beside it, with its icon in the primary colour, so that the
+/// row is a line of equal blocks. The gap before it is its own.
 class RowIconButton extends StatelessWidget {
   const RowIconButton({
     super.key,
@@ -131,16 +131,12 @@ class RowIconButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   @override
-  Widget build(BuildContext context) => IconButton(
-    iconSize: 28,
-    // At least 48 dp wide and high, to be touched with a thumb.
-    constraints: BoxConstraints.tightFor(
-      width: LowEndShape.iconButton,
-      height: LowEndShape.iconButton,
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsetsDirectional.only(start: 4),
+    child: RowChip(
+      label: Icon(icon, size: 24, color: Theme.of(context).colorScheme.primary),
+      tooltip: tooltip,
+      onPressed: onPressed,
     ),
-    color: Theme.of(context).colorScheme.primary,
-    icon: Icon(icon),
-    tooltip: tooltip,
-    onPressed: onPressed,
   );
 }
