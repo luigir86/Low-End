@@ -384,7 +384,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tuningChromatic => 'Chromatic';
 
   @override
+  String get tuningInstrument => 'Instrument';
+
+  @override
+  String get tuningGuitar => 'Guitar';
+
+  @override
   String get tuningViolin => 'Violin';
+
+  @override
+  String get tuningViola => 'Viola';
+
+  @override
+  String get tuningCello => 'Cello';
+
+  @override
+  String get tuningUkulele => 'Ukulele';
 
   @override
   String get tuningBass => 'Bass';
@@ -398,7 +413,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get tunerString => 'Open string';
+  String tunerString(String number) {
+    return 'String $number';
+  }
 
   @override
   String tunerHeard(String note) {

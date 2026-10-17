@@ -147,14 +147,18 @@ class _TunerPanelState extends State<TunerPanel> {
 String _tuningName(AppLocalizations l10n, TunerTuning tuning) =>
     switch (tuning) {
       TunerTuning.chromatic => l10n.tuningChromatic,
+      TunerTuning.guitar => l10n.tuningGuitar,
       TunerTuning.violin => l10n.tuningViolin,
+      TunerTuning.viola => l10n.tuningViola,
+      TunerTuning.cello => l10n.tuningCello,
+      TunerTuning.ukulele => l10n.tuningUkulele,
       TunerTuning.bass => l10n.tuningBass,
       TunerTuning.bassFive => l10n.tuningBassFive,
     };
 
-/// Chromatic or the strings of an instrument, full width, in the third row:
-/// with strings, the tuner names the nearest open string and says how far
-/// off it is.
+/// Chromatic, or the strings of an instrument chosen from a menu, in the
+/// third row: with strings, the tuner names the nearest open string, its
+/// number, and says how far off it is. The last instrument stays chosen.
 class _TuningSwitch extends StatelessWidget {
   const _TuningSwitch({required this.settings});
 
@@ -163,40 +167,115 @@ class _TuningSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
     final names = settings.noteNames(Localizations.localeOf(context));
-    return SizedBox(
-      width: double.infinity,
-      child: SegmentedButton<TunerTuning>(
-        key: const Key('tuningSwitch'),
-        showSelectedIcon: false,
-        style: SegmentedButton.styleFrom(
-          minimumSize: const Size(0, 64),
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+    String strings(TunerTuning t) => l10n.tuningStrings(
+      t.strings
+          .map((n) => n.label(names, numbering: settings.octaveNumbering))
+          .join(' '),
+    );
+    final chromatic = settings.tunerChromatic;
+    return Row(
+      key: const Key('tuningSwitch'),
+      children: [
+        Expanded(
+          child: _TuningChoice(
+            key: const Key('tuningChromatic'),
+            selected: chromatic,
+            onTap: () => settings.setTunerChromatic(true),
+            child: Text(l10n.tuningChromatic, maxLines: 1),
+          ),
         ),
-        segments: [
-          for (final tuning in TunerTuning.values)
-            ButtonSegment(
-              value: tuning,
-              label: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(_tuningName(l10n, tuning), maxLines: 1),
+        const SizedBox(width: 8),
+        Expanded(
+          flex: 2,
+          child: PopupMenuButton<TunerTuning>(
+            key: const Key('tuningInstrument'),
+            tooltip: l10n.tuningInstrument,
+            position: PopupMenuPosition.over,
+            initialValue: settings.tunerInstrument,
+            onOpened: () => settings.setTunerChromatic(false),
+            onSelected: settings.setTunerInstrument,
+            itemBuilder: (context) => [
+              for (final t in TunerTuning.instruments)
+                PopupMenuItem(
+                  value: t,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(_tuningName(l10n, t)),
+                      Text(
+                        strings(t),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+            child: _TuningChoice(
+              selected: !chromatic,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _tuningName(l10n, settings.tunerInstrument),
+                    maxLines: 1,
+                  ),
+                  const Icon(Icons.arrow_drop_down),
+                ],
               ),
-              tooltip: tuning.isChromatic
-                  ? null
-                  : l10n.tuningStrings(
-                      tuning.strings
-                          .map(
-                            (n) => n.label(
-                              names,
-                              numbering: settings.octaveNumbering,
-                            ),
-                          )
-                          .join(' '),
-                    ),
             ),
-        ],
-        selected: {settings.tuning},
-        onSelectionChanged: (s) => settings.setTuning(s.first),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// One of the two choices of [_TuningSwitch], drawn like a selected or
+/// unselected segment of the buttons in the other rows.
+class _TuningChoice extends StatelessWidget {
+  const _TuningChoice({
+    super.key,
+    required this.selected,
+    required this.child,
+    this.onTap,
+  });
+
+  final bool selected;
+  final Widget child;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Material(
+        color: selected ? scheme.secondaryContainer : Colors.transparent,
+        shape: StadiumBorder(side: BorderSide(color: scheme.outline)),
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 64),
+            child: Center(
+              child: DefaultTextStyle.merge(
+                style: TextStyle(
+                  color: selected
+                      ? scheme.onSecondaryContainer
+                      : scheme.onSurface,
+                  fontWeight: FontWeight.w600,
+                ),
+                child: FittedBox(fit: BoxFit.scaleDown, child: child),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -578,15 +657,18 @@ class _NoteDisplay extends StatelessWidget {
             ),
             // With strings: the string being tuned, and what was heard when
             // it is not that one.
-            if (r.onStrings)
-              Text(
-                r.played == r.target
-                    ? l10n.tunerString
-                    : l10n.tunerHeard(
-                        r.played.label(names, numbering: numbering),
-                      ),
-                style: muted,
-              ),
+            if (r.onStrings) ...[
+              if (r.stringNumber case final n?)
+                Text(
+                  l10n.tunerString(romanNumeral(n)),
+                  style: muted?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              if (r.played != r.target)
+                Text(
+                  l10n.tunerHeard(r.played.label(names, numbering: numbering)),
+                  style: muted,
+                ),
+            ],
             Text(
               // A held note says so in words, not only by fading.
               held

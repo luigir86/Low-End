@@ -62,6 +62,23 @@ void main() {
     expect(detector.detect(fading, expected: 82.4), isNull);
   });
 
+  test('hears a bass played without an amplifier, which is faint', () {
+    Float64List faint(double hz, double gain) => Float64List.fromList([
+      for (final s in _string(hz, n, harmonics: [0.4, 1, 0.8, 0.5])) s * gain,
+    ]);
+    // About 0.0015 of full scale: well under the old level of 0.003.
+    final quiet = faint(41.2, 0.008);
+    expect(quiet.map((s) => s * s).reduce((a, b) => a + b) / n, lessThan(1e-5));
+    expect(detector.detect(quiet), closeTo(41.2, 0.5));
+    // A string ringing out keeps being followed below the level at which
+    // a new note is noticed.
+    final dying = faint(55, 0.0025);
+    expect(detector.detect(dying), isNull);
+    expect(detector.detect(dying, expected: 55), closeTo(55, 0.5));
+    // Silence is still silence, with or without a note before.
+    expect(detector.detect(Float64List(n), expected: 55), isNull);
+  });
+
   test('ignores sounds above the bass range', () {
     expect(detector.detect(_string(880, n, harmonics: [1])), isNull);
   });

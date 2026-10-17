@@ -144,6 +144,27 @@ void main() {
       expect(r.cents, closeTo(0, 0.001));
     });
 
+    test('strings are numbered from the thinnest, in Roman numerals', () {
+      String number(TunerTuning t, double hz) {
+        final r = TunerReading.of(hz, tuning: t);
+        return romanNumeral(r.stringNumber!);
+      }
+
+      expect(number(TunerTuning.violin, 659.26), 'I');
+      expect(number(TunerTuning.violin, 196), 'IV');
+      expect(number(TunerTuning.bass, 41.2), 'IV');
+      expect(number(TunerTuning.bass, 98), 'I');
+      expect(number(TunerTuning.bassFive, 30.87), 'V');
+      expect(number(TunerTuning.guitar, 82.41), 'VI');
+      expect(number(TunerTuning.guitar, 329.63), 'I');
+      expect(number(TunerTuning.cello, 65.41), 'IV');
+      expect(number(TunerTuning.viola, 440), 'I');
+      // The ukulele's high G is its fourth string.
+      expect(number(TunerTuning.ukulele, 392), 'IV');
+      expect(number(TunerTuning.ukulele, 261.63), 'III');
+      expect(TunerReading.of(440).stringNumber, isNull);
+    });
+
     test('chromatic readings are as before', () {
       final r = TunerReading.of(440);
       expect(r.onStrings, isFalse);
@@ -205,10 +226,18 @@ void main() {
     test('the tuning is saved', () async {
       SharedPreferences.setMockInitialValues({});
       var settings = await AppSettings.load();
-      settings.setTuning(TunerTuning.bassFive);
+      expect(settings.tuning, TunerTuning.chromatic);
+      expect(settings.tunerInstrument, TunerTuning.guitar);
+      settings.setTunerInstrument(TunerTuning.bassFive);
       await Future<void>.delayed(Duration.zero);
       settings = await AppSettings.load();
       expect(settings.tuning, TunerTuning.bassFive);
+      // Back to chromatic: the instrument stays chosen.
+      settings.setTunerChromatic(true);
+      await Future<void>.delayed(Duration.zero);
+      settings = await AppSettings.load();
+      expect(settings.tuning, TunerTuning.chromatic);
+      expect(settings.tunerInstrument, TunerTuning.bassFive);
     });
   });
 
@@ -354,9 +383,17 @@ void main() {
         scope.navigation.open(AppSection.tuner);
         await tester.pumpAndSettle();
         expect(find.byKey(const Key('tuningSwitch')), findsOneWidget);
-        await tester.tap(find.text('Bass 5'));
+        expect(settings.tuning, TunerTuning.chromatic);
+        await tester.tap(find.byKey(const Key('tuningInstrument')));
+        await tester.pumpAndSettle();
+        expect(settings.tuning, TunerTuning.guitar);
+        await tester.tap(find.text('Bass 5').last);
         await tester.pumpAndSettle();
         expect(settings.tuning, TunerTuning.bassFive);
+        await tester.tap(find.byKey(const Key('tuningChromatic')));
+        await tester.pumpAndSettle();
+        expect(settings.tuning, TunerTuning.chromatic);
+        expect(settings.tunerInstrument, TunerTuning.bassFive);
       },
     );
   });

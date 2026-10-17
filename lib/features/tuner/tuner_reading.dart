@@ -10,11 +10,15 @@ class TunerReading {
     this.cents,
     this.tolerance,
     this.onStrings,
+    this.stringNumber,
   );
 
   /// True when [target] is an open string chosen from an instrument's
   /// tuning, rather than the note heard.
   final bool onStrings;
+
+  /// The number of [target] on the instrument, 1 being the thinnest string.
+  final int? stringNumber;
 
   /// Compares [frequency] with the nearest note, or with the nearest open
   /// string of [tuning] when it has any; it counts as in tune within
@@ -34,6 +38,7 @@ class TunerReading {
       target.centsOf(frequency, a4: a4),
       tolerance,
       !tuning.isChromatic,
+      tuning.numberOf(target),
     );
   }
 
