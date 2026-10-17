@@ -6,10 +6,10 @@ import 'style.dart';
 /// Low End's look, in one place: change a colour, a radius or a font weight
 /// here and every screen follows, like the variables of a CSS stylesheet.
 ///
-/// The palette is wood, the colour of a bass: maple for light surfaces,
-/// walnut for dark ones and text, and PANTONE 17-1230 Mocha Mousse as the
-/// signature colour. Pantone shades are printed colours; the values here are
-/// their usual screen equivalents.
+/// The Orchestra (docs/tema-orchestra.md): a neutral ground, warm grey in
+/// light and ebony in dark, and one flat accent per tab, the colour of a
+/// material of the orchestra: brass, rosewood, silver ([LowEndTheme.accented]). The
+/// wood names of the palette are what it grew from.
 abstract final class Palette {
   // Signature: PANTONE 17-1230 Mocha Mousse.
   static const mochaMousse = Color(0xFFA47864);
@@ -48,18 +48,14 @@ abstract final class Palette {
   static const brass = Color(0xFF7A5C1E);
   static const brassLight = Color(0xFFE3B84A);
 
-  // The metronome's "one": unlike the other beats in both tint and
-  // lightness, so it shows out of the corner of an eye on a dark stage.
-  static const downbeatLight = Color(0xFFB05030);
-  static const downbeatDark = Color(0xFFFFF4E0);
-
-  // Tuner verdicts.
+  // Tuner verdicts: green, orange and a pure red, far from the brass and
+  // the rosewood of the tabs, so a verdict never reads as a tab's colour.
   static const inTuneLight = Color(0xFF2E6B3A);
   static const inTuneDark = Color(0xFF8FD19E);
-  static const closeLight = Color(0xFF8A5A00);
-  static const closeDark = Color(0xFFF1C66B);
-  static const offLight = Color(0xFFA6322A);
-  static const offDark = Color(0xFFFFB4A8);
+  static const closeLight = Color(0xFFA64B00);
+  static const closeDark = Color(0xFFFFA05A);
+  static const offLight = Color(0xFFC62828);
+  static const offDark = Color(0xFFFF8A80);
 }
 
 /// Colours the Material scheme has no name for.
@@ -184,7 +180,7 @@ abstract final class LowEndTheme {
       close: Palette.closeLight,
       off: Palette.offLight,
       strobeBackground: Palette.mapleShade2,
-      downbeat: Palette.downbeatLight,
+      downbeat: Palette.brassDeep,
     ),
   );
 
@@ -195,7 +191,7 @@ abstract final class LowEndTheme {
       close: Palette.closeDark,
       off: Palette.offDark,
       strobeBackground: Palette.ebonyShade2,
-      downbeat: Palette.downbeatDark,
+      downbeat: Palette.brassLight,
     ),
   );
 
@@ -226,7 +222,9 @@ abstract final class LowEndTheme {
           onSecondaryContainer: dark ? Palette.inkOnDark : Palette.inkOnLight,
           secondary: chord,
           onSecondary: _readableOn(chord),
-          outline: tint(0.75),
+          // Borders, and the lit beats and the tuner's segments: 3 : 1 on the
+          // disc, which in light takes more of the accent.
+          outline: tint(dark ? 0.75 : 0.9),
           outlineVariant: tint(0.26),
           onSurfaceVariant: Color.lerp(
             dark ? Palette.inkOnDarkMuted : Palette.inkOnLightMuted,
@@ -236,7 +234,9 @@ abstract final class LowEndTheme {
         ),
         extra.copyWith(
           strobeBackground: tint(0.1),
-          downbeat: dark ? spec.downbeatDark : spec.downbeatLight,
+          // The "one" is the accent at full strength, drawn thicker; the
+          // other beats are the accent too, a step softer.
+          downbeat: accent,
         ),
       );
     }();
@@ -252,20 +252,14 @@ abstract final class LowEndTheme {
     AppSection.metronome: _Accent(
       light: Color(0xFF8A6508),
       dark: Color(0xFFE3B84A),
-      downbeatLight: Color(0xFF4A3503),
-      downbeatDark: Color(0xFFFFF3D0),
     ),
     AppSection.drone: _Accent(
       light: Color(0xFF8A4A33),
       dark: Color(0xFFD88F6E),
-      downbeatLight: Color(0xFF4A2314),
-      downbeatDark: Color(0xFFFFE8DD),
     ),
     AppSection.tuner: _Accent(
       light: Color(0xFF5E6B7A),
       dark: Color(0xFFB4C0CF),
-      downbeatLight: Color(0xFF2C3540),
-      downbeatDark: Color(0xFFF1F5FA),
     ),
   };
 
@@ -327,6 +321,9 @@ abstract final class LowEndTheme {
         style: SegmentedButton.styleFrom(
           selectedBackgroundColor: scheme.primaryContainer,
           selectedForegroundColor: scheme.onPrimaryContainer,
+          // The choices not taken in the muted ink: the colour marks the one
+          // that is.
+          foregroundColor: scheme.onSurfaceVariant,
         ),
       ),
       chipTheme: ChipThemeData(
@@ -344,20 +341,12 @@ abstract final class LowEndTheme {
   }
 }
 
-/// The accent of one tab, flat, in light and dark, and the shade of the
-/// metronome's first beat that goes with it.
+/// The accent of one tab, flat, in light and dark.
 class _Accent {
-  const _Accent({
-    required this.light,
-    required this.dark,
-    required this.downbeatLight,
-    required this.downbeatDark,
-  });
+  const _Accent({required this.light, required this.dark});
 
   final Color light;
   final Color dark;
-  final Color downbeatLight;
-  final Color downbeatDark;
 }
 
 /// The dark or the light ink, whichever reads better on [background].

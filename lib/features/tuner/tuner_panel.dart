@@ -426,10 +426,12 @@ class _StrobeDiscState extends State<_StrobeDisc>
     final r = widget.reading;
     // The segments stay the tuner's own colour (silver) whatever the pitch:
     // the verdict is told by the note, its words and its arrow, and by the
-    // direction the segments turn.
+    // direction the segments turn. A step softer than the full silver, so
+    // that the ring, with its many segments, weighs no more than the other
+    // tabs' and the note leads.
     final segments = r == null || widget.held
         ? theme.colorScheme.outlineVariant
-        : theme.colorScheme.primary;
+        : theme.colorScheme.outline;
     return Stack(
       fit: StackFit.expand,
       children: [

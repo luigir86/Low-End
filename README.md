@@ -82,7 +82,7 @@ store/                      Google Play listing: texts, graphics, checklist
 docs/                       user guide, architecture, offline check, assistant actions
 ```
 
-All colours, shapes and text styles live in `lib/app/theme.dart` (wood palette with Pantone Mocha Mousse).
+All colours, shapes and text styles live in `lib/app/theme.dart` (the Orchestra: brass, rosewood and silver tabs on a neutral ground; see [docs/tema-orchestra.md](docs/tema-orchestra.md)).
 
 ## Run it
 

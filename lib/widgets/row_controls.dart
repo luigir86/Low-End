@@ -116,8 +116,9 @@ TextStyle? rowChipStyle(BuildContext context, {Color? color}) =>
     );
 
 /// The button at the end of the row (the pencil, the sound options): boxed
-/// like the chips beside it, with its icon in the primary colour, so that the
-/// row is a line of equal blocks. The gap before it is its own.
+/// like the chips beside it, with its icon in the ink of their text (the
+/// borders carry the tab's colour), so that the row is a line of equal
+/// blocks. The gap before it is its own.
 class RowIconButton extends StatelessWidget {
   const RowIconButton({
     super.key,
@@ -134,7 +135,11 @@ class RowIconButton extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsetsDirectional.only(start: 4),
     child: RowChip(
-      label: Icon(icon, size: 24, color: Theme.of(context).colorScheme.primary),
+      label: Icon(
+        icon,
+        size: 24,
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
       tooltip: tooltip,
       onPressed: onPressed,
     ),

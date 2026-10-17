@@ -190,17 +190,22 @@ class DialLayout extends StatelessWidget {
             constraints.maxHeight - _controlsRoom,
           ),
         );
-        // Where the block would start if it were centred with every row at its
-        // minimum height: the dial stays there even when a row grows (the
-        // tuner's messages), so the three dials never move between tabs.
+        // The room left with every row at its minimum height, shared out the
+        // same on every tab, so the three dials never move between tabs and
+        // stay put when a row grows (the tuner's messages): a little stays
+        // under the rows for that, some goes between the dial and the rows,
+        // which sit lower, nearer the thumb and with no empty band above the
+        // tabs, and the rest goes above the dial.
         final block = size + _dialGap + 3 * rowHeight;
-        final top = math.max(0.0, (constraints.maxHeight - 32 - block) / 2);
+        final free = math.max(0.0, constraints.maxHeight - 32 - block);
+        final slack = math.min(free * 0.2, 32.0);
+        final gap = math.min(free * 0.4, 48.0);
+        final top = free - slack - gap;
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: ConstrainedBox(
-            // The dial and the rows sit as one block, centred in the height
-            // for rows at their minimum height, the same on every tab, and the
-            // screen scrolls when they do not fit (very large text).
+            // The dial and the rows sit in the same place on every tab, and
+            // the screen scrolls when they do not fit (very large text).
             constraints: BoxConstraints(
               minHeight: math.max(0, constraints.maxHeight - 32),
             ),
@@ -209,7 +214,7 @@ class DialLayout extends StatelessWidget {
               children: [
                 SizedBox(height: top),
                 SizedBox.square(key: dialKey, dimension: size, child: dial),
-                const SizedBox(height: _dialGap),
+                SizedBox(height: _dialGap + gap),
                 for (final row in [upper, lower, footer])
                   ConstrainedBox(
                     constraints: const BoxConstraints(

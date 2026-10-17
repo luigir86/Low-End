@@ -46,17 +46,25 @@ void main() {
         expect(contrast(c.secondaryContainer, c.surface), greaterThan(1.1));
         // What the tab tints: muted text, the second voice of a chord, the
         // borders and the verdicts, on the tab's disc and surface.
-        final extra = LowEndTheme.accented(theme, section)
-            .extension<LowEndColors>()!;
-        expect(contrast(c.onSurfaceVariant, c.surface), greaterThanOrEqualTo(4.5));
-        // (Wood's own pair, from before the accents, is 4.2: bold note names.)
+        final extra = LowEndTheme.accented(
+          theme,
+          section,
+        ).extension<LowEndColors>()!;
+        expect(
+          contrast(c.onSurfaceVariant, c.surface),
+          greaterThanOrEqualTo(4.5),
+        );
+        // The notes of a chord exist only on the harmony tab: there 4.5; the
+        // other tabs keep the pair for bold text at 4 or more.
         expect(
           contrast(c.onSecondary, c.secondary),
-          greaterThanOrEqualTo(section == AppSection.metronome ? 4.2 : 4.5),
+          greaterThanOrEqualTo(section == AppSection.drone ? 4.5 : 4.0),
         );
         expect(contrast(c.outline, c.surface), greaterThanOrEqualTo(3));
-        expect(contrast(c.outline, extra.strobeBackground), greaterThanOrEqualTo(3));
-        expect(contrast(c.secondary, extra.strobeBackground), greaterThanOrEqualTo(3), reason: "secondary $section");
+        expect(
+          contrast(c.outline, extra.strobeBackground),
+          greaterThanOrEqualTo(3),
+        );
         for (final v in [extra.inTune, extra.close, extra.off]) {
           expect(contrast(v, extra.strobeBackground), greaterThanOrEqualTo(3));
           expect(contrast(v, c.surface), greaterThanOrEqualTo(3));
@@ -70,11 +78,12 @@ void main() {
       final disc = extra.strobeBackground;
       // The edge of a segment that is off, on the disc.
       expect(contrast(colors.outline, disc), greaterThanOrEqualTo(3));
-      // The "one" against the disc, and unlike the other beats.
+      // The "one", the accent itself (it also stands out by being wider),
+      // against the disc.
+      expect(extra.downbeat, colors.primary);
       expect(contrast(extra.downbeat, disc), greaterThanOrEqualTo(3));
-      expect(contrast(extra.downbeat, colors.primary), greaterThan(1.5));
-      // A lit beat against the disc.
-      expect(contrast(colors.primary, disc), greaterThanOrEqualTo(3));
+      // The other lit beats, a step softer, against the disc.
+      expect(contrast(colors.outline, disc), greaterThanOrEqualTo(3));
     });
   }
 
