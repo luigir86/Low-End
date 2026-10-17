@@ -181,7 +181,8 @@ class _BeatRingState extends State<_BeatRing>
       label: playing ? l10n.metronomeStop : l10n.metronomeStart,
       value:
           '${l10n.bpmValue('${metronome.bpm}')}, '
-          '${beatUnitName(l10n, metronome.signature.beatUnit)}',
+          '${beatUnitName(l10n, metronome.signature.beatUnit)}, '
+          '${tempoMark(metronome.signature, metronome.bpm)}',
       excludeSemantics: true,
       child: Material(
         type: MaterialType.transparency,
@@ -344,8 +345,8 @@ class _Hub extends StatelessWidget {
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),
-        // What touching does, or the figure the tempo counts: "♩ BPM",
-        // "♩. BPM · ♪ = 180" in 6/8.
+        // What touching does, or the figure the tempo counts and its name:
+        // "♩ Andante", "♩. Allegro · ♪ = 180" in 6/8.
         if (!waiting)
           Text(
             playing
@@ -361,13 +362,40 @@ class _Hub extends StatelessWidget {
   }
 }
 
-/// What the tempo counts, under its number: "♩ BPM", "♪ BPM" in 7/8, and
-/// in the compound bars "♩. BPM · ♪ = 180", the eighths too.
+/// What the tempo counts and how fast it is, under its number: "♩ Andante",
+/// "♪ Allegro" in 7/8 and in the compound bars "♩. Allegro · ♪ = 180", the
+/// eighths too.
 String tempoUnitCaption(TimeSignature signature, int bpm) {
-  final caption = '${signature.beatUnit.symbol} BPM';
+  final caption = '${signature.beatUnit.symbol} ${tempoMark(signature, bpm)}';
   if (!signature.compound) return caption;
   return '$caption · ${BeatUnit.eighth.symbol} = '
       '${bpm * signature.pulsesPerBeat}';
+}
+
+/// The Italian name of the tempo, the same in every language, for [bpm]
+/// counted in the beat of [signature]. The limits are in quarter notes per
+/// minute, so a dotted quarter or an eighth is first turned into quarters.
+String tempoMark(TimeSignature signature, int bpm) {
+  final quarters = switch (signature.beatUnit) {
+    BeatUnit.quarter => bpm.toDouble(),
+    BeatUnit.dottedQuarter => bpm * 1.5,
+    BeatUnit.eighth => bpm / 2,
+  };
+  const limits = [
+    (40, 'Grave'),
+    (60, 'Largo'),
+    (66, 'Larghetto'),
+    (76, 'Adagio'),
+    (108, 'Andante'),
+    (120, 'Moderato'),
+    (156, 'Allegro'),
+    (176, 'Vivace'),
+    (200, 'Presto'),
+  ];
+  for (final (limit, name) in limits) {
+    if (quarters < limit) return name;
+  }
+  return 'Prestissimo';
 }
 
 /// The figure the tempo counts, for screen readers.

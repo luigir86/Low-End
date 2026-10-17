@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 /// Small dot that pulses gently, shown on a tab whose section is playing.
 class PulsingDot extends StatefulWidget {
-  const PulsingDot({super.key, this.size = 11});
+  const PulsingDot({super.key, this.size = 14});
 
   final double size;
 
@@ -38,9 +38,9 @@ class _PulsingDotState extends State<PulsingDot> {
         final phase =
             (_clock.elapsedMicroseconds % _period.inMicroseconds) /
             _period.inMicroseconds;
-        // Up and down between 0.55 and 1: the dot must stay easy to see.
+        // Up and down between 0.7 and 1: the dot must stay easy to see.
         final wave = phase < 0.5 ? phase * 2 : 2 - phase * 2;
-        _opacity.value = 0.55 + 0.45 * Curves.linear.transform(wave);
+        _opacity.value = 0.7 + 0.3 * Curves.linear.transform(wave);
       });
     }
   }
@@ -96,7 +96,7 @@ class ActivityIcon extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Icon(active ? (activeIcon ?? icon) : icon),
-        if (active) const Positioned(top: -3, right: -5, child: PulsingDot()),
+        if (active) const Positioned(top: -5, right: -7, child: PulsingDot()),
       ],
     );
   }

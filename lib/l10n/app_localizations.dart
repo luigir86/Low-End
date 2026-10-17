@@ -401,8 +401,14 @@ abstract class AppLocalizations {
   /// No description provided for @chordSeventh.
   ///
   /// In en, this message translates to:
-  /// **'7'**
+  /// **'Dominant 7th'**
   String get chordSeventh;
+
+  /// The half-diminished seventh chord (m7♭5) in the middle of the drone dial.
+  ///
+  /// In en, this message translates to:
+  /// **'{note} half-diminished'**
+  String droneChordHalfDiminished(String note);
 
   /// The chord in the middle of the drone dial, such as A major.
   ///
@@ -697,6 +703,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Octave of the root'**
   String get octaveLabel;
+
+  /// No description provided for @octaveSpeakerNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Low notes are faint on the phone’s own speaker: use headphones or a speaker, or pick the highest octave.'**
+  String get octaveSpeakerNote;
+
+  /// No description provided for @swipeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe up or down over the dial or the tabs to change section.'**
+  String get swipeHint;
+
+  /// No description provided for @gesturesLockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock the gestures'**
+  String get gesturesLockedTitle;
+
+  /// No description provided for @gesturesLockedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'For rehearsals: no swiping between sections and no holding a tab, only taps'**
+  String get gesturesLockedSubtitle;
+
+  /// No description provided for @inTuneZoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuner: in tune within'**
+  String get inTuneZoneTitle;
+
+  /// No description provided for @inTuneZoneSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How far off a note can be and still show as in tune'**
+  String get inTuneZoneSubtitle;
 
   /// No description provided for @shapeLabel.
   ///

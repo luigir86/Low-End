@@ -8,7 +8,7 @@ Low End is a metronome, a piano harmony section and a tuner in one app. It was m
 
 The tabs at the bottom (on the left when the phone is sideways) are **Metronome**, **Harmony** and **Tuner**. The app opens on the metronome.
 
-- **Swipe** left or right to change section. With the phone turned sideways the tabs move to a column on the left and the settings gear stays top right: **swipe up or down** over the dial or the tabs (not over the rows on the right, which may scroll) to change section.
+- **Swipe** left or right to change section. With the phone turned sideways the tabs move to a column on the left and the settings gear stays top right: **swipe up or down** over the dial or the tabs (not over the rows on the right, which may scroll) to change section. It has to be a quick flick: a slow drag does nothing. The first time you turn the phone sideways a short hint says so. For rehearsals, **Lock the gestures** in the settings turns off the swipes and the hold on a tab, so that only taps are left.
 - **Touch the tab you are on** to start or stop its sound, like the middle of its dial. **Hold another tab** to start or stop that section's sound from anywhere (the metronome, or the harmony).
 - A **pulsing dot** on a tab says that section is making sound: the metronome and the harmony while they play, the tuner while it listens.
 - The first time you open the app a short **gesture guide** appears. It is also in *Settings → Gestures and shortcuts*.
@@ -18,7 +18,7 @@ The volume is the phone's: use its volume keys. The slider at the bottom of the 
 ## Metronome
 
 - **Start and stop**: touch the ring or the number in the middle. The ring lights up beat by beat, with the first beat marked, and a short, dry click keeps the time, a little higher on the first beat.
-- **Tempo**: from 30 to 250 BPM. Touch the pencil to type it; touch **+** or **−** to move by one, or hold them to move in steps of 5 and 10; or tap **TAP** (the coloured button) in the rhythm you want.
+- **Tempo**: from 30 to 250 BPM, with its Italian name (Largo, Andante, Allegro…) under the number while it plays. Touch the pencil to type it; touch **+** or **−** to move by one, or hold them to move in steps of 5 and 10; or tap **TAP** (the coloured button) in the rhythm you want.
 - **Straight / Swing**: how the beat is played. Swing adds a soft skip note after beats 2 and 4 (long, short), like a jazz ride. The piano of the Harmony tab follows: in the *every beat* and *arpeggio* styles it plays the skip notes too, in time with the click. In the bars counted in eighths (6/8, 7/8, 9/8, 12/8) it is always straight.
 - The tempo, the time signature and the feel are kept when you close the app.
 - **Time signature**: the box with "4/4" in it (no title: touch it to choose). 1/1 (one click per bar, to keep a tempo without counting), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8. In 6/8, 9/8 and 12/8 the tempo counts dotted quarter notes (♩.), the way you conduct them; in 7/8 it counts eighths.
@@ -37,7 +37,7 @@ Twelve keys round a dial (by default in the circle of fifths; you can ask for se
 
 ## Tuner
 
-- The tuner listens by itself when you open the section (the first time Android asks for the **microphone**). Play a note: its name appears in the middle of the round strobe. The rings of the strobe turn anticlockwise when the note is **flat** and clockwise when it is **sharp**, faster the further off you are, and stand still when you are **in tune** (within 5 cents). The words *Flat*, *In tune* and *Sharp* and the number of cents are written too, and a screen reader reads them out.
+- The tuner listens by itself when you open the section (the first time Android asks for the **microphone**). Play a note: its name appears in the middle of the round strobe. The rings of the strobe turn anticlockwise when the note is **flat** and clockwise when it is **sharp**, faster the further off you are, and stand still when you are **in tune** (within 5 cents by default; the settings offer 2 or 10), under the dial a straight scale shows the same thing by position, and a note that is only being held after the string stopped fades. The words *Flat*, *In tune* and *Sharp* and the number of cents are written too, and a screen reader reads them out.
 - The reference A is under the dial: **−** and **+** step through the pitches, and the pencil chooses one of the standard ones (415, 432, 440, 442 Hz).
 - It hears notes from 28 Hz to 700 Hz, and it names any note, with no string to choose first.
 - **Listen / Pause**: touch the middle of the dial to pause it whenever you want; it stays paused until you touch it again.

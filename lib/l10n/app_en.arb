@@ -113,7 +113,16 @@
   "chordLabel": "Chord",
   "chordMajor": "Major",
   "chordMinor": "Minor",
-  "chordSeventh": "7",
+  "chordSeventh": "Dominant 7th",
+  "droneChordHalfDiminished": "{note} half-diminished",
+  "@droneChordHalfDiminished": {
+    "description": "The half-diminished seventh chord (m7♭5) in the middle of the drone dial.",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
   "droneChordMajor": "{note} major",
   "@droneChordMajor": {
     "description": "The chord in the middle of the drone dial, such as A major.",
@@ -199,6 +208,12 @@
   "setTempo": "Type the tempo",
   "optionsLabel": "Sound options",
   "octaveLabel": "Octave of the root",
+  "octaveSpeakerNote": "Low notes are faint on the phone’s own speaker: use headphones or a speaker, or pick the highest octave.",
+  "swipeHint": "Swipe up or down over the dial or the tabs to change section.",
+  "gesturesLockedTitle": "Lock the gestures",
+  "gesturesLockedSubtitle": "For rehearsals: no swiping between sections and no holding a tab, only taps",
+  "inTuneZoneTitle": "Tuner: in tune within",
+  "inTuneZoneSubtitle": "How far off a note can be and still show as in tune",
   "shapeLabel": "Chord position",
   "shapeStacked": "Stacked",
   "shapeClose": "Close",

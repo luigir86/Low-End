@@ -178,7 +178,12 @@ class AppLocalizationsIt extends AppLocalizations {
   String get chordMinor => 'Minore';
 
   @override
-  String get chordSeventh => '7';
+  String get chordSeventh => 'Settima di dominante';
+
+  @override
+  String droneChordHalfDiminished(String note) {
+    return '$note semidiminuito';
+  }
 
   @override
   String droneChordMajor(String note) {
@@ -342,6 +347,28 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get octaveLabel => 'Ottava della fondamentale';
+
+  @override
+  String get octaveSpeakerNote =>
+      'Le note gravi si sentono poco dall’altoparlante del telefono: usa le cuffie o una cassa, oppure scegli l’ottava più alta.';
+
+  @override
+  String get swipeHint =>
+      'Scorri in alto o in basso sul cerchio o sui tab per cambiare sezione.';
+
+  @override
+  String get gesturesLockedTitle => 'Blocca i gesti';
+
+  @override
+  String get gesturesLockedSubtitle =>
+      'Per le prove: niente scorrimenti tra le sezioni né pressione lunga sui tab, solo tocchi';
+
+  @override
+  String get inTuneZoneTitle => 'Accordatore: intonato entro';
+
+  @override
+  String get inTuneZoneSubtitle =>
+      'Quanto può scostarsi una nota e risultare ancora intonata';
 
   @override
   String get shapeLabel => 'Posizione dell\'accordo';

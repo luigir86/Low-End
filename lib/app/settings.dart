@@ -46,6 +46,10 @@ class AppSettings extends ChangeNotifier {
         CircleLayout.fifths;
     _keepScreenOn = _read<bool>(prefs, _keepScreenOnKey) ?? true;
     _seenGuide = _read<bool>(prefs, _seenGuideKey) ?? false;
+    _gesturesLocked = _read<bool>(prefs, _gesturesLockedKey) ?? false;
+    _seenSwipeHint = _read<bool>(prefs, _seenSwipeHintKey) ?? false;
+    final tolerance = _read<num>(prefs, _inTuneKey)?.toDouble();
+    _inTuneCents = inTuneChoices.contains(tolerance) ? tolerance! : 5;
     final label = _read<String>(prefs, _signatureKey);
     _signature = TimeSignature.all.firstWhere(
       (s) => s.label == label,
@@ -75,6 +79,13 @@ class AppSettings extends ChangeNotifier {
   static const _themeKey = 'theme';
   static const _keepScreenOnKey = 'keep_screen_on';
   static const _seenGuideKey = 'seen_guide';
+  static const _gesturesLockedKey = 'gestures_locked';
+  static const _seenSwipeHintKey = 'seen_swipe_hint';
+  static const _inTuneKey = 'in_tune_cents';
+
+  /// The widths of the "in tune" zone the player can choose, in cents on
+  /// each side of the note.
+  static const inTuneChoices = [2.0, 5.0, 10.0];
   static const _circleLayoutKey = 'circle_layout';
   static const _bpmKey = 'metronome_bpm';
   static const _signatureKey = 'time_signature';
@@ -157,6 +168,46 @@ class AppSettings extends ChangeNotifier {
     if (_seenGuide) return;
     _seenGuide = true;
     _save(_prefs?.setBool(_seenGuideKey, true));
+  }
+
+  // Unsaved settings (tests) have nothing to teach here either.
+  bool _seenSwipeHint = true;
+
+  /// Whether the hint to swipe between sections, shown the first time the
+  /// phone is turned sideways, has been shown.
+  bool get seenSwipeHint => _seenSwipeHint;
+
+  void markSwipeHintSeen() {
+    if (_seenSwipeHint) return;
+    _seenSwipeHint = true;
+    _save(_prefs?.setBool(_seenSwipeHintKey, true));
+  }
+
+  var _gesturesLocked = false;
+
+  /// Whether the swipes between sections and the hold on a tab are turned
+  /// off, for a rehearsal: only taps are left, so nothing changes by
+  /// accident with a bow in the hand.
+  bool get gesturesLocked => _gesturesLocked;
+
+  void setGesturesLocked(bool value) {
+    if (value == _gesturesLocked) return;
+    _gesturesLocked = value;
+    _save(_prefs?.setBool(_gesturesLockedKey, value));
+    notifyListeners();
+  }
+
+  var _inTuneCents = 5.0;
+
+  /// How many cents either side of a note still count as in tune.
+  double get inTuneCents => _inTuneCents;
+
+  void setInTuneCents(double cents) {
+    assert(inTuneChoices.contains(cents));
+    if (cents == _inTuneCents) return;
+    _inTuneCents = cents;
+    _save(_prefs?.setDouble(_inTuneKey, cents));
+    notifyListeners();
   }
 
   /// Light, dark, or the phone's own setting: dark can be forced on a dark

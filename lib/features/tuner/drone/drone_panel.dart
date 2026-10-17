@@ -327,37 +327,52 @@ class _NoteKey extends StatelessWidget {
           child: Center(
             child: FittedBox(
               child: Padding(
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(2),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // The function in the progression, small and still.
-                    if (degree != null)
-                      Text(
-                        degree!,
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: playing
-                              ? colors.onPrimary
-                              : inChord
-                              ? colors.onSecondary
-                              : colors.onSurfaceVariant,
-                          fontWeight: FontWeight.w700,
+                    // The function in the progression, small and still, on
+                    // the line of the note: a line of its own made the label
+                    // taller than the key on a narrow phone.
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        if (degree != null) ...[
+                          Text(
+                            degree!,
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: playing
+                                  ? colors.onPrimary
+                                  : inChord
+                                  ? colors.onSecondary
+                                  : colors.onSurfaceVariant,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(width: 3),
+                        ],
+                        Text(
+                          name,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: playing
+                                ? colors.onPrimary
+                                : inChord
+                                ? colors.onSecondary
+                                : outOfKey
+                                ? colors.onSurfaceVariant.withValues(
+                                    alpha: 0.55,
+                                  )
+                                : colors.onSurface,
+                            // Bold for the root, so it stands out by more
+                            // than colour alone.
+                            fontWeight: playing
+                                ? FontWeight.w800
+                                : FontWeight.w500,
+                          ),
                         ),
-                      ),
-                    Text(
-                      name,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: playing
-                            ? colors.onPrimary
-                            : inChord
-                            ? colors.onSecondary
-                            : outOfKey
-                            ? colors.onSurfaceVariant.withValues(alpha: 0.55)
-                            : colors.onSurface,
-                        // Bold for the root, so it stands out by more than
-                        // colour alone.
-                        fontWeight: playing ? FontWeight.w800 : FontWeight.w500,
-                      ),
+                      ],
                     ),
                     // The other way to write it, small: F♯ over G♭.
                     if (respelling != null)
@@ -506,7 +521,7 @@ String chordSymbol(AppLocalizations l10n, DroneChord chord, String note) {
       ChordQuality.major => '${note}maj7',
       ChordQuality.minor => '${note}m7',
       ChordQuality.dominant => l10n.droneChordSeventh(note),
-      ChordQuality.halfDiminished => '${note}m7♭5',
+      ChordQuality.halfDiminished => l10n.droneChordHalfDiminished(note),
     };
   }
   return switch (chord.quality) {
@@ -831,6 +846,18 @@ class _Options extends StatelessWidget {
             ),
           ),
         ),
+        // The phone's speaker hardly plays the low octaves: say so where the
+        // octave is chosen, not only in a code comment.
+        if (drone.octave < DroneController.octaves.last)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Text(
+              l10n.octaveSpeakerNote,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
         if (drone.hasPiano) ...[
           if (chords) ...[
             heading(l10n.shapeLabel),

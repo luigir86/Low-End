@@ -140,6 +140,31 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
               const Divider(),
+              SwitchListTile(
+                value: settings.gesturesLocked,
+                onChanged: settings.setGesturesLocked,
+                title: Text(l10n.gesturesLockedTitle),
+                subtitle: Text(l10n.gesturesLockedSubtitle),
+              ),
+              ListTile(
+                title: Text(l10n.inTuneZoneTitle),
+                subtitle: Text(l10n.inTuneZoneSubtitle),
+                trailing: Semantics(
+                  label: l10n.inTuneZoneTitle,
+                  child: DropdownButton<double>(
+                    value: settings.inTuneCents,
+                    items: [
+                      for (final cents in AppSettings.inTuneChoices)
+                        DropdownMenuItem(
+                          value: cents,
+                          child: Text(l10n.centsValue('±${cents.round()}')),
+                        ),
+                    ],
+                    onChanged: (cents) => settings.setInTuneCents(cents!),
+                  ),
+                ),
+              ),
+              const Divider(),
               _Section(title: l10n.thanksTitle),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
