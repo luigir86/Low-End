@@ -53,6 +53,16 @@ Wood. Light: maple surfaces, walnut text and primary. Dark: ebony surfaces, a li
 
 All text and shapes keep at least 4.5:1 / 3:1 contrast (`theme_test.dart`, `accessibility_test.dart`).
 
+## Landscape
+
+When the screen is wider than tall (`DialLayout.isLandscape`) the same pieces are laid out in a row: **tab rail | dial | column of the three rows**. The portrait layout does not change.
+
+- **Rail**: on the left, inside the safe areas, an icon above its name (`labelMedium`, 13 sp, 88 dp wide), the same three tabs, the same dot, the same hold-to-toggle as the bottom bar.
+- **Dial**: nearly the whole height (height − 56, at most 420), next to the rail, so it is not centred on the screen. It gets smaller (down to 160) on narrow phones to leave the column its minimum width, `DialLayout.columnMinWidth` (320).
+- **Column**: the three rows of `DialLayout.rowHeight` (80), no space between them, at the same place on every tab (the tuner fills only the second); it scrolls with large text. The **settings gear** is above it, top right.
+- **Swipe**: up or down on the dial or the rail changes section (up: the next one), like a vertical page view; not on the column of rows, and not from the top or bottom 32 dp of the screen (notification shade, home gesture). In portrait the swipe stays horizontal. See `FlipDetector`.
+- `dial_alignment_test.dart` and `test/review/` check this at 915 × 412, 640 × 360, 1280 × 800 and with large text.
+
 ## Dials
 
 The middle of a dial is its button: touching it starts or stops the metronome, the harmony, the tuner. What is written there is the state: the value (display), then one hint (caption) when stopped.

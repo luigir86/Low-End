@@ -746,6 +746,12 @@ abstract class AppLocalizations {
   /// **'Swipe left and right to change section.'**
   String get guideSwipe;
 
+  /// No description provided for @guideSwipeVertical.
+  ///
+  /// In en, this message translates to:
+  /// **'Turned sideways, swipe up and down over the dial or the tabs to change section.'**
+  String get guideSwipeVertical;
+
   /// No description provided for @guideHold.
   ///
   /// In en, this message translates to:

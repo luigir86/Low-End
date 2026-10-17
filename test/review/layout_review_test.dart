@@ -51,6 +51,16 @@ const _configs = [
   _Config('it_360x640_x1', lang: 'it'),
   // Landscape phone.
   _Config('it_640x360_x1.5', lang: 'it', scale: 1.5, size: Size(640, 360)),
+  _Config('en_915x412_x1', size: Size(915, 412)),
+  _Config(
+    'it_915x412_x2_dark',
+    lang: 'it',
+    scale: 2,
+    dark: true,
+    size: Size(915, 412),
+  ),
+  _Config('en_640x360_x2', scale: 2, size: Size(640, 360)),
+  _Config('en_1280x800_x1', size: Size(1280, 800)),
 ];
 
 class _H {

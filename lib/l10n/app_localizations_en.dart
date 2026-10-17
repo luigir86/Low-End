@@ -366,6 +366,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guideSwipe => 'Swipe left and right to change section.';
 
   @override
+  String get guideSwipeVertical =>
+      'Turned sideways, swipe up and down over the dial or the tabs to change section.';
+
+  @override
   String get guideHold =>
       'Hold a tab to start or stop its sound from any section.';
 

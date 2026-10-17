@@ -57,6 +57,10 @@ const _configs = [
   // 360x640 dp at the same density.
   _Config('it_small', lang: 'it', size: Size(945, 1680)),
   _Config('en_small_x1.5', scale: 1.5, size: Size(945, 1680)),
+  // Landscape, 915x412 dp and the narrow 640x360.
+  _Config('it_landscape_dark', lang: 'it', dark: true, size: Size(2400, 1080)),
+  _Config('en_landscape_x1.5', scale: 1.5, size: Size(2400, 1080)),
+  _Config('en_landscape_narrow', size: Size(1680, 945)),
 ];
 
 class _Harness {
@@ -116,7 +120,13 @@ class _Harness {
   String t(String en, String it) => config.it ? it : en;
 
   Future<void> tab(String en, String it) async {
-    await tester.tap(find.text(t(en, it)).last);
+    // In landscape the names are on the rail (the balance slider has them too).
+    final rail = find.byKey(const Key('tabRail'));
+    await tester.tap(
+      rail.evaluate().isEmpty
+          ? find.text(t(en, it)).last
+          : find.descendant(of: rail, matching: find.text(t(en, it))),
+    );
     await _settle();
   }
 

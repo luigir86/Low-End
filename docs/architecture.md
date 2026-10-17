@@ -25,7 +25,7 @@ Every outside thing sits behind an interface with a silent or fake twin (`ToneOu
 | Folder | What is there |
 | --- | --- |
 | `lib/main.dart` | Loads the settings, registers the font and piano licences, starts the app |
-| `lib/app/` | `LowEndApp` (themes, language, wiring), `HomeShell` (three tabs, swipe, hold to toggle), `AppSettings`, settings page, guide, about, theme, background audio, screen-awake |
+| `lib/app/` | `LowEndApp` (themes, language, wiring), `HomeShell` (three tabs, swipe, hold to toggle; the tabs are a bottom bar in portrait and a rail on the left in landscape, where a vertical flick on the dial or the rail changes section: `lib/widgets/flip_detector.dart`), `AppSettings`, settings page, guide, about, theme, background audio, screen-awake |
 | `lib/features/metronome/` | `MetronomeController` (tempo, time signature, beat position), the screen, the tempo dialog |
 | `lib/features/tuner/` | `TunerController` and `TunerPanel` (chromatic tuner with a round strobe); `TunerReading` turns a frequency into note and cents |
 | `lib/features/tuner/drone/` | The **Harmony** section (still called "drone" in the code and in the action names): `DroneController` (note, chord, progression, style, octave), `harmony.dart` (chords and progressions), the dial panel |
@@ -64,7 +64,7 @@ All colours are in `lib/app/theme.dart` (wood palette, light and dark), the font
 
 ## Tests
 
-`flutter test` runs everything (about 250 tests, around a minute): unit tests of the controllers, sound and pitch maths; widget tests of the screens; `accessibility_test.dart` (labels, touch targets, contrast); `startup_test.dart` (nothing heavy at launch); and `test/review/` (the layout matrix: English and Italian, light and dark, text scale up to 2×, phones down to 320×568 and landscape, with no overflow and the tab dots showing while something plays). The tests load Roboto and the Material icons from `test/fonts/`.
+`flutter test` runs everything (about 250 tests, around a minute): unit tests of the controllers, sound and pitch maths; widget tests of the screens; `accessibility_test.dart` (labels, touch targets, contrast); `startup_test.dart` (nothing heavy at launch); and `test/review/` (the layout matrix: English and Italian, light and dark, text scale up to 2×, phones down to 320×568 and landscape (915×412, 640×360, a tablet), with no overflow and the tab dots showing while something plays). The tests load Roboto and the Material icons from `test/fonts/`.
 
 `test_screenshots/ui_review_test.dart` renders every screen to PNG for visual review and for the Play Store screenshots:
 

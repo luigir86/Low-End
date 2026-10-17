@@ -370,6 +370,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get guideSwipe => 'Scorri a destra e a sinistra per cambiare sezione.';
 
   @override
+  String get guideSwipeVertical =>
+      'Con il telefono in orizzontale, scorri verso l\'alto o il basso sul cerchio o sulle schede per cambiare sezione.';
+
+  @override
   String get guideHold =>
       'Tieni premuto un tab per avviare o fermare il suo suono da qualsiasi sezione.';
 

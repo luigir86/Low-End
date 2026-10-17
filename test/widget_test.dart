@@ -16,6 +16,7 @@ import 'package:low_end/audio/piano_output.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/widgets/balance_slider.dart';
+import 'package:low_end/widgets/dial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:low_end/widgets/pulsing_dot.dart';
 
@@ -30,10 +31,25 @@ final _metronomeTab = find.descendant(
   matching: find.text('Metronome'),
 );
 
+/// The test window is 800 x 600, a landscape one: these tests are about the
+/// bottom bar and the horizontal swipe, so they open a phone held upright.
+void _portrait(WidgetTester tester) {
+  tester.view.physicalSize = const Size(1080, 2400);
+  tester.view.devicePixelRatio = 2.625;
+  addTearDown(tester.view.reset);
+}
+
+/// A tab's name on the rail, not the same word under the balance slider.
+Finder _railTab(String name) => find.descendant(
+  of: find.byKey(const Key('tabRail')),
+  matching: find.text(name),
+);
+
 void main() {
   testWidgets('shows the three main sections and switches between them', (
     tester,
   ) async {
+    _portrait(tester);
     await tester.pumpWidget(
       LowEndApp(toneOutput: SilentToneOutput(), micInput: FakeMicInput()),
     );
@@ -81,6 +97,7 @@ void main() {
   });
 
   testWidgets('swiping moves between the sections', (tester) async {
+    _portrait(tester);
     await tester.pumpWidget(
       LowEndApp(toneOutput: SilentToneOutput(), micInput: FakeMicInput()),
     );
@@ -100,7 +117,99 @@ void main() {
     expect(scope.navigation.section, AppSection.drone);
   });
 
+  group('in landscape', () {
+    Future<AudioScope> open(WidgetTester tester) async {
+      tester.view.physicalSize = const Size(2400, 1080);
+      tester.view.devicePixelRatio = 2.625;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        LowEndApp(toneOutput: SilentToneOutput(), micInput: FakeMicInput()),
+      );
+      await tester.pumpAndSettle();
+      return AudioScope.of(tester.element(find.byType(HomeShell)));
+    }
+
+    testWidgets('the tabs are a column on the left, settings top right', (
+      tester,
+    ) async {
+      await open(tester);
+      expect(find.byType(NavigationBar), findsNothing);
+      final metronome = tester.getRect(_railTab('Metronome'));
+      final harmony = tester.getRect(_railTab('Harmony'));
+      final tuner = tester.getRect(_railTab('Tuner'));
+      expect(metronome.left, lessThan(80));
+      expect(harmony.top, greaterThan(metronome.bottom));
+      expect(tuner.top, greaterThan(harmony.bottom));
+      final size = tester.view.physicalSize / tester.view.devicePixelRatio;
+      final gear = tester.getRect(find.byIcon(Icons.settings_outlined));
+      expect(gear.right, greaterThan(size.width - 60));
+      expect(gear.top, lessThan(16));
+      // The dial is beside the rail, the rows to its right.
+      final dial = tester.getRect(find.byKey(DialLayout.dialKey).first);
+      expect(dial.left, lessThan(150));
+      expect(dial.height, greaterThan(300));
+      expect(tester.getRect(find.text('TAP')).left, greaterThan(dial.right));
+    });
+
+    testWidgets('a vertical swipe on the dial or the rail changes section', (
+      tester,
+    ) async {
+      final scope = await open(tester);
+      final dial = tester.getCenter(find.byKey(DialLayout.dialKey).first);
+      await tester.dragFrom(dial, const Offset(0, -150));
+      await tester.pumpAndSettle();
+      expect(scope.navigation.section, AppSection.drone);
+      await tester.dragFrom(
+        tester.getCenter(_railTab('Harmony')),
+        const Offset(0, -150),
+      );
+      await tester.pumpAndSettle();
+      expect(scope.navigation.section, AppSection.tuner);
+      // Down goes back; past the first or last, nothing happens.
+      await tester.dragFrom(
+        tester.getCenter(_railTab('Harmony')),
+        const Offset(0, 150),
+      );
+      await tester.pumpAndSettle();
+      expect(scope.navigation.section, AppSection.drone);
+    });
+
+    testWidgets('not on the rows, nor from the edge of the screen', (
+      tester,
+    ) async {
+      final scope = await open(tester);
+      await tester.dragFrom(
+        tester.getCenter(find.text('TAP')),
+        const Offset(0, -150),
+      );
+      await tester.pumpAndSettle();
+      expect(scope.navigation.section, AppSection.metronome);
+      final dial = tester.getCenter(find.byKey(DialLayout.dialKey).first);
+      await tester.dragFrom(Offset(dial.dx, 8), const Offset(0, 150));
+      await tester.pumpAndSettle();
+      await tester.dragFrom(Offset(dial.dx, 8), const Offset(0, -150));
+      await tester.pumpAndSettle();
+      expect(scope.navigation.section, AppSection.metronome);
+    });
+
+    testWidgets('a tap on the rail goes to the section, holding plays', (
+      tester,
+    ) async {
+      final scope = await open(tester);
+      await tester.longPress(_railTab('Metronome'));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(scope.metronome.isPlaying, isTrue);
+      await tester.longPress(_railTab('Metronome'));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(scope.metronome.isPlaying, isFalse);
+      await tester.tap(_railTab('Tuner'));
+      await tester.pumpAndSettle();
+      expect(scope.navigation.section, AppSection.tuner);
+    });
+  });
+
   testWidgets('holding a tab starts and stops its sound', (tester) async {
+    _portrait(tester);
     final tone = SilentToneOutput();
     final click = SilentClickOutput();
     await tester.pumpWidget(
@@ -124,6 +233,7 @@ void main() {
 
   testWidgets('drone and metronome play together, pause on the tuner with a '
       'notice, and start again only when asked', (tester) async {
+    _portrait(tester);
     final tone = SilentToneOutput();
     final click = SilentClickOutput();
     final mic = FakeMicInput();
@@ -258,6 +368,7 @@ void main() {
   testWidgets('holding a tab on the tuner does not start the sound', (
     tester,
   ) async {
+    _portrait(tester);
     final click = SilentClickOutput();
     final mic = FakeMicInput();
     await tester.pumpWidget(
