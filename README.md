@@ -16,7 +16,7 @@ The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens o
 
 - Tempo from 30 to 250 BPM: touch the number to type it, hold − or + to move in steps, or tap TAP.
 - Time signatures 1/1 (one click a bar), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8, with the beats grouped the way you count them.
-- A ring that lights up beat by beat (the downbeat marked) and the sound of a jazz drummer (recordings of a ride cymbal with its bell and the bass drum on the downbeat), in a straight, swing or shuffle feel, with the hi-hat on 2 and 4 in swing and a light snare on 2 and 4 in shuffle. The audio engine loops a whole bar, so the time stays steady.
+- A ring that lights up beat by beat (the downbeat marked) and a short, dry woodblock-like click (higher on the downbeat), in a straight or swing feel (a soft skip note after beats 2 and 4). The audio engine loops a whole bar, so the time stays steady.
 
 ### Harmony
 
@@ -48,7 +48,7 @@ With the screen off or the app in the background the metronome and the harmony k
 
 ## Thanks
 
-To the **Power Flower Orchestra of Fossano**, who inspired this app and put it to the test. The drum sounds are from the [Versilian Community Sample Library](https://github.com/sgossner/VCSL) (CC0).
+To the **Power Flower Orchestra of Fossano**, who inspired this app and put it to the test.
 
 ## Ideas for later
 

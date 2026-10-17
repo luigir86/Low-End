@@ -17,9 +17,9 @@ The volume is the phone's: use its volume keys. The slider at the bottom of the 
 
 ## Metronome
 
-- **Start and stop**: touch the ring or the number in the middle. The ring lights up beat by beat, with the first beat marked, and the sound of a jazz drummer keeps the time: a ride cymbal, with its bell and the bass drum on the first beat.
+- **Start and stop**: touch the ring or the number in the middle. The ring lights up beat by beat, with the first beat marked, and a short, dry click keeps the time, a little higher on the first beat.
 - **Tempo**: from 30 to 250 BPM. Touch the pencil to type it; touch **+** or **−** to move by one, or hold them to move in steps of 5 and 10; or tap **TAP** (the coloured button) in the rhythm you want.
-- **Straight / Swing / Shuffle**: how the beat is played. Swing adds the skip note after beats 2 and 4 (long, short) and the hi-hat on 2 and 4, like a jazz drummer; Shuffle plays every beat in two uneven halves, with a light snare on 2 and 4. The piano of the Harmony tab follows: in the *every beat* and *arpeggio* styles it plays the skip notes too, in time with the drums. In the bars counted in eighths (6/8, 7/8, 9/8, 12/8) it is always straight.
+- **Straight / Swing**: how the beat is played. Swing adds a soft skip note after beats 2 and 4 (long, short), like a jazz ride. The piano of the Harmony tab follows: in the *every beat* and *arpeggio* styles it plays the skip notes too, in time with the click. In the bars counted in eighths (6/8, 7/8, 9/8, 12/8) it is always straight.
 - The tempo, the time signature and the feel are kept when you close the app.
 - **Time signature**: the box with "4/4" in it (no title: touch it to choose). 1/1 (one click per bar, to keep a tempo without counting), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8. In 6/8, 9/8 and 12/8 the tempo counts dotted quarter notes (♩.), the way you conduct them; in 7/8 it counts eighths.
 - Changing the tempo or the time signature while it plays takes effect at once, without a gap.
@@ -59,7 +59,7 @@ The gear at the top opens the settings:
 | Keep the screen on | While something plays or the tuner listens |
 | Gestures and shortcuts | Shows the guide again |
 
-**About Low End** (at the bottom of the settings) shows the licence, the source-code link and, under *View licences*, the licences of everything the app is built with, fonts, piano and drum sounds included. Below the choices, **Thanks** is for the Power Flower Orchestra of Fossano, who inspired this app and put it to the test.
+**About Low End** (at the bottom of the settings) shows the licence, the source-code link and, under *View licences*, the licences of everything the app is built with, fonts and piano sounds included. Below the choices, **Thanks** is for the Power Flower Orchestra of Fossano, who inspired this app and put it to the test.
 
 ## Playing with the screen off
 

@@ -119,7 +119,7 @@ class DialGeometry {
 }
 
 /// Lays out a section around its dial, the same way on every tab: the dial
-/// at the top, then two rows of controls, each the same height and in the
+/// at the top, then three rows, each the same height (the balance slider's too) and in the
 /// same place whatever the section, so moving between tabs only what is
 /// inside them changes.
 class DialLayout extends StatelessWidget {
@@ -147,16 +147,18 @@ class DialLayout extends StatelessWidget {
   /// Largest dial, on tablets.
   static const _maxSize = 420.0;
 
-  /// Minimum heights of the two rows, and the room they take with their
-  /// spacing; with large text a row grows and the screen scrolls.
-  static const upperHeight = 96.0;
-  static const lowerHeight = 64.0;
-  static const footerHeight = 68.0;
-  static const _controlsRoom = upperHeight + lowerHeight + footerHeight + 88;
+  /// The height of each of the three rows, spacing included: the same for
+  /// all, the balance slider's row too, so that every tab is a dial and
+  /// three equal rows whatever is in them. With large text a row grows and
+  /// the screen scrolls.
+  static const rowHeight = 80.0;
+
+  /// Space between the dial and the first row.
+  static const _dialGap = 16.0;
+  static const _controlsRoom = 3 * rowHeight + _dialGap + 32;
 
   @override
   Widget build(BuildContext context) {
-    const gap = SizedBox(height: 16);
     return LayoutBuilder(
       builder: (context, constraints) {
         final size = math.max(
@@ -169,8 +171,7 @@ class DialLayout extends StatelessWidget {
         // Where the block would start if it were centred with every row at its
         // minimum height: the dial stays there even when a row grows (the
         // tuner's messages), so the three dials never move between tabs.
-        final block =
-            size + 24 + upperHeight + 16 + lowerHeight + 16 + footerHeight;
+        final block = size + _dialGap + 3 * rowHeight;
         final top = math.max(0.0, (constraints.maxHeight - 32 - block) / 2);
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -186,30 +187,15 @@ class DialLayout extends StatelessWidget {
               children: [
                 SizedBox(height: top),
                 SizedBox.square(dimension: size, child: dial),
-                const SizedBox(height: 24),
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: upperHeight,
-                    maxWidth: _maxSize,
+                const SizedBox(height: _dialGap),
+                for (final row in [upper, lower, footer])
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minHeight: rowHeight,
+                      maxWidth: _maxSize,
+                    ),
+                    child: Center(child: row),
                   ),
-                  child: Center(child: upper),
-                ),
-                gap,
-                ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minHeight: lowerHeight,
-                    maxWidth: _maxSize,
-                  ),
-                  child: Center(child: lower),
-                ),
-                gap,
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: footerHeight,
-                    maxWidth: _maxSize,
-                  ),
-                  child: Center(child: footer),
-                ),
               ],
             ),
           ),

@@ -44,19 +44,15 @@ void main() {
       of: layout,
       matching: find.byType(ConstrainedBox),
     );
-    final rows = <double, Rect>{};
+    final rows = <Rect>[];
     for (final e in boxes.evaluate()) {
       final box = e.renderObject! as RenderBox;
       final c = (e.widget as ConstrainedBox).constraints;
-      if (c.minHeight == DialLayout.upperHeight ||
-          c.minHeight == DialLayout.lowerHeight ||
-          c.minHeight == DialLayout.footerHeight) {
-        rows.putIfAbsent(
-          c.minHeight,
-          () => box.localToGlobal(Offset.zero) & box.size,
-        );
+      if (c.minHeight == DialLayout.rowHeight) {
+        rows.add(box.localToGlobal(Offset.zero) & box.size);
       }
     }
+    expect(rows, hasLength(3), reason: 'dial, then three rows');
     final dial = find.descendant(
       of: layout,
       matching: find.byWidgetPredicate(
@@ -64,12 +60,7 @@ void main() {
       ),
     );
     final d = tester.getRect(dial.first);
-    return [
-      d,
-      rows[DialLayout.upperHeight]!,
-      rows[DialLayout.lowerHeight]!,
-      rows[DialLayout.footerHeight]!,
-    ];
+    return [d, ...rows];
   }
 
   Future<List<List<Rect>>> allTabs(WidgetTester tester) async {
@@ -102,6 +93,19 @@ void main() {
       }
     });
   }
+
+  testWidgets('the three rows are equal, slider row included', (tester) async {
+    await open(tester, const Size(390, 844), 1.0);
+    for (final g in await allTabs(tester)) {
+      // The same height and no space between them, whatever is in them:
+      // the rows of controls and the slider's are one measure.
+      for (var i = 1; i < 4; i++) {
+        expect(g[i].height, DialLayout.rowHeight);
+      }
+      expect(g[2].top, g[1].bottom);
+      expect(g[3].top, g[2].bottom);
+    }
+  });
 
   testWidgets('the dial stays put when the tuner shows a long message', (
     tester,

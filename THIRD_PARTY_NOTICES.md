@@ -1,6 +1,6 @@
 # Third-party components
 
-Low End itself is released under the [MIT License](LICENSE). It is built with the open-source components below. All of them are permissive licences (MIT, BSD, Apache-2.0, zlib, public domain) that allow free use and redistribution, including in a free app on Google Play. The full text of each licence ships with the app: **Settings → About Low End → View licences** lists every Flutter and Dart package, the two fonts and the piano and drum recordings; the files named below hold the texts of the native parts.
+Low End itself is released under the [MIT License](LICENSE). It is built with the open-source components below. All of them are permissive licences (MIT, BSD, Apache-2.0, zlib, public domain) that allow free use and redistribution, including in a free app on Google Play. The full text of each licence ships with the app: **Settings → About Low End → View licences** lists every Flutter and Dart package, the two fonts and the piano recordings; the files named below hold the texts of the native parts.
 
 Exact versions of every package are in [pubspec.lock](pubspec.lock). Keep this file in step with `pubspec.yaml` when a dependency is added or removed.
 
@@ -42,7 +42,6 @@ The Android build also contains AndroidX, Kotlin (`kotlin-stdlib`, `kotlinx-coro
 ## Sounds and images
 
 - **Piano notes**: *Salamander Grand Piano V3* by Alexander Holm, released into the **public domain** on 4 March 2022. Details in [assets/piano/README.md](assets/piano/README.md).
-- **Drum sounds**: six strokes (suspended cymbal with stick and on its bell, bass drum, snare drum, hi-hat) from the *Versilian Community Sample Library (VCSL)* by Versilian Studios LLC, <https://github.com/sgossner/VCSL>, released under **Creative Commons CC0 1.0 Universal** (public domain; the licence file of the repository was read before use). Which file became which stroke is in [assets/drums/README.md](assets/drums/README.md); `tool/prepare_drums.dart` cuts and levels them.
 - **Material Icons** (Flutter's built-in icon font): Apache-2.0.
 - **Fonts**, both under the **SIL Open Font License 1.1**, bundled in `assets/fonts/` with their licences (`OFL-Edwin.txt`, `OFL-NotoMusic.txt`) and used unmodified: *Edwin* by MuseScore (all the text, with the ♭ and ♯ signs; regular and bold) and *Noto Music* by the Noto Project Authors (only the ♩ sign, which Edwin lacks). The earlier Barlow fonts were removed because Edwin already covers every other character the app writes.
 

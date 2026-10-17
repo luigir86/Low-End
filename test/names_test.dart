@@ -42,7 +42,8 @@ void main() {
     tester,
   ) async {
     await _open(tester);
-    expect(find.text('II–V–I · Autumn Leaves'), findsOneWidget);
+    // Chosen, the field says only the name: the song would not fit.
+    expect(find.text('II–V–I'), findsOneWidget);
     await tester.tap(find.byType(DropdownMenu<Progression>));
     await tester.pumpAndSettle();
     expect(find.text('Jazz standard, like Autumn Leaves'), findsOneWidget);
@@ -53,7 +54,8 @@ void main() {
     expect(find.text('12-bar blues'), findsOneWidget);
     await tester.tap(find.text('12-bar blues'));
     await tester.pumpAndSettle();
-    expect(find.text('Blues · Sweet Home Chicago'), findsOneWidget);
+    expect(find.text('12-bar blues'), findsOneWidget);
+    expect(find.textContaining('Sweet Home Chicago'), findsNothing);
   });
 
   testWidgets('in Italian, on a narrow phone, nothing overflows', (
@@ -67,7 +69,7 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('II–V–I minore'));
     await tester.pumpAndSettle();
-    expect(find.text('II–V–I minore · Blue Bossa'), findsOneWidget);
+    expect(find.text('II–V–I minore'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

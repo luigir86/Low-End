@@ -125,7 +125,7 @@ abstract final class PianoSound {
   /// strike.
   static const _renewGain = 0.6;
 
-  /// Level of the strike on the skip note of the swing and the shuffle,
+  /// Level of the strike on the skip note of the swing,
   /// against the one on the beat.
   static const _skipGain = 0.5;
 
@@ -327,7 +327,7 @@ abstract final class PianoSound {
           }
         case PianoStyle.arpeggio:
           // The notes go up and down the chord one after another, the skip
-          // notes of a swing or a shuffle included.
+          // notes of the swing included.
           var count = 0;
           for (var pulse = 0; pulse < signature.beats; pulse++) {
             final accent = signature.accent(pulse);

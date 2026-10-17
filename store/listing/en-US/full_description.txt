@@ -3,7 +3,7 @@ Low End is a practice companion for musicians: a metronome, a piano harmony sect
 METRONOME
 • Tempo from 30 to 250 BPM: tap the number to type it, hold − or + to move in steps, or use TAP.
 • Time signatures 1/1, 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8, with the beats grouped the way you count them.
-• A ring that lights up beat by beat, with the downbeat marked, and the sound of a jazz drummer (ride, bell, bass drum and hi-hat) that stays steady, straight, swing or shuffle. The piano follows the swing too.
+• A ring that lights up beat by beat, with the downbeat marked, and a short, dry click that stays steady, straight or swing. The piano follows the swing too.
 
 HARMONY
 • Twelve keys on a dial: touch a note and it plays on a real piano, in time with the metronome.

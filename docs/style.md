@@ -7,7 +7,7 @@ One place that says what Low End looks like, so that a new screen is built from 
 The metronome, the harmony and the tuner do different things, but they must look like one app: **share shapes and proportions as much as possible, and when in doubt make a section look like the others, not like itself.** In practice:
 
 - The dial is the same size, in the same place, on all three tabs; its middle is the button and says the state in the same two sizes (display, then caption).
-- Under it, the same three rows: a switch (Root / Chord / Progression, Straight / Swing / Shuffle) or a message, then the row of controls, then the balance slider.
+- Under it, the same three rows: a switch (Root / Chord / Progression, Straight / Swing) or a message, then the row of controls, then the balance slider.
 - The row of controls is built from the same pieces everywhere (`lib/widgets/row_controls.dart`): a **field with its name on the border** (the chord or progression, the reference A; the time signature is a bare border with "4/4" in it, since its title did not fit, but it keeps its name for screen readers: `LabeledField(showLabel: false)`), **chips** (+7, TAP, −, +) and an **icon button** at the end (the sound options, the pencil). A new control is made from these; if none fits, change them for everyone.
 - **A chip that is a button to press is filled.** The chips that show a value or step it (+7, −, +) are outlined; TAP, which you play rather than set, is filled with `primaryContainer` and its text is `onPrimaryContainer` (`RowChip(filled: true)`), so that it reads as pressable. The pair keeps the contrast checked by `theme_test.dart` and `accessibility_test.dart`.
 - − and + step a value, the pencil types it or chooses from a list, a touch on the field opens the same choice.
@@ -33,7 +33,7 @@ Rules: pick a role, never a number; the three dials show their value in `display
 | --- | --- |
 | Corner radius of buttons, cards, menus | 16 (`LowEndShape.radius`) |
 | Round or rounded control | 48 × 48 at least (`LowEndShape.control`), the smallest touch target |
-| Row of controls under a dial | the switch (64 high, `LowEndShape.row`) in the first row; in the second the field (56), chips (48) and icon button (52, `LowEndShape.iconButton`) of `row_controls.dart`: chord / progression, +7, options on the harmony; time signature, TAP, −, +, pencil on the metronome; reference A, −, +, pencil on the tuner; then the balance row (`footerHeight`) |
+| Rows under a dial | three rows of the same height (`DialLayout.rowHeight`, 80, spacing included) and no space between them, on every tab: a dial and three rows. Metronome and harmony: the switch (64 high, `LowEndShape.row`), then the row of controls, then the balance slider; the tuner only fills the second (the reference A), keeping the first and the third empty. The row of controls is the field (56), chips (48) and icon button (52, `LowEndShape.iconButton`) of `row_controls.dart`: chord / progression, +7, options on the harmony; time signature, TAP, −, +, pencil on the metronome; reference A, −, +, pencil on the tuner |
 | + over − pair | two 48 × 48 buttons, rounded outside and almost square where they meet |
 | Dial | one disc, a ring from 0.64 to 0.97 of the radius, a hub of 0.61; the same position and size on every tab (`DialGeometry`, `dial_alignment_test.dart`) |
 | Ring segments | metronome: thinner band (0.22 to 0.92 of the ring), one segment per beat, a bar of one beat is a whole ring; harmony: the whole ring, twelve keys; tuner: two bands of thin segments |
