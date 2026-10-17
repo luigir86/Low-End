@@ -24,7 +24,7 @@ Keep the app light: please discuss in an issue before adding a new package, and 
 
 ## Look and feel
 
-All colours, shapes and text styles live in `lib/app/theme.dart`: the wood palette (maple, walnut, ebony) with PANTONE 17-1230 Mocha Mousse as the signature colour, and the tuner colours. Screens take them from the theme (`Theme.of(context)`, `LowEndColors.of(context)`) and never write a colour of their own. If you change the background colours, change `android/app/src/main/res/values*/colors.xml` too: `test/theme_test.dart` checks they match.
+All colours, shapes and text styles live in `lib/app/theme.dart`: the bronze accent of the icon on ebony (the app is always dark), and the tuner verdict colours. Screens take them from the theme (`Theme.of(context)`, `LowEndColors.of(context)`) and never write a colour of their own. If you change the background colours, change `android/app/src/main/res/values/colors.xml` too: `test/theme_test.dart` checks they match.
 
 ## Accessibility
 

@@ -25,7 +25,7 @@ Every outside thing sits behind an interface with a silent or fake twin (`ToneOu
 | Folder | What is there |
 | --- | --- |
 | `lib/main.dart` | Loads the settings, registers the font and piano licences, starts the app |
-| `lib/app/` | `LowEndApp` (themes, language, wiring), `HomeShell` (three tabs, swipe, hold to toggle; the tabs are a bottom bar in portrait and a rail on the left in landscape, where a vertical flick on the dial or the rail changes section: `lib/widgets/flip_detector.dart`), `AppSettings`, settings page, guide, about, theme, background audio, screen-awake |
+| `lib/app/` | `LowEndApp` (theme, language, wiring), `HomeShell` (three tabs, swipe, hold to toggle; the tabs are a bottom bar in portrait and a rail on the left in landscape, where a vertical flick on the dial or the rail changes section: `lib/widgets/flip_detector.dart`), `AppSettings`, settings page, guide, about, theme, background audio, screen-awake |
 | `lib/features/metronome/` | `MetronomeController` (tempo, time signature, beat position), the screen, the tempo dialog |
 | `lib/features/tuner/` | `TunerController` and `TunerPanel` (chromatic tuner with a round strobe); `TunerReading` turns a frequency into note and cents |
 | `lib/features/tuner/drone/` | The **Harmony** section (still called "drone" in the code and in the action names): `DroneController` (note, chord, progression, style, octave), `harmony.dart` (chords and progressions), the dial panel |
@@ -56,7 +56,7 @@ Every outside thing sits behind an interface with a silent or fake twin (`ToneOu
 
 ## Settings
 
-`AppSettings` keeps language, note names, reference A (every hertz from 415 to 445), theme, screen-on, circle layout, balance and the "guide seen" flag in `shared_preferences`, on the phone only (Android backup is off in the manifest). Unreadable settings never stop the app: it starts with the defaults.
+`AppSettings` keeps language, note names, reference A (every hertz from 415 to 445), screen-on, circle layout, balance and the "guide seen" flag in `shared_preferences`, on the phone only (Android backup is off in the manifest). Unreadable settings never stop the app: it starts with the defaults.
 
 ## Look
 
