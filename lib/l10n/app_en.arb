@@ -152,6 +152,7 @@
   "audioUnavailable": "Sound could not start on this device.",
   "startListening": "Listen",
   "stopListening": "Pause",
+  "tunerWillPause": "Listening pauses what is playing",
   "tunerIdleHint": "Tuner paused: tap Listen",
   "playAString": "Play a note",
   "micPermissionDenied": "Low End needs the microphone to hear your instrument. If you said no, allow it in the phone settings under Apps › Low End › Permissions.",

@@ -225,12 +225,11 @@ void main() {
         }
         h.settings.setLanguage('it');
         await h.settle('it');
-        // The tuner pauses the drone, the other tabs leave it playing.
-        expect(h.scope.drone.isPlaying, tab != AppSection.tuner);
-        if (tab != AppSection.tuner) {
-          expect(h.output.frequencies.single, closeTo(440, 1e-9));
-        }
-        expect((h.mic as FakeMicInput).isCapturing, tab == AppSection.tuner);
+        // No tab stops the drone by itself, the tuner included: it waits
+        // for a touch.
+        expect(h.scope.drone.isPlaying, isTrue);
+        expect(h.output.frequencies.single, closeTo(440, 1e-9));
+        expect((h.mic as FakeMicInput).isCapturing, isFalse);
         expect(h.scope.navigation.section, tab);
         if (tab == AppSection.drone) expect(find.text('La4'), findsOneWidget);
         h.expectClean();

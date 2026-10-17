@@ -274,9 +274,21 @@ void main() {
     // The screen stays on while they play.
     expect(awake.on, isTrue);
 
-    // The tuner pauses both, so the microphone hears only the bass, and
-    // says so.
+    // Coming to the tuner changes nothing: a swipe too far must not stop
+    // the band. The tuner waits, and says what a touch will do.
     await tester.tap(find.text('Tuner'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tone.frequencies.single, closeTo(440, 0.01));
+    expect(click.bar, isNotNull);
+    expect(mic.isCapturing, isFalse);
+    expect(find.text('Listening pauses what is playing'), findsOneWidget);
+    expect(find.text('Paused while you tune'), findsNothing);
+
+    // A touch on the middle pauses both, so the microphone hears only the
+    // bass, and says so.
+    await tester.tap(find.byKey(const Key('tunerHub')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 300));

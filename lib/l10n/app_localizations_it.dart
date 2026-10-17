@@ -214,6 +214,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get stopListening => 'Pausa';
 
   @override
+  String get tunerWillPause => 'Ascoltare mette in pausa ciò che suona';
+
+  @override
   String get tunerIdleHint => 'Accordatore in pausa: tocca Ascolta';
 
   @override

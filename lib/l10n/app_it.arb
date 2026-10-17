@@ -59,6 +59,7 @@
   "audioUnavailable": "Non è stato possibile avviare l'audio su questo dispositivo.",
   "startListening": "Ascolta",
   "stopListening": "Pausa",
+  "tunerWillPause": "Ascoltare mette in pausa ciò che suona",
   "tunerIdleHint": "Accordatore in pausa: tocca Ascolta",
   "playAString": "Suona una nota",
   "micPermissionDenied": "Low End ha bisogno del microfono per sentire il tuo strumento. Se hai risposto di no, consentilo nelle impostazioni del telefono in App › Low End › Autorizzazioni.",
