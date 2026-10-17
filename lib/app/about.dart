@@ -5,8 +5,11 @@ import '../l10n/app_localizations.dart';
 
 const sourceCodeUrl = 'https://github.com/luigir86/Low-End';
 
+/// The Instagram page of the Power Flower Orchestra of Fossano.
+const orchestraUrl = 'https://www.instagram.com/powerflowerorchestra/';
+
 /// Opens [url] in the browser; nothing happens if the phone has none.
-Future<void> _open(String url) async {
+Future<void> openLink(String url) async {
   try {
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   } catch (error) {
@@ -36,7 +39,7 @@ void showLowEndAbout(BuildContext context) {
       Align(
         alignment: AlignmentDirectional.centerStart,
         child: TextButton.icon(
-          onPressed: () => _open(sourceCodeUrl),
+          onPressed: () => openLink(sourceCodeUrl),
           icon: const Icon(Icons.open_in_new, size: 18),
           label: Text(l10n.aboutSource(sourceCodeUrl)),
         ),

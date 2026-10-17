@@ -223,6 +223,19 @@ class SettingsPage extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
                 child: Text(l10n.thanksText),
               ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  // A link out, said by its icon and its words.
+                  child: OutlinedButton.icon(
+                    key: const Key('orchestraLink'),
+                    onPressed: () => openLink(orchestraUrl),
+                    icon: const Icon(Icons.camera_alt_outlined),
+                    label: Text(l10n.thanksInstagram),
+                  ),
+                ),
+              ),
               const Divider(),
               ListTile(
                 leading: Icon(

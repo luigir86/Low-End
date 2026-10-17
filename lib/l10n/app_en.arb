@@ -46,6 +46,7 @@
     }
   },
   "thanksTitle": "Thanks",
+  "thanksInstagram": "Follow them on Instagram",
   "thanksText": "Thanks to the Power Flower Orchestra of Fossano, who inspired this app and put it to the test.",
   "addSevenths": "Add the seventh to the chords",
   "droneChordDiminished": "{note} diminished",
@@ -236,14 +237,6 @@
   "tuningCello": "Cello",
   "tuningUkulele": "Ukulele",
   "tuningBass": "Bass",
-  "tuningStrings": "Strings: {strings}",
-  "@tuningStrings": {
-    "placeholders": {
-      "strings": {
-        "type": "String"
-      }
-    }
-  },
   "tunerString": "String {number}",
   "@tunerString": {
     "description": "In the tuner's string mode: the number of the string being tuned, as a Roman numeral (I is the thinnest).",

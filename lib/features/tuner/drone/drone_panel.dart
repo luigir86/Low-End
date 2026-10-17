@@ -811,7 +811,7 @@ class _ChordMenu extends StatelessWidget {
                           ),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
-                            vertical: 12,
+                            vertical: chipPadding,
                           ),
                         ),
                       ),

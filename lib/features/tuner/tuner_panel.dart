@@ -91,8 +91,17 @@ class _TunerPanelState extends State<TunerPanel> {
             numbering: settings.octaveNumbering,
             onToggle: _tuner.toggle,
           ),
-          // Announced by screen readers, e.g. when the microphone is denied.
-          upper: message == null
+          // Chromatic or an instrument, in the place of Straight / Swing and
+          // Root / Chord / Progression on the other tabs.
+          upper: _TuningSwitch(settings: settings),
+          // Listening starts and stops from the middle of the dial, like the
+          // other two tabs; the row below is the reference A, in the same
+          // pieces as the rows of the metronome and the harmony.
+          lower: const ReferencePitchRow(),
+          // The cents scale sits where the other tabs have their balance
+          // slider. Announced by screen readers, e.g. when the microphone is
+          // denied, a message takes its place.
+          footer: message == null
               ? _CentsBar(
                   reading: reading,
                   held: _tuner.held,
@@ -125,12 +134,6 @@ class _TunerPanelState extends State<TunerPanel> {
                     ],
                   ],
                 ),
-          // Listening starts and stops from the middle of the dial, like the
-          // other two tabs; the row below is the reference A, in the same
-          // pieces as the rows of the metronome and the harmony.
-          lower: const ReferencePitchRow(),
-          // Chromatic, or the open strings of a violin or a bass.
-          footer: _TuningSwitch(settings: settings),
         );
       },
     );
@@ -156,8 +159,10 @@ String _tuningName(AppLocalizations l10n, TunerTuning tuning) =>
     };
 
 /// Chromatic, or the strings of an instrument chosen from a menu, in the
-/// third row: with strings, the tuner names the nearest open string, its
-/// number, and says how far off it is. The last instrument stays chosen.
+/// first row under the dial, drawn like the Straight / Swing and Root /
+/// Chord / Progression switches of the other tabs. With strings, the tuner
+/// names the nearest open string, its number, and says how far off it is.
+/// The last instrument stays chosen.
 class _TuningSwitch extends StatelessWidget {
   const _TuningSwitch({required this.settings});
 
@@ -167,112 +172,99 @@ class _TuningSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final names = settings.noteNames(Localizations.localeOf(context));
-    String strings(TunerTuning t) => l10n.tuningStrings(
-      t.strings
-          .map((n) => n.label(names, numbering: settings.octaveNumbering))
-          .join(' '),
-    );
+    String strings(TunerTuning t) => t.strings
+        .map((n) => n.label(names, numbering: settings.octaveNumbering))
+        .join(' ');
     final chromatic = settings.tunerChromatic;
-    return Row(
-      key: const Key('tuningSwitch'),
-      children: [
-        Expanded(
-          child: _TuningChoice(
-            key: const Key('tuningChromatic'),
-            selected: chromatic,
-            onTap: () => settings.setTunerChromatic(true),
-            child: Text(l10n.tuningChromatic, maxLines: 1),
+    Widget half({required bool selected, required Widget child}) => Ink(
+      color: selected ? scheme.primaryContainer : null,
+      child: Center(
+        child: DefaultTextStyle.merge(
+          style: theme.textTheme.labelLarge?.copyWith(
+            color: selected ? scheme.onPrimaryContainer : scheme.onSurface,
           ),
+          child: FittedBox(fit: BoxFit.scaleDown, child: child),
         ),
-        const SizedBox(width: 8),
-        Expanded(
-          flex: 2,
-          child: PopupMenuButton<TunerTuning>(
-            key: const Key('tuningInstrument'),
-            tooltip: l10n.tuningInstrument,
-            position: PopupMenuPosition.over,
-            initialValue: settings.tunerInstrument,
-            onOpened: () => settings.setTunerChromatic(false),
-            onSelected: settings.setTunerInstrument,
-            itemBuilder: (context) => [
-              for (final t in TunerTuning.instruments)
-                PopupMenuItem(
-                  value: t,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(_tuningName(l10n, t)),
-                      Text(
-                        strings(t),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-            child: _TuningChoice(
-              selected: !chromatic,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _tuningName(l10n, settings.tunerInstrument),
-                    maxLines: 1,
-                  ),
-                  const Icon(Icons.arrow_drop_down),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
-  }
-}
-
-/// One of the two choices of [_TuningSwitch], drawn like a selected or
-/// unselected segment of the buttons in the other rows.
-class _TuningChoice extends StatelessWidget {
-  const _TuningChoice({
-    super.key,
-    required this.selected,
-    required this.child,
-    this.onTap,
-  });
-
-  final bool selected;
-  final Widget child;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     return Semantics(
-      button: true,
-      selected: selected,
-      child: Material(
-        color: selected ? scheme.secondaryContainer : Colors.transparent,
-        shape: StadiumBorder(side: BorderSide(color: scheme.outline)),
-        child: InkWell(
-          customBorder: const StadiumBorder(),
-          onTap: onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 64),
-            child: Center(
-              child: DefaultTextStyle.merge(
-                style: TextStyle(
-                  color: selected
-                      ? scheme.onSecondaryContainer
-                      : scheme.onSurface,
-                  fontWeight: FontWeight.w600,
+      container: true,
+      child: SizedBox(
+        key: const Key('tuningSwitch'),
+        width: double.infinity,
+        // As tall as a SegmentedButton, which the other tabs use.
+        height: 40,
+        child: Material(
+          type: MaterialType.transparency,
+          shape: StadiumBorder(side: BorderSide(color: scheme.outline)),
+          clipBehavior: Clip.antiAlias,
+          child: Row(
+            children: [
+              Expanded(
+                child: Semantics(
+                  button: true,
+                  selected: chromatic,
+                  child: InkWell(
+                    key: const Key('tuningChromatic'),
+                    onTap: () => settings.setTunerChromatic(true),
+                    child: half(
+                      selected: chromatic,
+                      child: Text(l10n.tuningChromatic, maxLines: 1),
+                    ),
+                  ),
                 ),
-                child: FittedBox(fit: BoxFit.scaleDown, child: child),
               ),
-            ),
+              VerticalDivider(width: 1, color: scheme.outline),
+              Expanded(
+                child: Semantics(
+                  button: true,
+                  selected: !chromatic,
+                  child: PopupMenuButton<TunerTuning>(
+                    key: const Key('tuningInstrument'),
+                    tooltip: l10n.tuningInstrument,
+                    position: PopupMenuPosition.over,
+                    initialValue: settings.tunerInstrument,
+                    padding: EdgeInsets.zero,
+                    onOpened: () => settings.setTunerChromatic(false),
+                    onSelected: settings.setTunerInstrument,
+                    itemBuilder: (context) => [
+                      for (final t in TunerTuning.instruments)
+                        PopupMenuItem(
+                          value: t,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(_tuningName(l10n, t)),
+                              Text(
+                                strings(t),
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: scheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                    child: half(
+                      selected: !chromatic,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _tuningName(l10n, settings.tunerInstrument),
+                            maxLines: 1,
+                          ),
+                          const Icon(Icons.arrow_drop_down),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

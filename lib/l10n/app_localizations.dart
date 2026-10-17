@@ -266,6 +266,12 @@ abstract class AppLocalizations {
   /// **'Thanks'**
   String get thanksTitle;
 
+  /// No description provided for @thanksInstagram.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow them on Instagram'**
+  String get thanksInstagram;
+
   /// No description provided for @thanksText.
   ///
   /// In en, this message translates to:
@@ -811,12 +817,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bass'**
   String get tuningBass;
-
-  /// No description provided for @tuningStrings.
-  ///
-  /// In en, this message translates to:
-  /// **'Strings: {strings}'**
-  String tuningStrings(String strings);
 
   /// In the tuner's string mode: the number of the string being tuned, as a Roman numeral (I is the thinnest).
   ///
