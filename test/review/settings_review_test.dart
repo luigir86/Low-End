@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
-import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:low_end/app/settings.dart';
 import 'package:low_end/audio/pitch.dart';
@@ -39,28 +38,28 @@ void main() {
       expect((await AppSettings.load()).languageCode, isNull);
     });
 
-    test('saves the theme and the screen option', () async {
+    test('saves the screen option', () async {
       SharedPreferences.setMockInitialValues({});
       final s = await AppSettings.load();
-      expect(s.themeMode, ThemeMode.system);
       expect(s.keepScreenOn, isTrue);
-      s.setThemeMode(ThemeMode.dark);
       s.setKeepScreenOn(false);
 
       final again = await AppSettings.load();
-      expect(again.themeMode, ThemeMode.dark);
       expect(again.keepScreenOn, isFalse);
     });
 
-    test('ignores a theme or screen option of the wrong kind', () async {
-      SharedPreferences.setMockInitialValues({
-        'theme': 'purple',
-        'keep_screen_on': 'yes',
-      });
-      final s = await AppSettings.load();
-      expect(s.themeMode, ThemeMode.system);
-      expect(s.keepScreenOn, isTrue);
-    });
+    test(
+      'ignores a screen option of the wrong kind, and an old theme',
+      () async {
+        SharedPreferences.setMockInitialValues({
+          // Saved by versions that had a choice of theme: now left alone.
+          'theme': 'light',
+          'keep_screen_on': 'yes',
+        });
+        final s = await AppSettings.load();
+        expect(s.keepScreenOn, isTrue);
+      },
+    );
 
     test('ignores unknown saved strings and numbers', () async {
       SharedPreferences.setMockInitialValues({

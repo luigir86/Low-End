@@ -15,12 +15,12 @@ class PulsingDot extends StatefulWidget {
 class _PulsingDotState extends State<PulsingDot> {
   static const _period = Duration(milliseconds: 1800);
 
-  /// A fade this slow needs no more than a dozen steps a second: a timer
+  /// A pulse this slow needs no more than a dozen steps a second: a timer
   /// instead of a vsync animation, which would redraw the whole screen 60 to
   /// 120 times a second for as long as something plays.
   static const _step = Duration(milliseconds: 80);
 
-  final _opacity = ValueNotifier<double>(1);
+  final _scale = ValueNotifier<double>(1);
   final _clock = Stopwatch();
   Timer? _timer;
 
@@ -31,16 +31,18 @@ class _PulsingDotState extends State<PulsingDot> {
     if (MediaQuery.disableAnimationsOf(context)) {
       _timer?.cancel();
       _timer = null;
-      _opacity.value = 1;
+      _scale.value = 1;
     } else if (_timer == null) {
       _clock.start();
       _timer = Timer.periodic(_step, (_) {
         final phase =
             (_clock.elapsedMicroseconds % _period.inMicroseconds) /
             _period.inMicroseconds;
-        // Up and down between 0.7 and 1: the dot must stay easy to see.
+        // It breathes between 80 % and full size, always in the full
+        // accent: a fade let the dark bar show through and dulled the
+        // bronze.
         final wave = phase < 0.5 ? phase * 2 : 2 - phase * 2;
-        _opacity.value = 0.7 + 0.3 * Curves.linear.transform(wave);
+        _scale.value = 0.8 + 0.2 * Curves.linear.transform(wave);
       });
     }
   }
@@ -48,7 +50,7 @@ class _PulsingDotState extends State<PulsingDot> {
   @override
   void dispose() {
     _timer?.cancel();
-    _opacity.dispose();
+    _scale.dispose();
     super.dispose();
   }
 
@@ -58,9 +60,9 @@ class _PulsingDotState extends State<PulsingDot> {
     // Its own layer: a step of the pulse then costs the dot, not the bar.
     return RepaintBoundary(
       child: ValueListenableBuilder<double>(
-        valueListenable: _opacity,
-        builder: (context, opacity, child) =>
-            Opacity(opacity: opacity, child: child),
+        valueListenable: _scale,
+        builder: (context, scale, child) =>
+            Transform.scale(scale: scale, child: child),
         child: Container(
           width: widget.size,
           height: widget.size,

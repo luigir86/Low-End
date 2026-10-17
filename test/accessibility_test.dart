@@ -53,33 +53,35 @@ final _metronomeTab = find.descendant(
 
 void main() {
   for (final mode in [ThemeMode.light, ThemeMode.dark]) {
-    testWidgets('every screen meets the guidelines (${mode.name} theme)', (
-      tester,
-    ) async {
-      final handle = tester.ensureSemantics();
-      final mic = FakeMicInput();
-      await pumpApp(tester, mic: mic, themeMode: mode);
-      await expectAccessible(tester);
-
-      // A note slightly flat, then in tune: both colours must stay readable.
-      for (final hz in [97.0, 98.0]) {
-        for (var i = 0; i < 5; i++) {
-          mic.add(_sine(hz, 1600, chunk: i));
-          await tester.pump();
-        }
-        await tester.pump(const Duration(milliseconds: 200));
+    // The app is always dark; the phone's own setting must change nothing.
+    testWidgets(
+      'every screen meets the guidelines (phone set to ${mode.name})',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        final mic = FakeMicInput();
+        await pumpApp(tester, mic: mic, themeMode: mode);
         await expectAccessible(tester);
-      }
 
-      await tester.tap(_harmonyTab.first);
-      await tester.pumpAndSettle();
-      await expectAccessible(tester);
+        // A note slightly flat, then in tune: both colours must stay readable.
+        for (final hz in [97.0, 98.0]) {
+          for (var i = 0; i < 5; i++) {
+            mic.add(_sine(hz, 1600, chunk: i));
+            await tester.pump();
+          }
+          await tester.pump(const Duration(milliseconds: 200));
+          await expectAccessible(tester);
+        }
 
-      await tester.tap(_metronomeTab);
-      await tester.pumpAndSettle();
-      await expectAccessible(tester);
-      handle.dispose();
-    });
+        await tester.tap(_harmonyTab.first);
+        await tester.pumpAndSettle();
+        await expectAccessible(tester);
+
+        await tester.tap(_metronomeTab);
+        await tester.pumpAndSettle();
+        await expectAccessible(tester);
+        handle.dispose();
+      },
+    );
   }
 
   testWidgets('screen readers hear the note and whether it is in tune', (

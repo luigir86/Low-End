@@ -378,9 +378,8 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
-    theme: LowEndTheme.light,
-    darkTheme: LowEndTheme.dark,
-    themeMode: _settings.themeMode,
+    // Always dark, whatever the phone is set to (docs/tema-bronzo.md).
+    theme: LowEndTheme.dark,
     // Always start on the main screen: a launch link is an action, not a
     // page (see _runLink).
     onGenerateRoute: (_) =>

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -36,9 +35,6 @@ class AppSettings extends ChangeNotifier {
     _balance = balance != null && balance.isFinite
         ? balance.clamp(-1.0, 1.0)
         : 0;
-    _themeMode =
-        ThemeMode.values.asNameMap()[_read<String>(prefs, _themeKey)] ??
-        ThemeMode.system;
     _circleLayout =
         CircleLayout.values.asNameMap()[_read<String>(
           prefs,
@@ -91,7 +87,6 @@ class AppSettings extends ChangeNotifier {
   static const _namingKey = 'note_names';
   static const _a4Key = 'reference_pitch';
   static const _balanceKey = 'balance';
-  static const _themeKey = 'theme';
   static const _keepScreenOnKey = 'keep_screen_on';
   static const _seenGuideKey = 'seen_guide';
   static const _gesturesLockedKey = 'gestures_locked';
@@ -215,7 +210,6 @@ class AppSettings extends ChangeNotifier {
   }
 
   CircleLayout _circleLayout = CircleLayout.fifths;
-  ThemeMode _themeMode = ThemeMode.system;
   bool _keepScreenOn = true;
 
   // Unsaved settings (tests) have nothing to teach: the guide is for the
@@ -271,20 +265,9 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Light, dark, or the phone's own setting: dark can be forced on a dark
-  /// stage whatever the phone is set to.
-  ThemeMode get themeMode => _themeMode;
-
   /// Whether the screen stays on while something plays or the tuner
   /// listens.
   bool get keepScreenOn => _keepScreenOn;
-
-  void setThemeMode(ThemeMode mode) {
-    if (mode == _themeMode) return;
-    _themeMode = mode;
-    _save(_prefs?.setString(_themeKey, mode.name));
-    notifyListeners();
-  }
 
   /// The order of the notes on the harmony circle.
   CircleLayout get circleLayout => _circleLayout;

@@ -290,6 +290,12 @@ abstract class AppLocalizations {
   /// **'{note} diminished'**
   String droneChordDiminished(String note);
 
+  /// The word over the balance slider, so that its two side icons do not read as tabs
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get balanceTitle;
+
   /// No description provided for @balanceLabel.
   ///
   /// In en, this message translates to:
@@ -506,6 +512,12 @@ abstract class AppLocalizations {
   /// **'Sharp'**
   String get sharp;
 
+  /// The word over the tuner's cents bar, like 'Balance' over the slider of the other tabs
+  ///
+  /// In en, this message translates to:
+  /// **'Cents'**
+  String get centsTitle;
+
   /// No description provided for @centsValue.
   ///
   /// In en, this message translates to:
@@ -667,30 +679,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open settings'**
   String get openSettings;
-
-  /// No description provided for @themeLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Theme'**
-  String get themeLabel;
-
-  /// No description provided for @themeSystem.
-  ///
-  /// In en, this message translates to:
-  /// **'Follow the phone'**
-  String get themeSystem;
-
-  /// No description provided for @themeLight.
-  ///
-  /// In en, this message translates to:
-  /// **'Light'**
-  String get themeLight;
-
-  /// No description provided for @themeDark.
-  ///
-  /// In en, this message translates to:
-  /// **'Dark'**
-  String get themeDark;
 
   /// No description provided for @keepScreenOnTitle.
   ///

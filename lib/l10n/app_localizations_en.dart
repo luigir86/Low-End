@@ -113,6 +113,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get balanceTitle => 'Balance';
+
+  @override
   String get balanceLabel => 'Balance between the metronome and the harmony';
 
   @override
@@ -242,6 +245,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sharp => 'Sharp';
 
   @override
+  String get centsTitle => 'Cents';
+
+  @override
   String centsValue(String cents) {
     return '$cents cents';
   }
@@ -328,18 +334,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get openSettings => 'Open settings';
-
-  @override
-  String get themeLabel => 'Theme';
-
-  @override
-  String get themeSystem => 'Follow the phone';
-
-  @override
-  String get themeLight => 'Light';
-
-  @override
-  String get themeDark => 'Dark';
 
   @override
   String get keepScreenOnTitle => 'Keep the screen on';

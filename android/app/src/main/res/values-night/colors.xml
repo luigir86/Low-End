@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Same as Palette.ebony in lib/app/theme.dart. -->
-    <color name="launch_background">#141312</color>
-</resources>
