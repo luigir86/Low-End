@@ -11,7 +11,8 @@ import '../audio/pitch.dart';
 import '../audio/tone_output.dart';
 import '../features/metronome/metronome_controller.dart';
 import '../features/tuner/drone/drone_controller.dart';
-import '../features/tuner/drone/drone_panel.dart' show chordSymbol;
+import '../features/tuner/drone/drone_panel.dart'
+    show chordSymbol, progressionName;
 import '../features/tuner/tuner_controller.dart';
 import '../l10n/app_localizations.dart';
 import 'app_navigation.dart';
@@ -261,10 +262,17 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
       final names = _settings.noteNames(_locale());
       final root = spell(_drone.rootPitchClass, _drone.rootLetter, names);
       final chord = _drone.currentChord;
-      parts.add(
-        '${l10n.harmonyTab} '
-        '${chord == null ? root : chordSymbol(l10n, chord, root)}',
-      );
+      // A progression is named by its key, not by the chord of the moment:
+      // the notification would otherwise change at every bar.
+      final what = _drone.voicing == DroneVoicing.progression
+          ? l10n.progressionInKey(
+              progressionName(l10n, _drone.progression),
+              spell(_drone.note.pitchClass, _drone.keyLetter, names),
+            )
+          : chord == null
+          ? root
+          : chordSymbol(l10n, chord, root);
+      parts.add('${l10n.harmonyTab} $what');
     }
     return parts.join('\n');
   }

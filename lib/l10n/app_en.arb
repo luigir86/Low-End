@@ -124,6 +124,18 @@
       }
     }
   },
+  "progressionInKey": "{name} in {key}",
+  "@progressionInKey": {
+    "description": "In the media notification while a progression plays: its name and the key it is in, such as II–V–I in G. It does not change as the chords do.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "key": {
+        "type": "String"
+      }
+    }
+  },
   "droneChordMajor": "{note} major",
   "@droneChordMajor": {
     "description": "The chord in the middle of the drone dial, such as A major.",

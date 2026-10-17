@@ -416,6 +416,12 @@ abstract class AppLocalizations {
   /// **'{note} half-diminished'**
   String droneChordHalfDiminished(String note);
 
+  /// In the media notification while a progression plays: its name and the key it is in, such as II–V–I in G. It does not change as the chords do.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} in {key}'**
+  String progressionInKey(String name, String key);
+
   /// The chord in the middle of the drone dial, such as A major.
   ///
   /// In en, this message translates to:

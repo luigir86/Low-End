@@ -60,7 +60,7 @@ Every outside thing sits behind an interface with a silent or fake twin (`ToneOu
 
 ## Look
 
-All colours are in `lib/app/theme.dart` (wood palette, light and dark), the font sizes and control shapes in `lib/app/style.dart`; `docs/style.md` is the style sheet that says what each is for, and `test/style_test.dart` keeps font sizes from being written anywhere else. The font is **Edwin** (regular and bold), with **Noto Music** supplying the ♩ that Edwin lacks; both are bundled and licensed under the SIL OFL. The launch screen colour in `android/app/src/main/res/values*/colors.xml` must match the theme (`test/theme_test.dart` checks it). Note names follow the language (Do Re Mi with Italian octaves, La3 = 440, or C D E, A4 = 440) or the user's choice.
+All colours are in `lib/app/theme.dart` (the Orchestra palette, light and dark: one accent per tab on a neutral ground), the font sizes and control shapes in `lib/app/style.dart`; `docs/style.md` is the style sheet that says what each is for, and `test/style_test.dart` keeps font sizes from being written anywhere else. The font is **Edwin** (regular and bold), with **Noto Music** supplying the ♩ that Edwin lacks; both are bundled and licensed under the SIL OFL. The launch screen colour in `android/app/src/main/res/values*/colors.xml` must match the theme (`test/theme_test.dart` checks it). Note names follow the language (Do Re Mi with Italian octaves, La3 = 440, or C D E, A4 = 440) or the user's choice.
 
 ## Tests
 

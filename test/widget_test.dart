@@ -529,7 +529,7 @@ void main() {
     await tester.tap(find.text('A'));
     await tester.pump();
     expect(output.frequencies.single, closeTo(442, 0.01));
-    expect(find.text('Fondamentale'), findsWidgets);
+    expect(find.text('Tonica'), findsWidgets);
   });
 
   testWidgets('the About dialog shows the licence and the package notices', (

@@ -35,20 +35,23 @@ Rules: pick a role, never a number; the three dials show their value in `display
 | Round or rounded control | 48 × 48 at least (`LowEndShape.control`), the smallest touch target |
 | Rows under a dial | three rows of the same height (`DialLayout.rowHeight`, 80, spacing included) and no space between them, on every tab: a dial and three rows. Metronome and harmony: the switch (64 high, `LowEndShape.row`), then the row of controls, then the balance slider; the tuner has the Chromatic / instrument switch, the row of the reference A and, where the others have the balance slider, a cents bar drawn like it (thin track, 2 by 16 middle mark, round thumb, the zone of "in tune" shaded). The row of controls is the field (56), chips (48) and icon button (52, `LowEndShape.iconButton`) of `row_controls.dart`: chord / progression, +7, options on the harmony; time signature, TAP, −, +, pencil on the metronome; reference A, −, +, pencil on the tuner |
 | + over − pair | two 48 × 48 buttons, rounded outside and almost square where they meet |
+| Dial and rows | the dial at the same height on every tab; the three rows sit lower, nearer the thumb, with only a little room left under them for a row that grows (`DialLayout`) |
 | Dial | one disc, a ring from 0.64 to 0.97 of the radius, a hub of 0.61; the same position and size on every tab (`DialGeometry`, `dial_alignment_test.dart`) |
-| Ring segments | metronome: thinner band (0.22 to 0.92 of the ring), one segment per beat, a bar of one beat is a whole ring; harmony: the whole ring, twelve keys; tuner: two bands of thin segments |
+| Ring segments | metronome: thinner band (0.22 to 0.92 of the ring), one segment per beat, the lit "one" wider (0.12 to 1), a bar of one beat is a whole ring; harmony: the whole ring, twelve keys; tuner: two bands of thin segments |
 
 ## Colour
 
-Wood. Light: maple surfaces, walnut text and primary. Dark: ebony surfaces, a light mocha primary. Signature colour: Mocha Mousse (PANTONE 17-1230).
+The Orchestra (full notes in [tema-orchestra.md](tema-orchestra.md)): each tab has the colour of one material of the orchestra, and only that one. **Brass** for the metronome, **rosewood** for the harmony, **silver** for the tuner. Everything else is neutral and everything is flat: no gradients, no sheen. Every other shade of a tab is its accent mixed into the background (`LowEndTheme.accented`), so the three tabs share one look and differ by one colour.
 
 | Meaning | Colour (light / dark) |
 | --- | --- |
-| Surface, text, muted text, lines | `maple` / `ebony`, `inkOnLight` / `inkOnDark`, `inkOnLightMuted` / `inkOnDarkMuted`, `grainLight` / `grainDark` |
-| Primary (what is playing, lit beats) | `walnut` / `mochaLight` |
-| Secondary (the rest of a chord) | `mochaMousse` |
-| The metronome's "one" | `downbeatLight` (burnt orange) / `downbeatDark` (cream): unlike the other beats, it must be seen on a dark stage |
-| Tuner verdict | in tune green, close ochre, off red (`inTune*`, `close*`, `off*`), always with a shape (a tick or an arrow) as well |
+| Surface, text, muted text | neutral grey `maple` / ebony `ebony`, `inkOnLight` / `inkOnDark`, `inkOnLightMuted` / `inkOnDarkMuted` |
+| Tab accent (lit beats, the chosen key, the slider, borders) | metronome `#8A6508` / `#E3B84A`, harmony `#8A4A33` / `#D88F6E`, tuner `#5E6B7A` / `#B4C0CF` |
+| Shades of a tab | the accent mixed into the surface: disc 10 %, keys and beats that are off 26 %, the chosen pill and TAP 20 %, the rest of a chord 55 %, borders, the other lit beats and the tuner's segments 90 % (light) / 75 % (dark) |
+| The metronome's "one" | the accent at full strength, and wider than the other beats (it fills the ring's margins), so it is told by its shape too |
+| Choices of a switch | the chosen one filled, in ink; the others in the muted ink, never in the accent |
+| Icons on the row of controls | the ink of the text; the tab's colour is on the borders |
+| Tuner verdict | in tune green, close orange, off red (`inTune*`, `close*`, `off*`), on the note and its words only, always with a shape (a tick or an arrow) as well. They are never a tab's colour: the orange is not the brass, the red is not the rosewood |
 | The functions of a progression (harmony) | its Roman numerals (I, II, V) written small on the notes they stand on, and still while it plays; nothing moves to say what is next |
 
 All text and shapes keep at least 4.5:1 / 3:1 contrast (`theme_test.dart`, `accessibility_test.dart`).

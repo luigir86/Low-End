@@ -173,6 +173,9 @@ void main() {
         // E1 about 20 cents flat.
         await h.play(41.2 * math.pow(2, -20 / 1200));
         await h.shot('tuner_2_flat');
+        // A little off: the note turns ochre.
+        await h.play(41.2 * math.pow(2, -9 / 1200));
+        await h.shot('tuner_2b_close');
         await h.play(55);
         await h.shot('tuner_3_in_tune');
         await tester.tap(find.byKey(const Key('tunerHub')));

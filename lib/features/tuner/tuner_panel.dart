@@ -424,9 +424,14 @@ class _StrobeDiscState extends State<_StrobeDisc>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final r = widget.reading;
+    // The segments stay the tuner's own colour (silver) whatever the pitch:
+    // the verdict is told by the note, its words and its arrow, and by the
+    // direction the segments turn. A step softer than the full silver, so
+    // that the ring, with its many segments, weighs no more than the other
+    // tabs' and the note leads.
     final segments = r == null || widget.held
         ? theme.colorScheme.outlineVariant
-        : _centsColor(theme, r.cents, widget.tolerance);
+        : theme.colorScheme.outline;
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -809,8 +814,9 @@ class _CentsBar extends StatelessWidget {
           child: CustomPaint(
             painter: _CentsBarPainter(
               cents: show ? r.cents : null,
+              // Silver like the dial: the note alone turns green, ochre or red.
               marker: show && !held
-                  ? _centsColor(theme, r.cents, tolerance)
+                  ? theme.colorScheme.primary
                   : theme.colorScheme.outline,
               // A neutral zone, the colour of the chosen half of the switches:
               // the marker alone turns green when it is in it.

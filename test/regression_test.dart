@@ -273,7 +273,7 @@ void main() {
       await tester.tap(find.text('La'));
       await _settle(tester);
       expect(find.text('La4'), findsOneWidget);
-      expect(find.text('Fondamentale'), findsOneWidget, reason: 'switch only');
+      expect(find.text('Tonica'), findsOneWidget, reason: 'switch only');
 
       await tester.tap(find.text('Accordo').first);
       await _settle(tester);

@@ -188,6 +188,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String progressionInKey(String name, String key) {
+    return '$name in $key';
+  }
+
+  @override
   String droneChordMajor(String note) {
     return '$note major';
   }

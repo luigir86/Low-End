@@ -289,14 +289,18 @@ class _RingPainter extends CustomPainter {
         color = downbeat;
       } else if (signature.grouped && !opens) {
         // The weak pulses of a group are softer than its first.
-        color = colors.primary.withValues(alpha: 0.6);
+        color = colors.outline.withValues(alpha: 0.6);
       } else {
-        color = colors.primary;
+        // A step softer than the "one", which is the accent itself.
+        color = colors.outline;
       }
+      // The lit "one" is also wider, into the ring's margins: it stands out
+      // by its shape as well as by its colour.
+      final one = b == 0 && b == beat && count > 1;
       dial.paintSegment(
         canvas,
-        inner: dial.ringInner + dial.ringWidth * 0.22,
-        outer: dial.ringOuter - dial.ringWidth * 0.08,
+        inner: dial.ringInner + dial.ringWidth * (one ? 0.12 : 0.22),
+        outer: dial.ringOuter - dial.ringWidth * (one ? 0.0 : 0.08),
         startAngle: b * slice + start,
         sweep: slice - start - end,
         color: color,
