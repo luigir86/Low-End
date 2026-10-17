@@ -19,9 +19,9 @@ class TunerController extends ChangeNotifier {
   /// One reading every 50 ms.
   late final _hop = sampleRate ~/ 20;
 
-  /// Readings in a row without a note before the display clears (about a
-  /// second and a half), so the note stays up while the string dies away.
-  static const _holdReadings = 30;
+  /// Readings in a row without a note before the display clears (about two
+  /// and a half seconds), so the note stays up while the string dies away.
+  static const _holdReadings = 50;
 
   /// Readings without a note (a third of a second) before the note counts as
   /// held rather than heard, so a gap between two readings does not flicker.

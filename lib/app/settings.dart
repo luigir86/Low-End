@@ -53,9 +53,12 @@ class AppSettings extends ChangeNotifier {
           _octaveNumberingKey,
         )] ??
         OctaveNumbering.scientific;
-    _tuning =
-        TunerTuning.values.asNameMap()[_read<String>(prefs, _tuningKey)] ??
-        TunerTuning.chromatic;
+    final instrument = TunerTuning.values
+        .asNameMap()[_read<String>(prefs, _tuningKey)];
+    _instrument = instrument == null || instrument.isChromatic
+        ? TunerTuning.guitar
+        : instrument;
+    _chromatic = _read<bool>(prefs, _chromaticKey) ?? true;
     _keepScreenOn = _read<bool>(prefs, _keepScreenOnKey) ?? true;
     _seenGuide = _read<bool>(prefs, _seenGuideKey) ?? false;
     _gesturesLocked = _read<bool>(prefs, _gesturesLockedKey) ?? false;
@@ -96,6 +99,7 @@ class AppSettings extends ChangeNotifier {
   static const _inTuneKey = 'in_tune_cents';
   static const _octaveNumberingKey = 'octave_numbering';
   static const _tuningKey = 'tuner_tuning';
+  static const _chromaticKey = 'tuner_chromatic';
 
   /// The widths of the "in tune" zone the player can choose, in cents on
   /// each side of the note.
@@ -173,16 +177,33 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
   }
 
-  var _tuning = TunerTuning.chromatic;
+  var _instrument = TunerTuning.guitar;
+  var _chromatic = true;
 
   /// What the tuner compares notes with: any note, or the open strings of
-  /// an instrument.
-  TunerTuning get tuning => _tuning;
+  /// the chosen instrument.
+  TunerTuning get tuning => _chromatic ? TunerTuning.chromatic : _instrument;
 
-  void setTuning(TunerTuning tuning) {
-    if (tuning == _tuning) return;
-    _tuning = tuning;
-    _save(_prefs?.setString(_tuningKey, tuning.name));
+  /// The instrument chosen last, kept while the tuner is chromatic.
+  TunerTuning get tunerInstrument => _instrument;
+
+  bool get tunerChromatic => _chromatic;
+
+  void setTunerChromatic(bool chromatic) {
+    if (chromatic == _chromatic) return;
+    _chromatic = chromatic;
+    _save(_prefs?.setBool(_chromaticKey, chromatic));
+    notifyListeners();
+  }
+
+  /// Chooses an instrument and tunes to its strings.
+  void setTunerInstrument(TunerTuning instrument) {
+    assert(!instrument.isChromatic);
+    if (instrument == _instrument && !_chromatic) return;
+    _instrument = instrument;
+    _chromatic = false;
+    _save(_prefs?.setString(_tuningKey, instrument.name));
+    _save(_prefs?.setBool(_chromaticKey, false));
     notifyListeners();
   }
 

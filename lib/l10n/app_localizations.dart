@@ -770,11 +770,41 @@ abstract class AppLocalizations {
   /// **'Chromatic'**
   String get tuningChromatic;
 
+  /// No description provided for @tuningInstrument.
+  ///
+  /// In en, this message translates to:
+  /// **'Instrument'**
+  String get tuningInstrument;
+
+  /// No description provided for @tuningGuitar.
+  ///
+  /// In en, this message translates to:
+  /// **'Guitar'**
+  String get tuningGuitar;
+
   /// No description provided for @tuningViolin.
   ///
   /// In en, this message translates to:
   /// **'Violin'**
   String get tuningViolin;
+
+  /// No description provided for @tuningViola.
+  ///
+  /// In en, this message translates to:
+  /// **'Viola'**
+  String get tuningViola;
+
+  /// No description provided for @tuningCello.
+  ///
+  /// In en, this message translates to:
+  /// **'Cello'**
+  String get tuningCello;
+
+  /// No description provided for @tuningUkulele.
+  ///
+  /// In en, this message translates to:
+  /// **'Ukulele'**
+  String get tuningUkulele;
 
   /// No description provided for @tuningBass.
   ///
@@ -794,11 +824,11 @@ abstract class AppLocalizations {
   /// **'Strings: {strings}'**
   String tuningStrings(String strings);
 
-  /// No description provided for @tunerString.
+  /// In the tuner's string mode: the number of the string being tuned, as a Roman numeral (I is the thinnest).
   ///
   /// In en, this message translates to:
-  /// **'Open string'**
-  String get tunerString;
+  /// **'String {number}'**
+  String tunerString(String number);
 
   /// In the tuner's string mode: the note actually heard, when it is not the string being tuned.
   ///

@@ -10,7 +10,7 @@ class PitchDetector {
     this.minFrequency = 28,
     this.maxFrequency = 700,
     this.threshold = 0.15,
-    this.minLevel = 0.003,
+    this.minLevel = 0.001,
     this.holdThreshold = 0.35,
   });
 
@@ -32,7 +32,13 @@ class PitchDetector {
   final double holdThreshold;
 
   /// Quieter sounds (root mean square, samples from -1 to 1) are ignored.
+  /// An electric bass heard acoustically, without an amplifier, is faint.
   final double minLevel;
+
+  /// While following a note already heard (see [detect]) a third of
+  /// [minLevel] is enough: a ringing string keeps going well below the level
+  /// it needed to be noticed.
+  double get _holdLevel => minLevel / 3;
 
   int get _maxLag => (sampleRate / minFrequency).ceil();
   int get _minLag => (sampleRate / maxFrequency).floor();
@@ -57,7 +63,8 @@ class PitchDetector {
     for (var i = 0; i < n; i++) {
       energy += samples[i] * samples[i];
     }
-    if (math.sqrt(energy / n) < minLevel) return null;
+    final level = math.sqrt(energy / n);
+    if (level < (expected == null ? minLevel : _holdLevel)) return null;
 
     // Cumulative mean normalised difference for each lag.
     final d = Float64List(maxLag + 1)..[0] = 1;

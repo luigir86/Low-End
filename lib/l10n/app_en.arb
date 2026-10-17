@@ -229,7 +229,12 @@
     }
   },
   "tuningChromatic": "Chromatic",
+  "tuningInstrument": "Instrument",
+  "tuningGuitar": "Guitar",
   "tuningViolin": "Violin",
+  "tuningViola": "Viola",
+  "tuningCello": "Cello",
+  "tuningUkulele": "Ukulele",
   "tuningBass": "Bass",
   "tuningBassFive": "Bass 5",
   "tuningStrings": "Strings: {strings}",
@@ -240,7 +245,15 @@
       }
     }
   },
-  "tunerString": "Open string",
+  "tunerString": "String {number}",
+  "@tunerString": {
+    "description": "In the tuner's string mode: the number of the string being tuned, as a Roman numeral (I is the thinnest).",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
   "tunerHeard": "Heard {note}",
   "@tunerHeard": {
     "description": "In the tuner's string mode: the note actually heard, when it is not the string being tuned.",

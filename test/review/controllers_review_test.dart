@@ -226,7 +226,7 @@ void main() {
       expect(mic.isCapturing, isFalse);
     });
 
-    test('note disappears about 1.5 s after silence and never jumps on '
+    test('note disappears about 2.5 s after silence and never jumps on '
         'a single octave glitch', () async {
       final mic = FakeMicInput();
       final tuner = TunerController(mic);
@@ -244,7 +244,7 @@ void main() {
         await _flush();
       }
       expect(tuner.frequency, closeTo(41.2, 0.3));
-      // Silence: 50 ms per reading, about 30 readings to clear.
+      // Silence: 50 ms per reading, about 50 readings to clear.
       for (var i = 0; i < 20; i++) {
         mic.add(Float64List(800));
         await _flush();
