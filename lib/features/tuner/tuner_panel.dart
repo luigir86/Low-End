@@ -683,11 +683,13 @@ class _NoteDisplay extends StatelessWidget {
         child: Opacity(
           opacity: held ? 0.55 : 1,
           child: fit([
+            // The note in the ink of the text; the verdict alone, under it,
+            // turns green, orange or red.
             _NoteName(
               note: r.target,
               names: names,
               numbering: numbering,
-              color: color,
+              color: theme.colorScheme.onSurface,
             ),
             // The verdict, large enough to read from the music stand.
             Row(

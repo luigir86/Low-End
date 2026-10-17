@@ -11,7 +11,7 @@ Ogni scheda ha il colore di un materiale dell'orchestra, e solo quello: **ottone
 - **Coerenza con la musica.** Ottone, legno e argento sono materiali di strumenti veri, non colori "da app". Il metronomo è di ottone (il pendolo), l'armonia è nel legno di violini e chitarre, l'accordatore è d'argento (il diapason).
 - **Tre schede riconoscibili a colpo d'occhio.** Giallo bruno, rosso-marrone e grigio acciaio cambiano insieme tonalità e luminosità.
 - **Sfondo neutro, non legno.** Il fondo è un ebano grigio in scuro e un grigio neutro in chiaro, così i tre colori risaltano.
-- **I verdetti dell'accordatore sono verde, arancio e rosso** e si leggono solo sulla **nota**: il cerchio e il cursore sono sempre argento. Nessun verdetto ha il colore di una scheda: l'arancio non è l'ottone, il rosso è un rosso puro e non il palissandro.
+- **I verdetti dell'accordatore sono verde, arancio e rosso** e si leggono solo sulla **scritta del verdetto** (con la sua freccia o spunta): la nota è nera o bianca come al centro degli altri cerchi, e il cerchio e il cursore sono sempre argento. Nessun verdetto ha il colore di una scheda: l'arancio non è l'ottone, il rosso è un rosso puro e non il palissandro.
 - **Piatto.** Provato un riflesso metallico su ottone e argento: più "bello" ma meno sobrio; Luigi preferisce piatto.
 
 ## 3. Palette
@@ -28,7 +28,7 @@ Verdetti dell'accordatore: intonato #2E6B3A / #8FD19E, quasi #A64B00 / #FFA05A (
 
 Ogni altra tinta di una scheda è il suo colore **mescolato nello sfondo**: disco 10%, segmenti spenti 26%, pillola scelta e TAP 20%, note dell'accordo 55%, bordi, battiti accesi e segmenti dell'accordatore 90% in chiaro e 75% in scuro.
 
-Cosa è tinto da una scheda: cerchio (disco, anello, segmenti), bordi, cursore, pillola e pallino della scheda in basso, seconda voce dell'accordo. **Non** è tinto: sfondo, barra dei tab, testo, icone dei pulsanti, scelte non selezionate degli interruttori, verdetti dell'accordatore.
+Cosa è tinto da una scheda: cerchio (disco, anello, segmenti), bordi, cursore, pillola e pallino della scheda in basso, seconda voce dell'accordo. **Non** è tinto: sfondo, barra dei tab, testo, la nota al centro dell'Armonia e dell'Accordatore, icone dei pulsanti, scelte non selezionate degli interruttori, verdetti dell'accordatore.
 
 ## 4. Regole emerse dalla revisione estetica (skill "taste")
 
@@ -45,7 +45,7 @@ Cosa è tinto da una scheda: cerchio (disco, anello, segmenti), bordi, cursore, 
 
 ## 6. Accessibilità del verdetto dell'accordatore
 
-La nota cambia colore, ma il verdetto è detto anche da parole ("Intonato", "Calante −9 cent"), dalla freccia o dalla spunta, e dal verso in cui girano i segmenti: nessuna informazione è affidata al solo colore.
+La scritta del verdetto cambia colore, ma il verdetto è detto anche da parole ("Intonato", "Calante −9 cent"), dalla freccia o dalla spunta, e dal verso in cui girano i segmenti: nessuna informazione è affidata al solo colore.
 
 ## 7. Icona
 
