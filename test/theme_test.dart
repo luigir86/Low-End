@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:low_end/app/app_navigation.dart';
 import 'package:low_end/app/theme.dart';
 
 String _hex(Color c) =>
@@ -32,6 +33,37 @@ void main() {
     ('light', LowEndTheme.light),
     ('dark', LowEndTheme.dark),
   ]) {
+    test('$name: each tab accent keeps its contrast', () {
+      for (final section in AppSection.values) {
+        final c = LowEndTheme.accented(theme, section).colorScheme;
+        // Text and shapes in the accent, on the surface and on the pill.
+        expect(contrast(c.primary, c.surface), greaterThanOrEqualTo(4.5));
+        expect(contrast(c.onPrimary, c.primary), greaterThanOrEqualTo(4.5));
+        expect(
+          contrast(c.onSecondaryContainer, c.secondaryContainer),
+          greaterThanOrEqualTo(4.5),
+        );
+        expect(contrast(c.secondaryContainer, c.surface), greaterThan(1.1));
+        // What the tab tints: muted text, the second voice of a chord, the
+        // borders and the verdicts, on the tab's disc and surface.
+        final extra = LowEndTheme.accented(theme, section)
+            .extension<LowEndColors>()!;
+        expect(contrast(c.onSurfaceVariant, c.surface), greaterThanOrEqualTo(4.5));
+        // (Wood's own pair, from before the accents, is 4.2: bold note names.)
+        expect(
+          contrast(c.onSecondary, c.secondary),
+          greaterThanOrEqualTo(section == AppSection.metronome ? 4.2 : 4.5),
+        );
+        expect(contrast(c.outline, c.surface), greaterThanOrEqualTo(3));
+        expect(contrast(c.outline, extra.strobeBackground), greaterThanOrEqualTo(3));
+        expect(contrast(c.secondary, extra.strobeBackground), greaterThanOrEqualTo(3), reason: "secondary $section");
+        for (final v in [extra.inTune, extra.close, extra.off]) {
+          expect(contrast(v, extra.strobeBackground), greaterThanOrEqualTo(3));
+          expect(contrast(v, c.surface), greaterThanOrEqualTo(3));
+        }
+      }
+    });
+
     test('$name: the dial reads at a glance (WCAG 1.4.11)', () {
       final colors = theme.colorScheme;
       final extra = theme.extension<LowEndColors>()!;

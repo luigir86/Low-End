@@ -169,7 +169,7 @@ class AppLocalizationsIt extends AppLocalizations {
       'Tocca una nota per farla suonare. Toccala di nuovo per fermarla.';
 
   @override
-  String get rootOnly => 'Fondamentale';
+  String get rootOnly => 'Tonica';
 
   @override
   String get chordLabel => 'Accordo';
@@ -186,6 +186,11 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String droneChordHalfDiminished(String note) {
     return '$note semidiminuito';
+  }
+
+  @override
+  String progressionInKey(String name, String key) {
+    return '$name in $key';
   }
 
   @override
