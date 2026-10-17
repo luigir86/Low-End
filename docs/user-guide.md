@@ -40,6 +40,7 @@ Twelve keys round a dial (by default in the circle of fifths; you can ask for se
 - The tuner listens by itself when you open the section (the first time Android asks for the **microphone**). Play a note: its name appears in the middle of the round strobe. The rings of the strobe turn anticlockwise when the note is **flat** and clockwise when it is **sharp**, faster the further off you are, and stand still when you are **in tune** (within 5 cents by default; the settings offer 2 or 10), under the dial a straight scale shows the same thing by position, and a note that is only being held after the string stopped fades. The words *Flat*, *In tune* and *Sharp* and the number of cents are written too, and a screen reader reads them out.
 - The reference A is under the dial: **−** and **+** step through the pitches, and the pencil chooses one of the standard ones (415, 432, 440, 442 Hz).
 - It hears notes from 28 Hz to 700 Hz, and it names any note, with no string to choose first.
+- The **Instrument** menu switches from Chromatic to the strings of guitar, violin, viola, cello, ukulele or bass, and shows the number of the string.
 - **Listen / Pause**: touch the middle of the dial to pause it whenever you want; it stays paused until you touch it again.
 - The tuner **pauses the metronome and the harmony** while you are on it, so the microphone hears only your instrument; they carry on when you leave.
 - The sound is analysed on the phone and never recorded or sent anywhere.

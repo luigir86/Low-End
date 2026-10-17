@@ -29,6 +29,7 @@ The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens o
 
 - Chromatic, with a round strobe and the note in the middle: play any note and it shows up, no string to choose first.
 - Finds the note with the YIN algorithm ([`lib/audio/pitch_detector.dart`](lib/audio/pitch_detector.dart)), from 28 to 700 Hz: from the lowest strings to a violin's high notes.
+- The instrument menu switches from Chromatic to the strings of guitar, violin, viola, cello, ukulele or bass, with the string number shown.
 - It listens only while it is on screen (and you can pause it). Opening the tuner pauses the metronome and the harmony, so the microphone hears only your instrument.
 
 ### Settings
@@ -54,7 +55,7 @@ To the **Power Flower Orchestra of Fossano**, who inspired this app and put it t
 
 Nothing here is promised.
 
-- Metronome: subdivisions, more time signatures, a tempo trainer, latency compensation, landscape layout.
+- Metronome: subdivisions, more time signatures, a tempo trainer, latency compensation.
 - Harmony: more progressions and chords, just intonation.
 - More languages (Spanish, German, French, Portuguese, Japanese).
 - A PDF library for sheet music, set lists and annotations, and later PDF to MusicXML and MIDI playback.

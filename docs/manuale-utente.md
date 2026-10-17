@@ -40,6 +40,7 @@ Dodici tasti intorno a un quadrante (di norma nel cerchio delle quinte; nelle im
 - L'accordatore ascolta da solo quando apri la sezione (la prima volta Android chiede il permesso per il **microfono**). Suona una nota: il suo nome compare al centro dello strobo rotondo. Gli anelli dello strobo girano in senso antiorario se la nota è **calante** e orario se è **crescente**, più veloci quanto più sei lontano, e restano fermi quando sei **intonato** (entro 5 cent). Sono scritte anche le parole *Calante*, *Intonato* e *Crescente* e il numero di cent, e un lettore di schermo le legge ad alta voce.
 - Il La di riferimento è sotto il cerchio: **−** e **+** scorrono i valori, la matita sceglie uno di quelli standard (415, 432, 440, 442 Hz).
 - Sente le note da 28 Hz a 700 Hz e riconosce qualsiasi nota, senza dover scegliere prima la corda.
+- Il menu **Strumento** passa dal Cromatico alle corde di chitarra, violino, viola, violoncello, ukulele o basso, e mostra il numero della corda.
 - **Ascolta / Pausa**: tocca il centro del cerchio per metterlo in pausa quando vuoi; resta in pausa finché non lo tocchi di nuovo.
 - Mentre sei nell'accordatore, **metronomo e armonia vanno in pausa**, così il microfono sente solo il tuo strumento; riprendono quando esci.
 - Il suono è analizzato sul telefono e non viene mai registrato né inviato.
