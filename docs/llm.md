@@ -10,13 +10,13 @@ The section the app shows as **Harmony** (Armonia) keeps its original action nam
 
 | Action | What it does |
 |---|---|
-| `get_state` | Section on screen, tuner (status, last note, cents off, in tune), drone (playing, note, root or chord), settings (reference A, language, note names) |
+| `get_state` | Section on screen, tuner (status, last note, cents off, in tune), drone (playing, note, root or chord), metronome (tempo, time signature, subdivision, click on 2 and 4), settings (reference A, language, note names, transposition); with a transposition the reading also gives the `written` note |
 | `open_section` | Shows `tuner`, `drone` or `metronome` |
 | `tuner_start` | Opens the chromatic tuner and listens: it names any note played |
 | `tuner_stop` | Pauses the tuner, like the Pause button: it stays paused until `tuner_start` |
 | `drone_play` | Plays the drone in the middle octave, applying `note` (A, Bb, Sol…: the root, or the key of a progression), `voicing` (`root`, `chord` or `progression`), `chord` (`major`, `minor`, `seventh`), `progression` (`twoFiveOne`, `minorTwoFiveOne`, `oneFourFive`, `oneSixFourFive`, `blues`; one chord per bar at the metronome tempo) and `style` (`held`, `beat`, `arpeggio`: the piano strikes the chord once a bar, on every beat, or plays an arpeggio, at the metronome tempo and time signature) and `sevenths` (adds the seventh: maj7, m7, 7, m7b5). The sound is a piano, in equal temperament |
 | `drone_stop` | Stops the drone |
-| `metronome_start` | Opens the metronome and starts it in 4/4, optionally at `bpm` (30–250) |
+| `metronome_start` | Opens the metronome and starts it in its current time signature, optionally applying `bpm` (30–250, 400 in 7/8), `subdivision` and `backbeat` as `metronome_set` does |
 | `metronome_stop` | Stops the metronome |
 | `metronome_set` | Sets the tempo (`bpm`), the `subdivision` (`none`, `eighths`, `triplets`, `sixteenths`, `swing`) or the click on 2 and 4 (`backbeat`), without starting or stopping it |
 | `drone_set` | Changes the drone settings without starting or stopping it |

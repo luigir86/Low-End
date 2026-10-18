@@ -456,7 +456,10 @@ class _FeelSwitch extends StatelessWidget {
             maxLines: 1,
             // The note symbols come from another font, small beside the
             // letters: larger, and a little taller so as not to clip.
-            style: TextStyle(height: 1.35, fontSize: glyph ? 26 : null),
+            style: TextStyle(
+              height: 1.35,
+              fontSize: glyph ? LowEndType.headline : null,
+            ),
           ),
         ),
       ),
