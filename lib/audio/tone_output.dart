@@ -23,9 +23,6 @@ abstract class ToneOutput {
   /// once later, such as the chords of a progression.
   Future<void> prepare(List<(List<double>, List<double>)> sounds);
 
-  /// Changes the overall volume, 0 to 1, of the tones already playing.
-  void setVolume(double volume);
-
   Future<void> stop();
 }
 
@@ -73,7 +70,7 @@ class SoLoudToneOutput implements ToneOutput {
     assert(gains.length == frequencies.length);
     final key = _key(frequencies, gains);
     if (_handle != null && key == _playing) {
-      setVolume(volume);
+      _setVolume(volume);
       return;
     }
     final AudioSource source;
@@ -103,8 +100,7 @@ class SoLoudToneOutput implements ToneOutput {
     await Future.wait([for (final (f, g) in sounds) _source(f, g)]);
   }
 
-  @override
-  void setVolume(double volume) {
+  void _setVolume(double volume) {
     final handle = _handle;
     if (handle != null) _soloud.fadeVolume(handle, volume, _fade);
   }
@@ -152,9 +148,6 @@ class SilentToneOutput implements ToneOutput {
   @override
   Future<void> prepare(List<(List<double>, List<double>)> sounds) async =>
       prepared = sounds;
-
-  @override
-  void setVolume(double v) => volume = v;
 
   @override
   Future<void> stop() async => frequencies = const [];

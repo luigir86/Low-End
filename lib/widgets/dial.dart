@@ -104,11 +104,6 @@ class DialGeometry {
     }
   }
 
-  /// A point at [radius] from the centre, at [angle] (0 is the top,
-  /// clockwise).
-  Offset pointAt(double angle, double radius) =>
-      center + Offset(math.sin(angle), -math.cos(angle)) * radius;
-
   /// Where the middle of a segment centred on [angle] sits (0 is the top,
   /// clockwise).
   Offset ringPoint(double angle) {

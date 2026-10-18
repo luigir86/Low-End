@@ -61,11 +61,6 @@ class TunerController extends ChangeNotifier {
   /// away (see [_holdReadings]).
   bool get held => _frequency != null && _missed >= _heldAfter;
 
-  /// True when the player paused the tuner: coming back to the tab or to
-  /// the app then leaves it paused (see [resume]). It always starts out
-  /// false, so the app opens listening.
-  bool get userPaused => _userPaused;
-
   /// Starts listening, also after a pause by the player. While a start is
   /// already under way, returns that one, so the caller can wait until the
   /// tuner is listening (or has failed).

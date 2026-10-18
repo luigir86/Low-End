@@ -14,12 +14,6 @@ class _WatchedToneOutput extends SilentToneOutput {
     used = true;
     return super.play(f, gains, v);
   }
-
-  @override
-  void setVolume(double v) {
-    used = true;
-    super.setVolume(v);
-  }
 }
 
 /// Records when the microphone was first asked for.

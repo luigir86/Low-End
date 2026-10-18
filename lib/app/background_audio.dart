@@ -150,17 +150,3 @@ class _Handler extends BaseAudioHandler {
   @override
   Future<void> stop() async => _commands.add(MediaCommand.stop);
 }
-
-/// [BackgroundAudio] that does nothing; used in tests.
-@visibleForTesting
-class NoBackgroundAudio implements BackgroundAudio {
-  @override
-  Stream<MediaCommand> get commands => const Stream.empty();
-
-  @override
-  Future<void> show(
-    MediaState state, {
-    required String title,
-    String text = '',
-  }) async {}
-}

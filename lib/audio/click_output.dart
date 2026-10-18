@@ -20,9 +20,6 @@ abstract class ClickOutput {
   Future<LoopStart> play(Uint8List barWav, {Duration? startAt});
 
   Future<void> stop();
-
-  /// Sets the level, 0 to 1, of the clicks now and of later bars.
-  void setVolume(double volume);
 }
 
 /// [ClickOutput] backed by the SoLoud audio engine.
@@ -67,9 +64,6 @@ class SoLoudClickOutput implements ClickOutput {
 
   @override
   Future<void> stop() => _player.stop();
-
-  @override
-  void setVolume(double volume) => _player.setVolume(volume);
 }
 
 /// [ClickOutput] that makes no sound; used where audio is unavailable.
@@ -93,9 +87,4 @@ class SilentClickOutput implements ClickOutput {
 
   @override
   Future<void> stop() async => bar = null;
-
-  double volume = 1;
-
-  @override
-  void setVolume(double volume) => this.volume = volume;
 }

@@ -36,8 +36,6 @@ abstract class PianoOutput {
   });
 
   Future<void> stop();
-
-  void setVolume(double volume);
 }
 
 /// [PianoOutput] backed by the SoLoud audio engine.
@@ -111,9 +109,6 @@ class SoLoudPianoOutput implements PianoOutput {
 
   @override
   Future<void> stop() => _player.stop();
-
-  @override
-  void setVolume(double volume) => _player.setVolume(volume);
 }
 
 /// [PianoOutput] that makes no sound; used where audio is unavailable.
@@ -156,7 +151,4 @@ class SilentPianoOutput implements PianoOutput {
 
   @override
   Future<void> stop() async => chords = null;
-
-  @override
-  void setVolume(double v) => volume = v;
 }

@@ -89,9 +89,6 @@ class SlowToneOutput implements ToneOutput {
   }
 
   @override
-  void setVolume(double v) {}
-
-  @override
   Future<void> stop() async => sounding = const [];
 
   void releaseAll() {

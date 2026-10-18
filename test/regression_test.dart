@@ -52,9 +52,6 @@ class _GatedOutput implements ToneOutput {
   }
 
   @override
-  void setVolume(double v) {}
-
-  @override
   Future<void> stop() async => sounding = const [];
 
   void openAll() {
@@ -173,7 +170,6 @@ void main() {
       await tester.tap(find.byKey(const Key('tunerHub')));
       await _settle(tester);
       expect(mic.isCapturing, isFalse);
-      expect(scope.tuner.userPaused, isTrue);
       expect(find.text('Tuner paused: tap Listen'), findsOneWidget);
 
       scope.navigation.open(AppSection.drone);
@@ -205,7 +201,6 @@ void main() {
       await tester.tap(find.byKey(const Key('tunerHub')));
       await _settle(tester);
       expect(mic.isCapturing, isTrue);
-      expect(scope.tuner.userPaused, isFalse);
     });
 
     testWidgets('without a pause, the tuner listens again after the '
