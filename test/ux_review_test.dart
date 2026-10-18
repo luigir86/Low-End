@@ -12,11 +12,6 @@ import 'package:low_end/features/tuner/tuner_reading.dart';
 import 'package:low_end/widgets/flip_detector.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-final _railTab = find.descendant(
-  of: find.byKey(const Key('tabRail')),
-  matching: find.text('Harmony'),
-);
-
 void main() {
   group('tempo marks', () {
     test('name the tempo in Italian', () {
@@ -189,49 +184,6 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.textContaining('Swipe up or down'), findsOneWidget);
       expect(settings.seenSwipeHint, isTrue);
-    });
-
-    testWidgets('holding a tab starts its sound when not locked', (
-      tester,
-    ) async {
-      SharedPreferences.setMockInitialValues({
-        'seen_guide': true,
-        'seen_swipe_hint': true,
-      });
-      await tester.pumpWidget(
-        LowEndApp(
-          toneOutput: SilentToneOutput(),
-          micInput: FakeMicInput(),
-          settings: await AppSettings.load(),
-        ),
-      );
-      await tester.pumpAndSettle();
-      final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
-      await tester.longPress(_railTab);
-      await tester.pump(const Duration(seconds: 1));
-      expect(scope.drone.isPlaying, isTrue);
-      await scope.drone.stop();
-    });
-
-    testWidgets('and not at all with the gestures locked', (tester) async {
-      SharedPreferences.setMockInitialValues({
-        'seen_guide': true,
-        'gestures_locked': true,
-      });
-      await tester.pumpWidget(
-        LowEndApp(
-          toneOutput: SilentToneOutput(),
-          micInput: FakeMicInput(),
-          settings: await AppSettings.load(),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsNothing);
-      final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
-      // Holding a tab does nothing while locked (the tap that ends it only opens the tab).
-      await tester.longPress(_railTab);
-      await tester.pump(const Duration(seconds: 1));
-      expect(scope.drone.isPlaying, isFalse);
     });
   });
 

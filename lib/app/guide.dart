@@ -52,7 +52,6 @@ class _GuideState extends State<_Guide> {
       page(l10n.guidePage2Title, [
         tip(Icons.swipe, l10n.guideSwipe),
         tip(Icons.swipe_vertical, l10n.guideSwipeVertical),
-        tip(Icons.ads_click, l10n.guideHold),
         tip(Icons.lock_outline, l10n.guideLock),
       ]),
       page(l10n.guidePage3Title, [

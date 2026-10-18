@@ -42,9 +42,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backgroundPlaying => 'Playing in the background';
 
   @override
-  String get holdToToggle => 'Hold to start or stop';
-
-  @override
   String get slower => 'Slower';
 
   @override
@@ -104,17 +101,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String droneChordDiminished(String note) {
     return '$note diminished';
-  }
-
-  @override
-  String get balanceTitle => 'Balance';
-
-  @override
-  String get balanceLabel => 'Balance between the metronome and the harmony';
-
-  @override
-  String balanceValue(String metronome, String drone) {
-    return 'Metronome $metronome%, harmony $drone%';
   }
 
   @override
@@ -324,9 +310,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resume => 'Resume';
 
   @override
-  String get playing => 'Playing';
-
-  @override
   String get openSettings => 'Open settings';
 
   @override
@@ -422,7 +405,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gesturesLockedSubtitle =>
-      'For rehearsals: no swiping between sections and no holding a tab, and tapping the current tab no longer stops anything';
+      'For rehearsals: no swiping between sections';
 
   @override
   String get inTuneZoneTitle => 'Tuner: in tune within';
@@ -461,10 +444,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Turned sideways, swipe up and down over the dial or the tabs to change section.';
 
   @override
-  String get guideHold =>
-      'Hold a tab to start or stop its sound from any section.';
-
-  @override
   String get guideDrone =>
       'In Harmony, tap a note to play it. Hold C♯ or F♯ to write them D♭ or G♭.';
 
@@ -473,8 +452,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'The tuner listens by itself. Going there pauses the metronome and the harmony.';
 
   @override
-  String get guideVolume =>
-      'The volume is the phone\'s: use its volume keys. The slider at the bottom only balances the metronome and the harmony.';
+  String get guideVolume => 'The volume is the phone\'s: use its volume keys.';
 
   @override
   String get guideDone => 'Got it';
@@ -503,7 +481,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideLock =>
-      'For rehearsals, lock the gestures in the settings: tapping the current tab then no longer stops anything.';
+      'For rehearsals, lock the gestures in the settings: swiping between sections then does nothing.';
 
   @override
   String get guideCents =>

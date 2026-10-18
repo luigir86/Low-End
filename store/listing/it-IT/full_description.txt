@@ -9,7 +9,7 @@ ARMONIA
 • Dodici tasti su un quadrante: tocca una nota e suona su un vero pianoforte, a tempo con il metronomo.
 • La nota da sola, oppure un accordo maggiore, minore o di settima, battuto una volta a battuta, a ogni movimento o arpeggiato.
 • Progressioni su cui studiare, un accordo per battuta: II–V–I (maggiore e minore), I–IV–V, I–VI–IV–V e il blues di dodici battute, in qualunque tonalità, ognuna con il nome di un brano che conosci.
-• Scegli l'ottava della fondamentale e la posizione dell'accordo. Regoli il bilanciamento tra metronomo e armonia con un solo cursore.
+• Scegli l'ottava della fondamentale e la posizione dell'accordo.
 
 ACCORDATORE
 • Cromatico, con uno strobo rotondo e la nota al centro: suona una nota qualsiasi e compare, senza dover scegliere prima la corda.
@@ -18,7 +18,7 @@ ACCORDATORE
 • La di riferimento: 415, 430, 432 o da 438 a 445 Hz. Il suono è analizzato sul telefono e non viene mai registrato.
 
 PENSATA PER SUONARE
-• Scorri a sinistra e a destra per cambiare sezione. Tocca la scheda in cui sei per avviare o fermare il suo suono; tieni premuta un'altra scheda per farlo da qualsiasi sezione.
+• Scorri a sinistra e a destra per cambiare sezione. Una scheda porta solo alla sua sezione.
 • Continua a suonare con lo schermo spento, con una notifica che dice cosa sta suonando. A scelta: schermo sempre acceso.
 • Un aspetto scuro in bronzo ed ebano, riposante sul palco; italiano e inglese; nomi delle note Do Re Mi o C D E.
 • Progettata per essere accessibile: etichette per i lettori di schermo, testo ingrandibile e colori mai usati come unico segnale.

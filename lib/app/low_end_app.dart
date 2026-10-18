@@ -102,8 +102,6 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     super.initState();
     // The drone plays at the reference A chosen in the settings.
     _drone.setReferencePitch(_droneA4);
-    _drone.setLevel(_settings.droneLevel);
-    _metronome.setLevel(_settings.metronomeLevel);
     // The metronome comes back as it was left: time signature first, since
     // the fastest tempo depends on it.
     _metronome.setSignature(_settings.metronomeSignature);
@@ -146,9 +144,6 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     _keepScreenOn();
     // The notification names the notes in the player's way.
     if (_shown == MediaState.playing) _onPlayingChanged();
-    // Both only act when their value really changed.
-    _drone.setLevel(_settings.droneLevel);
-    _metronome.setLevel(_settings.metronomeLevel);
     // The tuner listens as high as the instrument chosen plays.
     _tuner.highestHz = _settings.tuning.highestHz;
     if (_settings.a4 == _droneA4) return;

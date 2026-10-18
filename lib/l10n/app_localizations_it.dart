@@ -42,9 +42,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get backgroundPlaying => 'In riproduzione in background';
 
   @override
-  String get holdToToggle => 'Tieni premuto per avviare o fermare';
-
-  @override
   String get slower => 'Più lento';
 
   @override
@@ -104,17 +101,6 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String droneChordDiminished(String note) {
     return '$note diminuito';
-  }
-
-  @override
-  String get balanceTitle => 'Bilanciamento';
-
-  @override
-  String get balanceLabel => 'Bilanciamento tra metronomo e armonia';
-
-  @override
-  String balanceValue(String metronome, String drone) {
-    return 'Metronomo $metronome%, armonia $drone%';
   }
 
   @override
@@ -327,9 +313,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get resume => 'Riprendi';
 
   @override
-  String get playing => 'In riproduzione';
-
-  @override
   String get openSettings => 'Apri impostazioni';
 
   @override
@@ -425,7 +408,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get gesturesLockedSubtitle =>
-      'Per le prove: niente scorrimenti tra le sezioni né pressione lunga sulle schede, e il tocco sulla scheda attiva non ferma più nulla';
+      'Per le prove: niente scorrimenti tra le sezioni';
 
   @override
   String get inTuneZoneTitle => 'Accordatore: intonato entro';
@@ -465,10 +448,6 @@ class AppLocalizationsIt extends AppLocalizations {
       'Con il telefono in orizzontale, scorri verso l\'alto o il basso sul cerchio o sulle schede per cambiare sezione.';
 
   @override
-  String get guideHold =>
-      'Tieni premuto una scheda per avviare o fermare il suo suono da qualsiasi sezione.';
-
-  @override
   String get guideDrone =>
       'In Armonia tocca una nota per farla suonare. Tieni premuto Do♯ o Fa♯ per scriverli Re♭ o Sol♭.';
 
@@ -478,7 +457,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get guideVolume =>
-      'Il volume è quello del telefono: usa i suoi tasti. Il cursore in basso bilancia solo metronomo e armonia.';
+      'Il volume è quello del telefono: usa i suoi tasti.';
 
   @override
   String get guideDone => 'Ho capito';
@@ -507,7 +486,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get guideLock =>
-      'Per le prove, blocca i gesti dalle impostazioni: anche il tocco sulla scheda attiva non ferma più nulla.';
+      'Per le prove, blocca i gesti dalle impostazioni: lo scorrimento tra le sezioni non fa più nulla.';
 
   @override
   String get guideCents =>

@@ -4,11 +4,9 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-import '../../app/style.dart';
 import '../../app/theme.dart';
 import '../../audio/audio_scope.dart';
 import '../../l10n/app_localizations.dart';
-import '../../widgets/balance_slider.dart';
 import '../../widgets/dial.dart';
 import '../../widgets/pill_switch.dart';
 import '../../widgets/row_controls.dart';
@@ -92,7 +90,6 @@ class MetronomeScreen extends StatelessWidget {
               ),
           ],
         ),
-        footer: const BalanceSlider(),
       ),
     );
   }

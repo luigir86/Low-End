@@ -9,7 +9,7 @@ HARMONY
 • Twelve keys on a dial: touch a note and it plays on a real piano, in time with the metronome.
 • The note alone, or a major, minor or seventh chord, struck once a bar, on every beat or as an arpeggio.
 • Progressions to practise over, one chord per bar: II–V–I (major and minor), I–IV–V, I–VI–IV–V and the twelve-bar blues, in any key, each named after a song you know.
-• Choose the octave of the root and how the chord is laid out. Set the balance between metronome and harmony with one slider.
+• Choose the octave of the root and how the chord is laid out.
 
 TUNER
 • Chromatic, with a round strobe and the note in the middle: play any note and it shows up, no string to choose first.
@@ -18,7 +18,7 @@ TUNER
 • Reference A: 415, 430, 432 or 438 to 445 Hz. The sound is analysed on the phone and never recorded.
 
 MADE FOR PLAYING
-• Swipe left and right to change section. Touch the tab you are on to start or stop its sound; hold another tab to do it from anywhere.
+• Swipe left and right to change section. A tab only goes to its section.
 • Keeps playing with the screen off, with a notification that says what is sounding. Optional: keep the screen on.
 • A dark look in bronze and ebony, easy on the eyes on stage; English and Italian; note names as C D E or Do Re Mi.
 • Built to be accessible: screen-reader labels, enlargeable text, and colours that are never the only cue.

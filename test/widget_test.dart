@@ -17,13 +17,11 @@ import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/piano_output.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
 import 'package:low_end/audio/tone_output.dart';
-import 'package:low_end/widgets/balance_slider.dart';
 import 'package:low_end/widgets/dial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:low_end/widgets/pulsing_dot.dart';
 
-/// The Harmony and Metronome tabs: their names are also under the balance
-/// slider.
+/// The Harmony and Metronome tabs: their names are not written anywhere
+/// else on the screen.
 final _harmonyTab = find.descendant(
   of: find.byType(NavigationBar),
   matching: find.text('Harmony'),
@@ -41,7 +39,7 @@ void _portrait(WidgetTester tester) {
   addTearDown(tester.view.reset);
 }
 
-/// A tab's name on the rail, not the same word under the balance slider.
+/// A tab's name on the rail, the same word as the tab on screen.
 Finder _railTab(String name) => find.descendant(
   of: find.byKey(const Key('tabRail')),
   matching: find.text(name),
@@ -194,43 +192,12 @@ void main() {
       expect(scope.navigation.section, AppSection.metronome);
     });
 
-    testWidgets('a tap on the rail goes to the section, holding plays', (
-      tester,
-    ) async {
+    testWidgets('a tap on the rail goes to the section', (tester) async {
       final scope = await open(tester);
-      await tester.longPress(_railTab('Metronome'));
-      await tester.pump(const Duration(milliseconds: 300));
-      expect(scope.metronome.isPlaying, isTrue);
-      await tester.longPress(_railTab('Metronome'));
-      await tester.pump(const Duration(milliseconds: 300));
-      expect(scope.metronome.isPlaying, isFalse);
       await tester.tap(_railTab('Tuner'));
       await tester.pumpAndSettle();
       expect(scope.navigation.section, AppSection.tuner);
     });
-  });
-
-  testWidgets('holding a tab starts and stops its sound', (tester) async {
-    _portrait(tester);
-    final tone = SilentToneOutput();
-    final click = SilentClickOutput();
-    await tester.pumpWidget(
-      LowEndApp(toneOutput: tone, clickOutput: click, micInput: FakeMicInput()),
-    );
-    await tester.pumpAndSettle();
-
-    await tester.longPress(_metronomeTab);
-    await tester.pump(const Duration(milliseconds: 300));
-    expect(click.bar, isNotNull);
-    await tester.longPress(_metronomeTab);
-    await tester.pump(const Duration(milliseconds: 300));
-    expect(click.bar, isNull);
-
-    await tester.longPress(_harmonyTab);
-    await tester.pump(const Duration(milliseconds: 300));
-    expect(tone.frequencies, isNotEmpty);
-    // Still on the Metronome tab: holding does not switch.
-    expect(find.text('Tap to start'), findsOneWidget);
   });
 
   testWidgets('drone and metronome play together, pause on the tuner with a '
@@ -253,9 +220,7 @@ void main() {
 
     await tester.tap(_harmonyTab);
     await tester.pumpAndSettle();
-    expect(find.byType(PulsingDot), findsNothing);
     await tester.tap(find.text('A'));
-    // pumpAndSettle would wait forever on the pulsing dots.
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 300));
@@ -269,7 +234,6 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     expect(click.bar, isNotNull);
     // A dot on each playing tab, and no strip to stop them from elsewhere.
-    expect(find.byType(PulsingDot), findsNWidgets(2));
     expect(find.byTooltip('Stop Harmony · A4'), findsNothing);
     // The screen stays on while they play.
     expect(awake.on, isTrue);
@@ -295,8 +259,6 @@ void main() {
     expect(tone.frequencies, isEmpty);
     expect(click.bar, isNull);
     expect(mic.isCapturing, isTrue);
-    // Only the tuner's own dot: listening, and the other two stopped.
-    expect(find.byType(PulsingDot), findsOneWidget);
     expect(find.text('Paused while you tune'), findsOneWidget);
     // Listening keeps the screen on too.
     expect(awake.on, isTrue);
@@ -319,7 +281,6 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     expect(tone.frequencies.single, closeTo(440, 0.01));
     expect(click.bar, isNotNull);
-    expect(find.byType(PulsingDot), findsNWidgets(2));
   });
 
   testWidgets('a page opened over the tuner does not pause the sound again', (
@@ -377,46 +338,6 @@ void main() {
     await tester.tap(find.text('Open settings'));
     await tester.pump();
     expect(calls, ['open']);
-  });
-
-  testWidgets('holding a tab on the tuner does not start the sound', (
-    tester,
-  ) async {
-    _portrait(tester);
-    final click = SilentClickOutput();
-    final mic = FakeMicInput();
-    await tester.pumpWidget(
-      LowEndApp(
-        toneOutput: SilentToneOutput(),
-        clickOutput: click,
-        micInput: mic,
-      ),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Tuner'));
-    await tester.pumpAndSettle();
-    expect(mic.isCapturing, isTrue);
-    await tester.longPress(_metronomeTab);
-    await tester.pump(const Duration(milliseconds: 300));
-    expect(click.bar, isNull);
-    // Still a hint for screen readers, and the tab says when it plays.
-    final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
-    final handle = tester.ensureSemantics();
-    expect(
-      tester.getSemantics(_metronomeTab),
-      isSemantics(onLongPressHint: 'Hold to start or stop'),
-    );
-    expect(tester.getSemantics(_metronomeTab).value, isEmpty);
-    // Paused, the tuner lets a hold start it.
-    await tester.tap(find.byKey(const Key('tunerHub')));
-    await tester.pump(const Duration(milliseconds: 300));
-    expect(scope.tuner.isListening, isFalse);
-    await tester.longPress(_metronomeTab);
-    await tester.pump(const Duration(milliseconds: 300));
-    expect(click.bar, isNotNull);
-    expect(tester.getSemantics(_metronomeTab).value, 'Playing');
-    handle.dispose();
-    await scope.metronome.stop();
   });
 
   testWidgets(
@@ -741,29 +662,27 @@ void main() {
     expect(find.text('Next'), findsOneWidget);
   });
 
-  testWidgets('the balance is named on both sides, the style is easy to hit', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(1080, 2400);
-    tester.view.devicePixelRatio = 2.625;
-    addTearDown(tester.view.reset);
-    await tester.pumpWidget(
-      LowEndApp(toneOutput: SilentToneOutput(), micInput: FakeMicInput()),
-    );
-    await tester.pumpAndSettle();
-    // Over the slider one word says what it does, and under it the same
-    // names as the tabs; the slider itself is named for screen readers.
-    expect(find.text('Balance'), findsOneWidget);
-    expect(find.text('Metronome'), findsNWidgets(2));
-    expect(find.text('Harmony'), findsNWidgets(2));
-    // The time signature field has no title, but a name for screen readers.
-    final semantics = tester.ensureSemantics();
-    expect(find.text('Time signature'), findsNothing);
-    expect(find.bySemanticsLabel('Time signature'), findsOneWidget);
-    semantics.dispose();
-    // The tuner tab is a microphone.
-    expect(find.byIcon(Icons.mic_none), findsOneWidget);
-  });
+  testWidgets(
+    'the tabs and the time signature are named, the tuner is a microphone',
+    (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 2.625;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        LowEndApp(toneOutput: SilentToneOutput(), micInput: FakeMicInput()),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Metronome'), findsOneWidget);
+      expect(find.text('Harmony'), findsOneWidget);
+      // The time signature field has no title, but a name for screen readers.
+      final semantics = tester.ensureSemantics();
+      expect(find.text('Time signature'), findsNothing);
+      expect(find.bySemanticsLabel('Time signature'), findsOneWidget);
+      semantics.dispose();
+      // The tuner tab is a microphone.
+      expect(find.byIcon(Icons.mic_none), findsOneWidget);
+    },
+  );
 
   testWidgets('the sound options set the octave and where the chord sits', (
     tester,
@@ -843,74 +762,6 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
     expect(scope.metronome.bpm, 60);
-  });
-
-  testWidgets('a tap on the tab on screen starts and stops its sound', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(1080, 2400);
-    tester.view.devicePixelRatio = 2.625;
-    addTearDown(tester.view.reset);
-    await tester.pumpWidget(
-      LowEndApp(
-        toneOutput: SilentToneOutput(),
-        clickOutput: SilentClickOutput(),
-        micInput: FakeMicInput(),
-      ),
-    );
-    await tester.pumpAndSettle();
-    final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
-
-    // The app opens on the metronome: a tap on its tab plays, then stops.
-    await tester.tap(_metronomeTab);
-    await tester.pump();
-    expect(scope.metronome.isPlaying, isTrue);
-    await tester.tap(_metronomeTab);
-    await tester.pump();
-    expect(scope.metronome.isPlaying, isFalse);
-
-    // On another tab, a tap only goes there.
-    await tester.tap(_harmonyTab.first);
-    await tester.pumpAndSettle();
-    expect(scope.navigation.section, AppSection.drone);
-    expect(scope.drone.isPlaying, isFalse);
-    // And once there, a tap on its tab plays.
-    await tester.tap(_harmonyTab.first);
-    await tester.pump();
-    expect(scope.drone.isPlaying, isTrue);
-  });
-
-  testWidgets('the balance slider: icons go to the sides, the middle sticks', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(1080, 2400);
-    tester.view.devicePixelRatio = 2.625;
-    addTearDown(tester.view.reset);
-    await tester.pumpWidget(
-      LowEndApp(toneOutput: SilentToneOutput(), micInput: FakeMicInput()),
-    );
-    await tester.pumpAndSettle();
-    final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
-    Finder inSlider(IconData icon) => find.descendant(
-      of: find.byType(BalanceSlider),
-      matching: find.byIcon(icon),
-    );
-
-    await tester.tap(inSlider(Icons.graphic_eq));
-    await tester.pump();
-    expect(scope.settings.balance, 1);
-    await tester.tap(inSlider(Icons.timer_outlined));
-    await tester.pump();
-    expect(scope.settings.balance, -1);
-
-    // Near the middle the slider stops in the middle; elsewhere it follows.
-    final slider = tester.widget<Slider>(find.byType(Slider));
-    slider.onChanged!(0.1);
-    expect(scope.settings.balance, 0);
-    slider.onChanged!(-0.1);
-    expect(scope.settings.balance, 0);
-    slider.onChanged!(0.3);
-    expect(scope.settings.balance, 0.3);
   });
 }
 

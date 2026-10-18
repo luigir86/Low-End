@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
@@ -11,7 +12,6 @@ import '../../../app/theme.dart';
 import '../../../audio/audio_scope.dart';
 import '../../../audio/pitch.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../widgets/balance_slider.dart';
 import '../../../widgets/dial.dart';
 import '../../metronome/metronome_controller.dart';
 import 'drone_controller.dart';
@@ -73,7 +73,6 @@ class DronePanel extends StatelessWidget {
             ],
           ),
           lower: _ChordMenu(drone: drone),
-          footer: const BalanceSlider(),
         );
       },
     );
@@ -420,11 +419,46 @@ class _NoteKey extends StatelessWidget {
 /// What is sounding, in the middle of the dial: the root with its octave
 /// small beside it, as on the tuner, then the chord, and in a progression
 /// its degree in the key and how far through it is.
-class _DialCenter extends StatelessWidget {
+/// What the hub says: the hint, or what sounds, or, while the piano waits for
+/// the metronome's bar line, the seconds to go (as on the metronome).
+class _DialCenter extends StatefulWidget {
   const _DialCenter({required this.drone, required this.names});
 
   final DroneController drone;
   final NoteNames names;
+
+  @override
+  State<_DialCenter> createState() => _DialCenterState();
+}
+
+class _DialCenterState extends State<_DialCenter> {
+  /// Redraws the countdown, only while there is one.
+  Timer? _timer;
+
+  DroneController get drone => widget.drone;
+  NoteNames get names => widget.names;
+
+  void _sync(bool waiting) {
+    if (waiting && _timer == null) {
+      _timer = Timer.periodic(const Duration(milliseconds: 100), (_) {
+        if (!mounted) return;
+        if (drone.waitLeft == null) {
+          _timer?.cancel();
+          _timer = null;
+        }
+        setState(() {});
+      });
+    } else if (!waiting) {
+      _timer?.cancel();
+      _timer = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -464,6 +498,30 @@ class _DialCenter extends StatelessWidget {
     // Spelled as in the key: D♯ in C♯ minor, G♭ in D♭.
     final rootName = spell(root.pitchClass, drone.rootLetter, names);
     final chord = drone.currentChord;
+    // Waiting for the metronome's bar line: the seconds to go, in the muted
+    // ink, and under them what is about to come in.
+    final left = drone.waitLeft;
+    final waiting = left != null && left >= const Duration(milliseconds: 500);
+    _sync(left != null);
+    if (waiting) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '${(left.inMilliseconds / 1000).ceil()}',
+            style: noteStyle?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+          Text(
+            chord != null ? chordSymbol(l10n, chord, rootName) : rootName,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleMedium,
+          ),
+        ],
+      );
+    }
     final inProgression = drone.voicing == DroneVoicing.progression;
     return Semantics(
       liveRegion: true,
