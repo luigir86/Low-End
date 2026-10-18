@@ -17,23 +17,17 @@ class LabeledField extends StatelessWidget {
     required this.value,
     required this.onTap,
     this.showLabel = true,
-    this.content,
   });
 
   final String label;
   final bool showLabel;
   final String value;
-
-  /// Null dims the field: nothing to choose.
-  final VoidCallback? onTap;
-
-  /// What to show inside in place of the text of [value] (a drawing).
-  final Widget? content;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final field = Semantics(
+    return Semantics(
       button: true,
       label: label,
       value: value,
@@ -54,18 +48,15 @@ class LabeledField extends StatelessWidget {
               minHeight: 24,
             ),
           ),
-          child:
-              content ??
-              Text(
-                value,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodyLarge,
-              ),
+          child: Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodyLarge,
+          ),
         ),
       ),
     );
-    return onTap == null ? Opacity(opacity: 0.38, child: field) : field;
   }
 }
 

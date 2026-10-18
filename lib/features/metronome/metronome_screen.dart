@@ -10,6 +10,7 @@ import '../../audio/audio_scope.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/balance_slider.dart';
 import '../../widgets/dial.dart';
+import '../../widgets/pill_switch.dart';
 import '../../widgets/row_controls.dart';
 import 'metronome_controller.dart';
 import 'note_icon.dart';
@@ -36,16 +37,15 @@ class MetronomeScreen extends StatelessWidget {
       listenable: metronome,
       builder: (context, _) => DialLayout(
         dial: _BeatRing(metronome: metronome),
-        // The first row chooses the bar: the time signature and what fills
-        // each beat. The second only sets the tempo: TAP, − + and the pencil.
-        // The same pieces as the chord row of the harmony tab: a field with
-        // its name on the border, chips, an icon button.
-        upper: Row(
-          children: [
-            Expanded(child: _SignatureButton(metronome: metronome)),
-            const SizedBox(width: 6),
-            Expanded(child: _SubdivisionField(metronome: metronome)),
-          ],
+        // The first row, a pill like the tuner's, chooses the bar: the time
+        // signature and what fills each beat. The second only sets the tempo:
+        // TAP, − + and the pencil.
+        upper: PillSwitch(
+          key: const Key('barSwitch'),
+          leftFilled: false,
+          rightFilled: false,
+          left: _SignatureButton(metronome: metronome),
+          right: _SubdivisionField(metronome: metronome),
         ),
         lower: Column(
           mainAxisSize: MainAxisSize.min,
@@ -429,11 +429,10 @@ String beatUnitName(AppLocalizations l10n, BeatUnit unit) => switch (unit) {
   BeatUnit.eighth => l10n.beatUnitEighth,
 };
 
-/// What fills each beat, in the field beside the time signature: a quarter
-/// note, two eighths, a triplet, four sixteenths, or the swung eighths and
-/// sixteenths (softer clicks between the beats). The field shows the notes
-/// and opens a menu of them. Bars counted in eighths are always played
-/// plain, so it is off there.
+/// What fills each beat, the right half of the pill: a quarter note, two
+/// eighths, a triplet, four sixteenths, or the swung eighths and sixteenths
+/// (softer clicks between the beats). It shows the notes and opens a menu of
+/// them. Bars counted in eighths are always played plain, so it is off there.
 class _SubdivisionField extends StatelessWidget {
   const _SubdivisionField({required this.metronome});
 
@@ -443,20 +442,32 @@ class _SubdivisionField extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final subdivision = metronome.subdivision;
-    return LabeledField(
-      key: const Key('subdivisionMenu'),
-      label: l10n.subdivisionLabel,
-      showLabel: false,
-      value: subdivisionName(l10n, subdivision),
-      onTap: metronome.subdivisionApplies ? () => _choose(context) : null,
-      content: Align(
-        alignment: Alignment.centerLeft,
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          // As tall as a line of text, which grows with the text size.
-          child: NoteIcon(
-            subdivision,
-            height: MediaQuery.textScalerOf(context).scale(rowLineHeight),
+    final enabled = metronome.subdivisionApplies;
+    return PillSwitch.half(
+      left: false,
+      child: Semantics(
+        button: true,
+        enabled: enabled,
+        label: l10n.subdivisionLabel,
+        value: subdivisionName(l10n, subdivision),
+        excludeSemantics: true,
+        onTap: enabled ? () => _choose(context) : null,
+        child: Opacity(
+          opacity: enabled ? 1 : 0.38,
+          child: InkWell(
+            key: const Key('subdivisionMenu'),
+            onTap: enabled ? () => _choose(context) : null,
+            child: PillSwitch.label(
+              context,
+              false,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  NoteIcon(subdivision, height: 26),
+                  const Icon(Icons.arrow_drop_down),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -639,7 +650,8 @@ class _StepButtonState extends State<_StepButton> {
   }
 }
 
-/// Shows the time signature and opens the list to choose another.
+/// The left half of the pill: shows the time signature and opens the list to
+/// choose another.
 class _SignatureButton extends StatelessWidget {
   const _SignatureButton({required this.metronome});
 
@@ -649,16 +661,34 @@ class _SignatureButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final signature = metronome.signature;
-    return LabeledField(
-      label: l10n.timeSignature,
-      // The border is bare: "4/4" in it needs no title (the label is still
-      // what a screen reader announces).
-      showLabel: false,
-      // With the click on 2 and 4 the field says so: "4/4 · 2 & 4".
-      value: metronome.backbeat && metronome.backbeatApplies
-          ? '${signature.label} · ${l10n.backbeatShort}'
-          : signature.label,
-      onTap: () => _choose(context),
+    // With the click on 2 and 4 the half says so: "4/4 · 2 & 4".
+    final value = metronome.backbeat && metronome.backbeatApplies
+        ? '${signature.label} · ${l10n.backbeatShort}'
+        : signature.label;
+    return PillSwitch.half(
+      left: true,
+      child: Semantics(
+        button: true,
+        label: l10n.timeSignature,
+        value: value,
+        excludeSemantics: true,
+        onTap: () => _choose(context),
+        child: InkWell(
+          key: const Key('signatureMenu'),
+          onTap: () => _choose(context),
+          child: PillSwitch.label(
+            context,
+            false,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(value, maxLines: 1),
+                const Icon(Icons.arrow_drop_down),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
