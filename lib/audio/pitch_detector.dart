@@ -8,7 +8,7 @@ class PitchDetector {
   PitchDetector({
     required this.sampleRate,
     this.minFrequency = 28,
-    this.maxFrequency = 700,
+    this.maxFrequency = bassMaxFrequency,
     this.threshold = 0.15,
     this.minLevel = 0.001,
     this.holdThreshold = 0.35,
@@ -16,13 +16,22 @@ class PitchDetector {
 
   final int sampleRate;
 
+  /// The highest note looked for when tuning a bass: the top of the neck and
+  /// the harmonics bassists tune with, leaving out voices and hiss.
+  static const bassMaxFrequency = 700.0;
+
+  /// The highest note looked for otherwise: the top of a violin's E string
+  /// (E7, 2637 Hz) and of a flute or a piccolo's usual range.
+  static const maxHighFrequency = 2800.0;
+
   /// Lowest frequency it can find; 28 Hz leaves room below the low B
   /// (30.9 Hz) of five-string basses.
   final double minFrequency;
 
-  /// Highest frequency it can find; 700 Hz covers the top of the neck and
-  /// the harmonics bassists tune with, and leaves out voices and hiss.
-  final double maxFrequency;
+  /// Highest frequency it can find: [bassMaxFrequency] for a bass, up to
+  /// [maxHighFrequency] for the violin and the winds. It can change between
+  /// readings (the window does not depend on it).
+  double maxFrequency;
 
   /// How periodic the sound must be, 0 to 1: lower is stricter.
   final double threshold;
@@ -81,8 +90,8 @@ class PitchDetector {
 
     // The first dip under the threshold is the period; later dips are
     // multiples of it. A first dip above [maxFrequency] means a sound too
-    // high for a bass (a voice, a whistle): its multiples would pass for a
-    // lower note, so it is dropped whole, also when a note was heard just
+    // high for the instrument (for a bass, a voice or a whistle): its
+    // multiples would pass for a lower note, so it is dropped whole, also when a note was heard just
     // before (the hold search below would otherwise find such a multiple).
     for (var lag = 2; lag < maxLag; lag++) {
       if (d[lag] >= threshold) continue;
@@ -98,7 +107,7 @@ class PitchDetector {
         if (d[i] < d[lag]) lag = i;
       }
       if (lag < _minLag) return null;
-      return sampleRate / _refine(d, lag);
+      return sampleRate / _period(d, lag, maxLag);
     }
 
     if (expected == null) return null;
@@ -117,6 +126,38 @@ class PitchDetector {
     if (!hz.isFinite || hz < minFrequency || hz > maxFrequency) return null;
     return hz;
   }
+
+  /// The period whose first dip is at [lag], to a fraction of a sample.
+  ///
+  /// A high note's period is only a few samples long (a violin's top E,
+  /// six at 16 kHz), so placing its dip to a tenth of a sample would still
+  /// leave it many cents off. Its multiples, further along, are as clean:
+  /// the one near the end of the curve, divided by how many periods it
+  /// holds, is as precise as a low note's.
+  double _period(Float64List d, int lag, int maxLag) {
+    var period = _refine(d, lag);
+    if (lag >= _shortPeriod) return period;
+    // Doubling the multiple each time keeps the guess of where its dip lies
+    // within a sample or two.
+    for (var k = 2; period * k < math.min(maxLag - 3, _farthest); k *= 2) {
+      final expected = (period * k).round();
+      var best = expected;
+      for (var i = expected - 2; i <= expected + 2; i++) {
+        if (d[i] < d[best]) best = i;
+      }
+      // A multiple with no clean dip (a sound that drifts) says no more.
+      if (d[best] >= threshold * 2) break;
+      period = _refine(d, best) / k;
+    }
+    return period;
+  }
+
+  /// Periods shorter than this many samples are placed by their multiples
+  /// (see [_period]); longer ones already are precise.
+  static const _shortPeriod = 64;
+
+  /// How far along the curve the multiples are looked for, in samples.
+  static const _farthest = 320;
 
   /// Places the minimum between samples with a parabola through its
   /// neighbours, for sub-sample precision. The shift is kept within one

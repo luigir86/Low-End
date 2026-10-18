@@ -138,3 +138,30 @@ class Note {
   @override
   int get hashCode => Object.hash(pitchClass, octave);
 }
+
+/// The key of a transposing instrument: the note it reads as C sounds
+/// [key], so its written notes are [semitones] above the sounding ones.
+/// The common ones: clarinet, trumpet and soprano and tenor sax in B♭; alto
+/// and baritone sax in E♭; horn in F. The octave is the one of a B♭
+/// trumpet, an alto sax and a horn; a tenor or baritone sax reads one higher.
+enum Transposition {
+  /// Concert pitch: notes are named as they sound.
+  c(0, 0),
+  bFlat(10, 2),
+  eFlat(3, 9),
+  f(5, 7);
+
+  const Transposition(this.key, this.semitones);
+
+  /// The pitch class the instrument's written C sounds.
+  final int key;
+
+  /// How far above the sounding note the written one is.
+  final int semitones;
+
+  /// The note an instrument in this key reads for the sounding [note].
+  Note written(Note note) {
+    final midi = note.midi + semitones;
+    return Note(midi % 12, midi ~/ 12 - 1);
+  }
+}

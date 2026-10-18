@@ -133,7 +133,7 @@
   "shapeRootless": "Senza fondamentale",
   "guideTitle": "Gesti e scorciatoie",
   "guideRing": "Tocca l'anello del metronomo per avviarlo e fermarlo.",
-  "guideTempo": "Tocca il numero per scrivere il tempo. Tieni premuto − o + per scorrere a passi di 5 e 10.",
+  "guideTempo": "Tocca la matita per scrivere il tempo. Tieni premuto − o + e il tempo scorre, sempre più veloce.",
   "guideSwipe": "Scorri a destra e a sinistra per cambiare sezione.",
   "guideSwipeVertical": "Con il telefono in orizzontale, scorri verso l'alto o il basso sul cerchio o sulle schede per cambiare sezione.",
   "guideHold": "Tieni premuto una scheda per avviare o fermare il suo suono da qualsiasi sezione.",
@@ -170,5 +170,15 @@
   "songsTitle": "Brani d'esempio",
   "songsSubtitle": "Imposta tonalità, progressione e tempo in un tocco",
   "tunerHeld": "Nota in attesa",
-  "aboutSource": "Codice sorgente: {url}"
+  "aboutSource": "Codice sorgente: {url}",
+  "subdivisionEighths": "Crome",
+  "subdivisionTriplets": "Terzine",
+  "subdivisionSixteenths": "Semicrome",
+  "backbeatTitle": "Click su 2 e 4",
+  "backbeatSubtitle": "I tempi 1 e 3 tacciono, come il charleston nel jazz. In 2/4 e 4/4.",
+  "backbeatShort": "2 e 4",
+  "transpositionTitle": "Accordatore: strumento traspositore",
+  "transpositionSubtitle": "Per gli strumenti in Si♭, Mi♭ e Fa, l'accordatore cromatico mostra la nota scritta",
+  "transpositionConcert": "Suono reale",
+  "transpositionKey": "in {key}"
 }

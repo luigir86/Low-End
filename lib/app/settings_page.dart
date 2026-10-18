@@ -195,6 +195,36 @@ class SettingsPage extends StatelessWidget {
                   ),
                 ),
               ),
+              ListTile(
+                title: Text(l10n.transpositionTitle),
+                subtitle: Text(l10n.transpositionSubtitle),
+              ),
+              // The key the instrument's written C sounds; C is concert
+              // pitch.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Semantics(
+                  label: l10n.transpositionTitle,
+                  container: true,
+                  child: SegmentedButton<Transposition>(
+                    key: const Key('transposition'),
+                    showSelectedIcon: false,
+                    segments: [
+                      for (final t in Transposition.values)
+                        ButtonSegment(
+                          value: t,
+                          label: Text(Note(t.key, 4).name(names)),
+                          tooltip: t == Transposition.c
+                              ? l10n.transpositionConcert
+                              : null,
+                        ),
+                    ],
+                    selected: {settings.transposition},
+                    onSelectionChanged: (s) =>
+                        settings.setTransposition(s.first),
+                  ),
+                ),
+              ),
               const Divider(),
               _Section(title: l10n.thanksTitle),
               Padding(

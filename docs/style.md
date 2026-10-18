@@ -7,14 +7,14 @@ One place that says what Low End looks like, so that a new screen is built from 
 The metronome, the harmony and the tuner do different things, but they must look like one app: **share shapes and proportions as much as possible, and when in doubt make a section look like the others, not like itself.** In practice:
 
 - The dial is the same size, in the same place, on all three tabs; its middle is the button and says the state in the same two sizes (display, then caption).
-- Under it, the same three rows: a switch (Root / Chord / Progression, Straight / Swing) or a message, then the row of controls, then the balance slider.
+- Under it, the same three rows: a switch (Root / Chord / Progression; ♩ ♫ 3 ♬ Swing on the metronome, the note values at `headline` size so that they read beside the words) or a message, then the row of controls, then the balance slider.
 - The row of controls is built from the same pieces everywhere (`lib/widgets/row_controls.dart`): a **field with its name on the border** (the chord or progression, the reference A; the time signature is a bare border with "4/4" in it, since its title did not fit, but it keeps its name for screen readers: `LabeledField(showLabel: false)`), **chips** (+7, TAP, −, +) and an **icon button** at the end (the sound options, the pencil). A new control is made from these; if none fits, change them for everyone.
 - **A chip that is a button to press is filled.** The chips that show a value or step it (+7, −, +) are outlined; TAP, which you play rather than set, is filled with `primaryContainer` and its text is `onPrimaryContainer` (`RowChip(filled: true)`), so that it reads as pressable. The pair keeps the contrast checked by `theme_test.dart` and `accessibility_test.dart`.
-- − and + step a value, the pencil types it or chooses from a list, a touch on the field opens the same choice.
+- − and + step a value, the pencil types it or chooses from a list, a touch on the field opens the same choice. Where holding − or + runs the value (the metronome's tempo), the chips have no tooltip, which a hold would open: their name is a semantics label.
 
 ## Type
 
-Font: Edwin (Noto Music for ♩). Sizes in sp, they grow with the phone's text size and shrink to fit where needed (`FittedBox`, never overflow).
+Font: Edwin (Noto Music for ♩ ♫ ♬). Sizes in sp, they grow with the phone's text size and shrink to fit where needed (`FittedBox`, never overflow).
 
 | Role | sp | Text style | Used for |
 | --- | --- | --- | --- |
@@ -33,7 +33,7 @@ Rules: pick a role, never a number; the three dials show their value in `display
 | --- | --- |
 | Corner radius of buttons, cards, menus | 16 (`LowEndShape.radius`) |
 | Round or rounded control | 48 × 48 at least (`LowEndShape.control`), the smallest touch target |
-| Rows under a dial | three rows of the same height (`DialLayout.rowHeight`, 80, spacing included) and no space between them, on every tab: a dial and three rows. Metronome and harmony: the switch (64 high, `LowEndShape.row`), then the row of controls, then the balance slider, with the word "Balance" over its track (its side icons alone read as tabs); the tuner has the Chromatic / instrument switch, the row of the reference A and, where the others have the balance slider, a cents bar drawn like it (thin track, 2 by 16 middle mark, round thumb, the zone of "in tune" shaded, with the word "Cents" over it and −50, 0, +50 written under it). The row of controls is the field (56), chips (48) and icon button (52, `LowEndShape.iconButton`) of `row_controls.dart`: chord / progression, +7, options on the harmony; time signature, TAP, −, +, pencil on the metronome; reference A, −, +, pencil on the tuner |
+| Rows under a dial | three rows of the same height (`DialLayout.rowHeight`, 80, spacing included) and no space between them, on every tab: a dial and three rows. Metronome and harmony: the switch (64 high, `LowEndShape.row`), then the row of controls, then the balance slider, with the word "Balance" over its track (its side icons alone read as tabs); the tuner has the Chromatic / instrument switch, the row of the reference A and, where the others have the balance slider, a cents bar drawn like it (thin track, 2 by 16 middle mark, round thumb, the zone of "in tune" shaded, with the word "Cents" over it and −50, 0, +50 written under it; the thumb takes the verdict's colour and shrinks from 10 to 5 dp the further off the note is, grey while a note is only held). The row of controls is the field (56), chips (48) and icon button (52, `LowEndShape.iconButton`) of `row_controls.dart`: chord / progression, +7, options on the harmony; time signature, TAP, −, +, pencil on the metronome; reference A, −, +, pencil on the tuner |
 | + over − pair | two 48 × 48 buttons, rounded outside and almost square where they meet |
 | Dial and rows | the dial at the same height on every tab; the three rows sit lower, nearer the thumb, with only a little room left under them for a row that grows (`DialLayout`) |
 | Dial | one disc, a ring from 0.64 to 0.97 of the radius, a hub of 0.61; the same position and size on every tab (`DialGeometry`, `dial_alignment_test.dart`) |
@@ -52,7 +52,7 @@ Bronze on ebony (full notes in [tema-bronzo.md](tema-bronzo.md)): always dark, n
 | Choices of a switch | the chosen one filled, in ink; the others in the muted ink, never in the accent |
 | Icons on the row of controls | the ink of the text; the bronze is on the borders |
 | The dot of a tab that plays | the full bronze, pulsing in size, not in opacity, so the dark bar never dulls it |
-| Tuner verdict | in tune green, close yellow, off pure red (`inTune`, `close`, `off`), on the verdict words and their tick or arrow only (the note itself is in ink, like the middle of every dial), always with a shape (a tick or an arrow) as well. They are never the bronze: the yellow is at least 20 degrees of hue away from it |
+| Tuner verdict | in tune green, close yellow, off pure red (`inTune`, `close`, `off`), on the verdict words and their tick or arrow, and on the thumb of the cents bar (the note itself is in ink, like the middle of every dial), always with a shape (a tick or an arrow) as well. They are never the bronze: the yellow is at least 20 degrees of hue away from it |
 | The functions of a progression (harmony) | its Roman numerals (I, II, V) written small on the notes they stand on, and still while it plays; nothing moves to say what is next |
 
 All text and shapes keep at least 4.5:1 / 3:1 contrast (`theme_test.dart`, `accessibility_test.dart`).

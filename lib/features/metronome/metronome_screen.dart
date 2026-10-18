@@ -13,6 +13,7 @@ import '../../widgets/dial.dart';
 import '../../widgets/row_controls.dart';
 import 'feel.dart';
 import 'metronome_controller.dart';
+import 'subdivision.dart';
 import 'tempo_dialog.dart';
 import 'time_signature.dart';
 
@@ -285,6 +286,10 @@ class _RingPainter extends CustomPainter {
         flash = t > 0.5;
       } else if (b != beat) {
         color = colors.outlineVariant;
+      } else if (metronome.isSilent(b)) {
+        // A beat left silent (1 and 3, with the click on 2 and 4) only
+        // glows: the place in the bar is still seen.
+        color = colors.outline.withValues(alpha: 0.35);
       } else if (b == 0) {
         color = downbeat;
       } else if (signature.grouped && !opens) {
@@ -296,7 +301,7 @@ class _RingPainter extends CustomPainter {
       }
       // The lit "one" is also wider, into the ring's margins: it stands out
       // by its shape as well as by its colour.
-      final one = b == 0 && b == beat && count > 1;
+      final one = b == 0 && b == beat && count > 1 && !metronome.isSilent(0);
       dial.paintSegment(
         canvas,
         inner: dial.ringInner + dial.ringWidth * (one ? 0.12 : 0.22),
@@ -421,9 +426,10 @@ String beatUnitName(AppLocalizations l10n, BeatUnit unit) => switch (unit) {
   BeatUnit.eighth => l10n.beatUnitEighth,
 };
 
-/// How the beat is felt: straight or swing, chosen as Root, Chord
-/// and Progression are on the harmony tab. Bars counted in eighths are
-/// always straight, so it is off there.
+/// What sounds inside each beat: the beat alone, eighths, triplets or
+/// sixteenths (softer clicks between the beats), or the swing, chosen as
+/// Root, Chord and Progression are on the harmony tab. Bars counted in
+/// eighths are always played plain, so it is off there.
 class _FeelSwitch extends StatelessWidget {
   const _FeelSwitch({required this.metronome});
 
@@ -432,31 +438,67 @@ class _FeelSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    Widget label(String text) =>
-        FittedBox(fit: BoxFit.scaleDown, child: Text(text, maxLines: 1));
+    // A note value says it best, with its name for screen readers.
+    ButtonSegment<_Pulse> segment(
+      _Pulse value,
+      String text,
+      String name, {
+      bool glyph = true,
+    }) => ButtonSegment(
+      value: value,
+      label: Semantics(
+        label: name,
+        excludeSemantics: true,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            text,
+            maxLines: 1,
+            // The note symbols come from another font, small beside the
+            // letters: larger, and a little taller so as not to clip.
+            style: TextStyle(
+              height: 1.35,
+              fontSize: glyph ? LowEndType.headline : null,
+            ),
+          ),
+        ),
+      ),
+    );
+    final selected = metronome.feel == MetronomeFeel.swing
+        ? _Pulse.swing
+        : _Pulse.values[metronome.subdivision.index];
     return Semantics(
       label: l10n.feelLabel,
       container: true,
       child: SizedBox(
         width: double.infinity,
-        child: SegmentedButton<MetronomeFeel>(
+        child: SegmentedButton<_Pulse>(
+          key: const Key('feelSwitch'),
           showSelectedIcon: false,
           style: SegmentedButton.styleFrom(
             minimumSize: const Size(0, LowEndShape.row),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
           ),
           segments: [
-            ButtonSegment(
-              value: MetronomeFeel.straight,
-              label: label(l10n.feelStraight),
+            segment(_Pulse.straight, '♩', l10n.feelStraight),
+            segment(_Pulse.eighths, '♫', l10n.subdivisionEighths),
+            segment(
+              _Pulse.triplets,
+              '3',
+              l10n.subdivisionTriplets,
+              glyph: false,
             ),
-            ButtonSegment(
-              value: MetronomeFeel.swing,
-              label: label(l10n.feelSwing),
-            ),
+            segment(_Pulse.sixteenths, '♬', l10n.subdivisionSixteenths),
+            segment(_Pulse.swing, l10n.feelSwing, l10n.feelSwing, glyph: false),
           ],
-          selected: {metronome.feel},
+          selected: {selected},
           onSelectionChanged: metronome.feelApplies
-              ? (s) => metronome.setFeel(s.first)
+              ? (s) => switch (s.first) {
+                  _Pulse.swing => metronome.setFeel(MetronomeFeel.swing),
+                  final pulse => metronome.setSubdivision(
+                    Subdivision.values[pulse.index],
+                  ),
+                }
               : null,
         ),
       ),
@@ -464,9 +506,13 @@ class _FeelSwitch extends StatelessWidget {
   }
 }
 
-/// A chip of the − + pair that steps by one when tapped, and when held
-/// keeps going by fives (to the next multiple of 5), then by tens after a
-/// couple of seconds.
+/// The choices of [_FeelSwitch]: the first four in the order of
+/// [Subdivision], then the swing.
+enum _Pulse { straight, eighths, triplets, sixteenths, swing }
+
+/// A chip of the − + pair that steps by one when tapped. Held, it keeps
+/// going by one, faster and faster, and after a couple of seconds by fives
+/// (to the next multiple of 5), until it is let go.
 class _StepButton extends StatefulWidget {
   const _StepButton({
     required this.icon,
@@ -476,15 +522,26 @@ class _StepButton extends StatefulWidget {
   });
 
   final IconData icon;
+
+  /// What a screen reader says: there is no tooltip, since holding the
+  /// chip is how the tempo runs.
   final String tooltip;
   final VoidCallback? onStep;
 
   /// Called again and again while held, with the size of the step.
   final void Function(int unit) onHold;
 
-  /// How long the steps of 5 last before they become steps of 10.
-  static const _tensAfter = Duration(seconds: 2);
-  static const _every = Duration(milliseconds: 220);
+  /// How long a touch lasts before it counts as held.
+  static const holdAfter = Duration(milliseconds: 400);
+
+  /// The pause between the first steps of a hold, and the shortest one it
+  /// shrinks to.
+  static const _firstEvery = 200;
+  static const _fastestEvery = 50;
+
+  /// How long the steps of 1 last before they become steps of 5.
+  static const _fivesAfter = Duration(milliseconds: 2400);
+  static const _fivesEvery = Duration(milliseconds: 140);
 
   @override
   State<_StepButton> createState() => _StepButtonState();
@@ -492,46 +549,83 @@ class _StepButton extends StatefulWidget {
 
 class _StepButtonState extends State<_StepButton> {
   Timer? _timer;
-  final _held = Stopwatch();
 
-  void _startRepeat() {
-    _held
-      ..reset()
-      ..start();
-    // The first step comes at once, as the hold is recognised.
-    _tick();
+  /// How long the hold has been running, as the sum of its steps' pauses.
+  var _held = Duration.zero;
+  var _every = _StepButton._firstEvery.toDouble();
+
+  /// True once the touch has turned into a hold: letting go then must not
+  /// also count as a tap.
+  var _holding = false;
+
+  void _down() {
+    _stop();
+    _holding = false;
+    if (widget.onStep == null) return;
+    _timer = Timer(_StepButton.holdAfter, () {
+      _holding = true;
+      _every = _StepButton._firstEvery.toDouble();
+      _held = Duration.zero;
+      _tick();
+    });
   }
 
   void _tick() {
-    if (widget.onStep == null) return _stopRepeat();
-    widget.onHold(_held.elapsed < _StepButton._tensAfter ? 5 : 10);
-    _timer = Timer(_StepButton._every, _tick);
+    if (!mounted || widget.onStep == null) return _stop();
+    final Duration next;
+    if (_held < _StepButton._fivesAfter) {
+      widget.onHold(1);
+      next = Duration(milliseconds: _every.round());
+      // Each step comes a little sooner than the last.
+      _every = math.max(_StepButton._fastestEvery.toDouble(), _every * 0.85);
+    } else {
+      widget.onHold(5);
+      next = _StepButton._fivesEvery;
+    }
+    _held += next;
+    _timer = Timer(next, _tick);
   }
 
-  void _stopRepeat() {
+  void _stop() {
     _timer?.cancel();
     _timer = null;
-    _held.stop();
   }
 
   @override
   void dispose() {
-    _stopRepeat();
+    _stop();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      // The chip below speaks for it; holding is a shortcut.
-      excludeFromSemantics: true,
-      onLongPressStart: widget.onStep == null ? null : (_) => _startRepeat(),
-      onLongPressEnd: (_) => _stopRepeat(),
-      onLongPressCancel: _stopRepeat,
-      child: RowChip(
-        label: Icon(widget.icon, size: 24),
-        tooltip: widget.tooltip,
-        onPressed: widget.onStep,
+    final onStep = widget.onStep;
+    return Semantics(
+      button: true,
+      enabled: onStep != null,
+      label: widget.tooltip,
+      onTap: onStep,
+      excludeSemantics: true,
+      child: Listener(
+        onPointerDown: (_) => _down(),
+        onPointerUp: (_) => _stop(),
+        onPointerCancel: (_) {
+          _stop();
+          _holding = false;
+        },
+        child: RowChip(
+          label: Icon(widget.icon, size: 24),
+          // A tap steps by one; the end of a hold has already stepped.
+          onPressed: onStep == null
+              ? null
+              : () {
+                  if (_holding) {
+                    _holding = false;
+                    return;
+                  }
+                  onStep();
+                },
+        ),
       ),
     );
   }
@@ -552,7 +646,10 @@ class _SignatureButton extends StatelessWidget {
       // The border is bare: "4/4" in it needs no title (the label is still
       // what a screen reader announces).
       showLabel: false,
-      value: signature.label,
+      // With the click on 2 and 4 the field says so: "4/4 · 2 & 4".
+      value: metronome.backbeat && metronome.backbeatApplies
+          ? '${signature.label} · ${l10n.backbeatShort}'
+          : signature.label,
       onTap: () => _choose(context),
     );
   }
@@ -583,6 +680,18 @@ class _SignatureButton extends StatelessWidget {
                       : null,
                   onTap: () => Navigator.of(context).pop(s),
                 ),
+              const Divider(),
+              // Kept whatever the bar, and heard in 2/4 and 4/4.
+              ListenableBuilder(
+                listenable: metronome,
+                builder: (context, _) => SwitchListTile(
+                  key: const Key('backbeatSwitch'),
+                  value: metronome.backbeat,
+                  onChanged: metronome.setBackbeat,
+                  title: Text(l10n.backbeatTitle),
+                  subtitle: Text(l10n.backbeatSubtitle),
+                ),
+              ),
             ],
           ),
         ),

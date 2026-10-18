@@ -82,4 +82,41 @@ void main() {
   test('ignores sounds above the bass range', () {
     expect(detector.detect(_string(880, n, harmonics: [1])), isNull);
   });
+
+  test('finds the violin and the winds up to the top E within a cent', () {
+    final high = PitchDetector(
+      sampleRate: _rate,
+      maxFrequency: PitchDetector.maxHighFrequency,
+    );
+    // G3 and the open strings up to E7, the top of the E string, and a
+    // piccolo's high C.
+    for (final hz in [
+      196.0,
+      293.66,
+      440.0,
+      659.26,
+      987.77,
+      1318.51,
+      1760.0,
+      2093.0,
+      2637.02,
+    ]) {
+      for (final harmonics in [
+        [1.0],
+        [1.0, 0.5, 0.3],
+      ]) {
+        final found = high.detect(_string(hz, n, harmonics: harmonics));
+        expect(found, isNotNull, reason: '$hz Hz');
+        final cents = 1200 * math.log(found! / hz) / math.ln2;
+        expect(cents.abs(), lessThan(1), reason: '$hz Hz found as $found');
+      }
+    }
+    // Still nothing in silence and noise.
+    expect(high.detect(Float64List(n)), isNull);
+    final random = math.Random(3);
+    final noise = Float64List.fromList([
+      for (var i = 0; i < n; i++) random.nextDouble() * 0.6 - 0.3,
+    ]);
+    expect(high.detect(noise), isNull);
+  });
 }

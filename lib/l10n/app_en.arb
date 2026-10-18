@@ -283,7 +283,7 @@
   "shapeRootless": "No root",
   "guideTitle": "Gestures and shortcuts",
   "guideRing": "Tap the metronome's ring to start and stop it.",
-  "guideTempo": "Tap the number to type the tempo. Hold − or + to move in steps of 5 and 10.",
+  "guideTempo": "Touch the pencil to type the tempo. Hold − or + and the tempo runs, faster and faster.",
   "guideSwipe": "Swipe left and right to change section.",
   "guideSwipeVertical": "Turned sideways, swipe up and down over the dial or the tabs to change section.",
   "guideHold": "Hold a tab to start or stop its sound from any section.",
@@ -360,6 +360,24 @@
   "@aboutSource": {
     "placeholders": {
       "url": {
+        "type": "String"
+      }
+    }
+  },
+  "subdivisionEighths": "Eighth notes",
+  "subdivisionTriplets": "Triplets",
+  "subdivisionSixteenths": "Sixteenth notes",
+  "backbeatTitle": "Click on 2 and 4",
+  "backbeatSubtitle": "Beats 1 and 3 stay silent, as on a jazz hi-hat. In 2/4 and 4/4.",
+  "backbeatShort": "2 & 4",
+  "transpositionTitle": "Tuner: transposing instrument",
+  "transpositionSubtitle": "For B♭, E♭ and F instruments, the chromatic tuner names the written note",
+  "transpositionConcert": "Concert pitch",
+  "transpositionKey": "in {key}",
+  "@transpositionKey": {
+    "description": "The key of a transposing instrument, such as B♭: the tuner then names its written notes.",
+    "placeholders": {
+      "key": {
         "type": "String"
       }
     }

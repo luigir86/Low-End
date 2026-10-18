@@ -1,7 +1,7 @@
 [
   {
     "name": "get_state",
-    "description": "Returns what the app is doing now: the section on screen, the tuner (listening, last note heard and how many cents off), the drone (playing, note, root or chord), the metronome (playing, tempo) and the settings (reference A, language, note names). Loudness follows the phone's media volume.",
+    "description": "Returns what the app is doing now: the section on screen, the tuner (listening, last note heard and how many cents off), the drone (playing, note, root or chord), the metronome (playing, tempo, subdivision, click on 2 and 4) and the settings (reference A, language, note names, transposition). Loudness follows the phone's media volume.",
     "input_schema": {
       "type": "object",
       "properties": {},
@@ -123,6 +123,21 @@
           "minimum": 30,
           "maximum": 400,
           "description": "Beats per minute of the note value the tempo counts in the current time signature: quarter notes in x/4, dotted quarters in 6/8, 9/8 and 12/8, eighth notes in 7/8. At most 250, or 400 in 7/8."
+        },
+        "subdivision": {
+          "type": "string",
+          "enum": [
+            "none",
+            "eighths",
+            "triplets",
+            "sixteenths",
+            "swing"
+          ],
+          "description": "Softer clicks inside each beat (two, three or four to a beat), none, or the swing (a skip note after beats 2 and 4). Only heard in bars counted in quarter notes."
+        },
+        "backbeat": {
+          "type": "boolean",
+          "description": "Clicks on beats 2 and 4 only, beats 1 and 3 silent, as a jazz hi-hat. Only heard in 2/4 and 4/4."
         }
       },
       "additionalProperties": false
@@ -139,7 +154,7 @@
   },
   {
     "name": "metronome_set",
-    "description": "Changes the tempo without starting or stopping it.",
+    "description": "Changes the tempo, what sounds inside each beat or the click on 2 and 4, without starting or stopping it. Give at least one.",
     "input_schema": {
       "type": "object",
       "properties": {
@@ -148,11 +163,23 @@
           "minimum": 30,
           "maximum": 400,
           "description": "Beats per minute of the note value the tempo counts in the current time signature: quarter notes in x/4, dotted quarters in 6/8, 9/8 and 12/8, eighth notes in 7/8. At most 250, or 400 in 7/8."
+        },
+        "subdivision": {
+          "type": "string",
+          "enum": [
+            "none",
+            "eighths",
+            "triplets",
+            "sixteenths",
+            "swing"
+          ],
+          "description": "Softer clicks inside each beat (two, three or four to a beat), none, or the swing (a skip note after beats 2 and 4). Only heard in bars counted in quarter notes."
+        },
+        "backbeat": {
+          "type": "boolean",
+          "description": "Clicks on beats 2 and 4 only, beats 1 and 3 silent, as a jazz hi-hat. Only heard in 2/4 and 4/4."
         }
       },
-      "required": [
-        "bpm"
-      ],
       "additionalProperties": false
     }
   },
@@ -233,10 +260,20 @@
   },
   {
     "name": "settings_set",
-    "description": "Changes and saves the app settings: the language of the app and how note names are written.",
+    "description": "Changes and saves the app settings: the language of the app and how note names are written, and the key of a transposing instrument for the chromatic tuner.",
     "input_schema": {
       "type": "object",
       "properties": {
+        "transposition": {
+          "type": "string",
+          "enum": [
+            "c",
+            "bFlat",
+            "eFlat",
+            "f"
+          ],
+          "description": "The chromatic tuner names the written note of an instrument in this key (B♭ clarinet or trumpet, E♭ alto sax, F horn); \"c\" names notes as they sound."
+        },
         "language": {
           "type": "string",
           "enum": [

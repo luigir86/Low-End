@@ -461,7 +461,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get guideTempo =>
-      'Tocca il numero per scrivere il tempo. Tieni premuto − o + per scorrere a passi di 5 e 10.';
+      'Tocca la matita per scrivere il tempo. Tieni premuto − o + e il tempo scorre, sempre più veloce.';
 
   @override
   String get guideSwipe => 'Scorri a destra e a sinistra per cambiare sezione.';
@@ -592,5 +592,39 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String aboutSource(String url) {
     return 'Codice sorgente: $url';
+  }
+
+  @override
+  String get subdivisionEighths => 'Crome';
+
+  @override
+  String get subdivisionTriplets => 'Terzine';
+
+  @override
+  String get subdivisionSixteenths => 'Semicrome';
+
+  @override
+  String get backbeatTitle => 'Click su 2 e 4';
+
+  @override
+  String get backbeatSubtitle =>
+      'I tempi 1 e 3 tacciono, come il charleston nel jazz. In 2/4 e 4/4.';
+
+  @override
+  String get backbeatShort => '2 e 4';
+
+  @override
+  String get transpositionTitle => 'Accordatore: strumento traspositore';
+
+  @override
+  String get transpositionSubtitle =>
+      'Per gli strumenti in Si♭, Mi♭ e Fa, l\'accordatore cromatico mostra la nota scritta';
+
+  @override
+  String get transpositionConcert => 'Suono reale';
+
+  @override
+  String transpositionKey(String key) {
+    return 'in $key';
   }
 }
