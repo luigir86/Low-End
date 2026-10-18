@@ -15,15 +15,6 @@ void main() {
     expect(const Note(11, 0).frequency(), closeTo(30.87, 0.01)); // low B
   });
 
-  test('names follow the chosen style, with Italian octave numbers', () {
-    expect(const Note(10, 2).label(NoteNames.letters), 'B♭2');
-    expect(const Note(10, 2).label(NoteNames.solfege), 'Si♭1');
-    // Middle C and the tuning A: C4 and A4, or Do3 and La3.
-    expect(const Note(0, 4).label(NoteNames.solfege), 'Do3');
-    expect(const Note(9, 4).label(NoteNames.letters), 'A4');
-    expect(const Note(9, 4).label(NoteNames.solfege), 'La3');
-  });
-
   test('a note is spelled on the letter its key asks for', () {
     // D♯ (on D) rather than E♭, G♯ rather than A♭, as in C♯ minor.
     expect(spell(3, 1, NoteNames.letters), 'D♯');

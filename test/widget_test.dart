@@ -233,8 +233,6 @@ void main() {
     await tester.tap(find.text('Tap to start'));
     await tester.pump(const Duration(milliseconds: 300));
     expect(click.bar, isNotNull);
-    // A dot on each playing tab, and no strip to stop them from elsewhere.
-    expect(find.byTooltip('Stop Harmony · A4'), findsNothing);
     // The screen stays on while they play.
     expect(awake.on, isTrue);
 

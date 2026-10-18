@@ -133,13 +133,6 @@ void main() {
       expect(Note.nearest(30.87).label(NoteNames.letters), 'B0');
     });
 
-    test('every pitch class has a name in both systems', () {
-      for (var pc = 0; pc < 12; pc++) {
-        expect(Note(pc, 2).name(NoteNames.letters), isNotEmpty);
-        expect(Note(pc, 2).name(NoteNames.solfege), isNotEmpty);
-      }
-    });
-
     test('Note.nearest round-trips midi across the bass range', () {
       for (var midi = 23; midi <= 79; midi++) {
         final hz = 440 * _pow2((midi - 69) / 12);

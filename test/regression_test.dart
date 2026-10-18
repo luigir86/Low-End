@@ -98,7 +98,7 @@ Future<AudioScope> _pumpApp(
   return scope;
 }
 
-/// The strobe and the now-playing dot move for ever, so pumpAndSettle would
+/// The strobe moves for ever, so pumpAndSettle would
 /// never return.
 Future<void> _settle(WidgetTester tester) async {
   for (var i = 0; i < 8; i++) {
