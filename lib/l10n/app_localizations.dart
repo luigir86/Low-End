@@ -476,7 +476,7 @@ abstract class AppLocalizations {
   /// **'Sharp'**
   String get sharp;
 
-  /// The word over the tuner's cents bar, like 'Balance' over the slider of the other tabs
+  /// The word over the tuner's cents bar
   ///
   /// In en, this message translates to:
   /// **'Cents'**

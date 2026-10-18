@@ -159,7 +159,7 @@
   "sharp": "Sharp",
   "centsTitle": "Cents",
   "@centsTitle": {
-    "description": "The word over the tuner's cents bar, like 'Balance' over the slider of the other tabs"
+    "description": "The word over the tuner's cents bar"
   },
   "centsValue": "{cents} cents",
   "@centsValue": {
