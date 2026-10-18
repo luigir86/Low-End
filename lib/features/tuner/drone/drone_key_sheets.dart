@@ -23,6 +23,8 @@ String keyName(AppLocalizations l10n, DroneController drone, NoteNames names) {
 String progressionShort(AppLocalizations l10n, Progression p) => switch (p) {
   Progression.minorTwoFiveOne => 'II–V–I',
   Progression.blues => l10n.progressionBluesShort,
+  Progression.jazzBlues => l10n.progressionJazzBluesShort,
+  Progression.andalusian => 'I–♭VII–♭VI–V',
   _ => progressionName(l10n, p),
 };
 
@@ -34,15 +36,16 @@ String keyLine(AppLocalizations l10n, DroneController drone, NoteNames names) =>
     );
 
 /// The name of a degree of the scale, [degree] 0 for the tonic.
-String degreeName(AppLocalizations l10n, int degree) => switch (degree) {
-  0 => l10n.degreeName1,
-  1 => l10n.degreeName2,
-  2 => l10n.degreeName3,
-  3 => l10n.degreeName4,
-  4 => l10n.degreeName5,
-  5 => l10n.degreeName6,
-  _ => l10n.degreeName7,
-};
+String degreeName(AppLocalizations l10n, int degree, {bool minor = false}) =>
+    switch (degree) {
+      0 => l10n.degreeName1,
+      1 => l10n.degreeName2,
+      2 => l10n.degreeName3,
+      3 => l10n.degreeName4,
+      4 => l10n.degreeName5,
+      5 => l10n.degreeName6,
+      _ => minor ? l10n.degreeName7Minor : l10n.degreeName7,
+    };
 
 /// Tells what a Roman numeral on the circle stands for, and what the colours
 /// and dots mean. With [numeral] (the one touched) its row is marked.
@@ -142,7 +145,7 @@ class _KeySheet extends StatelessWidget {
                   ),
                 ),
               ),
-              title: Text(degreeName(l10n, s.degree)),
+              title: Text(degreeName(l10n, s.degree, minor: drone.keyIsMinor)),
               subtitle: Text(
                 chordSymbol(
                   l10n,
@@ -240,7 +243,7 @@ Future<void> showSongsSheet(BuildContext context) {
 
 String _songKey(AppLocalizations l10n, ExampleSong song, NoteNames names) {
   final tonic = Note(song.pitchClass, 4).name(names);
-  return song.progression == Progression.minorTwoFiveOne
+  return song.progression.minor
       ? l10n.droneChordMinor(tonic)
       : l10n.droneChordMajor(tonic);
 }

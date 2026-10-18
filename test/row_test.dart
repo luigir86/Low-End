@@ -194,8 +194,8 @@ void main() {
     await tester.pump();
     await tester.tap(find.text('C').first);
     await tester.pump();
-    // II–V–I in C starts on D minor: D F A.
-    expect(find.text('D F A'), findsOneWidget);
+    // II–V–I in C starts on Dm7: D F A C.
+    expect(find.text('D F A C'), findsOneWidget);
     expect(find.textContaining(' of C'), findsNothing);
     scope.drone.stop();
   });

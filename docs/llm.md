@@ -41,8 +41,8 @@ Values:
 
 - `note`: A, Bb, F#, or La, Sib, Fa#. Harmony always plays the middle octave (A4 = 440 Hz), so an octave number is ignored. It is the root, or the key of a progression.
 - `voicing`: `root` (the note alone), `chord`, `progression`.
-- `chord` (with voicing `chord`): `major`, `minor`, `dominant` (7), `major7`, `minor7`, `halfDiminished` (m7b5), `diminished`, `sus4`.
-- `progression` (with voicing `progression`): `twoFiveOne`, `minorTwoFiveOne`, `oneFourFive`, `oneSixFourFive`, `blues`. One chord per bar, at the metronome tempo.
+- `chord` (with voicing `chord`): `major`, `minor`, `dominant` (7), `major7`, `minor7`, `halfDiminished` (m7b5), `diminished`, `diminished7`, `sus4`.
+- `progression` (with voicing `progression`): `twoFiveOne`, `minorTwoFiveOne`, `oneFourFive`, `oneSixFourFive`, `blues`, `oneSixTwoFive`, `jazzBlues`, `oneFiveSixFour`, `andalusian` (minor key). One chord per bar, at the metronome tempo.
 - `style`: `held` (struck once a bar), `beat` (on every beat), `arpeggio` (one note a beat). A `root` voicing is always sustained.
 - `bpm`: a whole number from 30 to 250, or to 400 in 7/8. It counts the beat of the current time signature (quarters in x/4, dotted quarters in 6/8, 9/8, 12/8, eighths in 7/8), so the same number can be refused after the signature changes.
 - `subdivision`: `quarters`, `eighths`, `swing_eighths`, `triplets`, `sixteenths`, `swing_sixteenths`. Only heard in bars counted in quarters.

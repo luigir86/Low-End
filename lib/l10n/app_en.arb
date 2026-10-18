@@ -30,6 +30,9 @@
   "progressionGenreRock": "Rock ’n’ roll",
   "progressionGenrePop": "’50s–’60s pop",
   "progressionGenreBlues": "Blues",
+  "progressionGenreFlamenco": "Flamenco and rock",
+  "progressionJazzBlues": "12-bar jazz blues",
+  "progressionAndalusian": "Andalusian cadence",
   "progressionLike": "{genre}, like {song}",
   "@progressionLike": {
     "description": "A progression described by its genre and a well-known song that uses it, in the progression menu.",
@@ -103,6 +106,7 @@
   "chordMinor7": "Minor 7th (m7)",
   "chordHalfDiminished": "Half-diminished (m7♭5)",
   "chordDiminished": "Diminished (dim)",
+  "chordDiminished7": "Diminished 7th (dim7)",
   "chordSus4": "Suspended 4th (sus4)",
   "droneChordHalfDiminished": "{note} half-diminished",
   "@droneChordHalfDiminished": {
@@ -301,6 +305,7 @@
   "guideLock": "For rehearsals, lock the gestures in the settings: swiping between sections then does nothing.",
   "guideCents": "A cent is a hundredth of a semitone: within a few cents a note is in tune.",
   "progressionBluesShort": "Blues",
+  "progressionJazzBluesShort": "Jazz blues",
   "keyLine": "{progression} in {key}",
   "@keyLine": {
     "description": "The progression and its key: II–V–I in A major.",
@@ -328,6 +333,7 @@
   "degreeName5": "Dominant",
   "degreeName6": "Submediant",
   "degreeName7": "Leading tone",
+  "degreeName7Minor": "Subtonic",
   "legendTitle": "Legend",
   "legendButton": "Legend and degrees",
   "legendRoot": "Note sounding (the root)",

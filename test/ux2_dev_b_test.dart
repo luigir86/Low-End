@@ -82,7 +82,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Key: A major'), findsOneWidget);
     expect(find.text('Supertonic'), findsOneWidget);
-    expect(find.text('B minor'), findsOneWidget);
+    expect(find.text('Bm7'), findsOneWidget);
     expect(find.text('Legend'), findsOneWidget);
   });
 

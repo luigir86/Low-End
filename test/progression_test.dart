@@ -43,7 +43,7 @@ void main() {
   });
 
   // testWidgets for its fake clock: the bar timers run without waiting.
-  testWidgets('II–V–I in C plays D minor, G7, C, one chord a bar', (
+  testWidgets('II–V–I in C plays Dm7, G7, Cmaj7, one chord a bar', (
     tester,
   ) async {
     drone.setVoicing(DroneVoicing.progression);
@@ -52,9 +52,9 @@ void main() {
     expect(drone.currentChord?.root, 2);
     expect(
       output.frequencies,
-      _sounds([_hz(2), _hz(2) * 6 / 5, _hz(2) * 3 / 2]),
+      _sounds([_hz(2), _hz(2) * 6 / 5, _hz(2) * 3 / 2, _hz(2) * 9 / 5]),
     );
-    expect(drone.chordTones, {5, 9}); // F and A
+    expect(drone.chordTones, {5, 9, 0}); // F, A and C
     // The numerals stay on their notes while it plays.
     expect(drone.degreeLabels, {2: 'II', 7: 'V', 0: 'I'});
     // Every chord is made ready at the start.
@@ -63,7 +63,7 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
     expect(drone.step, 1);
     expect(output.frequencies.first, closeTo(_hz(7), 1e-9)); // G
-    // The dominant always has its seventh, as in Chord mode.
+    // The dominant has its seventh.
     final g = _hz(7);
     expect(output.frequencies, _sounds([g, g * 5 / 4, g * 3 / 2, g * 16 / 9]));
 
@@ -142,14 +142,52 @@ void main() {
     await drone.stop();
   });
 
-  test('the other chords of a progression are triads', () {
+  test('jazz progressions are in sevenths, the others in triads', () {
     drone
       ..setVoicing(DroneVoicing.progression)
       ..setPitchClass(0);
-    // II–V–I: Dm, G7, C.
-    expect(drone.currentChord, (root: 2, quality: ChordQuality.minor));
-    drone.setProgression(Progression.oneFourFive);
-    expect(drone.currentChord?.quality.semitones, hasLength(2));
+    // II–V–I: Dm7, G7, Cmaj7.
+    expect(drone.currentChord, (root: 2, quality: ChordQuality.minor7));
+    for (final p in [Progression.oneFourFive, Progression.oneSixFourFive]) {
+      drone.setProgression(p);
+      for (final s in p.steps.where(
+        (s) => s.quality != ChordQuality.dominant,
+      )) {
+        expect(s.quality.semitones, hasLength(2), reason: p.name);
+      }
+    }
+    for (final p in [Progression.oneSixTwoFive, Progression.jazzBlues]) {
+      for (final s in p.steps) {
+        expect(s.quality.semitones, hasLength(3), reason: p.name);
+      }
+    }
+  });
+
+  test(
+    'the jazz blues passes through a diminished seventh on the sharp IV',
+    () {
+      final steps = Progression.jazzBlues.steps;
+      expect(steps, hasLength(12));
+      final dim = steps[5];
+      expect(dim.quality, ChordQuality.diminished7);
+      expect(dim.offset, 6);
+      expect(dim.degree, 3, reason: 'written on the letter of the fourth');
+    },
+  );
+
+  test('the Andalusian cadence is a minor key: Am G F E', () {
+    drone
+      ..setVoicing(DroneVoicing.progression)
+      ..setProgression(Progression.andalusian)
+      ..setPitchClass(9);
+    expect(drone.keyIsMinor, isTrue);
+    expect(Progression.andalusian.steps.map((s) => (s.offset + 9) % 12), [
+      9,
+      7,
+      5,
+      4,
+    ]);
+    expect(drone.keyNotes, contains(7)); // G is in A minor.
   });
 
   group('chords are spelled as in their key', () {
@@ -205,10 +243,10 @@ void main() {
     });
   });
 
-  test('minor II–V–I has a diminished II', () {
+  test('minor II–V–I has a half-diminished II', () {
     final steps = Progression.minorTwoFiveOne.steps;
-    expect(steps.first.quality, ChordQuality.diminished);
-    expect(ChordQuality.diminished.semitones, [3, 6]);
-    expect(steps.last.quality, ChordQuality.minor);
+    expect(steps.first.quality, ChordQuality.halfDiminished);
+    expect(ChordQuality.halfDiminished.semitones, [3, 6, 10]);
+    expect(steps.last.quality, ChordQuality.minor7);
   });
 }

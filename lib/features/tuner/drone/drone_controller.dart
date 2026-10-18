@@ -296,8 +296,8 @@ class DroneController extends ChangeNotifier {
   /// note chosen is its key, playing or not.
   bool get showsKey => _voicing == DroneVoicing.progression;
 
-  /// The key is minor: the minor II–V–I (the other progressions are major).
-  bool get keyIsMinor => _progression == Progression.minorTwoFiveOne;
+  /// The key is minor (see [Progression.minor]).
+  bool get keyIsMinor => _progression.minor;
 
   /// The seven notes of the key (natural minor for a minor key), as pitch
   /// classes; empty when the circle shows no key.

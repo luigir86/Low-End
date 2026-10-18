@@ -302,7 +302,7 @@ void main() {
       Float64List render(double level) => PianoSound.loop(
         samples: loud(level),
         chords: [
-          [60, 64, 67, 71],
+          [60, 64, 67],
         ],
         style: PianoStyle.beat,
         bpm: 120,
@@ -404,12 +404,12 @@ void main() {
       drone.setVoicing(DroneVoicing.progression);
       drone.setStyle(DroneStyle.beat);
       await drone.tapNote(0);
-      // II–V–I in C: D minor, G7 (the dominant with its seventh), C.
+      // II–V–I in C: Dm7, G7, Cmaj7.
       // Close together: the hand stays in one place from chord to chord.
       expect(piano.chords, [
-        [62, 65, 69],
+        [62, 65, 69, 72],
         [67, 65, 71, 74],
-        [60, 64, 67],
+        [60, 64, 67, 71],
       ]);
     });
 

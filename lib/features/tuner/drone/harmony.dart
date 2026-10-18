@@ -30,6 +30,10 @@ enum ChordQuality {
   /// Diminished triad.
   diminished([1, 6 / 5, 64 / 45], [3, 6], [2, 4]),
 
+  /// Diminished seventh, dim7: the sixth (5/3) stands for the doubly
+  /// flattened seventh.
+  diminished7([1, 6 / 5, 64 / 45, 5 / 3], [3, 6, 9], [2, 4, 6]),
+
   /// Suspended fourth, sus4: the fourth in place of the third.
   sus4([1, 4 / 3, 3 / 2], [5, 7], [3, 4]);
 
@@ -58,7 +62,7 @@ class ProgressionStep {
   final String numeral;
 
   /// Steps up the scale from the key, 0 for I, 4 for V: which letter the
-  /// root is written with.
+  /// root is written with. A ♯ or ♭ before the numeral does not count.
   int get degree => const [
     'I',
     'II',
@@ -67,25 +71,25 @@ class ProgressionStep {
     'V',
     'VI',
     'VII',
-  ].indexOf(numeral.toUpperCase());
+  ].indexOf(numeral.replaceAll(RegExp('[♯♭]'), '').toUpperCase());
 }
 
 /// Standard progressions, one chord per bar, played over and over in the
-/// key of the note touched.
+/// key of the note touched. Jazz ones are in sevenths, the others in triads.
 enum Progression {
-  /// Major II–V–I: in C, Dm G7 C.
+  /// Major II–V–I: in C, Dm7 G7 Cmaj7.
   twoFiveOne([
-    ProgressionStep(2, ChordQuality.minor, 'II'),
+    ProgressionStep(2, ChordQuality.minor7, 'II'),
     ProgressionStep(7, ChordQuality.dominant, 'V'),
-    ProgressionStep(0, ChordQuality.major, 'I'),
+    ProgressionStep(0, ChordQuality.major7, 'I'),
   ]),
 
-  /// Minor II–V–I: in C, D° G7 Cm.
+  /// Minor II–V–I: in C, Dm7♭5 G7 Cm7.
   minorTwoFiveOne([
-    ProgressionStep(2, ChordQuality.diminished, 'II'),
+    ProgressionStep(2, ChordQuality.halfDiminished, 'II'),
     ProgressionStep(7, ChordQuality.dominant, 'V'),
-    ProgressionStep(0, ChordQuality.minor, 'I'),
-  ]),
+    ProgressionStep(0, ChordQuality.minor7, 'I'),
+  ], minor: true),
 
   /// I–IV–V: in C, C F G7.
   oneFourFive([
@@ -116,11 +120,55 @@ enum Progression {
     ProgressionStep(5, ChordQuality.dominant, 'IV'),
     ProgressionStep(0, ChordQuality.dominant, 'I'),
     ProgressionStep(7, ChordQuality.dominant, 'V'),
-  ]);
+  ]),
 
-  const Progression(this.steps);
+  /// I–VI–II–V, the jazz turnaround: in C, Cmaj7 A7 Dm7 G7.
+  oneSixTwoFive([
+    ProgressionStep(0, ChordQuality.major7, 'I'),
+    ProgressionStep(9, ChordQuality.dominant, 'VI'),
+    ProgressionStep(2, ChordQuality.minor7, 'II'),
+    ProgressionStep(7, ChordQuality.dominant, 'V'),
+  ]),
+
+  /// Twelve-bar jazz blues, one chord a bar: C7 F7 C7 C7, F7 F♯dim7 C7 A7,
+  /// Dm7 G7 C7 G7.
+  jazzBlues([
+    ProgressionStep(0, ChordQuality.dominant, 'I'),
+    ProgressionStep(5, ChordQuality.dominant, 'IV'),
+    ProgressionStep(0, ChordQuality.dominant, 'I'),
+    ProgressionStep(0, ChordQuality.dominant, 'I'),
+    ProgressionStep(5, ChordQuality.dominant, 'IV'),
+    ProgressionStep(6, ChordQuality.diminished7, '♯IV'),
+    ProgressionStep(0, ChordQuality.dominant, 'I'),
+    ProgressionStep(9, ChordQuality.dominant, 'VI'),
+    ProgressionStep(2, ChordQuality.minor7, 'II'),
+    ProgressionStep(7, ChordQuality.dominant, 'V'),
+    ProgressionStep(0, ChordQuality.dominant, 'I'),
+    ProgressionStep(7, ChordQuality.dominant, 'V'),
+  ]),
+
+  /// I–V–VI–IV: in C, C G Am F.
+  oneFiveSixFour([
+    ProgressionStep(0, ChordQuality.major, 'I'),
+    ProgressionStep(7, ChordQuality.major, 'V'),
+    ProgressionStep(9, ChordQuality.minor, 'VI'),
+    ProgressionStep(5, ChordQuality.major, 'IV'),
+  ]),
+
+  /// Andalusian cadence, in a minor key: in A, Am G F E.
+  andalusian([
+    ProgressionStep(0, ChordQuality.minor, 'I'),
+    ProgressionStep(10, ChordQuality.major, '♭VII'),
+    ProgressionStep(8, ChordQuality.major, '♭VI'),
+    ProgressionStep(7, ChordQuality.major, 'V'),
+  ], minor: true);
+
+  const Progression(this.steps, {this.minor = false});
 
   final List<ProgressionStep> steps;
+
+  /// The key is minor.
+  final bool minor;
 }
 
 /// A well-known song to practise on: its key (as a pitch class), progression
@@ -147,4 +195,6 @@ const exampleSongs = [
   ExampleSong('Twist and Shout', 2, Progression.oneFourFive, 124),
   ExampleSong('Stand by Me', 9, Progression.oneSixFourFive, 118),
   ExampleSong('Sweet Home Chicago', 4, Progression.blues, 100),
+  ExampleSong('Let It Be', 0, Progression.oneFiveSixFour, 72),
+  ExampleSong('Hit the Road Jack', 9, Progression.andalusian, 168),
 ];
