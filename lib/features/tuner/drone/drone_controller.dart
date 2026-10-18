@@ -396,6 +396,14 @@ class DroneController extends ChangeNotifier {
 
   Future<void> toggle() => _playing ? stop() : start();
 
+  /// How long until the piano comes in, when it waits for the metronome's
+  /// next bar line, or null when it does not wait (or is not playing).
+  Duration? get waitLeft {
+    if (!_playing || !_loopClock.isRunning) return null;
+    final left = _loopWaiting - _loopClock.elapsed;
+    return left > Duration.zero ? left : null;
+  }
+
   /// What a note key does: plays [pitchClass], switches to it if another
   /// note is playing, or stops it if it is the one already playing.
   Future<void> tapNote(int pitchClass) {

@@ -69,3 +69,5 @@ When the screen is wider than tall (`DialLayout.isLandscape`) the same pieces ar
 ## Dials
 
 The middle of a dial is its button: touching it starts or stops the metronome, the harmony, the tuner. What is written there is the state: the value (display), then one hint (caption) when stopped.
+
+When one starts while the other plays, it comes in on the other's next bar line: until then the middle of its dial shows the seconds to go, large and in the muted ink (the metronome in place of the tempo, the harmony in place of the note, with the chord under it).
