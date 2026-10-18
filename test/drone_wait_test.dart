@@ -21,7 +21,12 @@ void main() {
     expect(drone.waitLeft, isNull);
 
     piano.delay = const Duration(seconds: 2);
+    // The wait is only known once the piano is scheduled, after the start
+    // was announced: whoever shows it must be told again, for every voicing.
+    final heard = <Duration?>[];
+    drone.addListener(() => heard.add(drone.waitLeft));
     await drone.start();
+    expect(heard.whereType<Duration>(), isNotEmpty);
     final left = drone.waitLeft!;
     expect(left, greaterThan(const Duration(milliseconds: 1500)));
     expect(left, lessThanOrEqualTo(const Duration(seconds: 2)));
