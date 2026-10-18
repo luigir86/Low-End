@@ -684,6 +684,10 @@ class DroneController extends ChangeNotifier {
                 chords.length;
       _notify();
       _scheduleBar();
+    } else {
+      // Whoever shows the countdown (see [waitLeft]) hears of it now: the wait
+      // is only known once the piano is scheduled.
+      _notify();
     }
   }
 
