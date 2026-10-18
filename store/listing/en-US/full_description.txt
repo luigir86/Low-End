@@ -3,23 +3,27 @@ Low End is a practice companion for musicians: a metronome, a piano harmony sect
 METRONOME
 • Tempo from 30 to 250 BPM: type it with the pencil, hold − or + to run through it, or use TAP.
 • Time signatures 1/1, 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8, with the beats grouped the way you count them.
-• A ring that lights up beat by beat, with the downbeat marked, and a short, dry click that stays steady. A menu of what fills each beat (quarters, eighths, triplets, sixteenths, and swung eighths and sixteenths, as MuseScore plays "Swing"), or a click on 2 and 4 only.
+• A ring that lights up beat by beat, with the downbeat marked, and a short, dry click that stays steady. One pill holds the time signature and a menu of what fills each beat (quarters, eighths, triplets, sixteenths, and swung eighths and sixteenths, as MuseScore plays "Swing"); or choose a click on 2 and 4 only.
 
 HARMONY
 • Twelve keys on a dial: touch a note and it plays on a real piano, in time with the metronome.
 • The note alone, or a major, minor or seventh chord, struck once a bar, on every beat or as an arpeggio.
-• Progressions to practise over, one chord per bar: II–V–I (major and minor), I–IV–V, I–VI–IV–V and the twelve-bar blues, in any key, each named after a song you know.
-• Choose the octave of the root and how the chord is laid out.
+• Progressions to practise over, one chord per bar: II–V–I (major and minor), I–IV–V, I–VI–IV–V and the twelve-bar blues, in any key, each named after a song you know, with the Roman numerals on the keys.
+• Five example songs set the key, the progression and the tempo in one tap.
+• Choose the octave of the root, how the chord is laid out, or a held tone; a bass preset plays a low root along with you.
+• Start the harmony while the click is running and it comes in on the next bar, with a countdown on the dial.
 
 TUNER
-• Chromatic, with a round strobe and the note in the middle: play any note and it shows up, no string to choose first.
+• Chromatic, with a round strobe and the note in the middle: play any note and it shows up, no string to choose first. Or pick guitar, violin, viola, cello, ukulele or bass strings.
 • Hears low and high notes alike, from 28 to 2800 Hz (a low B on a five-string bass up to the top of the violin and the flute).
 • For B♭, E♭ and F instruments it can name the written note.
-• Reference A: 415, 430, 432 or 438 to 445 Hz. The sound is analysed on the phone and never recorded.
+• Reference A: every hertz from 415 to 445 (415, 432, 440 and 442 in one tap). The sound is analysed on the phone and never recorded.
+• If the metronome or the harmony is playing, touch the tuner's dial and they pause, with a Resume button.
 
 MADE FOR PLAYING
-• Swipe left and right to change section. A tab only goes to its section.
-• Keeps playing with the screen off, with a notification that says what is sounding. Optional: keep the screen on.
+• Each section starts and stops its own sound from the middle of its dial. The tabs and the swipes only change section.
+• Swipe left and right to change section; for rehearsals, lock the gestures in the settings.
+• Keeps playing with the screen off, with a notification that says what is sounding. The screen can stay on while you play.
 • A dark look in bronze and ebony, easy on the eyes on stage; English and Italian; note names as C D E or Do Re Mi.
 • Built to be accessible: screen-reader labels, enlargeable text, and colours that are never the only cue.
 

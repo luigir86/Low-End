@@ -3,23 +3,27 @@ Low End è un compagno di studio per musicisti: un metronomo, una sezione di arm
 METRONOMO
 • Tempo da 30 a 250 BPM: scrivilo con la matita, tieni premuto − o + per farlo scorrere, oppure usa TAP.
 • Tempi 1/1, 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 e 12/8, con i movimenti raggruppati come si contano.
-• Un anello che si accende movimento per movimento, con il primo tempo in evidenza, e un click breve e secco sempre stabile. Un menu di cosa riempie ogni movimento (semiminime, crome, terzine, semicrome, e crome e semicrome swing, come MuseScore suona «Swing»), oppure click solo su 2 e 4.
+• Un anello che si accende movimento per movimento, con il primo tempo in evidenza, e un click breve e secco sempre stabile. Una pillola contiene la misura e un menu di cosa riempie ogni movimento (semiminime, crome, terzine, semicrome, e crome e semicrome swing, come MuseScore suona «Swing»); oppure scegli il click solo su 2 e 4.
 
 ARMONIA
-• Dodici tasti su un quadrante: tocca una nota e suona su un vero pianoforte, a tempo con il metronomo.
+• Dodici tasti su un cerchio: tocca una nota e suona su un vero pianoforte, a tempo con il metronomo.
 • La nota da sola, oppure un accordo maggiore, minore o di settima, battuto una volta a battuta, a ogni movimento o arpeggiato.
-• Progressioni su cui studiare, un accordo per battuta: II–V–I (maggiore e minore), I–IV–V, I–VI–IV–V e il blues di dodici battute, in qualunque tonalità, ognuna con il nome di un brano che conosci.
-• Scegli l'ottava della fondamentale e la posizione dell'accordo.
+• Progressioni su cui studiare, un accordo per battuta: II–V–I (maggiore e minore), I–IV–V, I–VI–IV–V e il blues di dodici battute, in qualunque tonalità, ognuna con il nome di un brano che conosci e con i numeri romani sui tasti.
+• Cinque brani d'esempio impostano tonalità, progressione e tempo in un tocco.
+• Scegli l'ottava della fondamentale, la posizione dell'accordo o un tono continuo; un preset per il basso suona una fondamentale grave insieme a te.
+• Se avvii l'armonia mentre il click è in corso, entra sulla battuta successiva, con un conto alla rovescia al centro del cerchio.
 
 ACCORDATORE
-• Cromatico, con uno strobo rotondo e la nota al centro: suona una nota qualsiasi e compare, senza dover scegliere prima la corda.
+• Cromatico, con uno strobo rotondo e la nota al centro: suona una nota qualsiasi e compare, senza dover scegliere prima la corda. Oppure scegli le corde di chitarra, violino, viola, violoncello, ukulele o basso.
 • Sente note gravi e acute, da 28 a 2800 Hz (dal Si basso di un basso a cinque corde al limite acuto di violino e flauto).
 • Per gli strumenti in Si♭, Mi♭ e Fa può mostrare la nota scritta.
-• La di riferimento: 415, 430, 432 o da 438 a 445 Hz. Il suono è analizzato sul telefono e non viene mai registrato.
+• La di riferimento: ogni hertz da 415 a 445 (415, 432, 440 e 442 con un tocco). Il suono è analizzato sul telefono e non viene mai registrato.
+• Se metronomo o armonia stanno suonando, tocca il cerchio dell'accordatore e vanno in pausa, con un pulsante Riprendi.
 
 PENSATA PER SUONARE
-• Scorri a sinistra e a destra per cambiare sezione. Una scheda porta solo alla sua sezione.
-• Continua a suonare con lo schermo spento, con una notifica che dice cosa sta suonando. A scelta: schermo sempre acceso.
+• Ogni sezione avvia e ferma il proprio suono dal centro del suo cerchio. Le schede e gli scorrimenti servono solo a cambiare sezione.
+• Scorri a sinistra e a destra per cambiare sezione; per le prove, blocca i gesti nelle impostazioni.
+• Continua a suonare con lo schermo spento, con una notifica che dice cosa sta suonando. Lo schermo può restare acceso mentre suoni.
 • Un aspetto scuro in bronzo ed ebano, riposante sul palco; italiano e inglese; nomi delle note Do Re Mi o C D E.
 • Progettata per essere accessibile: etichette per i lettori di schermo, testo ingrandibile e colori mai usati come unico segnale.
 

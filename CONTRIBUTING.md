@@ -8,7 +8,7 @@ Open an issue at https://github.com/luigir86/Low-End/issues. For tuner problems,
 
 ## Changing the code
 
-1. Install [Flutter](https://docs.flutter.dev/get-started/install) and fork the repository.
+1. Install [Flutter](https://docs.flutter.dev/get-started/install) and fork the repository. [docs/architecture.md](docs/architecture.md) explains how the app is built.
 2. Make your change on a new branch.
 3. Before opening a pull request, run:
 
@@ -18,13 +18,13 @@ Open an issue at https://github.com/luigir86/Low-End/issues. For tuner problems,
    flutter test
    ```
 
-4. Open a pull request explaining what changes for the player.
+4. Open a pull request explaining what changes for the player. If it changes what is on screen, update the user guides ([docs/user-guide.md](docs/user-guide.md) and [docs/manuale-utente.md](docs/manuale-utente.md)) and the texts in `lib/l10n/` too.
 
 Keep the app light: please discuss in an issue before adding a new package, and avoid anything that tracks users or needs the internet.
 
 ## Look and feel
 
-All colours, shapes and text styles live in `lib/app/theme.dart`: the bronze accent of the icon on ebony (the app is always dark), and the tuner verdict colours. Screens take them from the theme (`Theme.of(context)`, `LowEndColors.of(context)`) and never write a colour of their own. If you change the background colours, change `android/app/src/main/res/values/colors.xml` too: `test/theme_test.dart` checks they match.
+All colours, shapes and text styles live in `lib/app/theme.dart` and `lib/app/style.dart`: the bronze accent of the icon on ebony (the app is always dark, with no theme to choose; see [docs/tema-bronzo.md](docs/tema-bronzo.md), in Italian), and the tuner verdict colours. [docs/style.md](docs/style.md) is the style sheet: sizes, shapes and the layout of the three sections. Screens take them from the theme (`Theme.of(context)`, `LowEndColors.of(context)`) and never write a colour of their own. If you change the background colours, change `android/app/src/main/res/values/colors.xml` too: `test/theme_test.dart` checks they match.
 
 ## Accessibility
 

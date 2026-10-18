@@ -27,16 +27,12 @@ La schermata di avvio di Android usa l'ebano (`android/app/src/main/res/values/c
 
 ## 4. Verdetti dell'accordatore
 
-Intonato verde #8FD19E, quasi giallo #F2DA4E, lontano rosso puro #FF5F56. Stanno solo sulla scritta del verdetto con la sua freccia o spunta; la nota resta bianca. Il giallo è lontano dal bronzo per tonalità (almeno 20 gradi, controllato da `test/theme_test.dart`), non solo per luminosità. Il verdetto è detto anche a parole e dal verso dello strobo: nessuna informazione affidata al solo colore.
+Intonato verde #8FD19E, quasi giallo #F2DA4E, lontano rosso puro #FF5F56. Stanno solo sulla scritta del verdetto con la sua freccia o spunta e sull'indicatore tondo della barra dei cent; la nota resta bianca. Il giallo è lontano dal bronzo per tonalità (almeno 20 gradi, controllato da `test/theme_test.dart`), non solo per luminosità. Il verdetto è detto anche a parole e dal verso dello strobo: nessuna informazione affidata al solo colore.
 
-## 5. Pallino della scheda che suona
-
-Sempre bronzo pieno: pulsa cambiando grandezza (dall'80% al 100%), non trasparenza, così il fondo scuro non lo spegne.
-
-## 6. Contrasto (WCAG)
+## 5. Contrasto (WCAG)
 
 `test/theme_test.dart` controlla: bronzo sullo sfondo almeno 4,5 : 1; bordi, battiti accesi e segmenti dello strobo sul disco almeno 3 : 1; testo sulla pillola e sulle note dell'accordo almeno 4,5 : 1; verdetti sul disco e sullo sfondo almeno 3 : 1.
 
-## 7. Icona
+## 6. Icona
 
 Resta com'è: il leone in legno e bronzo su fondo scuro è già il tema.
