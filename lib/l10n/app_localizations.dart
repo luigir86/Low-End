@@ -272,18 +272,6 @@ abstract class AppLocalizations {
   /// **'{note} diminished'**
   String droneChordDiminished(String note);
 
-  /// The middle part of the pill that chooses what plays: the metronome, both, or the harmony
-  ///
-  /// In en, this message translates to:
-  /// **'Both'**
-  String get mixBoth;
-
-  /// No description provided for @mixLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'What plays'**
-  String get mixLabel;
-
   /// No description provided for @referencePitch.
   ///
   /// In en, this message translates to:
@@ -883,12 +871,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Turned sideways, swipe up and down over the dial or the tabs to change section.'**
   String get guideSwipeVertical;
-
-  /// No description provided for @guideMix.
-  ///
-  /// In en, this message translates to:
-  /// **'The pill under the dial chooses what plays: the metronome, both, or the harmony. Tap the lit one to stop.'**
-  String get guideMix;
 
   /// No description provided for @guideDrone.
   ///

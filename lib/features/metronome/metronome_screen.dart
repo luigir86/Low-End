@@ -7,7 +7,6 @@ import 'package:flutter/scheduler.dart';
 import '../../app/theme.dart';
 import '../../audio/audio_scope.dart';
 import '../../l10n/app_localizations.dart';
-import '../../widgets/mix_pill.dart';
 import '../../widgets/dial.dart';
 import '../../widgets/pill_switch.dart';
 import '../../widgets/row_controls.dart';
@@ -91,7 +90,6 @@ class MetronomeScreen extends StatelessWidget {
               ),
           ],
         ),
-        footer: const MixPill(),
       ),
     );
   }

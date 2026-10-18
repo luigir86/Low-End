@@ -10,7 +10,7 @@ Low End is a free, open-source practice app for musicians: a **metronome**, a pi
 
 ## What it does
 
-The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens on the metronome. Swipe left and right to change section. The pill under the dial chooses what plays: the metronome, both, or the harmony.
+The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens on the metronome. Swipe left and right to change section.
 
 ### Metronome
 
@@ -23,7 +23,6 @@ The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens o
 - Twelve note keys round a dial: touch one to play it on a real piano, in time with the metronome, and touch it again to stop.
 - The note alone (**Root**), a major, minor or seventh **Chord**, or a **Progression** of one chord per bar: II–V–I (major and minor), I–IV–V, I–VI–IV–V and the twelve-bar blues, in the key of the note touched. The menu names each with a well-known song (Autumn Leaves, Blue Bossa, Twist and Shout, Stand by Me, Sweet Home Chicago).
 - Held for the bar, struck on every beat or arpeggiated; choose the octave of the root and where the chord sits (stacked, close or without the root).
-- One **pill** chooses what plays: the metronome, both, or the harmony. The volume itself is the phone's.
 
 ### Tuner
 

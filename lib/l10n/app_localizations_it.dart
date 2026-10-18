@@ -104,12 +104,6 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String get mixBoth => 'Entrambi';
-
-  @override
-  String get mixLabel => 'Cosa suona';
-
-  @override
   String get referencePitch => 'La di riferimento';
 
   @override
@@ -452,10 +446,6 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get guideSwipeVertical =>
       'Con il telefono in orizzontale, scorri verso l\'alto o il basso sul cerchio o sulle schede per cambiare sezione.';
-
-  @override
-  String get guideMix =>
-      'La pillola sotto il cerchio sceglie cosa suona: il metronomo, entrambi o l\'armonia. Tocca quella accesa per fermare.';
 
   @override
   String get guideDrone =>

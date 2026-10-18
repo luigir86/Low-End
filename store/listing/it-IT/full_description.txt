@@ -9,7 +9,7 @@ ARMONIA
 • Dodici tasti su un quadrante: tocca una nota e suona su un vero pianoforte, a tempo con il metronomo.
 • La nota da sola, oppure un accordo maggiore, minore o di settima, battuto una volta a battuta, a ogni movimento o arpeggiato.
 • Progressioni su cui studiare, un accordo per battuta: II–V–I (maggiore e minore), I–IV–V, I–VI–IV–V e il blues di dodici battute, in qualunque tonalità, ognuna con il nome di un brano che conosci.
-• Scegli l'ottava della fondamentale e la posizione dell'accordo. Una pillola sotto il cerchio sceglie cosa suona: metronomo, armonia o entrambi.
+• Scegli l'ottava della fondamentale e la posizione dell'accordo.
 
 ACCORDATORE
 • Cromatico, con uno strobo rotondo e la nota al centro: suona una nota qualsiasi e compare, senza dover scegliere prima la corda.

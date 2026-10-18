@@ -48,7 +48,6 @@ class _GuideState extends State<_Guide> {
         tip(Icons.touch_app_outlined, l10n.guideRing),
         tip(Icons.pin_outlined, l10n.guideTempo),
         tip(Icons.graphic_eq, l10n.guideDrone),
-        tip(Icons.library_music_outlined, l10n.guideMix),
       ]),
       page(l10n.guidePage2Title, [
         tip(Icons.swipe, l10n.guideSwipe),

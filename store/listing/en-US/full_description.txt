@@ -9,7 +9,7 @@ HARMONY
 • Twelve keys on a dial: touch a note and it plays on a real piano, in time with the metronome.
 • The note alone, or a major, minor or seventh chord, struck once a bar, on every beat or as an arpeggio.
 • Progressions to practise over, one chord per bar: II–V–I (major and minor), I–IV–V, I–VI–IV–V and the twelve-bar blues, in any key, each named after a song you know.
-• Choose the octave of the root and how the chord is laid out. One pill under the dial chooses what plays: the metronome, both, or the harmony.
+• Choose the octave of the root and how the chord is laid out.
 
 TUNER
 • Chromatic, with a round strobe and the note in the middle: play any note and it shows up, no string to choose first.

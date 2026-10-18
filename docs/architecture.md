@@ -44,7 +44,7 @@ Every outside thing sits behind an interface with a silent or fake twin (`ToneOu
 - **Whole bars as loops.** The metronome does not fire timers. `ClickSound` renders **one bar** of clicks (a short synthesised woodblock tick, higher on the first beat; softer clicks for the subdivisions (`Subdivision.inner`: where each falls in the beat, the swung ones at 60% of the pair, as MuseScore's Swing); with the click on 2 and 4, beats 1 and 3 left silent, with what is inside them) as a PCM buffer and `BarLoopPlayer` loops it gaplessly, so the time cannot drift. Changing the tempo or time signature renders a new bar.
 - **Harmony.** `PianoSound` renders the chord (or the bars of a progression) from 14 recorded notes pitched up and down, into a loop **of the same length** as the metronome's bar. `LoopTransport` makes a second loop that starts while another plays wait for the next bar line, so chords and clicks stay together.
 - **Sustained tone.** `DroneSound` makes the steady, warm tone of a held note as a seamless loop; its pitch never wavers, so it is a true reference.
-- **Volume** is the phone's media volume. What plays is chosen by the pill under the dial (`MixPill`), which keeps no state: it reads the two players.
+- **Volume** is the phone's media volume. Each section starts and stops its own sound from the middle of its dial; the tuner pauses the others.
 
 ## Tuner
 

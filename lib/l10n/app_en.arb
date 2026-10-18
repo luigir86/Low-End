@@ -54,11 +54,6 @@
       }
     }
   },
-  "mixBoth": "Both",
-  "@mixBoth": {
-    "description": "The middle part of the pill that chooses what plays: the metronome, both, or the harmony"
-  },
-  "mixLabel": "What plays",
   "referencePitch": "Reference A",
   "lowerPitch": "Lower the reference A",
   "higherPitch": "Raise the reference A",
@@ -271,7 +266,6 @@
   "guideTempo": "Touch the pencil to type the tempo. Hold − or + and the tempo runs, faster and faster.",
   "guideSwipe": "Swipe left and right to change section.",
   "guideSwipeVertical": "Turned sideways, swipe up and down over the dial or the tabs to change section.",
-  "guideMix": "The pill under the dial chooses what plays: the metronome, both, or the harmony. Tap the lit one to stop.",
   "guideDrone": "In Harmony, tap a note to play it. Hold C♯ or F♯ to write them D♭ or G♭.",
   "guideTuner": "The tuner listens by itself. Going there pauses the metronome and the harmony.",
   "guideVolume": "The volume is the phone's: use its volume keys.",

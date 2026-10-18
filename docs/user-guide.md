@@ -9,10 +9,10 @@ Low End is a metronome, a piano harmony section and a tuner in one app. It was m
 The tabs at the bottom (on the left when the phone is sideways) are **Metronome**, **Harmony** and **Tuner**. The app opens on the metronome.
 
 - **Swipe** left or right to change section. With the phone turned sideways the tabs move to a column on the left and the settings gear stays top right: **swipe up or down** over the dial or the tabs (not over the rows on the right, which may scroll) to change section. It has to be a quick flick: a slow drag does nothing. The first time you turn the phone sideways a short hint says so. For rehearsals, **Lock the gestures** in the settings turns off the swipes between sections.
-- A **tab** only goes to its section. What plays is started with the middle of the dial or with the pill under it (see below).
+- A **tab** only goes to its section. Each section starts and stops its own sound with the middle of its dial (the tuner pauses the others).
 - The first time you open the app a short **gesture guide** appears. It is also in *Settings → Gestures and shortcuts*.
 
-The volume is the phone's: use its volume keys. The pill at the bottom of the Metronome and Harmony sections chooses what plays: **Metronome**, **Both** or **Harmony**. Nothing is lit while nothing plays; touch the lit part again to stop everything.
+The volume is the phone's: use its volume keys.
 
 ## Metronome
 
@@ -33,7 +33,6 @@ Twelve keys round a dial (by default in the circle of fifths; you can ask for se
 - **Root**: the note alone. **Chord**: major, minor or seventh, built on the note. **Progression**: one chord per bar, in the key of the note you touched: II–V–I (major and minor), I–IV–V, I–VI–IV–V and the twelve-bar blues. The menu says what each is: *Jazz standard, like Autumn Leaves* (II–V–I), *Jazz in a minor key, like Blue Bossa*, *Rock ’n’ roll, like Twist and Shout* (I–IV–V), *’50s–’60s pop, like Stand by Me* (I–VI–IV–V) and *Blues, like Sweet Home Chicago*. The dial fades the notes outside the key and writes the Roman numerals (II, V, I) small on the notes they stand on, and they stay put: read II, then go to V. "Add the seventh" turns the chords into sevenths.
 - **Style**: the chord struck once a bar, on every beat, or played as an arpeggio, at the metronome's tempo and time signature.
 - **Sound options**: the octave of the root, and where the chord sits (stacked, close, or without the root so you can play it yourself).
-- **What plays**: the pill under the dial chooses the metronome, the harmony or both.
 
 ## Tuner
 

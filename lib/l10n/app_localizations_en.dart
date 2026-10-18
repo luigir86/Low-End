@@ -104,12 +104,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get mixBoth => 'Both';
-
-  @override
-  String get mixLabel => 'What plays';
-
-  @override
   String get referencePitch => 'Reference A';
 
   @override
@@ -448,10 +442,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guideSwipeVertical =>
       'Turned sideways, swipe up and down over the dial or the tabs to change section.';
-
-  @override
-  String get guideMix =>
-      'The pill under the dial chooses what plays: the metronome, both, or the harmony. Tap the lit one to stop.';
 
   @override
   String get guideDrone =>

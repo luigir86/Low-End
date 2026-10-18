@@ -9,10 +9,10 @@ Low End è un metronomo, una sezione di armonia al pianoforte e un accordatore i
 Le schede in basso (a sinistra con il telefono in orizzontale) sono **Metronomo**, **Armonia** e **Accordatore**. L'app si apre sul metronomo.
 
 - **Scorri** a destra o a sinistra per cambiare sezione. Con il telefono in orizzontale le schede passano in una colonna a sinistra e l'ingranaggio resta in alto a destra: **scorri verso l'alto o il basso** sul cerchio o sulle schede (non sulle righe a destra, che possono scorrere) per cambiare sezione.
-- Una **scheda** porta solo alla sua sezione. Il suono si avvia dal centro del cerchio o dalla pillola sotto (vedi sotto).
+- Una **scheda** porta solo alla sua sezione. Ogni sezione avvia e ferma il proprio suono dal centro del suo cerchio (l'accordatore mette in pausa gli altri).
 - La prima volta compare una breve **guida ai gesti**; la ritrovi in *Impostazioni → Gesti e scorciatoie*.
 
-Il volume è quello del telefono: usa i suoi tasti. La pillola in basso, in Metronomo e Armonia, sceglie cosa suona: **Metronomo**, **Entrambi** o **Armonia**. Finché non suona nulla non è acceso niente; tocca di nuovo la parte accesa per fermare tutto.
+Il volume è quello del telefono: usa i suoi tasti.
 
 ## Metronomo
 

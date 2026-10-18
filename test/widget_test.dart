@@ -17,12 +17,11 @@ import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/piano_output.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
 import 'package:low_end/audio/tone_output.dart';
-import 'package:low_end/widgets/pill_switch.dart';
 import 'package:low_end/widgets/dial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// The Harmony and Metronome tabs: their names are also in the pill under
-/// the dial.
+/// The Harmony and Metronome tabs: their names are not written anywhere
+/// else on the screen.
 final _harmonyTab = find.descendant(
   of: find.byType(NavigationBar),
   matching: find.text('Harmony'),
@@ -40,7 +39,7 @@ void _portrait(WidgetTester tester) {
   addTearDown(tester.view.reset);
 }
 
-/// A tab's name on the rail, not the same word in the pill.
+/// A tab's name on the rail, the same word as the tab on screen.
 Finder _railTab(String name) => find.descendant(
   of: find.byKey(const Key('tabRail')),
   matching: find.text(name),
@@ -663,28 +662,27 @@ void main() {
     expect(find.text('Next'), findsOneWidget);
   });
 
-  testWidgets('the pill names what plays, the style is easy to hit', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(1080, 2400);
-    tester.view.devicePixelRatio = 2.625;
-    addTearDown(tester.view.reset);
-    await tester.pumpWidget(
-      LowEndApp(toneOutput: SilentToneOutput(), micInput: FakeMicInput()),
-    );
-    await tester.pumpAndSettle();
-    // The pill names both players, as the tabs do, and a third part for both.
-    expect(find.text('Both'), findsOneWidget);
-    expect(find.text('Metronome'), findsNWidgets(2));
-    expect(find.text('Harmony'), findsNWidgets(2));
-    // The time signature field has no title, but a name for screen readers.
-    final semantics = tester.ensureSemantics();
-    expect(find.text('Time signature'), findsNothing);
-    expect(find.bySemanticsLabel('Time signature'), findsOneWidget);
-    semantics.dispose();
-    // The tuner tab is a microphone.
-    expect(find.byIcon(Icons.mic_none), findsOneWidget);
-  });
+  testWidgets(
+    'the tabs and the time signature are named, the tuner is a microphone',
+    (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 2.625;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        LowEndApp(toneOutput: SilentToneOutput(), micInput: FakeMicInput()),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Metronome'), findsOneWidget);
+      expect(find.text('Harmony'), findsOneWidget);
+      // The time signature field has no title, but a name for screen readers.
+      final semantics = tester.ensureSemantics();
+      expect(find.text('Time signature'), findsNothing);
+      expect(find.bySemanticsLabel('Time signature'), findsOneWidget);
+      semantics.dispose();
+      // The tuner tab is a microphone.
+      expect(find.byIcon(Icons.mic_none), findsOneWidget);
+    },
+  );
 
   testWidgets('the sound options set the octave and where the chord sits', (
     tester,
@@ -764,61 +762,6 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
     expect(scope.metronome.bpm, 60);
-  });
-
-  testWidgets('the pill under the dial shows what plays and chooses it', (
-    tester,
-  ) async {
-    _portrait(tester);
-    await tester.pumpWidget(
-      LowEndApp(
-        toneOutput: SilentToneOutput(),
-        clickOutput: SilentClickOutput(),
-        micInput: FakeMicInput(),
-      ),
-    );
-    await tester.pumpAndSettle();
-    final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
-    Finder part(String key) => find.byKey(Key(key));
-    Future<void> touch(String key) async {
-      await tester.tap(part(key));
-      await tester.pump();
-    }
-
-    // Nothing plays: nothing is lit, and a touch plays what it says.
-    expect(scope.metronome.isPlaying || scope.drone.isPlaying, isFalse);
-    await touch('mixMetronome');
-    expect(scope.metronome.isPlaying, isTrue);
-    expect(scope.drone.isPlaying, isFalse);
-    // Both adds the harmony.
-    await touch('mixBoth');
-    expect(scope.metronome.isPlaying, isTrue);
-    expect(scope.drone.isPlaying, isTrue);
-    // Harmony alone stops the click.
-    await touch('mixDrone');
-    expect(scope.metronome.isPlaying, isFalse);
-    expect(scope.drone.isPlaying, isTrue);
-    // Back to the metronome alone, then to both.
-    await touch('mixMetronome');
-    expect(scope.metronome.isPlaying, isTrue);
-    expect(scope.drone.isPlaying, isFalse);
-    await touch('mixBoth');
-    // The lit part again stops everything.
-    await touch('mixBoth');
-    expect(scope.metronome.isPlaying, isFalse);
-    expect(scope.drone.isPlaying, isFalse);
-
-    // It follows what the dials start, and is the same on the Harmony tab.
-    await scope.drone.start();
-    await tester.pump();
-    await tester.tap(_harmonyTab);
-    await tester.pumpAndSettle();
-    final lit = tester.widget<PillSwitch>(find.byKey(const Key('mixPill')));
-    expect(lit.rightFilled, isTrue);
-    expect(lit.leftFilled || lit.middleFilled, isFalse);
-    await tester.tap(part('mixDrone'));
-    await tester.pump();
-    expect(scope.drone.isPlaying, isFalse);
   });
 }
 

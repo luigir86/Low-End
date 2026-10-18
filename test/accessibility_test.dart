@@ -39,8 +39,8 @@ Future<void> pumpApp(
   await tester.pumpAndSettle();
 }
 
-/// The Harmony and Metronome tabs: their names are also in the pill under
-/// the dial.
+/// The Harmony and Metronome tabs: their names are not written anywhere
+/// else on the screen.
 final _harmonyTab = find.descendant(
   of: find.byType(NavigationBar),
   matching: find.text('Harmony'),

@@ -121,7 +121,7 @@ class DialGeometry {
 }
 
 /// Lays out a section around its dial, the same way on every tab: the dial
-/// at the top, then three rows, each the same height (the balance slider's too) and in the
+/// at the top, then three rows, each the same height and in the
 /// same place whatever the section, so moving between tabs only what is
 /// inside them changes.
 class DialLayout extends StatelessWidget {
@@ -130,7 +130,7 @@ class DialLayout extends StatelessWidget {
     required this.dial,
     required this.upper,
     required this.lower,
-    required this.footer,
+    this.footer = const SizedBox.shrink(),
   });
 
   final Widget dial;
@@ -142,16 +142,17 @@ class DialLayout extends StatelessWidget {
   /// The second row: TAP, the chord, Pause.
   final Widget lower;
 
-  /// The third row: the metronome / drone balance, or the reference A on
-  /// the tuner.
+  /// The third row: the reference A on the tuner. The metronome and the
+  /// harmony leave it empty, so that their rows stay where the tuner's are.
   final Widget footer;
 
   /// Largest dial, on tablets.
   static const _maxSize = 420.0;
 
   /// The height of each of the three rows, spacing included: the same for
-  /// all, the balance slider's row too, so that every tab is a dial and
-  /// three equal rows whatever is in them. With large text a row grows and
+  /// all, so that every tab is a dial and three equal rows whatever is in
+  /// them (or in none, as the third of the metronome and the harmony). With
+  /// large text a row grows and
   /// the screen scrolls.
   static const rowHeight = 80.0;
 

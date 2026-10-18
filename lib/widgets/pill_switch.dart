@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-/// The pill of a row under the dial: two halves (Chromatic / instrument on
-/// the tuner, time signature / subdivision on the metronome), or three with a
-/// [middle] one (metronome / both / harmony): 40 dp high to the eye, 48 dp to
-/// touch. A part that is [leftFilled], [middleFilled] or [rightFilled] is the
-/// chosen one. The parts are what is touched, built with [PillSwitch.half],
-/// [PillSwitch.middleHalf] and [PillSwitch.label].
+/// The two-half pill of the first row under the dial (Chromatic / instrument
+/// on the tuner, Root / Chord / Progression on the harmony):
+/// 40 dp high to the eye, 48 dp to touch. A half that is [leftFilled] or
+/// [rightFilled] is the chosen one. The halves are what is touched, built
+/// with [PillSwitch.half] and [PillSwitch.label].
 class PillSwitch extends StatelessWidget {
   const PillSwitch({
     super.key,
@@ -13,27 +12,16 @@ class PillSwitch extends StatelessWidget {
     required this.rightFilled,
     required this.left,
     required this.right,
-    this.middle,
-    this.middleFilled = false,
   });
 
   final bool leftFilled;
   final bool rightFilled;
-  final bool middleFilled;
   final Widget left;
   final Widget right;
-
-  /// The part between the two, if there is one.
-  final Widget? middle;
 
   /// A half, touchable over its 48 dp with its ink kept inside the pill.
   static Widget half({required bool left, required Widget child}) =>
       _PillHalf(left: left, child: child);
-
-  /// The part between the halves of a three-part pill: square, with its ink
-  /// kept inside the pill.
-  static Widget middleHalf({required Widget child}) =>
-      _PillHalf(left: null, child: child);
 
   /// The words of a half, shrinking to fit, in the colour of its state.
   static Widget label(BuildContext context, bool selected, Widget child) {
@@ -61,7 +49,7 @@ class PillSwitch extends StatelessWidget {
         height: 48,
         child: Stack(
           children: [
-            // What is seen: the pill, with the chosen part filled.
+            // What is seen: the pill, with the chosen half filled.
             Center(
               child: SizedBox(
                 height: 40,
@@ -74,27 +62,19 @@ class PillSwitch extends StatelessWidget {
                     children: [
                       Expanded(child: ColoredBox(color: fill(leftFilled))),
                       VerticalDivider(width: 1, color: scheme.outline),
-                      if (middle != null) ...[
-                        Expanded(child: ColoredBox(color: fill(middleFilled))),
-                        VerticalDivider(width: 1, color: scheme.outline),
-                      ],
                       Expanded(child: ColoredBox(color: fill(rightFilled))),
                     ],
                   ),
                 ),
               ),
             ),
-            // What is touched: the parts, as high as a finger.
+            // What is touched: the two halves, as high as a finger.
             Material(
               type: MaterialType.transparency,
               child: Row(
                 children: [
                   Expanded(child: left),
                   const SizedBox(width: 1),
-                  if (middle != null) ...[
-                    Expanded(child: middle!),
-                    const SizedBox(width: 1),
-                  ],
                   Expanded(child: right),
                 ],
               ),
@@ -106,15 +86,13 @@ class PillSwitch extends StatelessWidget {
   }
 }
 
-/// One part of the switch, touchable over its 48 dp but with its ink
+/// One half of the switch, touchable over its 48 dp but with its ink
 /// (press, hover, focus) kept inside the 40 dp pill, with the rounded outer
-/// corners and the flat inner side of the half it is (a middle part has no
-/// rounded corner).
+/// corners and the flat inner side of the half it is.
 class _PillHalf extends StatelessWidget {
   const _PillHalf({required this.left, required this.child});
 
-  /// True for the left half, false for the right, null for a middle part.
-  final bool? left;
+  final bool left;
   final Widget child;
 
   @override
@@ -127,7 +105,7 @@ class _PillHalf extends StatelessWidget {
 class _PillHalfClipper extends CustomClipper<Path> {
   const _PillHalfClipper(this.left);
 
-  final bool? left;
+  final bool left;
 
   static const _height = 40.0;
 
@@ -141,10 +119,10 @@ class _PillHalfClipper extends CustomClipper<Path> {
         top,
         size.width,
         top + _height,
-        topLeft: left == true ? round : Radius.zero,
-        bottomLeft: left == true ? round : Radius.zero,
-        topRight: left == false ? round : Radius.zero,
-        bottomRight: left == false ? round : Radius.zero,
+        topLeft: left ? round : Radius.zero,
+        bottomLeft: left ? round : Radius.zero,
+        topRight: left ? Radius.zero : round,
+        bottomRight: left ? Radius.zero : round,
       ),
     );
   }
