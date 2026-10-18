@@ -430,11 +430,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guideTitle => 'Gestures and shortcuts';
 
   @override
-  String get guideRing => 'Tap the metronome\'s ring to start and stop it.';
+  String get guideRing =>
+      'The metronome and the harmony start and stop by touching the middle of their dial.';
 
   @override
   String get guideTempo =>
-      'Touch the pencil to type the tempo. Hold − or + and the tempo runs, faster and faster.';
+      'Touch the pencil to type the tempo, or tap TAP. Hold − or + and the tempo runs, faster and faster.';
 
   @override
   String get guideSwipe => 'Swipe left and right to change section.';
@@ -449,7 +450,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideTuner =>
-      'The tuner listens by itself. Going there pauses the metronome and the harmony.';
+      'The tuner listens by itself when nothing is playing. If something is, touch its dial: the metronome and the harmony pause.';
 
   @override
   String get guideVolume => 'The volume is the phone\'s: use its volume keys.';

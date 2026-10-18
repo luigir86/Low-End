@@ -258,9 +258,9 @@ class AppSettings extends ChangeNotifier {
 
   var _gesturesLocked = false;
 
-  /// Whether the swipes between sections and the hold on a tab are turned
-  /// off, for a rehearsal: only taps are left, so nothing changes by
-  /// accident with a bow in the hand.
+  /// Whether the swipes between sections are turned off, for a rehearsal:
+  /// only taps are left, so nothing changes by accident with a bow in the
+  /// hand.
   bool get gesturesLocked => _gesturesLocked;
 
   void setGesturesLocked(bool value) {

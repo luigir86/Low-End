@@ -2,47 +2,51 @@
 
 *Italiano: [manuale-utente.md](manuale-utente.md).*
 
-Low End is a metronome, a piano harmony section and a tuner in one app. It was made by an amateur double bass player with the friends from the orchestra in mind, and it is meant for every musician. It is free, shows no ads, collects nothing and needs no internet.
+Low End is a metronome, a piano harmony section and a tuner in one app. It was made by an amateur double bass player with the friends from the orchestra in mind, and it is meant for every musician. It is free, shows no ads, collects nothing and needs no internet. It always has the same dark look, bronze on ebony; there is no theme to choose.
 
 ## The three sections
 
 The tabs at the bottom (on the left when the phone is sideways) are **Metronome**, **Harmony** and **Tuner**. The app opens on the metronome.
 
-- **Swipe** left or right to change section. With the phone turned sideways the tabs move to a column on the left and the settings gear stays top right: **swipe up or down** over the dial or the tabs (not over the rows on the right, which may scroll) to change section. It has to be a quick flick: a slow drag does nothing. The first time you turn the phone sideways a short hint says so. For rehearsals, **Lock the gestures** in the settings turns off the swipes between sections.
-- A **tab** only goes to its section. Each section starts and stops its own sound with the middle of its dial (the tuner pauses the others).
+- A **tab** only takes you to its section: it never starts or stops anything. **Each section starts and stops its own sound from the middle of its dial.**
+- **Swipe** left or right to change section. With the phone turned sideways the tabs move to a column on the left and the settings gear stays top right: **swipe up or down** over the dial or the tabs (not over the rows on the right, which may scroll) to change section. It has to be a quick flick: a slow drag does nothing. The first time you turn the phone sideways a short hint says so.
+- For rehearsals, **Lock the gestures** in the settings turns off the swipes between sections. The tabs still work.
 - The first time you open the app a short **gesture guide** appears. It is also in *Settings → Gestures and shortcuts*.
+- Under every dial there are three rows. Metronome and Harmony use the first two and leave the third empty; the tuner uses all three.
 
 The volume is the phone's: use its volume keys.
 
 ## Metronome
 
 - **Start and stop**: touch the ring or the number in the middle. The ring lights up beat by beat, with the first beat marked, and a short, dry click keeps the time, a little higher on the first beat.
-- **Tempo**: from 30 to 250 BPM, with its Italian name (Largo, Andante, Allegro…) under the number while it plays. Touch the pencil to type it; touch **+** or **−** to move by one, or hold them: the tempo runs by one, faster and faster, then in steps of 5; or tap **TAP** (the coloured button) in the rhythm you want.
-- **What fills the beat**: the right half of the first row (the left half is the time signature) opens a menu: a quarter note (the beat alone), two beamed eighths, three beamed triplets, four beamed sixteenths (softer clicks between the beats, to place the notes), and **swung eighths** and **swung sixteenths**, written straight and played long-short, as MuseScore plays "Swing" (the second note of the pair at 60%). With the click on 2 and 4 on, only beats 2 and 4 are subdivided. The piano of the Harmony tab does not follow: it stays straight. In the bars counted in eighths (6/8, 7/8, 9/8, 12/8) the beat is played alone.
+- **Tempo**: from 30 to 250 BPM (in 7/8, where the tempo counts eighths, up to 400), with its Italian name (Largo, Andante, Allegro…) under the number. Touch the pencil to type it; touch **+** or **−** to move by one, or hold them: the tempo runs by one, faster and faster, then in steps of 5; or tap **TAP** (the coloured button, in the second row) in the rhythm you want.
+- **The first row** is a pill with two halves. The left half is the **time signature**, with "4/4" in it (touch it to choose): 1/1 (one click per bar, to keep a tempo without counting), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8. In 6/8, 9/8 and 12/8 the tempo counts dotted quarter notes (♩.), the way you conduct them; in 7/8 it counts eighths.
+- **What fills the beat**: the right half of the pill opens a menu: a quarter note (the beat alone), two beamed eighths, three beamed triplets, four beamed sixteenths (softer clicks between the beats, to place the notes), and **swung eighths** and **swung sixteenths**, written straight and played long-short, as MuseScore plays "Swing" (the second note of the pair at 60%). With the click on 2 and 4 on, only beats 2 and 4 are subdivided. The piano of the Harmony tab does not follow: it stays straight. In the bars counted in eighths (6/8, 7/8, 9/8, 12/8) the beat is played alone and this half is dimmed.
 - **Click on 2 and 4**: at the bottom of the time signature list. Beats 1 and 3 stay silent, as on a jazz hi-hat; the ring still shows them. It is heard in 2/4 and 4/4, and the box then reads "4/4 · 2 & 4".
 - The tempo, the time signature, the subdivision and the click on 2 and 4 are kept when you close the app.
-- **Time signature**: the left half of the first row, with "4/4" in it (touch it to choose). 1/1 (one click per bar, to keep a tempo without counting), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8. In 6/8, 9/8 and 12/8 the tempo counts dotted quarter notes (♩.), the way you conduct them; in 7/8 it counts eighths.
 - Changing the tempo or the time signature while it plays takes effect at once, without a gap.
 
 ## Harmony
 
 Twelve keys round a dial (by default in the circle of fifths; you can ask for semitones in Settings).
 
-- **Touch a key** to play it on a real piano, in time with the metronome. **Touch it again** to stop. The harmony and the metronome can play together or alone.
+- **Touch a key** to play it on a real piano, in time with the metronome. **Touch it again**, or the middle of the dial, to stop; touching the middle while it is stopped plays the last note again. The harmony and the metronome can play together or alone.
 - **Hold C♯ or F♯** to write them D♭ or G♭.
-- **Root**: the note alone. **Chord**: major, minor or seventh, built on the note. **Progression**: one chord per bar, in the key of the note you touched: II–V–I (major and minor), I–IV–V, I–VI–IV–V and the twelve-bar blues. The menu says what each is: *Jazz standard, like Autumn Leaves* (II–V–I), *Jazz in a minor key, like Blue Bossa*, *Rock ’n’ roll, like Twist and Shout* (I–IV–V), *’50s–’60s pop, like Stand by Me* (I–VI–IV–V) and *Blues, like Sweet Home Chicago*. The dial fades the notes outside the key and writes the Roman numerals (II, V, I) small on the notes they stand on, and they stay put: read II, then go to V. "Add the seventh" turns the chords into sevenths.
-- **Style**: the chord struck once a bar, on every beat, or played as an arpeggio, at the metronome's tempo and time signature.
-- **Sound options**: the octave of the root, and where the chord sits (stacked, close, or without the root so you can play it yourself).
+- **Root**: the note alone. **Chord**: major, minor or dominant seventh, built on the note. **Progression**: one chord per bar, in the key of the note you touched: II–V–I (major and minor), I–IV–V, I–VI–IV–V and the twelve-bar blues. The menu says what each is: *Jazz standard, like Autumn Leaves* (II–V–I), *Jazz in a minor key, like Blue Bossa*, *Rock ’n’ roll, like Twist and Shout* (I–IV–V), *’50s–’60s pop, like Stand by Me* (I–VI–IV–V) and *Blues, like Sweet Home Chicago*. The dial fades the notes outside the key and writes the Roman numerals (II, V, I) small on the notes they stand on, and they stay put: read II, then go to V. Touch a numeral to see what it stands for. In the middle of the dial a row of dots shows the bars of the progression, the filled one being the chord sounding. The **+7** chip turns the chords into sevenths.
+- **Example songs**: with Root chosen, the second row offers the five songs above; touching one sets the key, the progression and the tempo in one go. The same list is at the bottom of the sound options.
+- **Sound options** (the button at the end of the second row): the **octave** of the root (1 to 4), **held tone** (a steady tone instead of the piano struck again and again; octave 1 is always the tone, because the piano samples do not go that low), **chord position** (stacked, close, or without the root so you can play it yourself), and **style**: the chord struck once a bar, on every beat, or played as an arpeggio, at the metronome's tempo and time signature. The **Bass** button sets a low octave, the root alone and a held tone in one tap. Low notes are faint on the phone's own speaker: the screen says so, and suggests headphones, a speaker or a higher octave. At the bottom, **Legend and degrees** explains the colours of the dial and the numerals.
+- **Starting together**: if the metronome is already playing, the harmony comes in on the metronome's next bar line, and until then the middle of the dial shows the seconds to go. The same goes for the metronome when you start it while the harmony plays.
 
 ## Tuner
 
-- The tuner listens by itself when you open the section (the first time Android asks for the **microphone**). Play a note: its name appears in the middle of the round strobe. The rings of the strobe turn anticlockwise when the note is **flat** and clockwise when it is **sharp**, faster the further off you are, and stand still when you are **in tune** (within 5 cents by default; the settings offer 2 or 10), under the dial a bar like the Balance slider shows the same thing by position: a dot moves along it; the dot is big and green when in tune, and smaller, yellow then red, the further off you are, and a note that is only being held after the string stopped fades. The words *Flat*, *In tune* and *Sharp* and the number of cents are written too, and a screen reader reads them out.
-- The reference A is under the dial: **−** and **+** move by 1 Hz, and the pencil takes a typed value or one of the standard ones (415, 432, 440, 442 Hz).
+- The tuner listens by itself when you open the section, if nothing else is playing (the first time Android asks for the **microphone**). Play a note: its name appears in the middle of the round strobe. The rings of the strobe turn anticlockwise when the note is **flat** and clockwise when it is **sharp**, faster the further off you are, and stand still when you are **in tune** (within 5 cents by default; the settings offer 2 or 10). Under the dial, in the third row, a bar shows the same thing by position: a round marker moves along a thin track with a mark in the middle; it is big and green when in tune, and smaller, yellow then red, the further off you are, and a note that is only being held after the string stopped fades. The words *Flat*, *In tune* and *Sharp* and the number of cents are written too, and a screen reader reads them out.
+- **Listen / Pause**: touch the middle of the dial to start or pause it whenever you want; it stays paused until you touch it again.
+- **If the metronome or the harmony is playing**, coming to the tuner stops nothing: the dial says *Listen* and *Listening pauses what is playing*. Touch the dial and they pause, so the microphone hears only your instrument, with a notice *Paused while you tune* and a **Resume** button that starts them again. Nothing resumes by itself when you leave the tuner.
+- The reference A is in the second row: **−** and **+** move by 1 Hz, and the pencil takes a typed value or one of the standard ones (415, 432, 440, 442 Hz).
 - It hears notes from 28 Hz up to 2800 Hz (the top of the violin and of the flute), and it names any note, with no string to choose first. With the bass chosen it listens up to 700 Hz only, so that voices do not get in the way.
-- **Transposing instruments**: in *Settings*, choose B♭ (clarinet, trumpet, soprano and tenor sax), E♭ (alto and baritone sax) or F (horn), and the chromatic tuner names the **written** note, with "in B♭" under it and on the Chromatic switch.
-- The **Instrument** menu switches from Chromatic to the strings of guitar, violin, viola, cello, ukulele or bass, and shows the number of the string.
-- **Listen / Pause**: touch the middle of the dial to pause it whenever you want; it stays paused until you touch it again.
-- The tuner **pauses the metronome and the harmony** while you are on it, so the microphone hears only your instrument; they carry on when you leave.
+- **Transposing instruments**: in *Settings*, choose B♭ (clarinet, trumpet, soprano and tenor sax), E♭ (alto and baritone sax) or F (horn), and the chromatic tuner names the **written** note, with the key beside "Chromatic" on the first row and on the dial.
+- The **Instrument** half of the first row (the left half is Chromatic) opens a menu of guitar, violin, viola, cello, ukulele and bass, and shows the number of the string.
+- The tuner stops listening when you leave the section, open the settings or send the app to the background.
 - The sound is analysed on the phone and never recorded or sent anywhere.
 - If you said no to the microphone, allow it in the phone settings under *Apps › Low End › Permissions*; the app shows a button that opens that page.
 
@@ -53,14 +57,17 @@ The gear at the top opens the settings:
 | Setting | Choices |
 | --- | --- |
 | Language | Same as the phone, English, Italian |
-| Note names | Follow the language, Do Re Mi (La3 = 440 Hz), C D E (A4 = 440 Hz) |
+| Keep the screen on | While something plays or the tuner listens (on by default) |
+| Note names | Follow the language, Do Re Mi, C D E |
 | Reference A | every hertz from 415 to 445, for the tuner and the harmony |
-| Tuner: transposing instrument | C (concert pitch), B♭, E♭, F |
 | Harmony circle | Circle of fifths, or in semitones |
-| Keep the screen on | While something plays or the tuner listens |
+| Octave numbers | Scientific (A4 = 440 Hz, a bass's low E is E1; the default) or Italian (La3 = 440 Hz); only the number changes |
+| Lock the gestures | Turns off the swipes between sections |
+| Tuner: in tune within | ±2, ±5 or ±10 cents |
+| Tuner: transposing instrument | C (concert pitch), B♭, E♭, F |
 | Gestures and shortcuts | Shows the guide again |
 
-**About Low End** (at the bottom of the settings) shows the licence, the source-code link and, under *View licences*, the licences of everything the app is built with, fonts and piano sounds included. Below the choices, **Thanks** is for the Power Flower Orchestra of Fossano, who inspired this app and put it to the test.
+**Thanks** is for the Power Flower Orchestra of Fossano, who inspired this app and put it to the test; its button opens their Instagram page in the phone's browser. **About Low End** (at the bottom of the settings) shows the licence, the source-code link (also opened in the browser) and, under *View licences*, the licences of everything the app is built with, fonts and piano sounds included.
 
 ## Playing with the screen off
 

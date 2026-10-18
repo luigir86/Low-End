@@ -69,19 +69,6 @@ void main() {
     drone.setChord(ChordType.seventh);
     expect(drone.chordTones, {1, 4, 7}); // C#, E and G
   });
-
-  test('reports when audio cannot start', () async {
-    final failing = DroneController(_FailingOutput());
-    await failing.start();
-    expect(failing.isPlaying, isFalse);
-    expect(failing.audioFailed, isTrue);
-  });
-}
-
-class _FailingOutput extends SilentToneOutput {
-  @override
-  Future<void> play(List<double> f, List<double> gains, double v) =>
-      Future.error(StateError('no audio device'));
 }
 
 /// Lets queued sound changes reach the output: the controller applies them

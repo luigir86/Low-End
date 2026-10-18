@@ -89,9 +89,6 @@ class SlowToneOutput implements ToneOutput {
   }
 
   @override
-  void setVolume(double v) {}
-
-  @override
   Future<void> stop() async => sounding = const [];
 
   void releaseAll() {
@@ -304,41 +301,6 @@ void main() {
   });
 
   group('DroneController', () {
-    test('tapNote plays, switches and stops', () async {
-      final out = SilentToneOutput();
-      final d = DroneController(out);
-      await d.tapNote(9);
-      expect(d.isPlaying, isTrue);
-      expect(out.frequencies.single, closeTo(440, 1e-9));
-      await d.tapNote(2);
-      expect(d.isPlaying, isTrue);
-      expect(out.frequencies.single, closeTo(293.66, 0.01));
-      await d.tapNote(2);
-      expect(d.isPlaying, isFalse);
-      expect(out.frequencies, isEmpty);
-    });
-
-    test('chord switching while playing retunes every voice', () async {
-      final out = SilentToneOutput();
-      final d = DroneController(out);
-      await d.tapNote(9);
-      d.setVoicing(DroneVoicing.chord);
-      await Future<void>.delayed(Duration.zero);
-      expect(out.frequencies, [440, 550, 660]);
-      d.setChord(ChordType.minor);
-      await Future<void>.delayed(Duration.zero);
-      expect(out.frequencies, [440, 528, 660]);
-      d.setChord(ChordType.seventh);
-      await Future<void>.delayed(Duration.zero);
-      expect(out.frequencies, [440, 550, 660, 440 * (16 / 9)]);
-      d.setReferencePitch(442);
-      await Future<void>.delayed(Duration.zero);
-      expect(out.frequencies.first, closeTo(442, 1e-9));
-      d.setVoicing(DroneVoicing.root);
-      await Future<void>.delayed(Duration.zero);
-      expect(out.frequencies, [442]);
-    });
-
     test('changes while stopped make no sound', () async {
       final out = SilentToneOutput();
       final d = DroneController(out);

@@ -1,0 +1,455 @@
+// How the sound is started, paused and kept going across the app: each
+// section's dial, the pause for the tuner, the countdown, the background
+// notification and the lock on the gestures.
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:low_end/app/app_navigation.dart';
+import 'package:low_end/app/background_audio.dart';
+import 'package:low_end/app/home_shell.dart';
+import 'package:low_end/app/low_end_app.dart';
+import 'package:low_end/app/screen_awake.dart';
+import 'package:low_end/app/settings.dart';
+import 'package:low_end/audio/audio_scope.dart';
+import 'package:low_end/audio/click_output.dart';
+import 'package:low_end/audio/mic_input.dart';
+import 'package:low_end/audio/piano_output.dart';
+import 'package:low_end/audio/tone_output.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+final _harmonyTab = find.descendant(
+  of: find.byType(NavigationBar),
+  matching: find.text('Harmony'),
+);
+final _metronomeTab = find.descendant(
+  of: find.byType(NavigationBar),
+  matching: find.text('Metronome'),
+);
+
+/// A [BackgroundAudio] that remembers what the notification shows.
+class _RecordingAudio implements BackgroundAudio {
+  var state = MediaState.off;
+  var title = '';
+  var shown = 0;
+  final input = StreamController<MediaCommand>.broadcast();
+
+  @override
+  Stream<MediaCommand> get commands => input.stream;
+
+  @override
+  Future<void> show(
+    MediaState state, {
+    required String title,
+    String text = '',
+  }) async {
+    this.state = state;
+    this.title = title;
+    shown++;
+  }
+}
+
+/// Everything a test wants to look at once the app is open.
+class _App {
+  _App(this.tester, this.scope, this.tone, this.click, this.mic, this.audio);
+
+  final WidgetTester tester;
+  final AudioScope scope;
+  final SilentToneOutput tone;
+  final SilentClickOutput click;
+  final FakeMicInput mic;
+  final _RecordingAudio audio;
+
+  /// Lets the sound changes (and the animations) run.
+  Future<void> settle() async {
+    for (var i = 0; i < 4; i++) {
+      await tester.pump(const Duration(milliseconds: 300));
+    }
+  }
+}
+
+Future<_App> _open(
+  WidgetTester tester, {
+  Size size = const Size(1080, 2400),
+  AppSettings? settings,
+  PianoOutput? piano,
+  SilentClickOutput? click,
+}) async {
+  tester.view.physicalSize = size;
+  tester.view.devicePixelRatio = 2.625;
+  addTearDown(tester.view.reset);
+  final tone = SilentToneOutput();
+  final clickOut = click ?? SilentClickOutput();
+  final mic = FakeMicInput();
+  final audio = _RecordingAudio();
+  await tester.pumpWidget(
+    LowEndApp(
+      toneOutput: tone,
+      clickOutput: clickOut,
+      pianoOutput: piano,
+      micInput: mic,
+      backgroundAudio: audio,
+      screenAwake: FakeScreenAwake(),
+      settings: settings,
+    ),
+  );
+  await tester.pumpAndSettle();
+  final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
+  return _App(tester, scope, tone, clickOut, mic, audio);
+}
+
+void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({'seen_guide': true}));
+
+  group('each dial starts and stops its own sound', () {
+    testWidgets('the metronome and the harmony do not start each other', (
+      tester,
+    ) async {
+      final app = await _open(tester);
+
+      await tester.tap(find.text('Tap to start'));
+      await app.settle();
+      expect(app.click.bar, isNotNull);
+      expect(app.tone.frequencies, isEmpty);
+
+      // Going to the harmony starts nothing and stops nothing.
+      await tester.tap(_harmonyTab);
+      await app.settle();
+      expect(app.click.bar, isNotNull);
+      expect(app.tone.frequencies, isEmpty);
+
+      await tester.tap(find.bySemanticsLabel(RegExp('^Play')).last);
+      await app.settle();
+      expect(app.tone.frequencies, isNotEmpty);
+      expect(app.click.bar, isNotNull);
+
+      // Stopping the harmony leaves the click.
+      await tester.tap(find.bySemanticsLabel(RegExp('^Stop the harmony')));
+      await app.settle();
+      expect(app.tone.frequencies, isEmpty);
+      expect(app.click.bar, isNotNull);
+
+      // And the other way round.
+      await tester.tap(find.bySemanticsLabel(RegExp('^Play')).last);
+      await app.settle();
+      await tester.tap(_metronomeTab);
+      await app.settle();
+      await tester.tap(find.bySemanticsLabel(RegExp('^Stop the metronome')));
+      await app.settle();
+      expect(app.click.bar, isNull);
+      expect(app.tone.frequencies, isNotEmpty);
+    });
+
+    testWidgets('the tabs only navigate, also the one already open', (
+      tester,
+    ) async {
+      final app = await _open(tester);
+      await tester.tap(_metronomeTab);
+      await app.settle();
+      await tester.tap(_harmonyTab);
+      await app.settle();
+      await tester.tap(_harmonyTab);
+      await app.settle();
+      await tester.longPress(_harmonyTab);
+      await app.settle();
+      expect(app.scope.navigation.section, AppSection.drone);
+      expect(app.scope.drone.isPlaying, isFalse);
+      expect(app.scope.metronome.isPlaying, isFalse);
+      expect(app.click.bar, isNull);
+      expect(app.tone.frequencies, isEmpty);
+    });
+  });
+
+  group('the tuner pauses what plays', () {
+    testWidgets('with nothing playing, it listens and says nothing', (
+      tester,
+    ) async {
+      final app = await _open(tester);
+      await tester.tap(find.text('Tuner'));
+      await app.settle();
+      expect(app.mic.isCapturing, isTrue);
+      expect(find.byType(SnackBar), findsNothing);
+      expect(find.text('Resume'), findsNothing);
+    });
+
+    for (final (name, metronome, drone) in [
+      ('the metronome alone', true, false),
+      ('the harmony alone', false, true),
+    ]) {
+      testWidgets('$name: entering stops nothing, a touch pauses it and '
+          'Resume brings back only that', (tester) async {
+        final app = await _open(tester);
+        if (metronome) await app.scope.metronome.start();
+        if (drone) await app.scope.drone.start();
+        await app.settle();
+
+        await tester.tap(find.text('Tuner'));
+        await app.settle();
+        expect(app.scope.metronome.isPlaying, metronome);
+        expect(app.scope.drone.isPlaying, drone);
+        expect(app.mic.isCapturing, isFalse);
+        expect(find.text('Paused while you tune'), findsNothing);
+
+        await tester.tap(find.byKey(const Key('tunerHub')));
+        await app.settle();
+        expect(app.scope.metronome.isPlaying, isFalse);
+        expect(app.scope.drone.isPlaying, isFalse);
+        expect(app.mic.isCapturing, isTrue);
+        expect(find.text('Paused while you tune'), findsOneWidget);
+        // A pause for the tuner is not a pause from the notification.
+        expect(app.audio.state, MediaState.off);
+
+        await tester.tap(find.text('Resume'));
+        await app.settle();
+        expect(app.scope.metronome.isPlaying, metronome);
+        expect(app.scope.drone.isPlaying, drone);
+        expect(app.audio.state, MediaState.playing);
+      });
+    }
+  });
+
+  group('the countdown to the other one\'s bar line', () {
+    testWidgets('the metronome\'s dial counts the seconds, then the tempo', (
+      tester,
+    ) async {
+      final app = await _open(
+        tester,
+        click: SilentClickOutput()..delay = const Duration(seconds: 3),
+      );
+      expect(find.text('80'), findsOneWidget);
+      await tester.tap(find.text('Tap to start'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(app.scope.metronome.waitLeft, isNotNull);
+      expect(find.text('3'), findsOneWidget);
+      expect(find.text('80'), findsNothing);
+
+      await app.scope.metronome.stop();
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(find.text('3'), findsNothing);
+      expect(find.text('80'), findsOneWidget);
+    });
+
+    testWidgets('the harmony\'s dial counts too, with the chord to come', (
+      tester,
+    ) async {
+      final app = await _open(
+        tester,
+        piano: SilentPianoOutput()..delay = const Duration(seconds: 2),
+      );
+      await tester.tap(_harmonyTab);
+      await app.settle();
+      await app.scope.drone.start();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(app.scope.drone.waitLeft, isNotNull);
+      expect(find.text('2'), findsOneWidget);
+
+      // The tuner pausing it ends the countdown.
+      await tester.tap(find.text('Tuner'));
+      await app.settle();
+      await tester.tap(find.byKey(const Key('tunerHub')));
+      await app.settle();
+      expect(app.scope.drone.waitLeft, isNull);
+      expect(app.scope.drone.isPlaying, isFalse);
+    });
+  });
+
+  group('the notification', () {
+    testWidgets('stop takes it away, and a later play does nothing', (
+      tester,
+    ) async {
+      final app = await _open(tester);
+      await app.scope.metronome.start();
+      await app.scope.drone.start();
+      await app.settle();
+      expect(app.audio.state, MediaState.playing);
+
+      app.audio.input.add(MediaCommand.stop);
+      await app.settle();
+      expect(app.scope.metronome.isPlaying, isFalse);
+      expect(app.scope.drone.isPlaying, isFalse);
+      expect(app.audio.state, MediaState.off);
+
+      app.audio.input.add(MediaCommand.play);
+      await app.settle();
+      expect(app.scope.metronome.isPlaying, isFalse);
+      expect(app.scope.drone.isPlaying, isFalse);
+      expect(app.audio.state, MediaState.off);
+    });
+
+    testWidgets('stop after a pause also takes it away', (tester) async {
+      final app = await _open(tester);
+      await app.scope.metronome.start();
+      await app.settle();
+      app.audio.input.add(MediaCommand.pause);
+      await app.settle();
+      expect(app.audio.state, MediaState.paused);
+      app.audio.input.add(MediaCommand.stop);
+      await app.settle();
+      expect(app.audio.state, MediaState.off);
+      app.audio.input.add(MediaCommand.play);
+      await app.settle();
+      expect(app.scope.metronome.isPlaying, isFalse);
+    });
+
+    testWidgets('pause or play with nothing to pause change nothing', (
+      tester,
+    ) async {
+      final app = await _open(tester);
+      app.audio.input.add(MediaCommand.pause);
+      await app.settle();
+      app.audio.input.add(MediaCommand.play);
+      await app.settle();
+      expect(app.audio.shown, 0);
+      expect(app.scope.metronome.isPlaying, isFalse);
+      expect(app.scope.drone.isPlaying, isFalse);
+    });
+
+    testWidgets('starting again by hand forgets the pause', (tester) async {
+      final app = await _open(tester);
+      await app.scope.metronome.start();
+      await app.settle();
+      app.audio.input.add(MediaCommand.pause);
+      await app.settle();
+      // The drone is started from the app; then play must not bring the
+      // metronome back behind the player's back.
+      await app.scope.drone.start();
+      await app.settle();
+      expect(app.audio.state, MediaState.playing);
+      app.audio.input.add(MediaCommand.play);
+      await app.settle();
+      expect(app.scope.metronome.isPlaying, isFalse);
+      expect(app.scope.drone.isPlaying, isTrue);
+    });
+
+    testWidgets('the title follows the notes of the settings', (tester) async {
+      final settings = AppSettings();
+      final app = await _open(tester, settings: settings);
+      await app.scope.drone.start();
+      await app.settle();
+      expect(app.audio.title, 'Harmony A');
+      settings.setNaming(NoteNaming.solfege);
+      await app.settle();
+      expect(app.audio.title, 'Harmony La');
+    });
+
+    test(
+      'off Android the real notification does nothing and never throws',
+      () async {
+        final audio = MediaNotificationAudio();
+        await audio.show(MediaState.playing, title: 'Metronome 80 BPM');
+        await audio.show(MediaState.paused, title: 'Metronome 80 BPM');
+        await audio.show(MediaState.off, title: '');
+        expect(audio.commands, isA<Stream<MediaCommand>>());
+      },
+    );
+  });
+
+  group('the lock on the gestures', () {
+    testWidgets('stops the swipe between sections, in portrait', (
+      tester,
+    ) async {
+      final settings = AppSettings()..setGesturesLocked(true);
+      final app = await _open(tester, settings: settings);
+      await tester.fling(find.byType(PageView), const Offset(-400, 0), 1000);
+      await app.settle();
+      expect(app.scope.navigation.section, AppSection.metronome);
+
+      settings.setGesturesLocked(false);
+      await app.settle();
+      await tester.fling(find.byType(PageView), const Offset(-400, 0), 1000);
+      await app.settle();
+      expect(app.scope.navigation.section, AppSection.drone);
+    });
+
+    testWidgets('leaves the tabs, the dials and the sound alone', (
+      tester,
+    ) async {
+      final settings = AppSettings()..setGesturesLocked(true);
+      final app = await _open(tester, settings: settings);
+      await tester.tap(find.text('Tap to start'));
+      await app.settle();
+      expect(app.click.bar, isNotNull);
+
+      await tester.tap(_harmonyTab);
+      await app.settle();
+      expect(app.scope.navigation.section, AppSection.drone);
+      await tester.tap(find.bySemanticsLabel(RegExp('^Play')).last);
+      await app.settle();
+      expect(app.tone.frequencies, isNotEmpty);
+
+      // The pause for the tuner is not a gesture.
+      await tester.tap(find.text('Tuner'));
+      await app.settle();
+      await tester.tap(find.byKey(const Key('tunerHub')));
+      await app.settle();
+      expect(app.click.bar, isNull);
+      expect(find.text('Resume'), findsOneWidget);
+    });
+
+    testWidgets('stops the vertical flick in landscape, not the rail', (
+      tester,
+    ) async {
+      final settings = AppSettings()..setGesturesLocked(true);
+      final app = await _open(
+        tester,
+        size: const Size(2400, 1080),
+        settings: settings,
+      );
+      Future<void> flick() async {
+        await tester.timedDrag(
+          find.byKey(const Key('tabRail')),
+          const Offset(0, -200),
+          const Duration(milliseconds: 150),
+        );
+        await app.settle();
+      }
+
+      await flick();
+      expect(app.scope.navigation.section, AppSection.metronome);
+      // The same flick works once unlocked.
+      settings.setGesturesLocked(false);
+      await app.settle();
+      await flick();
+      expect(app.scope.navigation.section, AppSection.drone);
+      settings.setGesturesLocked(true);
+      await app.settle();
+
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(const Key('tabRail')),
+          matching: find.text('Tuner'),
+        ),
+      );
+      await app.settle();
+      expect(app.scope.navigation.section, AppSection.tuner);
+    });
+
+    testWidgets('no hint about swiping while it is locked', (tester) async {
+      final settings = await AppSettings.load();
+      settings.setGesturesLocked(true);
+      await _open(tester, size: const Size(2400, 1080), settings: settings);
+      expect(find.textContaining('Swipe up or down'), findsNothing);
+      expect(settings.seenSwipeHint, isFalse);
+    });
+
+    testWidgets('the switch in the settings sets and clears it', (
+      tester,
+    ) async {
+      final settings = AppSettings();
+      final app = await _open(tester, settings: settings);
+      await tester.tap(find.byTooltip('Settings'));
+      await app.settle();
+      await tester.scrollUntilVisible(find.text('Lock the gestures'), 200);
+      await app.settle();
+      await tester.tap(find.text('Lock the gestures'));
+      await app.settle();
+      expect(settings.gesturesLocked, isTrue);
+      await tester.tap(find.text('Lock the gestures'));
+      await app.settle();
+      expect(settings.gesturesLocked, isFalse);
+    });
+  });
+}

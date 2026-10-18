@@ -156,9 +156,7 @@ void main() {
         h.expectClean();
       });
 
-      testWidgets('tuner: mic failed with the drone strip showing', (
-        tester,
-      ) async {
+      testWidgets('tuner: mic failed with the harmony playing', (tester) async {
         final h = _H(tester, c, mic: _BrokenMic());
         await h.start();
         await h.scope.drone.tapNote(10);

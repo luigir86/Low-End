@@ -57,6 +57,13 @@ class ActionError implements Exception {
 /// Functions, Siri Shortcuts or an MCP server later) go through the same
 /// controllers, so an assistant can do anything a finger can. Every answer
 /// carries the full [state], so the caller always knows where things stand.
+///
+/// Rules every action follows: each sound (metronome, Harmony, tuner) is
+/// started and stopped on its own, from its own section; the tabs and the
+/// swipes only navigate, and locking the gestures does not affect actions. A
+/// start action opens its section, since the sound is played from there; the
+/// tuner is the exception that listens only while on screen, and listening
+/// pauses the metronome and Harmony (`_pauseForTuner` in low_end_app.dart).
 class AppActions {
   AppActions({
     required this.drone,
@@ -84,17 +91,28 @@ class AppActions {
     const AppAction(
       name: 'get_state',
       description:
-          'Returns what the app is doing now: the section on screen, the '
-          'tuner (listening, last note heard and how many cents off), '
-          'the drone (playing, note, root or chord), the metronome (playing, '
-          'tempo, subdivision, click on 2 and 4) and the settings '
-          '(reference A, language, note names, transposition). Loudness '
-          'follows the '
-          "phone's media volume.",
+          'Returns what the app is doing now, without changing anything: the '
+          'section on screen (metronome, drone, tuner); the tuner (status '
+          'idle, starting, listening, permissionDenied or failed, and the '
+          'last note heard with its cents off); the Harmony section, called '
+          'drone (playing, note, voicing, chord, progression, style, '
+          'sevenths, current step of a progression); the metronome (playing, '
+          'tempo, time signature, subdivision, click on 2 and 4) and the '
+          'settings (reference A, language, note names, transposition). '
+          '"playing" is true as soon as a start is asked, also while the '
+          "sound waits for the other one's next bar line. Notes are always "
+          'written with letters and octave (Bb4), whatever the note names '
+          "setting. Loudness follows the phone's media volume.",
     ),
     const AppAction(
       name: 'open_section',
-      description: 'Shows a section of the app.',
+      description:
+          'Shows a section of the app (also when the gestures are locked). '
+          'Nothing is started or stopped, except by the tuner: leaving it '
+          'turns the microphone off, and arriving at it starts listening '
+          'only if neither the metronome nor Harmony is playing and it was '
+          'not paused with tuner_stop (the sound is never stopped by '
+          'arriving; use tuner_start for that).',
       parameters: {
         'section': {
           'type': 'string',
@@ -106,60 +124,84 @@ class AppActions {
     const AppAction(
       name: 'tuner_start',
       description:
-          'Opens the chromatic tuner and starts listening through the '
-          'microphone: it recognises any note played. The tuner stops by '
-          'itself when another section or the settings page opens, or the '
-          'app goes to the background. Read the note with get_state.',
+          'Opens the tuner and starts listening through the microphone: it '
+          'recognises any note played. If the metronome or Harmony is '
+          'playing, they are paused, as when the dial of the tuner is '
+          'touched (the player sees a notice with a "Resume" button; '
+          'nothing resumes by itself). The tuner stops by itself when '
+          'another section or the settings page opens, or the app goes to '
+          'the background. The answer says "listening", or why not '
+          '(permissionDenied, failed); read the note with get_state.',
     ),
     const AppAction(
       name: 'tuner_stop',
       description:
           'Pauses the tuner and turns the microphone off. It stays paused, '
-          'also when its section or the app comes back, until tuner_start.',
+          'also when its section or the app comes back, until tuner_start or '
+          'a touch on its dial. It does not start anything else.',
     ),
     const AppAction(
       name: 'drone_play',
       description:
-          'Plays the drone, on the piano, to practise on, in time with the '
-          'metronome: a note, a chord or a progression. Any setting given is applied first.',
+          'Opens the Harmony section (so the tuner, if listening, stops '
+          'listening) and plays the piano to practise on: a note, a chord or '
+          'a progression. Any setting given is applied first. If it is '
+          'already playing, only the settings change. If the metronome is '
+          "playing, the piano comes in on the metronome's next bar line, "
+          'after a countdown shown on screen; "playing" is already true '
+          'then.',
       parameters: _droneParameters,
     ),
-    const AppAction(name: 'drone_stop', description: 'Stops the drone.'),
+    const AppAction(
+      name: 'drone_stop',
+      description:
+          'Stops the Harmony piano (also during the countdown before it '
+          'comes in). Does not change section.',
+    ),
     const AppAction(
       name: 'metronome_start',
       description:
-          'Opens the metronome and starts it, in its current time signature, '
-          'at the tempo given or the current one.',
+          'Opens the metronome (so the tuner, if listening, stops listening) '
+          'and starts it, in its current time signature, at the tempo given '
+          'or the current one; subdivision and backbeat given are applied '
+          'first. If it is already playing, only the settings change. If '
+          "Harmony is playing, the click comes in on the piano's next bar "
+          'line, after a countdown. The time signature cannot be changed by '
+          'actions.',
       parameters: _metronomeParameters,
     ),
     const AppAction(
       name: 'metronome_stop',
-      description: 'Stops the metronome.',
+      description:
+          'Stops the metronome (also during the countdown before it comes '
+          'in). Does not change section.',
     ),
     const AppAction(
       name: 'metronome_set',
       description:
           'Changes the tempo, what sounds inside each beat or the click on 2 '
-          'and 4, without starting or stopping it. Give at least one.',
+          'and 4, without starting, stopping or changing section. Give at '
+          'least one. The settings are remembered for the next launch.',
       parameters: _metronomeParameters,
     ),
     const AppAction(
       name: 'drone_set',
       description:
-          'Changes the drone settings without starting or stopping it.',
+          'Changes the Harmony settings (give any of them) without starting, '
+          'stopping or changing section.',
       parameters: _droneParameters,
     ),
     AppAction(
       name: 'set_reference_pitch',
       description:
           'Sets the frequency of A4, shared by the tuner and the drone, '
-          'and saves it in the settings.',
+          'and saves it in the settings. Whole hertz only.',
       parameters: {
         'hz': {
           'type': 'number',
           'minimum': minReferencePitch,
           'maximum': maxReferencePitch,
-          'description': 'Frequency of A4 in Hz.',
+          'description': 'Frequency of A4 in Hz, a whole number.',
         },
       },
       required: ['hz'],
@@ -167,9 +209,10 @@ class AppActions {
     const AppAction(
       name: 'settings_set',
       description:
-          'Changes and saves the app settings: the language of the app and '
-          'how note names are written, and the key of a transposing '
-          'instrument for the chromatic tuner.',
+          'Changes and saves the app settings (give any of them): the '
+          'language of the app, how note names are written, and the key of '
+          'a transposing instrument for the chromatic tuner. All the values '
+          'are checked first: if one is wrong, none is applied.',
       parameters: {
         'transposition': {
           'type': 'string',
@@ -312,8 +355,10 @@ class AppActions {
         navigation.open(_enum(AppSection.values, args['section']));
       case 'tuner_start':
         navigation.open(AppSection.tuner);
-        // Opening the tab already starts the tuner; waiting for that start
-        // means the answer says "listening" (or why not), not "starting".
+        // Opening the tab starts the tuner only when nothing plays and it was
+        // not paused; asking for it here also clears that pause, and the app
+        // then pauses whatever plays (see low_end_app.dart). Waiting for the
+        // start means the answer says "listening" (or why not).
         await tuner.start();
       case 'tuner_stop':
         // Like the Pause button: the tuner stays paused when its tab or the

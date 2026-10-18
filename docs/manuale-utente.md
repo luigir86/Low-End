@@ -2,48 +2,51 @@
 
 *English: [user-guide.md](user-guide.md).*
 
-Low End è un metronomo, una sezione di armonia al pianoforte e un accordatore in un'unica app. L'ha realizzata un contrabbassista amatoriale pensando agli amici dell'orchestra, ma è pensata per ogni musicista. È gratuita, senza pubblicità, non raccoglie nulla e non ha bisogno di internet.
+Low End è un metronomo, una sezione di armonia al pianoforte e un accordatore in un'unica app. L'ha realizzata un contrabbassista amatoriale pensando agli amici dell'orchestra, ma è pensata per ogni musicista. È gratuita, senza pubblicità, non raccoglie nulla e non ha bisogno di internet. Ha sempre lo stesso aspetto scuro, bronzo su ebano: non c'è un tema da scegliere.
 
 ## Le tre sezioni
 
 Le schede in basso (a sinistra con il telefono in orizzontale) sono **Metronomo**, **Armonia** e **Accordatore**. L'app si apre sul metronomo.
 
-- **Scorri** a destra o a sinistra per cambiare sezione. Con il telefono in orizzontale le schede passano in una colonna a sinistra e l'ingranaggio resta in alto a destra: **scorri verso l'alto o il basso** sul cerchio o sulle schede (non sulle righe a destra, che possono scorrere) per cambiare sezione.
-- Una **scheda** porta solo alla sua sezione. Ogni sezione avvia e ferma il proprio suono dal centro del suo cerchio (l'accordatore mette in pausa gli altri).
+- Una **scheda** porta solo alla sua sezione: non avvia né ferma mai nulla. **Ogni sezione avvia e ferma il proprio suono dal centro del suo cerchio.**
+- **Scorri** a destra o a sinistra per cambiare sezione. Con il telefono in orizzontale le schede passano in una colonna a sinistra e l'ingranaggio resta in alto a destra: **scorri verso l'alto o il basso** sul cerchio o sulle schede (non sulle righe a destra, che possono scorrere) per cambiare sezione. Dev'essere un gesto rapido: un trascinamento lento non fa nulla. La prima volta che giri il telefono in orizzontale un breve suggerimento lo ricorda.
+- Per le prove, **Blocca i gesti** nelle impostazioni disattiva gli scorrimenti tra le sezioni. Le schede continuano a funzionare.
 - La prima volta compare una breve **guida ai gesti**; la ritrovi in *Impostazioni → Gesti e scorciatoie*.
+- Sotto ogni cerchio ci sono tre righe. Metronomo e Armonia usano le prime due e lasciano vuota la terza; l'accordatore le usa tutte e tre.
 
 Il volume è quello del telefono: usa i suoi tasti.
 
 ## Metronomo
 
 - **Avvio e stop**: tocca l'anello o il numero al centro. L'anello si accende movimento per movimento, con il primo tempo in evidenza, e un click breve e secco tiene il tempo, un po' più acuto sul primo tempo.
-- **Tempo**: da 30 a 250 BPM. Tocca la matita per scriverlo; tocca **+** o **−** per spostarti di uno, oppure tienili premuti: il tempo scorre di uno, sempre più veloce, poi a passi di 5; oppure batti **TAP** (il pulsante colorato) al ritmo che vuoi.
-- **Cosa riempie il movimento**: la metà destra della prima riga (a sinistra c'è la misura) apre un menu: semiminima (il movimento da solo), due crome legate, tre terzine legate, quattro semicrome legate (click più leggeri tra un movimento e l'altro, per collocare le note), e **crome swing** e **semicrome swing**, scritte dritte e suonate lunga-breve, come MuseScore suona «Swing» (la seconda nota della coppia al 60%). Con il click su 2 e 4 attivo, solo il 2 e il 4 sono suddivisi. Il pianoforte della scheda Armonia non lo segue: resta dritto. Nelle misure in ottavi (6/8, 7/8, 9/8, 12/8) suona solo il movimento.
+- **Tempo**: da 30 a 250 BPM (in 7/8, dove il tempo conta le crome, fino a 400), con il suo nome italiano (Largo, Andante, Allegro…) sotto il numero. Tocca la matita per scriverlo; tocca **+** o **−** per spostarti di uno, oppure tienili premuti: il tempo scorre di uno, sempre più veloce, poi a passi di 5; oppure batti **TAP** (il pulsante colorato, nella seconda riga) al ritmo che vuoi.
+- **La prima riga** è una pillola con due metà. La metà sinistra è la **misura**, con «4/4» dentro (toccala per scegliere): 1/1 (un solo click a battuta, per tenere un tempo senza contare), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 e 12/8. In 6/8, 9/8 e 12/8 il tempo conta le semiminime puntate (♩.), come si dirige; in 7/8 conta le crome.
+- **Cosa riempie il movimento**: la metà destra della pillola apre un menu: semiminima (il movimento da solo), due crome legate, tre terzine legate, quattro semicrome legate (click più leggeri tra un movimento e l'altro, per collocare le note), e **crome swing** e **semicrome swing**, scritte dritte e suonate lunga-breve, come MuseScore suona «Swing» (la seconda nota della coppia al 60%). Con il click su 2 e 4 attivo, solo il 2 e il 4 sono suddivisi. Il pianoforte della scheda Armonia non lo segue: resta dritto. Nelle misure in ottavi (6/8, 7/8, 9/8, 12/8) suona solo il movimento e questa metà è attenuata.
 - **Click su 2 e 4**: in fondo all'elenco delle misure. I tempi 1 e 3 tacciono, come il charleston nel jazz; l'anello li mostra comunque. Si sente in 2/4 e 4/4, e il riquadro diventa «4/4 · 2 e 4».
 - Tempo, misura, suddivisione e click su 2 e 4 restano salvati quando chiudi l'app.
-- **Misura**: la metà sinistra della prima riga, con «4/4» dentro (toccala per scegliere). 1/1 (un solo click a battuta, per tenere un tempo senza contare), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 e 12/8. In 6/8, 9/8 e 12/8 il tempo conta le semiminime puntate (♩.), come si dirige; in 7/8 conta le crome.
 - Se cambi tempo o misura mentre suona, il cambio è immediato e senza stacchi.
 
 ## Armonia
 
-Dodici tasti intorno a un quadrante (di norma nel cerchio delle quinte; nelle impostazioni puoi scegliere i semitoni).
+Dodici tasti intorno a un cerchio (di norma nel cerchio delle quinte; nelle impostazioni puoi scegliere i semitoni).
 
-- **Tocca un tasto** per sentirlo su un vero pianoforte, a tempo con il metronomo. **Toccalo di nuovo** per fermarlo. Armonia e metronomo possono suonare insieme o da soli.
+- **Tocca un tasto** per sentirlo su un vero pianoforte, a tempo con il metronomo. **Toccalo di nuovo**, o tocca il centro del cerchio, per fermarlo; toccando il centro da fermo suona di nuovo l'ultima nota. Armonia e metronomo possono suonare insieme o da soli.
 - **Tieni premuto Do♯ o Fa♯** per scriverli Re♭ o Sol♭.
-- **Tonica**: la nota da sola. **Accordo**: maggiore, minore o di settima, costruito sulla nota. **Progressione**: un accordo per battuta, nella tonalità della nota toccata: II–V–I (maggiore e minore), I–IV–V, I–VI–IV–V e il blues di dodici battute. Il menu dice cos'è ognuna: *Standard jazz, come Autumn Leaves* (II–V–I), *Jazz in tonalità minore, come Blue Bossa*, *Rock ’n’ roll, come Twist and Shout* (I–IV–V), *Pop anni ’50–’60, come Stand by Me* (I–VI–IV–V) e *Blues, come Sweet Home Chicago*. Il quadrante attenua le note fuori dalla tonalità e scrive in piccolo i numeri romani (II, V, I) sulle note su cui stanno; restano fermi: leggi II, poi vai al V. «Aggiungi la settima agli accordi» li trasforma in accordi di settima.
-- **Stile**: accordo battuto una volta a battuta, a ogni tempo, oppure arpeggiato, secondo tempo e misura del metronomo.
-- **Opzioni del suono**: l'ottava della fondamentale e la posizione dell'accordo (impilato, vicino, oppure senza fondamentale, per suonarla tu).
-- **Bilanciamento**: un solo cursore mescola metronomo e armonia.
+- **Tonica**: la nota da sola. **Accordo**: maggiore, minore o di settima di dominante, costruito sulla nota. **Progressione**: un accordo per battuta, nella tonalità della nota toccata: II–V–I (maggiore e minore), I–IV–V, I–VI–IV–V e il blues di dodici battute. Il menu dice cos'è ognuna: *Standard jazz, come Autumn Leaves* (II–V–I), *Jazz in tonalità minore, come Blue Bossa*, *Rock ’n’ roll, come Twist and Shout* (I–IV–V), *Pop anni ’50–’60, come Stand by Me* (I–VI–IV–V) e *Blues, come Sweet Home Chicago*. Il cerchio attenua le note fuori dalla tonalità e scrive in piccolo i numeri romani (II, V, I) sulle note su cui stanno; restano fermi: leggi II, poi vai al V. Tocca un numero per vedere cosa significa. Al centro, una fila di pallini mostra le battute della progressione, quello pieno è l'accordo che suona. Il tasto **+7** trasforma gli accordi in accordi di settima.
+- **Brani d'esempio**: con Tonica scelta, la seconda riga propone i cinque brani qui sopra; toccandone uno imposti in un colpo tonalità, progressione e tempo. Lo stesso elenco è in fondo alle opzioni del suono.
+- **Opzioni del suono** (il pulsante in fondo alla seconda riga): l'**ottava** della fondamentale (da 1 a 4), il **tono continuo** (un suono fisso al posto del pianoforte ribattuto; l'ottava 1 è sempre il tono, perché i campioni del pianoforte non scendono tanto), la **posizione dell'accordo** (impilato, vicino, oppure senza fondamentale, per suonarla tu) e lo **stile**: accordo battuto una volta a battuta, a ogni tempo, oppure arpeggiato, secondo tempo e misura del metronomo. Il pulsante **Basso** imposta in un tocco un'ottava bassa, la sola fondamentale e un tono continuo. Le note gravi si sentono poco dall'altoparlante del telefono: lo schermo lo dice e suggerisce cuffie, una cassa o un'ottava più alta. In fondo, **Legenda e gradi** spiega i colori del cerchio e i numeri.
+- **Partire insieme**: se il metronomo sta già suonando, l'armonia entra sulla battuta successiva del metronomo e, fino ad allora, al centro del cerchio compaiono i secondi che mancano. Lo stesso vale per il metronomo, se lo avvii mentre l'armonia suona.
 
 ## Accordatore
 
-- L'accordatore ascolta da solo quando apri la sezione (la prima volta Android chiede il permesso per il **microfono**). Suona una nota: il suo nome compare al centro dello strobo rotondo. Gli anelli dello strobo girano in senso antiorario se la nota è **calante** e orario se è **crescente**, più veloci quanto più sei lontano, e restano fermi quando sei **intonato** (entro 5 cent); sotto il cerchio una barra come quella del bilanciamento mostra la stessa cosa con la posizione: un pallino si muove lungo la barra; il pallino è grande e verde quando sei intonato, e più piccolo, giallo e poi rosso, quanto più sei lontano. Sono scritte anche le parole *Calante*, *Intonato* e *Crescente* e il numero di cent, e un lettore di schermo le legge ad alta voce.
-- Il La di riferimento è sotto il cerchio: **−** e **+** si muovono di 1 Hz, la matita permette di scrivere il valore o scegliere uno di quelli standard (415, 432, 440, 442 Hz).
+- L'accordatore ascolta da solo quando apri la sezione, se nient'altro sta suonando (la prima volta Android chiede il permesso per il **microfono**). Suona una nota: il suo nome compare al centro dello strobo rotondo. Gli anelli dello strobo girano in senso antiorario se la nota è **calante** e orario se è **crescente**, più veloci quanto più sei lontano, e restano fermi quando sei **intonato** (entro 5 cent; le impostazioni offrono 2 o 10). Sotto il cerchio, nella terza riga, una barra mostra la stessa cosa con la posizione: un indicatore tondo si muove lungo una linea sottile con un segno al centro; è grande e verde quando sei intonato, e più piccolo, giallo e poi rosso, quanto più sei lontano, e una nota solo trattenuta dopo che la corda si è fermata si attenua. Sono scritte anche le parole *Calante*, *Intonato* e *Crescente* e il numero di cent, e un lettore di schermo le legge ad alta voce.
+- **Ascolta / Pausa**: tocca il centro del cerchio per avviarlo o metterlo in pausa quando vuoi; resta in pausa finché non lo tocchi di nuovo.
+- **Se metronomo o armonia stanno suonando**, entrare nell'accordatore non ferma nulla: il cerchio dice *Ascolta* e *Ascoltare mette in pausa ciò che suona*. Tocca il cerchio e vanno in pausa, così il microfono sente solo il tuo strumento, con un avviso *In pausa mentre accordi* e un pulsante **Riprendi** che li fa ripartire. Uscendo dall'accordatore non riprende nulla da solo.
+- Il La di riferimento è nella seconda riga: **−** e **+** si muovono di 1 Hz, la matita permette di scrivere il valore o scegliere uno di quelli standard (415, 432, 440, 442 Hz).
 - Sente le note da 28 Hz fino a 2800 Hz (il limite acuto del violino e del flauto) e riconosce qualsiasi nota, senza dover scegliere prima la corda. Con il basso scelto ascolta solo fino a 700 Hz, perché le voci non disturbino.
-- **Strumenti traspositori**: nelle *Impostazioni* scegli Si♭ (clarinetto, tromba, sax soprano e tenore), Mi♭ (sax contralto e baritono) o Fa (corno), e l'accordatore cromatico mostra la nota **scritta**, con «in Si♭» sotto e sul pulsante Cromatico.
-- Il menu **Strumento** passa dal Cromatico alle corde di chitarra, violino, viola, violoncello, ukulele o basso, e mostra il numero della corda.
-- **Ascolta / Pausa**: tocca il centro del cerchio per metterlo in pausa quando vuoi; resta in pausa finché non lo tocchi di nuovo.
-- Mentre sei nell'accordatore, **metronomo e armonia vanno in pausa**, così il microfono sente solo il tuo strumento; riprendono quando esci.
+- **Strumenti traspositori**: nelle *Impostazioni* scegli Si♭ (clarinetto, tromba, sax soprano e tenore), Mi♭ (sax contralto e baritono) o Fa (corno), e l'accordatore cromatico mostra la nota **scritta**, con la tonalità accanto a «Cromatico» nella prima riga e sul cerchio.
+- La metà **Strumento** della prima riga (a sinistra c'è Cromatico) apre un menu con chitarra, violino, viola, violoncello, ukulele e basso, e mostra il numero della corda.
+- L'accordatore smette di ascoltare quando lasci la sezione, apri le impostazioni o porti l'app in secondo piano.
 - Il suono è analizzato sul telefono e non viene mai registrato né inviato.
 - Se hai negato il microfono, consentilo nelle impostazioni del telefono in *App › Low End › Autorizzazioni*; l'app mostra un pulsante che apre quella pagina.
 
@@ -54,14 +57,17 @@ L'ingranaggio in alto apre le impostazioni:
 | Impostazione | Scelte |
 | --- | --- |
 | Lingua | Come il telefono, inglese, italiano |
-| Nomi delle note | Come la lingua, Do Re Mi (La3 = 440 Hz), C D E (A4 = 440 Hz) |
+| Tieni lo schermo acceso | Mentre suona o l'accordatore ascolta (attivo di default) |
+| Nomi delle note | Come la lingua, Do Re Mi, C D E |
 | La di riferimento | ogni hertz da 415 a 445, per l'accordatore e l'armonia |
-| Accordatore: strumento traspositore | Do (suono reale), Si♭, Mi♭, Fa |
 | Cerchio dell'armonia | Cerchio delle quinte, oppure in semitoni |
-| Tieni lo schermo acceso | Mentre suona o l'accordatore ascolta |
+| Numeri delle ottave | Scientifica (La4 = 440 Hz, il Mi grave del basso è Mi1; di default) o Italiana (La3 = 440 Hz); cambia solo il numero |
+| Blocca i gesti | Disattiva gli scorrimenti tra le sezioni |
+| Accordatore: intonato entro | ±2, ±5 o ±10 cent |
+| Accordatore: strumento traspositore | Do (suono reale), Si♭, Mi♭, Fa |
 | Gesti e scorciatoie | Mostra di nuovo la guida |
 
-**Informazioni su Low End** (in fondo alle impostazioni) mostra la licenza, il link al codice sorgente e, sotto *Visualizza licenze*, le licenze di tutto ciò con cui l'app è costruita, font e suoni del pianoforte compresi. Sotto le scelte, **Ringraziamenti** va alla Power Flower Orchestra di Fossano, che ha ispirato e provato quest’app.
+**Ringraziamenti** va alla Power Flower Orchestra di Fossano, che ha ispirato e provato quest’app; il suo pulsante apre la loro pagina Instagram nel browser del telefono. **Informazioni su Low End** (in fondo alle impostazioni) mostra la licenza, il link al codice sorgente (anch'esso aperto nel browser) e, sotto *Visualizza licenze*, le licenze di tutto ciò con cui l'app è costruita, font e suoni del pianoforte compresi.
 
 ## Suonare con lo schermo spento
 

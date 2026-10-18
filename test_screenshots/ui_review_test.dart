@@ -120,7 +120,7 @@ class _Harness {
   String t(String en, String it) => config.it ? it : en;
 
   Future<void> tab(String en, String it) async {
-    // In landscape the names are on the rail (the balance slider has them too).
+    // In landscape the names are on the rail.
     final rail = find.byKey(const Key('tabRail'));
     await tester.tap(
       rail.evaluate().isEmpty

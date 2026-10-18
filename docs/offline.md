@@ -18,7 +18,7 @@ Checked on 16 October 2026, on the release build made from this code. Repeat the
 
 2. **Debug and profile builds.** `android/app/src/debug/AndroidManifest.xml` and `android/app/src/profile/AndroidManifest.xml` add `INTERNET`, because Flutter's tools (hot reload, the debugger, `--trace-startup`) talk to the running app through it. Those files are used only by `flutter run` and never by `flutter build apk --release` or `appbundle`; the release manifest above shows it.
 
-3. **The app's code** (`lib/`): no `dart:io` networking, no `http`, no sockets, no `Image.network`, no `google_fonts`. The only web address is the *Source code* link in About, which hands the address to the phone's browser (`url_launcher`); the app itself connects to nothing.
+3. **The app's code** (`lib/`): no `dart:io` networking, no `http`, no sockets, no `Image.network`, no `google_fonts`. The only web addresses are two links the player taps: *Source code* in About and *Follow them on Instagram* under Thanks in the settings (the page of the Power Flower Orchestra of Fossano). Each hands its address to the phone's browser (`url_launcher`); the app itself connects to nothing.
 
 4. **Libraries.** Some packages in the dependency tree know about the network (`http` and `flutter_cache_manager` come with `audio_service`, which can fetch cover art). The app never gives them an address, the Dart compiler leaves unused code out, and a search of the release `classes.dex` finds no use of `HttpURLConnection`, `URLConnection`, `Socket`, `HttpsURLConnection` or OkHttp.
 

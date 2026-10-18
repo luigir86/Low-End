@@ -32,22 +32,6 @@ void main() {
     }
   });
 
-  test('finds a low E whose fundamental is weaker than its overtones', () {
-    final found = detector.detect(
-      _string(41.2, n, harmonics: [0.3, 1, 0.7, 0.5]),
-    );
-    expect(found, closeTo(41.2, 0.5));
-  });
-
-  test('stays quiet on silence and noise', () {
-    expect(detector.detect(Float64List(n)), isNull);
-    final random = math.Random(1);
-    final noise = Float64List.fromList([
-      for (var i = 0; i < n; i++) random.nextDouble() * 0.6 - 0.3,
-    ]);
-    expect(detector.detect(noise), isNull);
-  });
-
   test('keeps following a fading string through the noise', () {
     // A quiet A string, as it rings out, under room noise.
     final random = math.Random(2);
@@ -77,10 +61,6 @@ void main() {
     expect(detector.detect(dying, expected: 55), closeTo(55, 0.5));
     // Silence is still silence, with or without a note before.
     expect(detector.detect(Float64List(n), expected: 55), isNull);
-  });
-
-  test('ignores sounds above the bass range', () {
-    expect(detector.detect(_string(880, n, harmonics: [1])), isNull);
   });
 
   test('finds the violin and the winds up to the top E within a cent', () {

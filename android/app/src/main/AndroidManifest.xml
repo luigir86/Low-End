@@ -39,7 +39,10 @@
             </intent-filter>
             <!-- Action links for assistants, shortcuts and automation apps, such
                  as lowend://action/drone_play?note=A. They do only
-                 what the on-screen buttons do; see docs/llm.md. -->
+                 what the on-screen buttons do (a start opens its own
+                 section; tuner_start pauses the metronome and Harmony);
+                 the names and arguments are in docs/llm-actions.json,
+                 generated from lib/actions/app_actions.dart. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>

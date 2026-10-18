@@ -476,7 +476,7 @@ abstract class AppLocalizations {
   /// **'Sharp'**
   String get sharp;
 
-  /// The word over the tuner's cents bar, like 'Balance' over the slider of the other tabs
+  /// The word over the tuner's cents bar
   ///
   /// In en, this message translates to:
   /// **'Cents'**
@@ -851,13 +851,13 @@ abstract class AppLocalizations {
   /// No description provided for @guideRing.
   ///
   /// In en, this message translates to:
-  /// **'Tap the metronome\'s ring to start and stop it.'**
+  /// **'The metronome and the harmony start and stop by touching the middle of their dial.'**
   String get guideRing;
 
   /// No description provided for @guideTempo.
   ///
   /// In en, this message translates to:
-  /// **'Touch the pencil to type the tempo. Hold − or + and the tempo runs, faster and faster.'**
+  /// **'Touch the pencil to type the tempo, or tap TAP. Hold − or + and the tempo runs, faster and faster.'**
   String get guideTempo;
 
   /// No description provided for @guideSwipe.
@@ -881,7 +881,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideTuner.
   ///
   /// In en, this message translates to:
-  /// **'The tuner listens by itself. Going there pauses the metronome and the harmony.'**
+  /// **'The tuner listens by itself when nothing is playing. If something is, touch its dial: the metronome and the harmony pause.'**
   String get guideTuner;
 
   /// No description provided for @guideVolume.

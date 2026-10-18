@@ -149,18 +149,12 @@ class _Handler extends BaseAudioHandler {
 
   @override
   Future<void> stop() async => _commands.add(MediaCommand.stop);
-}
 
-/// [BackgroundAudio] that does nothing; used in tests.
-@visibleForTesting
-class NoBackgroundAudio implements BackgroundAudio {
+  /// The user swiped the app away from the recent apps: the sound ends with
+  /// it, the notification is only for an app that is still open.
   @override
-  Stream<MediaCommand> get commands => const Stream.empty();
-
-  @override
-  Future<void> show(
-    MediaState state, {
-    required String title,
-    String text = '',
-  }) async {}
+  Future<void> onTaskRemoved() async {
+    _commands.add(MediaCommand.stop);
+    await super.stop();
+  }
 }

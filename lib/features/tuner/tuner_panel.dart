@@ -112,8 +112,8 @@ class _TunerPanelState extends State<TunerPanel> {
           // other two tabs; the row below is the reference A, in the same
           // pieces as the rows of the metronome and the harmony.
           lower: const ReferencePitchRow(),
-          // The cents scale sits where the other tabs have their balance
-          // slider. Announced by screen readers, e.g. when the microphone is
+          // The cents scale sits in the third row, which the other tabs
+          // leave empty. Announced by screen readers, e.g. when the microphone is
           // denied, a message takes its place.
           footer: message == null
               ? _CentsBar(
@@ -753,7 +753,7 @@ class _NoteName extends StatelessWidget {
 }
 
 /// The cents, 50 flat to 50 sharp, in the third row under the dial, drawn
-/// like the balance slider of the other tabs but as wide as the rows above
+/// with a thin track as wide as the rows above
 /// it: the same thin track, the same short mark in the middle and the same
 /// round thumb. The thumb says how far off the note is, by its place, its
 /// size and the verdict's colour; no shaded zone, which looked like
@@ -791,8 +791,7 @@ class _CentsBar extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // A word over the track, as over the balance slider of the other
-            // tabs.
+            // A word over the track.
             Text(AppLocalizations.of(context).centsTitle, style: label),
             SizedBox(
               height: 32,
@@ -870,7 +869,7 @@ class _CentsBarPainter extends CustomPainter {
       ),
       Paint()..color = track,
     );
-    // The middle, as on the balance slider: 2 by 16 dp.
+    // The middle: 2 by 16 dp.
     canvas.drawRect(
       Rect.fromCenter(center: Offset(x(0), mid), width: 2, height: 16),
       Paint()..color = middle,

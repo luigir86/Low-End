@@ -1,7 +1,7 @@
 [
   {
     "name": "get_state",
-    "description": "Returns what the app is doing now: the section on screen, the tuner (listening, last note heard and how many cents off), the drone (playing, note, root or chord), the metronome (playing, tempo, subdivision, click on 2 and 4) and the settings (reference A, language, note names, transposition). Loudness follows the phone's media volume.",
+    "description": "Returns what the app is doing now, without changing anything: the section on screen (metronome, drone, tuner); the tuner (status idle, starting, listening, permissionDenied or failed, and the last note heard with its cents off); the Harmony section, called drone (playing, note, voicing, chord, progression, style, sevenths, current step of a progression); the metronome (playing, tempo, time signature, subdivision, click on 2 and 4) and the settings (reference A, language, note names, transposition). \"playing\" is true as soon as a start is asked, also while the sound waits for the other one's next bar line. Notes are always written with letters and octave (Bb4), whatever the note names setting. Loudness follows the phone's media volume.",
     "input_schema": {
       "type": "object",
       "properties": {},
@@ -10,7 +10,7 @@
   },
   {
     "name": "open_section",
-    "description": "Shows a section of the app.",
+    "description": "Shows a section of the app (also when the gestures are locked). Nothing is started or stopped, except by the tuner: leaving it turns the microphone off, and arriving at it starts listening only if neither the metronome nor Harmony is playing and it was not paused with tuner_stop (the sound is never stopped by arriving; use tuner_start for that).",
     "input_schema": {
       "type": "object",
       "properties": {
@@ -31,7 +31,7 @@
   },
   {
     "name": "tuner_start",
-    "description": "Opens the chromatic tuner and starts listening through the microphone: it recognises any note played. The tuner stops by itself when another section or the settings page opens, or the app goes to the background. Read the note with get_state.",
+    "description": "Opens the tuner and starts listening through the microphone: it recognises any note played. If the metronome or Harmony is playing, they are paused, as when the dial of the tuner is touched (the player sees a notice with a \"Resume\" button; nothing resumes by itself). The tuner stops by itself when another section or the settings page opens, or the app goes to the background. The answer says \"listening\", or why not (permissionDenied, failed); read the note with get_state.",
     "input_schema": {
       "type": "object",
       "properties": {},
@@ -40,7 +40,7 @@
   },
   {
     "name": "tuner_stop",
-    "description": "Pauses the tuner and turns the microphone off. It stays paused, also when its section or the app comes back, until tuner_start.",
+    "description": "Pauses the tuner and turns the microphone off. It stays paused, also when its section or the app comes back, until tuner_start or a touch on its dial. It does not start anything else.",
     "input_schema": {
       "type": "object",
       "properties": {},
@@ -49,7 +49,7 @@
   },
   {
     "name": "drone_play",
-    "description": "Plays the drone, on the piano, to practise on, in time with the metronome: a note, a chord or a progression. Any setting given is applied first.",
+    "description": "Opens the Harmony section (so the tuner, if listening, stops listening) and plays the piano to practise on: a note, a chord or a progression. Any setting given is applied first. If it is already playing, only the settings change. If the metronome is playing, the piano comes in on the metronome's next bar line, after a countdown shown on screen; \"playing\" is already true then.",
     "input_schema": {
       "type": "object",
       "properties": {
@@ -105,7 +105,7 @@
   },
   {
     "name": "drone_stop",
-    "description": "Stops the drone.",
+    "description": "Stops the Harmony piano (also during the countdown before it comes in). Does not change section.",
     "input_schema": {
       "type": "object",
       "properties": {},
@@ -114,7 +114,7 @@
   },
   {
     "name": "metronome_start",
-    "description": "Opens the metronome and starts it, in its current time signature, at the tempo given or the current one.",
+    "description": "Opens the metronome (so the tuner, if listening, stops listening) and starts it, in its current time signature, at the tempo given or the current one; subdivision and backbeat given are applied first. If it is already playing, only the settings change. If Harmony is playing, the click comes in on the piano's next bar line, after a countdown. The time signature cannot be changed by actions.",
     "input_schema": {
       "type": "object",
       "properties": {
@@ -146,7 +146,7 @@
   },
   {
     "name": "metronome_stop",
-    "description": "Stops the metronome.",
+    "description": "Stops the metronome (also during the countdown before it comes in). Does not change section.",
     "input_schema": {
       "type": "object",
       "properties": {},
@@ -155,7 +155,7 @@
   },
   {
     "name": "metronome_set",
-    "description": "Changes the tempo, what sounds inside each beat or the click on 2 and 4, without starting or stopping it. Give at least one.",
+    "description": "Changes the tempo, what sounds inside each beat or the click on 2 and 4, without starting, stopping or changing section. Give at least one. The settings are remembered for the next launch.",
     "input_schema": {
       "type": "object",
       "properties": {
@@ -187,7 +187,7 @@
   },
   {
     "name": "drone_set",
-    "description": "Changes the drone settings without starting or stopping it.",
+    "description": "Changes the Harmony settings (give any of them) without starting, stopping or changing section.",
     "input_schema": {
       "type": "object",
       "properties": {
@@ -243,7 +243,7 @@
   },
   {
     "name": "set_reference_pitch",
-    "description": "Sets the frequency of A4, shared by the tuner and the drone, and saves it in the settings.",
+    "description": "Sets the frequency of A4, shared by the tuner and the drone, and saves it in the settings. Whole hertz only.",
     "input_schema": {
       "type": "object",
       "properties": {
@@ -251,7 +251,7 @@
           "type": "number",
           "minimum": 415.0,
           "maximum": 445.0,
-          "description": "Frequency of A4 in Hz."
+          "description": "Frequency of A4 in Hz, a whole number."
         }
       },
       "required": [
@@ -262,7 +262,7 @@
   },
   {
     "name": "settings_set",
-    "description": "Changes and saves the app settings: the language of the app and how note names are written, and the key of a transposing instrument for the chromatic tuner.",
+    "description": "Changes and saves the app settings (give any of them): the language of the app, how note names are written, and the key of a transposing instrument for the chromatic tuner. All the values are checked first: if one is wrong, none is applied.",
     "input_schema": {
       "type": "object",
       "properties": {

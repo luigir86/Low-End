@@ -159,7 +159,7 @@
   "sharp": "Sharp",
   "centsTitle": "Cents",
   "@centsTitle": {
-    "description": "The word over the tuner's cents bar, like 'Balance' over the slider of the other tabs"
+    "description": "The word over the tuner's cents bar"
   },
   "centsValue": "{cents} cents",
   "@centsValue": {
@@ -262,12 +262,12 @@
   "shapeClose": "Close",
   "shapeRootless": "No root",
   "guideTitle": "Gestures and shortcuts",
-  "guideRing": "Tap the metronome's ring to start and stop it.",
-  "guideTempo": "Touch the pencil to type the tempo. Hold − or + and the tempo runs, faster and faster.",
+  "guideRing": "The metronome and the harmony start and stop by touching the middle of their dial.",
+  "guideTempo": "Touch the pencil to type the tempo, or tap TAP. Hold − or + and the tempo runs, faster and faster.",
   "guideSwipe": "Swipe left and right to change section.",
   "guideSwipeVertical": "Turned sideways, swipe up and down over the dial or the tabs to change section.",
   "guideDrone": "In Harmony, tap a note to play it. Hold C♯ or F♯ to write them D♭ or G♭.",
-  "guideTuner": "The tuner listens by itself. Going there pauses the metronome and the harmony.",
+  "guideTuner": "The tuner listens by itself when nothing is playing. If something is, touch its dial: the metronome and the harmony pause.",
   "guideVolume": "The volume is the phone's: use its volume keys.",
   "guideDone": "Got it",
   "writeAs": "Write as {note}",
