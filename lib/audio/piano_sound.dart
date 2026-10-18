@@ -70,10 +70,11 @@ class PianoSamples {
   static Float32List decodeWav(Uint8List wav) {
     final view = ByteData.sublistView(wav);
     final n = (wav.length - 44) ~/ 2;
-    return Float32List.fromList([
-      for (var i = 0; i < n; i++)
-        view.getInt16(44 + i * 2, Endian.little) / 32768,
-    ]);
+    final out = Float32List(n);
+    for (var i = 0; i < n; i++) {
+      out[i] = view.getInt16(44 + i * 2, Endian.little) / 32768;
+    }
+    return out;
   }
 
   /// The recording nearest to [midi]: its number and its samples.
