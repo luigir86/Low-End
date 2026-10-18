@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:low_end/audio/click_output.dart';
 import 'package:low_end/audio/click_sound.dart';
 import 'package:low_end/audio/loop_transport.dart';
-import 'package:low_end/features/metronome/feel.dart';
+import 'package:low_end/features/metronome/subdivision.dart';
 import 'package:low_end/features/metronome/metronome_controller.dart';
 import 'package:low_end/features/metronome/time_signature.dart';
 
@@ -82,15 +82,15 @@ void main() {
       expect(peak(s), lessThan(0.95));
       expect(s.length, lessThan(ClickSound.sampleRate * 60 ~/ 250));
     }
-    // The skip note of the swing is the plain click, softer.
+    // The clicks inside a beat are the plain click, softer.
     final skip = ClickSound.skip();
     expect(skip.length, plain.length);
     expect(peak(skip), lessThan(peak(plain)));
     expect(peak(skip), greaterThan(0.2));
   });
 
-  group('the feel', () {
-    // 4/4 at 60: a beat is a second, so a third and two thirds are easy.
+  group('what fills the beat', () {
+    // 4/4 at 60: a beat is a second, so fractions of it are easy.
     int beat() => ClickSound.sampleRate;
     double energy(Float64List bar, int from, int length) {
       var sum = 0.0;
@@ -100,11 +100,16 @@ void main() {
       return sum;
     }
 
-    Float64List samples(MetronomeFeel feel, [TimeSignature? s]) {
+    Float64List samples(
+      Subdivision subdivision, {
+      TimeSignature? signature,
+      bool backbeat = false,
+    }) {
       final wav = ClickSound.bar(
         bpm: 60,
-        signature: s ?? TimeSignature.fourFour,
-        feel: feel,
+        signature: signature ?? TimeSignature.fourFour,
+        subdivision: subdivision,
+        backbeat: backbeat,
       );
       return Float64List.fromList([
         for (var i = 44; i < wav.length; i += 2)
@@ -112,68 +117,120 @@ void main() {
       ]);
     }
 
-    test('straight sounds only on the beats', () {
-      final bar = samples(MetronomeFeel.straight);
-      final skip = beat() * 2 ~/ 3;
+    /// Whether a click starts at [fraction] of beat [b].
+    bool sounds(Float64List bar, int b, double fraction) =>
+        energy(bar, b * beat() + (beat() * fraction).round(), 200) > 0;
+
+    test('quarter notes sound only on the beats', () {
+      final bar = samples(Subdivision.quarters);
       for (var b = 0; b < 4; b++) {
-        expect(energy(bar, b * beat() + skip, 200), 0, reason: 'beat $b');
+        for (final f in [0.25, 0.3, 0.5, 0.6, 2 / 3, 0.8]) {
+          expect(sounds(bar, b, f), isFalse, reason: 'beat $b at $f');
+        }
       }
     });
 
-    test('swing skips after 2 and 4, softly', () {
-      final bar = samples(MetronomeFeel.swing);
-      final skip = beat() * 2 ~/ 3;
-      expect(energy(bar, 0 * beat() + skip, 200), 0);
-      expect(energy(bar, 1 * beat() + skip, 200), greaterThan(0));
-      expect(energy(bar, 2 * beat() + skip, 200), 0);
-      expect(energy(bar, 3 * beat() + skip, 200), greaterThan(0));
-      // The skip note is softer than the beat before it.
+    test('each subdivision puts its notes where they fall in the beat', () {
+      const expected = {
+        Subdivision.eighths: [0.5],
+        Subdivision.swungEighths: [0.6],
+        Subdivision.triplets: [1 / 3, 2 / 3],
+        Subdivision.sixteenths: [0.25, 0.5, 0.75],
+        // Pairs of sixteenths, long-short at 60%: 0, 0.3, 0.5, 0.8.
+        Subdivision.swungSixteenths: [0.3, 0.5, 0.8],
+      };
+      for (final MapEntry(key: s, value: at) in expected.entries) {
+        final bar = samples(s);
+        for (var b = 0; b < 4; b++) {
+          for (final f in at) {
+            expect(sounds(bar, b, f), isTrue, reason: '$s beat $b at $f');
+          }
+        }
+        expect(s.inner, at);
+      }
+      // Nothing between them: swung eighths leave the straight spot empty.
+      expect(sounds(samples(Subdivision.swungEighths), 1, 0.5), isFalse);
+    });
+
+    test('the clicks inside a beat are softer than the beat', () {
+      final bar = samples(Subdivision.eighths);
       expect(
-        energy(bar, beat() + skip, 2000),
+        energy(bar, beat() ~/ 2, 2000),
         lessThan(energy(bar, beat(), 2000)),
       );
       // The beats themselves are where they were.
-      final straight = samples(MetronomeFeel.straight);
-      expect(energy(bar, 0, beat() ~/ 2), energy(straight, 0, beat() ~/ 2));
+      final plain = samples(Subdivision.quarters);
+      expect(energy(bar, 0, beat() ~/ 2), energy(plain, 0, beat() ~/ 2));
     });
 
-    test('a bar of one beat swings too, and the loop never clips', () {
-      final bar = samples(MetronomeFeel.swing, TimeSignature.oneOne);
-      expect(energy(bar, beat() * 2 ~/ 3, 200), greaterThan(0));
-      for (final feel in MetronomeFeel.values) {
-        final loop = samples(feel);
-        expect(loop.every((v) => v.abs() <= 0.96), isTrue);
+    test('with the click on 2 and 4, only those beats are subdivided', () {
+      for (final s in Subdivision.values.skip(1)) {
+        final bar = samples(s, backbeat: true);
+        for (final b in [0, 2]) {
+          expect(energy(bar, b * beat(), beat()), 0, reason: '$s beat $b');
+        }
+        for (final b in [1, 3]) {
+          for (final f in s.inner) {
+            expect(sounds(bar, b, f), isTrue, reason: '$s beat $b at $f');
+          }
+        }
       }
     });
 
-    test('bars in eighths are always straight', () {
-      expect(
-        samples(MetronomeFeel.swing, TimeSignature.sixEight),
-        samples(MetronomeFeel.straight, TimeSignature.sixEight),
+    test('a bar of one beat is subdivided too, and no loop clips', () {
+      final bar = samples(
+        Subdivision.swungEighths,
+        signature: TimeSignature.oneOne,
       );
+      expect(sounds(bar, 0, 0.6), isTrue);
+      for (final s in Subdivision.values) {
+        expect(samples(s).every((v) => v.abs() <= 0.96), isTrue);
+      }
     });
 
-    test('there are two feels: straight and swing', () {
-      expect(MetronomeFeel.values, [
-        MetronomeFeel.straight,
-        MetronomeFeel.swing,
+    test('bars in eighths are always played plain', () {
+      for (final s in Subdivision.values) {
+        expect(
+          samples(s, signature: TimeSignature.sixEight),
+          samples(Subdivision.quarters, signature: TimeSignature.sixEight),
+        );
+      }
+    });
+
+    test('a late note at a fast tempo stops at the end of the bar', () {
+      final wav = ClickSound.bar(
+        bpm: 250,
+        subdivision: Subdivision.swungSixteenths,
+      );
+      final plain = ClickSound.bar(bpm: 250);
+      expect(wav.length, plain.length);
+    });
+
+    test('there are six: the quarter note, and each split and swung', () {
+      expect(Subdivision.values, [
+        Subdivision.quarters,
+        Subdivision.eighths,
+        Subdivision.swungEighths,
+        Subdivision.triplets,
+        Subdivision.sixteenths,
+        Subdivision.swungSixteenths,
       ]);
     });
 
-    test('the controller plays the feel, keeping the bar going', () async {
-      expect(metronome.feel, MetronomeFeel.straight);
+    test('the controller plays it, keeping the bar going', () async {
+      expect(metronome.subdivision, Subdivision.quarters);
       await metronome.start();
-      final straight = output.bar!;
-      metronome.setFeel(MetronomeFeel.swing);
+      final plain = output.bar!;
+      metronome.setSubdivision(Subdivision.swungEighths);
       await Future<void>.delayed(const Duration(milliseconds: 20));
-      expect(metronome.feel, MetronomeFeel.swing);
-      expect(output.bar, isNot(straight));
+      expect(metronome.subdivision, Subdivision.swungEighths);
+      expect(output.bar, isNot(plain));
       // Same length, and it carries on rather than starting again.
-      expect(output.bar!.length, straight.length);
+      expect(output.bar!.length, plain.length);
       expect(output.startAt, isNull);
       // Not for the bars in eighths.
       metronome.setSignature(TimeSignature.sixEight);
-      expect(metronome.feelApplies, isFalse);
+      expect(metronome.subdivisionApplies, isFalse);
     });
   });
 
@@ -185,20 +242,23 @@ void main() {
         SoLoudClickOutput.preRollFor(bar),
         const Duration(milliseconds: 120),
       );
-      // The swing keeps it too: its last skip note ends well before the end.
+      // Subdivided, it keeps it too: its last note ends well before the end.
       expect(
         SoLoudClickOutput.preRollFor(
-          ClickSound.bar(bpm: 80, feel: MetronomeFeel.swing),
+          ClickSound.bar(bpm: 80, subdivision: Subdivision.swungEighths),
         ),
         const Duration(milliseconds: 120),
       );
     });
 
     test('never into a click: less of it when beats are crowded', () {
-      // 250 BPM, a beat of 240 ms: the click is over in 60, and the swing's
-      // skip note falls at 160 and ends at 220: 20 ms of silence is not
-      // enough to play any.
-      final bar = ClickSound.bar(bpm: 250, feel: MetronomeFeel.swing);
+      // 250 BPM, a beat of 240 ms: the click is over in 60, and the last
+      // swung sixteenth falls at 192 and fills the rest of the bar: no
+      // silence to play any.
+      final bar = ClickSound.bar(
+        bpm: 250,
+        subdivision: Subdivision.swungSixteenths,
+      );
       expect(SoLoudClickOutput.preRollFor(bar), Duration.zero);
     });
   });

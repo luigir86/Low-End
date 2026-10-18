@@ -151,7 +151,7 @@ void main() {
         'playing': false,
         'bpm': 80,
         'time_signature': '4/4',
-        'subdivision': 'none',
+        'subdivision': 'quarters',
         'backbeat': false,
       });
     });

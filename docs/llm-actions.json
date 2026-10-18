@@ -127,13 +127,14 @@
         "subdivision": {
           "type": "string",
           "enum": [
-            "none",
+            "quarters",
             "eighths",
+            "swing_eighths",
             "triplets",
             "sixteenths",
-            "swing"
+            "swing_sixteenths"
           ],
-          "description": "Softer clicks inside each beat (two, three or four to a beat), none, or the swing (a skip note after beats 2 and 4). Only heard in bars counted in quarter notes."
+          "description": "What fills each beat, with softer clicks: quarters (the beat alone), eighths, swing_eighths, triplets, sixteenths or swing_sixteenths. The swung ones are written straight and played long-short, as MuseScore plays \"Swing\" (the second note at 60% of the pair). With the click on 2 and 4, only beats 2 and 4 are subdivided. Only heard in bars counted in quarter notes."
         },
         "backbeat": {
           "type": "boolean",
@@ -167,13 +168,14 @@
         "subdivision": {
           "type": "string",
           "enum": [
-            "none",
+            "quarters",
             "eighths",
+            "swing_eighths",
             "triplets",
             "sixteenths",
-            "swing"
+            "swing_sixteenths"
           ],
-          "description": "Softer clicks inside each beat (two, three or four to a beat), none, or the swing (a skip note after beats 2 and 4). Only heard in bars counted in quarter notes."
+          "description": "What fills each beat, with softer clicks: quarters (the beat alone), eighths, swing_eighths, triplets, sixteenths or swing_sixteenths. The swung ones are written straight and played long-short, as MuseScore plays \"Swing\" (the second note at 60% of the pair). With the click on 2 and 4, only beats 2 and 4 are subdivided. Only heard in bars counted in quarter notes."
         },
         "backbeat": {
           "type": "boolean",

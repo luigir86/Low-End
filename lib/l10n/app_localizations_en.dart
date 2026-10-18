@@ -57,13 +57,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get droneStop => 'Stop the harmony';
 
   @override
-  String get feelLabel => 'Feel';
-
-  @override
-  String get feelStraight => 'Straight';
-
-  @override
-  String get feelSwing => 'Swing';
+  String get subdivisionLabel => 'Subdivision';
 
   @override
   String get progressionLabel => 'Progression';
@@ -597,10 +591,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subdivisionEighths => 'Eighth notes';
 
   @override
+  String get subdivisionSwungEighths => 'Swung eighth notes';
+
+  @override
   String get subdivisionTriplets => 'Triplets';
 
   @override
   String get subdivisionSixteenths => 'Sixteenth notes';
+
+  @override
+  String get subdivisionSwungSixteenths => 'Swung sixteenth notes';
 
   @override
   String get backbeatTitle => 'Click on 2 and 4';

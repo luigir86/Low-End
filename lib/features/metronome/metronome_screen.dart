@@ -10,9 +10,7 @@ import '../../audio/audio_scope.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/balance_slider.dart';
 import '../../widgets/dial.dart';
-import '../../widgets/pill_switch.dart';
 import '../../widgets/row_controls.dart';
-import 'feel.dart';
 import 'metronome_controller.dart';
 import 'note_icon.dart';
 import 'subdivision.dart';
@@ -23,9 +21,9 @@ import 'time_signature.dart';
 /// 6 in 6/8, and so on) lights up clockwise from 12 o'clock, with the "one"
 /// in its own colour, and the tempo in the middle. In bars felt in groups
 /// (6/8) wider gaps split the groups, and a bar of one beat is a single
-/// segment that flashes. Touching the ring starts and stops it; below it,
-/// the feel (straight or swing), and a row like the harmony's with
-/// the time signature, TAP, − + and a pencil to type the tempo.
+/// segment that flashes. Touching the ring starts and stops it; below it, a
+/// row like the harmony's that chooses the bar (the time signature and what
+/// fills each beat), and one for the tempo: TAP, − + and a pencil to type it.
 class MetronomeScreen extends StatelessWidget {
   const MetronomeScreen({super.key});
 
@@ -38,21 +36,24 @@ class MetronomeScreen extends StatelessWidget {
       listenable: metronome,
       builder: (context, _) => DialLayout(
         dial: _BeatRing(metronome: metronome),
-        // How the beat is felt, as Root, Chord and Progression are chosen
-        // on the harmony tab; and under it, in the row of the chord menu,
-        // the time signature, TAP and the tempo: - + and the pencil.
-        upper: _FeelSwitch(metronome: metronome),
+        // The first row chooses the bar: the time signature and what fills
+        // each beat. The second only sets the tempo: TAP, − + and the pencil.
+        // The same pieces as the chord row of the harmony tab: a field with
+        // its name on the border, chips, an icon button.
+        upper: Row(
+          children: [
+            Expanded(child: _SignatureButton(metronome: metronome)),
+            const SizedBox(width: 6),
+            Expanded(child: _SubdivisionField(metronome: metronome)),
+          ],
+        ),
         lower: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // The same pieces as the chord row of the harmony tab: a field
-            // with its name on the border, chips, an icon button.
             Row(
               children: [
-                Expanded(child: _SignatureButton(metronome: metronome)),
+                Expanded(child: _TapButton(metronome: metronome)),
                 const SizedBox(width: 6),
-                _TapButton(metronome: metronome),
-                const SizedBox(width: 4),
                 _StepButton(
                   icon: Icons.remove,
                   tooltip: l10n.slower,
@@ -428,134 +429,93 @@ String beatUnitName(AppLocalizations l10n, BeatUnit unit) => switch (unit) {
   BeatUnit.eighth => l10n.beatUnitEighth,
 };
 
-/// What sounds inside each beat, in the first row under the dial, drawn
-/// exactly as the tuner's Chromatic / instrument switch: two menus, the feel
-/// (Straight or Swing) on the left, and on the right what fills the beat (a
-/// quarter note, two eighths, a triplet, four sixteenths: softer clicks
-/// between the beats). The swing brings its own skip note, so the right menu
-/// is off then, and in the bars counted in eighths, which are always played
-/// plain, both are.
-class _FeelSwitch extends StatelessWidget {
-  const _FeelSwitch({required this.metronome});
+/// What fills each beat, in the field beside the time signature: a quarter
+/// note, two eighths, a triplet, four sixteenths, or the swung eighths and
+/// sixteenths (softer clicks between the beats). The field shows the notes
+/// and opens a menu of them. Bars counted in eighths are always played
+/// plain, so it is off there.
+class _SubdivisionField extends StatelessWidget {
+  const _SubdivisionField({required this.metronome});
 
   final MetronomeController metronome;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final applies = metronome.feelApplies;
-    final swing = metronome.feel == MetronomeFeel.swing;
     final subdivision = metronome.subdivision;
-    String feelName(MetronomeFeel f) => switch (f) {
-      MetronomeFeel.straight => l10n.feelStraight,
-      MetronomeFeel.swing => l10n.feelSwing,
-    };
-    Widget half({
-      required bool left,
-      required bool enabled,
-      required String semantics,
-      required Widget menu,
-    }) => PillSwitch.half(
-      left: left,
-      child: Semantics(
-        button: true,
-        enabled: enabled,
-        label: semantics,
-        excludeSemantics: true,
-        child: Opacity(opacity: enabled ? 1 : 0.38, child: menu),
-      ),
-    );
-    return PillSwitch(
-      key: const Key('feelSwitch'),
-      leftFilled: false,
-      rightFilled: false,
-      left: half(
-        left: true,
-        enabled: applies,
-        semantics: '${l10n.feelLabel}: ${feelName(metronome.feel)}',
-        menu: PopupMenuButton<MetronomeFeel>(
-          key: const Key('feelMenu'),
-          enabled: applies,
-          tooltip: l10n.feelLabel,
-          position: PopupMenuPosition.over,
-          initialValue: metronome.feel,
-          padding: EdgeInsets.zero,
-          onSelected: metronome.setFeel,
-          itemBuilder: (context) => [
-            for (final f in MetronomeFeel.values)
-              PopupMenuItem(value: f, child: Text(feelName(f))),
-          ],
-          child: PillSwitch.label(
-            context,
-            false,
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(feelName(metronome.feel), maxLines: 1),
-                const Icon(Icons.arrow_drop_down),
-              ],
-            ),
-          ),
-        ),
-      ),
-      right: half(
-        left: false,
-        enabled: applies && !swing,
-        semantics: subdivisionName(l10n, subdivision),
-        menu: PopupMenuButton<Subdivision>(
-          key: const Key('subdivisionMenu'),
-          enabled: applies && !swing,
-          tooltip: subdivisionName(l10n, subdivision),
-          position: PopupMenuPosition.over,
-          initialValue: subdivision,
-          padding: EdgeInsets.zero,
-          onSelected: metronome.setSubdivision,
-          itemBuilder: (context) => [
-            for (final s in Subdivision.values)
-              PopupMenuItem(
-                value: s,
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 56,
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: NoteIcon(s, height: 26),
-                      ),
-                    ),
-                    Flexible(
-                      child: Text(
-                        subdivisionName(l10n, s),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-          child: PillSwitch.label(
-            context,
-            false,
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                NoteIcon(subdivision, height: 26),
-                const Icon(Icons.arrow_drop_down),
-              ],
-            ),
+    return LabeledField(
+      key: const Key('subdivisionMenu'),
+      label: l10n.subdivisionLabel,
+      showLabel: false,
+      value: subdivisionName(l10n, subdivision),
+      onTap: metronome.subdivisionApplies ? () => _choose(context) : null,
+      content: Align(
+        alignment: Alignment.centerLeft,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          // As tall as a line of text, which grows with the text size.
+          child: NoteIcon(
+            subdivision,
+            height: MediaQuery.textScalerOf(context).scale(rowLineHeight),
           ),
         ),
       ),
     );
   }
+
+  /// The menu, opened over the field.
+  Future<void> _choose(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final box = context.findRenderObject()! as RenderBox;
+    final overlay =
+        Overlay.of(context).context.findRenderObject()! as RenderBox;
+    final position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        box.localToGlobal(Offset.zero, ancestor: overlay),
+        box.localToGlobal(box.size.bottomRight(Offset.zero), ancestor: overlay),
+      ),
+      Offset.zero & overlay.size,
+    );
+    final picked = await showMenu<Subdivision>(
+      context: context,
+      position: position,
+      initialValue: metronome.subdivision,
+      items: [
+        for (final s in Subdivision.values)
+          PopupMenuItem(
+            value: s,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 110,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: NoteIcon(s, height: 26),
+                  ),
+                ),
+                Flexible(
+                  child: Text(
+                    subdivisionName(l10n, s),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+    if (picked != null) metronome.setSubdivision(picked);
+  }
 }
 
 /// What fills the beat, for the menu and for screen readers.
 String subdivisionName(AppLocalizations l10n, Subdivision s) => switch (s) {
-  Subdivision.none => l10n.subdivisionQuarters,
+  Subdivision.quarters => l10n.subdivisionQuarters,
   Subdivision.eighths => l10n.subdivisionEighths,
+  Subdivision.swungEighths => l10n.subdivisionSwungEighths,
   Subdivision.triplets => l10n.subdivisionTriplets,
   Subdivision.sixteenths => l10n.subdivisionSixteenths,
+  Subdivision.swungSixteenths => l10n.subdivisionSwungSixteenths,
 };
 
 /// A chip of the − + pair that steps by one when tapped. Held, it keeps
@@ -774,17 +734,27 @@ class _TapButtonState extends State<_TapButton> {
       child: Listener(
         // On touch down, not on release: the tap lands with the hand.
         onPointerDown: (_) => tap(),
-        child: RowChip(
-          // The tap is counted by the Listener; this only shows the ripple.
-          onPressed: () {},
-          // Coloured: the one chip of the row that is a button to press.
-          filled: true,
-          label: Text(
-            'TAP',
-            style: rowChipStyle(
-              context,
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
-            )?.copyWith(letterSpacing: 1),
+        // As wide as the room it is given (half the row): the chip itself
+        // only takes the width of its label.
+        child: LayoutBuilder(
+          builder: (context, box) => RowChip(
+            // The tap is counted by the Listener; this only shows the ripple.
+            onPressed: () {},
+            // Coloured: the one chip of the row that is a button to press.
+            filled: true,
+            label: SizedBox(
+              // Less the chip's own padding and border.
+              width: math.max(0, box.maxWidth - 28),
+              child: Center(
+                child: Text(
+                  'TAP',
+                  style: rowChipStyle(
+                    context,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  )?.copyWith(letterSpacing: 1),
+                ),
+              ),
+            ),
           ),
         ),
       ),

@@ -16,12 +16,12 @@ The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens o
 
 - Tempo from 30 to 250 BPM: touch the number to type it, hold − or + to move in steps, or tap TAP.
 - Time signatures 1/1 (one click a bar), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8, with the beats grouped the way you count them.
-- A ring that lights up beat by beat (the downbeat marked) and a short, dry woodblock-like click (higher on the downbeat), with subdivisions (eighths, triplets, sixteenths) or a swing feel (a soft skip note after beats 2 and 4), and a click on 2 and 4 only. The audio engine loops a whole bar, so the time stays steady.
+- A ring that lights up beat by beat (the downbeat marked) and a short, dry woodblock-like click (higher on the downbeat), with a menu of what fills each beat (quarter notes, eighths, triplets, sixteenths, and swung eighths and sixteenths, played long-short as MuseScore plays "Swing"), and a click on 2 and 4 only. The audio engine loops a whole bar, so the time stays steady.
 
 ### Harmony
 
 - Twelve note keys round a dial: touch one to play it on a real piano, in time with the metronome, and touch it again to stop.
-- The note alone (**Root**), a major, minor or seventh **Chord**, or a **Progression** of one chord per bar: II–V–I (major and minor), I–IV–V, I–VI–IV–V and the twelve-bar blues, in the key of the note touched. The menu names each with a well-known song (Autumn Leaves, Blue Bossa, Twist and Shout, Stand by Me, Sweet Home Chicago). The piano follows the metronome's swing and shuffle.
+- The note alone (**Root**), a major, minor or seventh **Chord**, or a **Progression** of one chord per bar: II–V–I (major and minor), I–IV–V, I–VI–IV–V and the twelve-bar blues, in the key of the note touched. The menu names each with a well-known song (Autumn Leaves, Blue Bossa, Twist and Shout, Stand by Me, Sweet Home Chicago).
 - Held for the bar, struck on every beat or arpeggiated; choose the octave of the root and where the chord sits (stacked, close or without the root).
 - One **Balance** slider mixes the metronome and the harmony. The volume itself is the phone's.
 

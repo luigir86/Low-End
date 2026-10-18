@@ -6,7 +6,8 @@ import 'subdivision.dart';
 
 /// The notes that fill a beat, drawn: one quarter note, two eighths tied by
 /// a beam, three of a triplet tied by a beam under a "3", four sixteenths
-/// under two beams. Drawn, not typed, since no font has the triplet and the
+/// under two beams; the swung ones are the same notes with "Swing" beside
+/// them, as written in a score. Drawn, not typed, since no font has the triplet and the
 /// others would not sit on the same line.
 class NoteIcon extends StatelessWidget {
   const NoteIcon(this.subdivision, {super.key, this.height = 28, this.color});
@@ -19,16 +20,38 @@ class NoteIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final notes = subdivision.parts;
-    return ExcludeSemantics(
-      child: CustomPaint(
-        size: Size(notes == 1 ? height * 0.5 : notes * height * 0.4, height),
-        painter: _NotePainter(
-          notes: notes,
-          triplet: subdivision == Subdivision.triplets,
-          color: color ?? DefaultTextStyle.of(context).style.color!,
-        ),
+    final notes = subdivision.notes;
+    final ink = color ?? DefaultTextStyle.of(context).style.color!;
+    final figure = CustomPaint(
+      size: Size(notes == 1 ? height * 0.5 : notes * height * 0.4, height),
+      painter: _NotePainter(
+        notes: notes,
+        triplet: subdivision == Subdivision.triplets,
+        color: ink,
       ),
+    );
+    return ExcludeSemantics(
+      child: subdivision.swung
+          // Written straight, with the word that says how it is played.
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                figure,
+                SizedBox(width: height * 0.2),
+                Text(
+                  'Swing',
+                  maxLines: 1,
+                  style: TextStyle(
+                    color: ink,
+                    fontSize: height * 0.42,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w700,
+                    height: 1,
+                  ),
+                ),
+              ],
+            )
+          : figure,
     );
   }
 }

@@ -57,13 +57,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get droneStop => 'Ferma l\'armonia';
 
   @override
-  String get feelLabel => 'Andamento';
-
-  @override
-  String get feelStraight => 'Dritto';
-
-  @override
-  String get feelSwing => 'Swing';
+  String get subdivisionLabel => 'Suddivisione';
 
   @override
   String get progressionLabel => 'Progressione';
@@ -601,10 +595,16 @@ class AppLocalizationsIt extends AppLocalizations {
   String get subdivisionEighths => 'Crome';
 
   @override
+  String get subdivisionSwungEighths => 'Crome swing';
+
+  @override
   String get subdivisionTriplets => 'Terzine';
 
   @override
   String get subdivisionSixteenths => 'Semicrome';
+
+  @override
+  String get subdivisionSwungSixteenths => 'Semicrome swing';
 
   @override
   String get backbeatTitle => 'Click su 2 e 4';

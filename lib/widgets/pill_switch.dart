@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// The two-half pill of the first row under the dial (Chromatic / instrument
-/// on the tuner, Straight / Swing and the subdivision on the metronome):
+/// on the tuner, Root / Chord / Progression on the harmony):
 /// 40 dp high to the eye, 48 dp to touch. A half that is [leftFilled] or
 /// [rightFilled] is the chosen one. The halves are what is touched, built
 /// with [PillSwitch.half] and [PillSwitch.label].

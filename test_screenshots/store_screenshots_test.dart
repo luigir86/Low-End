@@ -95,7 +95,11 @@ void main() {
       await tester.tap(find.text(t('Metronome', 'Metronomo')).last);
       await settle();
 
-      // 1. The metronome, running.
+      // 1. The metronome, running, with swung eighths.
+      await tester.tap(find.byKey(const Key('subdivisionMenu')));
+      await settle();
+      await tester.tap(find.text(t('Swung eighth notes', 'Crome swing')));
+      await settle();
       await tester.tap(find.text(t('Tap to start', 'Tocca per avviare')));
       await settle();
       await tester.pump(const Duration(milliseconds: 600));
