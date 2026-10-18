@@ -591,6 +591,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get subdivisionQuarters => 'Quarter notes';
+
+  @override
   String get subdivisionEighths => 'Eighth notes';
 
   @override

@@ -221,19 +221,27 @@ void main() {
       return AudioScope.of(tester.element(find.byType(HomeShell))).metronome;
     }
 
-    testWidgets('the switch chooses subdivisions and swing', (tester) async {
-      final metronome = await pump(tester);
-      await tester.tap(find.text('3'));
-      await tester.pump();
-      expect(metronome.subdivision, Subdivision.triplets);
-      await tester.tap(find.text('Swing'));
-      await tester.pump();
-      expect(metronome.feel, MetronomeFeel.swing);
-      await tester.tap(find.text('♩'));
-      await tester.pump();
-      expect(metronome.feel, MetronomeFeel.straight);
-      expect(metronome.subdivision, Subdivision.none);
-    });
+    testWidgets(
+      'the switch chooses straight with a menu of subdivisions, or swing',
+      (tester) async {
+        final metronome = await pump(tester);
+        await tester.tap(find.byKey(const Key('subdivisionMenu')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Triplets'));
+        await tester.pumpAndSettle();
+        expect(metronome.subdivision, Subdivision.triplets);
+        expect(metronome.feel, MetronomeFeel.straight);
+        await tester.tap(find.text('Swing'));
+        await tester.pump();
+        expect(metronome.feel, MetronomeFeel.swing);
+        // From the swing, the menu brings back the straight feel.
+        await tester.tap(find.byKey(const Key('subdivisionMenu')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Eighth notes'));
+        await tester.pumpAndSettle();
+        expect(metronome.subdivision, Subdivision.eighths);
+      },
+    );
 
     testWidgets('the click on 2 and 4 is in the time signature list', (
       tester,

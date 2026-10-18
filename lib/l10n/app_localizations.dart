@@ -1124,6 +1124,12 @@ abstract class AppLocalizations {
   /// **'Source code: {url}'**
   String aboutSource(String url);
 
+  /// No description provided for @subdivisionQuarters.
+  ///
+  /// In en, this message translates to:
+  /// **'Quarter notes'**
+  String get subdivisionQuarters;
+
   /// No description provided for @subdivisionEighths.
   ///
   /// In en, this message translates to:

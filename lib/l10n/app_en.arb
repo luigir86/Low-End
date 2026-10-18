@@ -364,6 +364,7 @@
       }
     }
   },
+  "subdivisionQuarters": "Quarter notes",
   "subdivisionEighths": "Eighth notes",
   "subdivisionTriplets": "Triplets",
   "subdivisionSixteenths": "Sixteenth notes",
