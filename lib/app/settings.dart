@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../audio/pitch.dart';
-import '../features/metronome/feel.dart';
 import '../features/metronome/metronome_controller.dart';
 import '../features/metronome/subdivision.dart';
 import '../features/metronome/time_signature.dart';
@@ -67,12 +66,9 @@ class AppSettings extends ChangeNotifier {
       (s) => s.label == label,
       orElse: () => TimeSignature.fourFour,
     );
-    _feel =
-        MetronomeFeel.values.asNameMap()[_read<String>(prefs, _feelKey)] ??
-        MetronomeFeel.straight;
     _subdivision =
         Subdivision.values.asNameMap()[_read<String>(prefs, _subdivisionKey)] ??
-        Subdivision.none;
+        Subdivision.quarters;
     _backbeat = _read<bool>(prefs, _backbeatKey) ?? false;
     _transposition =
         Transposition.values.asNameMap()[_read<String>(
@@ -113,7 +109,6 @@ class AppSettings extends ChangeNotifier {
   static const _circleLayoutKey = 'circle_layout';
   static const _bpmKey = 'metronome_bpm';
   static const _signatureKey = 'time_signature';
-  static const _feelKey = 'metronome_feel';
   static const _subdivisionKey = 'metronome_subdivision';
   static const _backbeatKey = 'metronome_backbeat';
   static const _transpositionKey = 'tuner_transposition';
@@ -316,26 +311,23 @@ class AppSettings extends ChangeNotifier {
 
   var _bpm = MetronomeController.startBpm;
   var _signature = TimeSignature.fourFour;
-  var _feel = MetronomeFeel.straight;
-  var _subdivision = Subdivision.none;
+  var _subdivision = Subdivision.quarters;
   var _backbeat = false;
 
-  /// The tempo, time signature, feel, subdivision and click on 2 and 4 the
+  /// The tempo, time signature, subdivision and click on 2 and 4 the
   /// metronome had last time.
   int get metronomeBpm => _bpm;
   TimeSignature get metronomeSignature => _signature;
-  MetronomeFeel get metronomeFeel => _feel;
   Subdivision get metronomeSubdivision => _subdivision;
   bool get metronomeBackbeat => _backbeat;
 
-  /// Keeps the metronome's tempo, time signature, feel, subdivision and
+  /// Keeps the metronome's tempo, time signature, subdivision and
   /// click on 2 and 4 for the next launch. Nothing on screen listens to
   /// them, so nobody is told.
   void rememberMetronome({
     required int bpm,
     required TimeSignature signature,
-    required MetronomeFeel feel,
-    Subdivision subdivision = Subdivision.none,
+    Subdivision subdivision = Subdivision.quarters,
     bool backbeat = false,
   }) {
     if (subdivision != _subdivision) {
@@ -353,10 +345,6 @@ class AppSettings extends ChangeNotifier {
     if (signature != _signature) {
       _signature = signature;
       _save(_prefs?.setString(_signatureKey, signature.label));
-    }
-    if (feel != _feel) {
-      _feel = feel;
-      _save(_prefs?.setString(_feelKey, feel.name));
     }
   }
 

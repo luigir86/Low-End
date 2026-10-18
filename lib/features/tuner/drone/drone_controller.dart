@@ -7,7 +7,6 @@ import '../../../audio/piano_output.dart';
 import '../../../audio/piano_sound.dart';
 import '../../../audio/pitch.dart';
 import '../../../audio/tone_output.dart';
-import '../../metronome/feel.dart';
 import '../../metronome/time_signature.dart';
 import 'harmony.dart';
 
@@ -65,9 +64,6 @@ abstract interface class BarClock implements Listenable {
   int get bpm;
   TimeSignature get signature;
 
-  /// How the beat is felt (swing): the piano follows it.
-  MetronomeFeel get feel;
-
   Duration get barLength;
 
   /// How far into the bar it is, 0 to 1, or null when not counting.
@@ -83,9 +79,6 @@ class _FixedBar implements BarClock {
 
   @override
   TimeSignature get signature => TimeSignature.fourFour;
-
-  @override
-  MetronomeFeel get feel => MetronomeFeel.straight;
 
   @override
   void addListener(VoidCallback listener) {}
@@ -113,7 +106,6 @@ class DroneController extends ChangeNotifier {
     _clock.addListener(_onClockChanged);
     _lastBpm = _clock.bpm;
     _lastSignature = _clock.signature;
-    _lastFeel = _clock.feel;
   }
 
   final ToneOutput _output;
@@ -170,7 +162,6 @@ class DroneController extends ChangeNotifier {
   Duration _loopWaiting = Duration.zero;
   late int _lastBpm;
   late TimeSignature _lastSignature;
-  late MetronomeFeel _lastFeel;
 
   /// True when the next piano loop must start from its first chord, because
   /// what it plays has changed; false when only the tempo did, and it
@@ -551,18 +542,15 @@ class DroneController extends ChangeNotifier {
     });
   }
 
-  /// The metronome changed its tempo, its time signature or its feel: the
-  /// piano follows, carrying on from where it was for a change of tempo or
-  /// feel, from the top of the bar for another time signature.
+  /// The metronome changed its tempo, its time signature: the
+  /// piano follows, carrying on from where it was for a change of tempo,
+  /// from the top of the bar for another time signature.
   void _onClockChanged() {
     final bpm = _clock.bpm, signature = _clock.signature;
-    final feel = _clock.feel;
-    final changed =
-        bpm != _lastBpm || signature != _lastSignature || feel != _lastFeel;
+    final changed = bpm != _lastBpm || signature != _lastSignature;
     if (signature != _lastSignature) _fromTheTop = true;
     _lastBpm = bpm;
     _lastSignature = signature;
-    _lastFeel = feel;
     if (!changed || !_playing || !_patterned || _disposed) return;
     _sync();
   }
@@ -678,7 +666,6 @@ class DroneController extends ChangeNotifier {
     final chords = _pianoChords;
     final bpm = _lastBpm = _clock.bpm;
     final signature = _lastSignature = _clock.signature;
-    final feel = _lastFeel = _clock.feel;
     final started = await _piano!.play(
       chords: chords,
       // A note on its own is kept sounding, whatever the style.
@@ -690,7 +677,6 @@ class DroneController extends ChangeNotifier {
       volume: _volume,
       startAt: fromTheTop ? Duration.zero : null,
       rootless: _voicing != DroneVoicing.root && _shape == ChordShape.rootless,
-      feel: feel,
     );
     if (!_playing || _disposed) return;
     final bar = _clock.barLength;

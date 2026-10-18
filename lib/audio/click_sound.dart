@@ -1,14 +1,13 @@
 import 'dart:math' as math;
 import 'dart:typed_data';
 
-import '../features/metronome/feel.dart';
 import '../features/metronome/subdivision.dart';
 import '../features/metronome/time_signature.dart';
 
 /// The metronome click, made in code: a short, dry woodblock-like tick, the
 /// kind DAWs use, pitched in the middle so it cuts through without tiring
 /// the ear. The first beat of the bar is a little higher, to hear the "one".
-/// In the swing feel the skip note is the same tick, softer.
+/// The clicks between the beats are the same tick, softer.
 abstract final class ClickSound {
   static const sampleRate = 44100;
 
@@ -21,7 +20,7 @@ abstract final class ClickSound {
 
   static const _length = Duration(milliseconds: 60);
 
-  /// Level of the skip note of the swing, against a plain click.
+  /// Level of the clicks between the beats, against a plain click.
   static const _skipLevel = 0.45;
 
   /// One click, samples from -1 to 1.
@@ -46,7 +45,7 @@ abstract final class ClickSound {
     return 0.8 * envelope * (body / 1.4) + strike * (1 - t / 0.002);
   }
 
-  /// The skip note of the swing and the clicks of a [Subdivision]: a plain
+  /// The clicks of a [Subdivision] between the beats: a plain
   /// click, softer.
   static Float64List skip() {
     final tick = click(accent: false);
@@ -56,19 +55,17 @@ abstract final class ClickSound {
     return tick;
   }
 
-  /// One whole bar at [bpm] with [feel], a click at the start of each beat,
-  /// as a WAV file: the audio engine loops it, so the beats stay exactly in
-  /// time however busy the phone is. The swing adds the skip note two
-  /// thirds of the way through beats 2 and 4, and only applies to bars
-  /// counted in quarters; in eighths (6/8, 7/8) the bar is played straight.
-  /// So does [subdivision], the softer clicks inside each beat. With
-  /// [backbeat], in 2/4 and 4/4, the beats 1 and 3 are silent: the click
-  /// falls on 2 and 4 only.
+  /// One whole bar at [bpm], a click at the start of each beat, as a WAV
+  /// file: the audio engine loops it, so the beats stay exactly in time
+  /// however busy the phone is. [subdivision] adds the softer clicks inside
+  /// each beat, and only applies to bars counted in quarters; in eighths
+  /// (6/8, 7/8) the bar is played plain. With [backbeat], in 2/4 and 4/4,
+  /// the beats 1 and 3 are silent, with what is inside them: the clicks
+  /// fall on 2 and 4 only.
   static Uint8List bar({
     required int bpm,
     TimeSignature signature = TimeSignature.fourFour,
-    MetronomeFeel feel = MetronomeFeel.straight,
-    Subdivision subdivision = Subdivision.none,
+    Subdivision subdivision = Subdivision.quarters,
     bool backbeat = false,
   }) {
     final beats = signature.beats;
@@ -78,25 +75,24 @@ abstract final class ClickSound {
     final group = click(accent: false, hz: groupHz);
     final skipNote = skip();
     final inEighths = signature.denominator == 8;
-    final felt = inEighths ? MetronomeFeel.straight : feel;
-    final parts = inEighths ? 1 : subdivision.parts;
+    final inner = inEighths ? const <double>[] : subdivision.inner;
     final offBeats = backbeat && signature.hasBackbeat;
+    void put(int at, Float64List note) {
+      // A late note at a fast tempo stops at the end of the bar.
+      final n = math.min(note.length, samples.length - at);
+      samples.setRange(at, at + n, note);
+    }
+
     for (var b = 0; b < beats; b++) {
+      if (offBeats && b.isEven) continue;
       final tick = switch (signature.accent(b)) {
         0 => accent,
         1 => group,
         _ => plain,
       };
-      if (!(offBeats && b.isEven)) {
-        samples.setRange(b * beatLength, b * beatLength + tick.length, tick);
-      }
-      for (var p = 1; p < parts; p++) {
-        final at = b * beatLength + beatLength * p ~/ parts;
-        samples.setRange(at, at + skipNote.length, skipNote);
-      }
-      if (felt.skipsAfter(b, beats)) {
-        final at = b * beatLength + MetronomeFeel.skipAt(beatLength);
-        samples.setRange(at, at + skipNote.length, skipNote);
+      put(b * beatLength, tick);
+      for (final fraction in inner) {
+        put(b * beatLength + (beatLength * fraction).round(), skipNote);
       }
     }
     return wav(samples);

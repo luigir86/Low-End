@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:low_end/features/metronome/feel.dart';
 import 'package:low_end/features/metronome/time_signature.dart';
 import 'package:low_end/audio/pitch.dart';
 import 'package:low_end/audio/tone_output.dart';
@@ -20,9 +19,6 @@ class _Clock extends ChangeNotifier implements BarClock {
 
   @override
   TimeSignature signature = TimeSignature.fourFour;
-
-  @override
-  MetronomeFeel feel = MetronomeFeel.straight;
 }
 
 /// The frequencies sounding, each to a millionth of a hertz.

@@ -12,7 +12,6 @@ import 'package:low_end/audio/click_output.dart';
 import 'package:low_end/audio/click_sound.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
-import 'package:low_end/features/metronome/feel.dart';
 import 'package:low_end/features/metronome/metronome_controller.dart';
 import 'package:low_end/features/metronome/subdivision.dart';
 import 'package:low_end/features/metronome/time_signature.dart';
@@ -23,7 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// One bar at 60 BPM as samples from -1 to 1.
 Float64List _bar({
   TimeSignature signature = TimeSignature.fourFour,
-  Subdivision subdivision = Subdivision.none,
+  Subdivision subdivision = Subdivision.quarters,
   bool backbeat = false,
 }) {
   final wav = ClickSound.bar(
@@ -55,18 +54,13 @@ void main() {
       for (final s in Subdivision.values.skip(1)) {
         final bar = _bar(subdivision: s);
         for (var b = 0; b < 4; b++) {
-          for (var p = 1; p < s.parts; p++) {
-            final at = b * _beat + _beat * p ~/ s.parts;
+          for (final fraction in s.inner) {
+            final at = b * _beat + (_beat * fraction).round();
             final inside = _energy(bar, at);
-            expect(inside, greaterThan(0), reason: '$s beat $b part $p');
+            expect(inside, greaterThan(0), reason: '$s beat $b at $fraction');
             // Softer than the beat itself.
             expect(inside, lessThan(_energy(bar, b * _beat)));
           }
-        }
-        // Nothing between them.
-        final gap = _beat ~/ s.parts ~/ 2 + 3000;
-        if (gap + 1000 < _beat ~/ s.parts) {
-          expect(_energy(bar, gap, 1000), 0, reason: '$s');
         }
       }
       // Without a subdivision, only the beats.
@@ -88,10 +82,11 @@ void main() {
       expect(_energy(bar, _beat), greaterThan(0));
       expect(_energy(bar, 2 * _beat), 0);
       expect(_energy(bar, 3 * _beat), greaterThan(0));
-      // Subdivisions still sound inside the silent beats.
+      // What is inside them is silent too: the beats 2 and 4 are subdivided.
       final split = _bar(backbeat: true, subdivision: Subdivision.eighths);
-      expect(_energy(split, 0), 0);
-      expect(_energy(split, _beat ~/ 2), greaterThan(0));
+      expect(_energy(split, 0, _beat), 0);
+      expect(_energy(split, _beat ~/ 2), 0);
+      expect(_energy(split, _beat + _beat ~/ 2), greaterThan(0));
       // In 3/4 there is no backbeat: every beat sounds.
       final waltz = _bar(signature: TimeSignature.threeFour, backbeat: true);
       expect(_energy(waltz, 0), greaterThan(0));
@@ -106,15 +101,6 @@ void main() {
     setUp(() {
       output = SilentClickOutput();
       metronome = MetronomeController(output);
-    });
-
-    test('a subdivision ends the swing, and the swing the subdivision', () {
-      metronome.setSubdivision(Subdivision.triplets);
-      expect(metronome.subdivision, Subdivision.triplets);
-      metronome.setFeel(MetronomeFeel.swing);
-      expect(metronome.subdivision, Subdivision.none);
-      metronome.setSubdivision(Subdivision.none);
-      expect(metronome.feel, MetronomeFeel.straight);
     });
 
     test('changes are heard at once while it plays', () async {
@@ -151,7 +137,6 @@ void main() {
     first.rememberMetronome(
       bpm: 100,
       signature: TimeSignature.fourFour,
-      feel: MetronomeFeel.straight,
       subdivision: Subdivision.triplets,
       backbeat: true,
     );
@@ -164,7 +149,7 @@ void main() {
       'metronome_backbeat': 'yes',
     });
     final odd = await AppSettings.load();
-    expect(odd.metronomeSubdivision, Subdivision.none);
+    expect(odd.metronomeSubdivision, Subdivision.quarters);
     expect(odd.metronomeBackbeat, isFalse);
   });
 
@@ -187,12 +172,18 @@ void main() {
     final state = (result['state']! as Map)['metronome'] as Map;
     expect(state['subdivision'], 'sixteenths');
     expect(state['backbeat'], isTrue);
-    result = await actions.call('metronome_set', {'subdivision': 'swing'});
-    expect(metronome.feel, MetronomeFeel.swing);
+    result = await actions.call('metronome_set', {
+      'subdivision': 'swing_eighths',
+    });
+    expect(metronome.subdivision, Subdivision.swungEighths);
     expect(
       ((result['state']! as Map)['metronome'] as Map)['subdivision'],
-      'swing',
+      'swing_eighths',
     );
+    // The old name of the swing is gone.
+    result = await actions.call('metronome_set', {'subdivision': 'swing'});
+    expect(result['ok'], isFalse);
+    expect(metronome.subdivision, Subdivision.swungEighths);
     // Wrong values change nothing.
     result = await actions.call('metronome_set', {
       'bpm': 100,
@@ -221,30 +212,28 @@ void main() {
       return AudioScope.of(tester.element(find.byType(HomeShell))).metronome;
     }
 
-    testWidgets('two menus: the feel, and what fills the beat', (tester) async {
-      final metronome = await pump(tester);
-      await tester.tap(find.byKey(const Key('subdivisionMenu')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Triplets'));
-      await tester.pumpAndSettle();
-      expect(metronome.subdivision, Subdivision.triplets);
-      expect(metronome.feel, MetronomeFeel.straight);
-      await tester.tap(find.byKey(const Key('feelMenu')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Swing').last);
-      await tester.pumpAndSettle();
-      expect(metronome.feel, MetronomeFeel.swing);
-      expect(metronome.subdivision, Subdivision.none);
-      // The swing has its own skip note: the subdivisions are off.
-      await tester.tap(find.byKey(const Key('subdivisionMenu')));
-      await tester.pumpAndSettle();
-      expect(find.text('Eighth notes'), findsNothing);
-      await tester.tap(find.byKey(const Key('feelMenu')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Straight').last);
-      await tester.pumpAndSettle();
-      expect(metronome.feel, MetronomeFeel.straight);
-    });
+    testWidgets(
+      'the field beside the time signature picks what fills the beat',
+      (tester) async {
+        final metronome = await pump(tester);
+        await tester.tap(find.byKey(const Key('subdivisionMenu')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Triplets'));
+        await tester.pumpAndSettle();
+        expect(metronome.subdivision, Subdivision.triplets);
+        await tester.tap(find.byKey(const Key('subdivisionMenu')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Swung eighth notes'));
+        await tester.pumpAndSettle();
+        expect(metronome.subdivision, Subdivision.swungEighths);
+        // Off in the bars counted in eighths.
+        metronome.setSignature(TimeSignature.sixEight);
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('subdivisionMenu')));
+        await tester.pumpAndSettle();
+        expect(find.text('Triplets'), findsNothing);
+      },
+    );
 
     testWidgets('the click on 2 and 4 is in the time signature list', (
       tester,

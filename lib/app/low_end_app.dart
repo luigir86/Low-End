@@ -108,10 +108,7 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     // the fastest tempo depends on it.
     _metronome.setSignature(_settings.metronomeSignature);
     _metronome.setBpm(_settings.metronomeBpm);
-    // The subdivision first: choosing one plays straight, and the swing,
-    // when it was on, comes after.
     _metronome.setSubdivision(_settings.metronomeSubdivision);
-    _metronome.setFeel(_settings.metronomeFeel);
     _metronome.setBackbeat(_settings.metronomeBackbeat);
     _metronome.addListener(_rememberMetronome);
     // The drone opens on the piano: the chord on every beat (set before it
@@ -141,7 +138,6 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
   void _rememberMetronome() => _settings.rememberMetronome(
     bpm: _metronome.bpm,
     signature: _metronome.signature,
-    feel: _metronome.feel,
     subdivision: _metronome.subdivision,
     backbeat: _metronome.backbeat,
   );

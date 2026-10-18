@@ -188,23 +188,11 @@ abstract class AppLocalizations {
   /// **'Stop the harmony'**
   String get droneStop;
 
-  /// No description provided for @feelLabel.
+  /// No description provided for @subdivisionLabel.
   ///
   /// In en, this message translates to:
-  /// **'Feel'**
-  String get feelLabel;
-
-  /// No description provided for @feelStraight.
-  ///
-  /// In en, this message translates to:
-  /// **'Straight'**
-  String get feelStraight;
-
-  /// No description provided for @feelSwing.
-  ///
-  /// In en, this message translates to:
-  /// **'Swing'**
-  String get feelSwing;
+  /// **'Subdivision'**
+  String get subdivisionLabel;
 
   /// No description provided for @progressionLabel.
   ///
@@ -1136,6 +1124,12 @@ abstract class AppLocalizations {
   /// **'Eighth notes'**
   String get subdivisionEighths;
 
+  /// No description provided for @subdivisionSwungEighths.
+  ///
+  /// In en, this message translates to:
+  /// **'Swung eighth notes'**
+  String get subdivisionSwungEighths;
+
   /// No description provided for @subdivisionTriplets.
   ///
   /// In en, this message translates to:
@@ -1147,6 +1141,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sixteenth notes'**
   String get subdivisionSixteenths;
+
+  /// No description provided for @subdivisionSwungSixteenths.
+  ///
+  /// In en, this message translates to:
+  /// **'Swung sixteenth notes'**
+  String get subdivisionSwungSixteenths;
 
   /// No description provided for @backbeatTitle.
   ///

@@ -7,7 +7,6 @@ import 'package:low_end/audio/audio_scope.dart';
 import 'package:low_end/audio/click_output.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
-import 'package:low_end/features/metronome/feel.dart';
 import 'package:low_end/features/metronome/time_signature.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,31 +29,24 @@ Future<AudioScope> _pump(WidgetTester tester, AppSettings settings) async {
 
 void main() {
   group('the metronome comes back as it was left', () {
-    test('tempo, time signature and feel are saved and loaded', () async {
+    test('tempo and time signature are saved and loaded', () async {
       SharedPreferences.setMockInitialValues({});
       final first = await AppSettings.load();
-      first.rememberMetronome(
-        bpm: 132,
-        signature: TimeSignature.sixEight,
-        feel: MetronomeFeel.swing,
-      );
+      first.rememberMetronome(bpm: 132, signature: TimeSignature.sixEight);
       // Written by the time the next launch reads them.
       await Future<void>.delayed(Duration.zero);
       final second = await AppSettings.load();
       expect(second.metronomeBpm, 132);
       expect(second.metronomeSignature, TimeSignature.sixEight);
-      expect(second.metronomeFeel, MetronomeFeel.swing);
     });
 
     test('unreadable values fall back, and the tempo stays in range', () async {
       SharedPreferences.setMockInitialValues({
         'metronome_bpm': 9999,
         'time_signature': '13/16',
-        'metronome_feel': 'polka',
       });
       final s = await AppSettings.load();
       expect(s.metronomeSignature, TimeSignature.fourFour);
-      expect(s.metronomeFeel, MetronomeFeel.straight);
       expect(s.metronomeBpm, 250);
       SharedPreferences.setMockInitialValues({'metronome_bpm': 'fast'});
       expect((await AppSettings.load()).metronomeBpm, 80);
@@ -66,13 +58,11 @@ void main() {
       SharedPreferences.setMockInitialValues({
         'metronome_bpm': 96,
         'time_signature': '3/4',
-        'metronome_feel': 'swing',
       });
       final settings = await AppSettings.load();
       final scope = await _pump(tester, settings);
       expect(scope.metronome.bpm, 96);
       expect(scope.metronome.signature, TimeSignature.threeFour);
-      expect(scope.metronome.feel, MetronomeFeel.swing);
       expect(find.text('96'), findsOneWidget);
 
       scope.metronome.setBpm(140);

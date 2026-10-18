@@ -3,7 +3,6 @@ import 'dart:convert';
 import '../app/app_navigation.dart';
 import '../app/settings.dart';
 import '../audio/pitch.dart';
-import '../features/metronome/feel.dart';
 import '../features/metronome/metronome_controller.dart';
 import '../features/metronome/subdivision.dart';
 import '../features/tuner/drone/drone_controller.dart';
@@ -211,11 +210,21 @@ class AppActions {
     },
     'subdivision': {
       'type': 'string',
-      'enum': ['none', 'eighths', 'triplets', 'sixteenths', 'swing'],
+      'enum': [
+        'quarters',
+        'eighths',
+        'swing_eighths',
+        'triplets',
+        'sixteenths',
+        'swing_sixteenths',
+      ],
       'description':
-          'Softer clicks inside each beat (two, three or four to a beat), '
-          'none, or the swing (a skip note after beats 2 and 4). Only heard '
-          'in bars counted in quarter notes.',
+          'What fills each beat, with softer clicks: quarters (the beat '
+          'alone), eighths, swing_eighths, triplets, sixteenths or '
+          'swing_sixteenths. The swung ones are written straight and played '
+          'long-short, as MuseScore plays "Swing" (the second note at 60% of '
+          'the pair). With the click on 2 and 4, only beats 2 and 4 are '
+          'subdivided. Only heard in bars counted in quarter notes.',
     },
     'backbeat': {
       'type': 'boolean',
@@ -368,8 +377,12 @@ class AppActions {
     final bpm = _bpm(args);
     final subdivision = switch (args['subdivision']) {
       null => null,
-      'swing' => 'swing',
-      final Object name => _enum(Subdivision.values, name),
+      final Object name =>
+        Subdivision.values.where((s) => s.id == name).firstOrNull ??
+            (throw ActionError(
+              '"$name" must be one of '
+              '${Subdivision.values.map((s) => s.id).join(', ')}.',
+            )),
     };
     final backbeat = switch (args['backbeat']) {
       null => null,
@@ -378,12 +391,7 @@ class AppActions {
     };
     return () {
       if (bpm != null) metronome.setBpm(bpm);
-      switch (subdivision) {
-        case 'swing':
-          metronome.setFeel(MetronomeFeel.swing);
-        case final Subdivision s:
-          metronome.setSubdivision(s);
-      }
+      if (subdivision != null) metronome.setSubdivision(subdivision);
       if (backbeat != null) metronome.setBackbeat(backbeat);
     };
   }
@@ -473,9 +481,7 @@ class AppActions {
         'playing': metronome.isPlaying,
         'bpm': metronome.bpm,
         'time_signature': metronome.signature.label,
-        'subdivision': metronome.feel == MetronomeFeel.swing
-            ? 'swing'
-            : metronome.subdivision.name,
+        'subdivision': metronome.subdivision.id,
         'backbeat': metronome.backbeat,
       },
     };

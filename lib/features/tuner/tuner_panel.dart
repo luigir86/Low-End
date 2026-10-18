@@ -105,8 +105,8 @@ class _TunerPanelState extends State<TunerPanel> {
             transposition: transposition,
             onToggle: _tuner.toggle,
           ),
-          // Chromatic or an instrument, in the place of Straight / Swing and
-          // Root / Chord / Progression on the other tabs.
+          // Chromatic or an instrument, in the place of the harmony's
+          // Root / Chord / Progression.
           upper: _TuningSwitch(settings: settings),
           // Listening starts and stops from the middle of the dial, like the
           // other two tabs; the row below is the reference A, in the same
@@ -173,7 +173,7 @@ String _tuningName(AppLocalizations l10n, TunerTuning tuning) =>
     };
 
 /// Chromatic, or the strings of an instrument chosen from a menu, in the
-/// first row under the dial, drawn like the Straight / Swing and Root /
+/// first row under the dial, drawn like the harmony's Root /
 /// Chord / Progression switches of the other tabs: 40 dp high to the eye,
 /// with 48 dp to touch. With strings, the tuner names the nearest open
 /// string, its number, and says how far off it is. The last instrument

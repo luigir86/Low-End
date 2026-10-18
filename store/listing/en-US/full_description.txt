@@ -3,7 +3,7 @@ Low End is a practice companion for musicians: a metronome, a piano harmony sect
 METRONOME
 • Tempo from 30 to 250 BPM: type it with the pencil, hold − or + to run through it, or use TAP.
 • Time signatures 1/1, 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8, with the beats grouped the way you count them.
-• A ring that lights up beat by beat, with the downbeat marked, and a short, dry click that stays steady. Subdivisions (eighths, triplets, sixteenths), swing, or a click on 2 and 4 only. The piano follows the swing too.
+• A ring that lights up beat by beat, with the downbeat marked, and a short, dry click that stays steady. A menu of what fills each beat (quarters, eighths, triplets, sixteenths, and swung eighths and sixteenths, as MuseScore plays "Swing"), or a click on 2 and 4 only.
 
 HARMONY
 • Twelve keys on a dial: touch a note and it plays on a real piano, in time with the metronome.
