@@ -149,4 +149,12 @@ class _Handler extends BaseAudioHandler {
 
   @override
   Future<void> stop() async => _commands.add(MediaCommand.stop);
+
+  /// The user swiped the app away from the recent apps: the sound ends with
+  /// it, the notification is only for an app that is still open.
+  @override
+  Future<void> onTaskRemoved() async {
+    _commands.add(MediaCommand.stop);
+    await super.stop();
+  }
 }
