@@ -899,7 +899,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideTempo.
   ///
   /// In en, this message translates to:
-  /// **'Tap the number to type the tempo. Hold − or + to move in steps of 5 and 10.'**
+  /// **'Touch the pencil to type the tempo. Hold − or + and the tempo runs, faster and faster.'**
   String get guideTempo;
 
   /// No description provided for @guideSwipe.
@@ -1123,6 +1123,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Source code: {url}'**
   String aboutSource(String url);
+
+  /// No description provided for @subdivisionEighths.
+  ///
+  /// In en, this message translates to:
+  /// **'Eighth notes'**
+  String get subdivisionEighths;
+
+  /// No description provided for @subdivisionTriplets.
+  ///
+  /// In en, this message translates to:
+  /// **'Triplets'**
+  String get subdivisionTriplets;
+
+  /// No description provided for @subdivisionSixteenths.
+  ///
+  /// In en, this message translates to:
+  /// **'Sixteenth notes'**
+  String get subdivisionSixteenths;
+
+  /// No description provided for @backbeatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Click on 2 and 4'**
+  String get backbeatTitle;
+
+  /// No description provided for @backbeatSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Beats 1 and 3 stay silent, as on a jazz hi-hat. In 2/4 and 4/4.'**
+  String get backbeatSubtitle;
+
+  /// No description provided for @backbeatShort.
+  ///
+  /// In en, this message translates to:
+  /// **'2 & 4'**
+  String get backbeatShort;
+
+  /// No description provided for @transpositionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuner: transposing instrument'**
+  String get transpositionTitle;
+
+  /// No description provided for @transpositionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'For B♭, E♭ and F instruments, the chromatic tuner names the written note'**
+  String get transpositionSubtitle;
+
+  /// No description provided for @transpositionConcert.
+  ///
+  /// In en, this message translates to:
+  /// **'Concert pitch'**
+  String get transpositionConcert;
+
+  /// The key of a transposing instrument, such as B♭: the tuner then names its written notes.
+  ///
+  /// In en, this message translates to:
+  /// **'in {key}'**
+  String transpositionKey(String key);
 }
 
 class _AppLocalizationsDelegate

@@ -3,7 +3,9 @@ import 'dart:convert';
 import '../app/app_navigation.dart';
 import '../app/settings.dart';
 import '../audio/pitch.dart';
+import '../features/metronome/feel.dart';
 import '../features/metronome/metronome_controller.dart';
+import '../features/metronome/subdivision.dart';
 import '../features/tuner/drone/drone_controller.dart';
 import '../features/tuner/drone/harmony.dart';
 import '../features/tuner/tuner_controller.dart';
@@ -86,8 +88,9 @@ class AppActions {
           'Returns what the app is doing now: the section on screen, the '
           'tuner (listening, last note heard and how many cents off), '
           'the drone (playing, note, root or chord), the metronome (playing, '
-          'tempo) and the settings '
-          '(reference A, language, note names). Loudness follows the '
+          'tempo, subdivision, click on 2 and 4) and the settings '
+          '(reference A, language, note names, transposition). Loudness '
+          'follows the '
           "phone's media volume.",
     ),
     const AppAction(
@@ -136,9 +139,10 @@ class AppActions {
     ),
     const AppAction(
       name: 'metronome_set',
-      description: 'Changes the tempo without starting or stopping it.',
+      description:
+          'Changes the tempo, what sounds inside each beat or the click on 2 '
+          'and 4, without starting or stopping it. Give at least one.',
       parameters: _metronomeParameters,
-      required: ['bpm'],
     ),
     const AppAction(
       name: 'drone_set',
@@ -165,8 +169,17 @@ class AppActions {
       name: 'settings_set',
       description:
           'Changes and saves the app settings: the language of the app and '
-          'how note names are written.',
+          'how note names are written, and the key of a transposing '
+          'instrument for the chromatic tuner.',
       parameters: {
+        'transposition': {
+          'type': 'string',
+          'enum': ['c', 'bFlat', 'eFlat', 'f'],
+          'description':
+              'The chromatic tuner names the written note of an instrument '
+              'in this key (B♭ clarinet or trumpet, E♭ alto sax, F horn); '
+              '"c" names notes as they sound.',
+        },
         'language': {
           'type': 'string',
           'enum': ['system', 'en', 'it'],
@@ -195,6 +208,20 @@ class AppActions {
           '6/8, 9/8 and 12/8, eighth notes in 7/8. At most '
           '${MetronomeController.maxBpm}, or '
           '${MetronomeController.maxEighthBpm} in 7/8.',
+    },
+    'subdivision': {
+      'type': 'string',
+      'enum': ['none', 'eighths', 'triplets', 'sixteenths', 'swing'],
+      'description':
+          'Softer clicks inside each beat (two, three or four to a beat), '
+          'none, or the swing (a skip note after beats 2 and 4). Only heard '
+          'in bars counted in quarter notes.',
+    },
+    'backbeat': {
+      'type': 'boolean',
+      'description':
+          'Clicks on beats 2 and 4 only, beats 1 and 3 silent, as a jazz '
+          'hi-hat. Only heard in 2/4 and 4/4.',
     },
   };
 
@@ -291,14 +318,19 @@ class AppActions {
         change();
         if (!drone.isPlaying) await drone.start();
       case 'metronome_start':
-        final bpm = _bpm(args);
+        final change = _metronomeChange(args);
         navigation.open(AppSection.metronome);
-        if (bpm != null) metronome.setBpm(bpm);
+        change();
         await metronome.start();
       case 'metronome_stop':
         await metronome.stop();
       case 'metronome_set':
-        metronome.setBpm(_bpm(args)!);
+        if (args.values.every((v) => v == null)) {
+          throw ActionError(
+            '"metronome_set" needs "bpm", "subdivision" or "backbeat".',
+          );
+        }
+        _metronomeChange(args)();
       case 'drone_stop':
         await drone.stop();
       case 'drone_set':
@@ -321,9 +353,39 @@ class AppActions {
         final naming = args['note_names'] == null
             ? null
             : _enum(NoteNaming.values, args['note_names']);
+        final transposition = args['transposition'] == null
+            ? null
+            : _enum(Transposition.values, args['transposition']);
         if (language != null) settings.setLanguage(code);
         if (naming != null) settings.setNaming(naming);
+        if (transposition != null) settings.setTransposition(transposition);
     }
+  }
+
+  /// Checks the metronome arguments and returns the change they ask for,
+  /// to be made only once all of them are known to be good.
+  void Function() _metronomeChange(Map<String, Object?> args) {
+    final bpm = _bpm(args);
+    final subdivision = switch (args['subdivision']) {
+      null => null,
+      'swing' => 'swing',
+      final Object name => _enum(Subdivision.values, name),
+    };
+    final backbeat = switch (args['backbeat']) {
+      null => null,
+      final bool b => b,
+      _ => throw ActionError('"backbeat" must be true or false.'),
+    };
+    return () {
+      if (bpm != null) metronome.setBpm(bpm);
+      switch (subdivision) {
+        case 'swing':
+          metronome.setFeel(MetronomeFeel.swing);
+        case final Subdivision s:
+          metronome.setSubdivision(s);
+      }
+      if (backbeat != null) metronome.setBackbeat(backbeat);
+    };
   }
 
   /// Checks the drone arguments and returns the change they ask for, to be
@@ -374,6 +436,7 @@ class AppActions {
         'reference_pitch_hz': settings.a4,
         'language': settings.languageCode ?? 'system',
         'note_names': settings.naming.name,
+        'transposition': settings.transposition.name,
       },
       'tuner': {
         'status': tuner.status.name,
@@ -382,6 +445,11 @@ class AppActions {
             : {
                 'target': noteId(reading.target),
                 'played': noteId(reading.played),
+                // What a transposing instrument reads, in the chromatic
+                // tuner (see settings.transposition).
+                'written': noteId(
+                  settings.transposition.written(reading.target),
+                ),
                 'frequency_hz': _round(reading.frequency),
                 'cents': _round(reading.cents),
                 'in_tune': reading.inTune,
@@ -401,7 +469,15 @@ class AppActions {
             : null,
         'audio_failed': drone.audioFailed,
       },
-      'metronome': {'playing': metronome.isPlaying, 'bpm': metronome.bpm},
+      'metronome': {
+        'playing': metronome.isPlaying,
+        'bpm': metronome.bpm,
+        'time_signature': metronome.signature.label,
+        'subdivision': metronome.feel == MetronomeFeel.swing
+            ? 'swing'
+            : metronome.subdivision.name,
+        'backbeat': metronome.backbeat,
+      },
     };
   }
 

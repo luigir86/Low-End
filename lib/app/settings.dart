@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../audio/pitch.dart';
 import '../features/metronome/feel.dart';
 import '../features/metronome/metronome_controller.dart';
+import '../features/metronome/subdivision.dart';
 import '../features/metronome/time_signature.dart';
 import '../features/tuner/tuner_tuning.dart';
 
@@ -69,6 +70,16 @@ class AppSettings extends ChangeNotifier {
     _feel =
         MetronomeFeel.values.asNameMap()[_read<String>(prefs, _feelKey)] ??
         MetronomeFeel.straight;
+    _subdivision =
+        Subdivision.values.asNameMap()[_read<String>(prefs, _subdivisionKey)] ??
+        Subdivision.none;
+    _backbeat = _read<bool>(prefs, _backbeatKey) ?? false;
+    _transposition =
+        Transposition.values.asNameMap()[_read<String>(
+          prefs,
+          _transpositionKey,
+        )] ??
+        Transposition.c;
     final bpm = _read<num>(prefs, _bpmKey);
     _bpm = bpm != null && bpm.isFinite
         ? bpm.round().clamp(
@@ -103,6 +114,9 @@ class AppSettings extends ChangeNotifier {
   static const _bpmKey = 'metronome_bpm';
   static const _signatureKey = 'time_signature';
   static const _feelKey = 'metronome_feel';
+  static const _subdivisionKey = 'metronome_subdivision';
+  static const _backbeatKey = 'metronome_backbeat';
+  static const _transpositionKey = 'tuner_transposition';
 
   final SharedPreferences? _prefs;
   String? _languageCode;
@@ -202,6 +216,20 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
   }
 
+  var _transposition = Transposition.c;
+
+  /// The key of the instrument the tuner names notes for: concert pitch, or
+  /// the written notes of a B♭, E♭ or F instrument. Only the chromatic tuner
+  /// uses it: the strings of the instruments in the menu sound as written.
+  Transposition get transposition => _transposition;
+
+  void setTransposition(Transposition transposition) {
+    if (transposition == _transposition) return;
+    _transposition = transposition;
+    _save(_prefs?.setString(_transpositionKey, transposition.name));
+    notifyListeners();
+  }
+
   void setReferencePitch(double hz) {
     assert(isReferencePitch(hz));
     _a4 = hz;
@@ -289,19 +317,35 @@ class AppSettings extends ChangeNotifier {
   var _bpm = MetronomeController.startBpm;
   var _signature = TimeSignature.fourFour;
   var _feel = MetronomeFeel.straight;
+  var _subdivision = Subdivision.none;
+  var _backbeat = false;
 
-  /// The tempo, time signature and feel the metronome had last time.
+  /// The tempo, time signature, feel, subdivision and click on 2 and 4 the
+  /// metronome had last time.
   int get metronomeBpm => _bpm;
   TimeSignature get metronomeSignature => _signature;
   MetronomeFeel get metronomeFeel => _feel;
+  Subdivision get metronomeSubdivision => _subdivision;
+  bool get metronomeBackbeat => _backbeat;
 
-  /// Keeps the metronome's tempo, time signature and feel for the next
-  /// launch. Nothing on screen listens to them, so nobody is told.
+  /// Keeps the metronome's tempo, time signature, feel, subdivision and
+  /// click on 2 and 4 for the next launch. Nothing on screen listens to
+  /// them, so nobody is told.
   void rememberMetronome({
     required int bpm,
     required TimeSignature signature,
     required MetronomeFeel feel,
+    Subdivision subdivision = Subdivision.none,
+    bool backbeat = false,
   }) {
+    if (subdivision != _subdivision) {
+      _subdivision = subdivision;
+      _save(_prefs?.setString(_subdivisionKey, subdivision.name));
+    }
+    if (backbeat != _backbeat) {
+      _backbeat = backbeat;
+      _save(_prefs?.setBool(_backbeatKey, backbeat));
+    }
     if (bpm != _bpm) {
       _bpm = bpm;
       _save(_prefs?.setInt(_bpmKey, bpm));

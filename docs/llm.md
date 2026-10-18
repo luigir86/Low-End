@@ -18,10 +18,10 @@ The section the app shows as **Harmony** (Armonia) keeps its original action nam
 | `drone_stop` | Stops the drone |
 | `metronome_start` | Opens the metronome and starts it in 4/4, optionally at `bpm` (30–250) |
 | `metronome_stop` | Stops the metronome |
-| `metronome_set` | Sets the tempo, `bpm`, without starting or stopping it |
+| `metronome_set` | Sets the tempo (`bpm`), the `subdivision` (`none`, `eighths`, `triplets`, `sixteenths`, `swing`) or the click on 2 and 4 (`backbeat`), without starting or stopping it |
 | `drone_set` | Changes the drone settings without starting or stopping it |
 | `set_reference_pitch` | A4: a whole number of hertz from 415 to 445, saved in the settings |
-| `settings_set` | App `language` (`system`, `en`, `it`) and `note_names` (`auto`, `solfege`, `letters`) |
+| `settings_set` | App `language` (`system`, `en`, `it`), `note_names` (`auto`, `solfege`, `letters`) and the `transposition` of the chromatic tuner (`c`, `bFlat`, `eFlat`, `f`) |
 
 Every answer is `{"ok": true, "state": {...}}` or `{"ok": false, "error": "..."}`, with an error message an assistant can read and fix.
 

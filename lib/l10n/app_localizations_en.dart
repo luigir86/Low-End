@@ -457,7 +457,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideTempo =>
-      'Tap the number to type the tempo. Hold − or + to move in steps of 5 and 10.';
+      'Touch the pencil to type the tempo. Hold − or + and the tempo runs, faster and faster.';
 
   @override
   String get guideSwipe => 'Swipe left and right to change section.';
@@ -588,5 +588,39 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String aboutSource(String url) {
     return 'Source code: $url';
+  }
+
+  @override
+  String get subdivisionEighths => 'Eighth notes';
+
+  @override
+  String get subdivisionTriplets => 'Triplets';
+
+  @override
+  String get subdivisionSixteenths => 'Sixteenth notes';
+
+  @override
+  String get backbeatTitle => 'Click on 2 and 4';
+
+  @override
+  String get backbeatSubtitle =>
+      'Beats 1 and 3 stay silent, as on a jazz hi-hat. In 2/4 and 4/4.';
+
+  @override
+  String get backbeatShort => '2 & 4';
+
+  @override
+  String get transpositionTitle => 'Tuner: transposing instrument';
+
+  @override
+  String get transpositionSubtitle =>
+      'For B♭, E♭ and F instruments, the chromatic tuner names the written note';
+
+  @override
+  String get transpositionConcert => 'Concert pitch';
+
+  @override
+  String transpositionKey(String key) {
+    return 'in $key';
   }
 }

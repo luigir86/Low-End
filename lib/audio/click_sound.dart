@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import '../features/metronome/feel.dart';
+import '../features/metronome/subdivision.dart';
 import '../features/metronome/time_signature.dart';
 
 /// The metronome click, made in code: a short, dry woodblock-like tick, the
@@ -45,7 +46,8 @@ abstract final class ClickSound {
     return 0.8 * envelope * (body / 1.4) + strike * (1 - t / 0.002);
   }
 
-  /// The skip note of the swing: a plain click, softer.
+  /// The skip note of the swing and the clicks of a [Subdivision]: a plain
+  /// click, softer.
   static Float64List skip() {
     final tick = click(accent: false);
     for (var i = 0; i < tick.length; i++) {
@@ -59,10 +61,15 @@ abstract final class ClickSound {
   /// time however busy the phone is. The swing adds the skip note two
   /// thirds of the way through beats 2 and 4, and only applies to bars
   /// counted in quarters; in eighths (6/8, 7/8) the bar is played straight.
+  /// So does [subdivision], the softer clicks inside each beat. With
+  /// [backbeat], in 2/4 and 4/4, the beats 1 and 3 are silent: the click
+  /// falls on 2 and 4 only.
   static Uint8List bar({
     required int bpm,
     TimeSignature signature = TimeSignature.fourFour,
     MetronomeFeel feel = MetronomeFeel.straight,
+    Subdivision subdivision = Subdivision.none,
+    bool backbeat = false,
   }) {
     final beats = signature.beats;
     final beatLength = (sampleRate * 60 / bpm).round();
@@ -70,14 +77,23 @@ abstract final class ClickSound {
     final plain = click(accent: false), accent = click(accent: true);
     final group = click(accent: false, hz: groupHz);
     final skipNote = skip();
-    final felt = signature.denominator == 8 ? MetronomeFeel.straight : feel;
+    final inEighths = signature.denominator == 8;
+    final felt = inEighths ? MetronomeFeel.straight : feel;
+    final parts = inEighths ? 1 : subdivision.parts;
+    final offBeats = backbeat && signature.hasBackbeat;
     for (var b = 0; b < beats; b++) {
       final tick = switch (signature.accent(b)) {
         0 => accent,
         1 => group,
         _ => plain,
       };
-      samples.setRange(b * beatLength, b * beatLength + tick.length, tick);
+      if (!(offBeats && b.isEven)) {
+        samples.setRange(b * beatLength, b * beatLength + tick.length, tick);
+      }
+      for (var p = 1; p < parts; p++) {
+        final at = b * beatLength + beatLength * p ~/ parts;
+        samples.setRange(at, at + skipNote.length, skipNote);
+      }
       if (felt.skipsAfter(b, beats)) {
         final at = b * beatLength + MetronomeFeel.skipAt(beatLength);
         samples.setRange(at, at + skipNote.length, skipNote);

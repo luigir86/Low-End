@@ -94,8 +94,14 @@ void main() {
     semantics.dispose();
     expect(find.text('4/4'), findsOneWidget);
     expect(find.text('TAP'), findsOneWidget);
-    expect(find.byTooltip('Faster'), findsOneWidget);
-    expect(find.byTooltip('Slower'), findsOneWidget);
+    // − and + have no tooltip, which a hold would open: holding them runs
+    // the tempo. A screen reader still names them.
+    expect(find.byTooltip('Faster'), findsNothing);
+    expect(find.byTooltip('Slower'), findsNothing);
+    final names = tester.ensureSemantics();
+    expect(find.bySemanticsLabel('Faster'), findsOneWidget);
+    expect(find.bySemanticsLabel('Slower'), findsOneWidget);
+    names.dispose();
     expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
     expect(scope.metronome.bpm, 80);
   });

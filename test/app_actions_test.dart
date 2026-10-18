@@ -84,6 +84,7 @@ void main() {
       'reference_pitch_hz': 438.0,
       'language': 'it',
       'note_names': 'letters',
+      'transposition': 'c',
     });
     expect(settings.a4, 438);
     await actions.call('settings_set', {'language': 'system'});

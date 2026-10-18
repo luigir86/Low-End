@@ -435,9 +435,11 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byTooltip('Faster'));
-      await tester.tap(find.byTooltip('Faster'));
-      await tester.tap(find.byTooltip('Slower'));
+      final faster = find.widgetWithIcon(ActionChip, Icons.add);
+      final slower = find.widgetWithIcon(ActionChip, Icons.remove);
+      await tester.tap(faster);
+      await tester.tap(faster);
+      await tester.tap(slower);
       await tester.pump();
       expect(find.text('81'), findsOneWidget);
 

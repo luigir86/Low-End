@@ -147,7 +147,13 @@ void main() {
       final s = _state(r);
       expect((s['tuner']! as Map)['reading'], isNull);
       expect((s['drone']! as Map)['frequency_hz'], 440.0);
-      expect(s['metronome'], {'playing': false, 'bpm': 80});
+      expect(s['metronome'], {
+        'playing': false,
+        'bpm': 80,
+        'time_signature': '4/4',
+        'subdivision': 'none',
+        'backbeat': false,
+      });
     });
   });
 

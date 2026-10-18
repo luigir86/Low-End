@@ -4,6 +4,7 @@ import '../../audio/click_output.dart';
 import '../../audio/click_sound.dart';
 import '../tuner/drone/drone_controller.dart';
 import 'feel.dart';
+import 'subdivision.dart';
 import 'time_signature.dart';
 
 /// State and playback of the metronome.
@@ -40,6 +41,8 @@ class MetronomeController extends ChangeNotifier implements BarClock {
   int _bpm = startBpm;
   TimeSignature _signature = TimeSignature.fourFour;
   MetronomeFeel _feel = MetronomeFeel.straight;
+  Subdivision _subdivision = Subdivision.none;
+  bool _backbeat = false;
   double _level = 1;
   bool _playing = false;
   bool _audioFailed = false;
@@ -73,8 +76,23 @@ class MetronomeController extends ChangeNotifier implements BarClock {
   @override
   MetronomeFeel get feel => _feel;
 
-  /// True when [feel] changes the sound: not in the bars counted in eighths.
+  /// The softer clicks inside each beat (only in bars counted in quarters,
+  /// and never with the swing, which has its own).
+  Subdivision get subdivision => _subdivision;
+
+  /// True when the click falls on 2 and 4 only (see [backbeatApplies]).
+  bool get backbeat => _backbeat;
+
+  /// True when [backbeat] changes the sound: in 2/4 and 4/4.
+  bool get backbeatApplies => _signature.hasBackbeat;
+
+  /// True when [feel] and [subdivision] change the sound: not in the bars
+  /// counted in eighths.
   bool get feelApplies => _signature.denominator != 8;
+
+  /// True when pulse [beat] of the bar is silent: 1 and 3 when the click
+  /// falls on 2 and 4.
+  bool isSilent(int beat) => _backbeat && backbeatApplies && beat.isEven;
 
   /// Pulses (segments of the ring, clicks) in a bar.
   int get beatsPerBar => _signature.beats;
@@ -192,10 +210,31 @@ class MetronomeController extends ChangeNotifier implements BarClock {
   }
 
   /// Sets how the beat is felt. While playing, the bar carries on from where
-  /// it was, with the new pattern.
+  /// it was, with the new pattern. The swing brings its own skip note, so it
+  /// leaves no [subdivision].
   void setFeel(MetronomeFeel feel) {
     if (feel == _feel) return;
     _feel = feel;
+    if (feel == MetronomeFeel.swing) _subdivision = Subdivision.none;
+    _notify();
+    if (_playing) _sync();
+  }
+
+  /// Sets the softer clicks inside each beat. A subdivision is played
+  /// straight, so it ends the swing; [Subdivision.none] is the beat alone.
+  void setSubdivision(Subdivision subdivision) {
+    if (subdivision == _subdivision && _feel == MetronomeFeel.straight) return;
+    _subdivision = subdivision;
+    _feel = MetronomeFeel.straight;
+    _notify();
+    if (_playing) _sync();
+  }
+
+  /// Puts the click on 2 and 4 only, or back on every beat. It is kept when
+  /// the time signature changes, and heard again in 2/4 and 4/4.
+  void setBackbeat(bool backbeat) {
+    if (backbeat == _backbeat) return;
+    _backbeat = backbeat;
     _notify();
     if (_playing) _sync();
   }
@@ -263,7 +302,13 @@ class MetronomeController extends ChangeNotifier implements BarClock {
       final fresh = _fresh;
       _fresh = false;
       final started = await _output.play(
-        ClickSound.bar(bpm: pulseBpm, signature: _signature, feel: _feel),
+        ClickSound.bar(
+          bpm: pulseBpm,
+          signature: _signature,
+          feel: _feel,
+          subdivision: _subdivision,
+          backbeat: _backbeat,
+        ),
         startAt: fresh ? Duration.zero : null,
       );
       // The sound starts now (or on the piano's next bar line): line the

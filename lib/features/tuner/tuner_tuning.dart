@@ -1,4 +1,5 @@
 import '../../audio/pitch.dart';
+import '../../audio/pitch_detector.dart';
 
 /// What the tuner compares a note with: any note of the scale (chromatic),
 /// or the open strings of an instrument, the nearest of them being the one
@@ -79,6 +80,13 @@ enum TunerTuning {
   final List<int> extraNumbers;
 
   bool get isChromatic => strings.isEmpty;
+
+  /// The highest note the tuner listens for: a bass keeps to its own range,
+  /// where a voice or a whistle would only get in the way; every other
+  /// choice reaches the top of the violin and of the flute.
+  double get highestHz => this == bass
+      ? PitchDetector.bassMaxFrequency
+      : PitchDetector.maxHighFrequency;
 
   /// The instruments, in the order of the menu.
   static const instruments = <TunerTuning>[

@@ -1,9 +1,9 @@
 Low End è un compagno di studio per musicisti: un metronomo, una sezione di armonia al pianoforte e un accordatore in un'unica app leggera. Realizzata da un contrabbassista amatoriale pensando agli amici dell'orchestra, è utile a tutti. È gratuita, senza pubblicità, non richiede un account e funziona del tutto offline.
 
 METRONOMO
-• Tempo da 30 a 250 BPM: tocca il numero per scriverlo, tieni premuto − o + per muoverti a scatti, oppure usa TAP.
+• Tempo da 30 a 250 BPM: scrivilo con la matita, tieni premuto − o + per farlo scorrere, oppure usa TAP.
 • Tempi 1/1, 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 e 12/8, con i movimenti raggruppati come si contano.
-• Un anello che si accende movimento per movimento, con il primo tempo in evidenza, e un click breve e secco sempre stabile, dritto o swing. Anche il pianoforte segue lo swing.
+• Un anello che si accende movimento per movimento, con il primo tempo in evidenza, e un click breve e secco sempre stabile. Suddivisioni (crome, terzine, semicrome), swing, oppure click solo su 2 e 4. Anche il pianoforte segue lo swing.
 
 ARMONIA
 • Dodici tasti su un quadrante: tocca una nota e suona su un vero pianoforte, a tempo con il metronomo.
@@ -13,7 +13,8 @@ ARMONIA
 
 ACCORDATORE
 • Cromatico, con uno strobo rotondo e la nota al centro: suona una nota qualsiasi e compare, senza dover scegliere prima la corda.
-• Sente note gravi e acute, da 28 a 700 Hz (dal Si basso di un basso a cinque corde alle note alte di un violino).
+• Sente note gravi e acute, da 28 a 2800 Hz (dal Si basso di un basso a cinque corde al limite acuto di violino e flauto).
+• Per gli strumenti in Si♭, Mi♭ e Fa può mostrare la nota scritta.
 • La di riferimento: 415, 430, 432 o da 438 a 445 Hz. Il suono è analizzato sul telefono e non viene mai registrato.
 
 PENSATA PER SUONARE

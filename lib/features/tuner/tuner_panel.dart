@@ -87,6 +87,11 @@ class _TunerPanelState extends State<TunerPanel> {
                 tuning: settings.tuning,
               );
         final message = _statusMessage(l10n);
+        // A transposing instrument reads its own notes; the strings of the
+        // instruments in the menu sound as written.
+        final transposition = settings.tuning.isChromatic
+            ? settings.transposition
+            : Transposition.c;
         return DialLayout(
           dial: _StrobeDisc(
             reading: reading,
@@ -96,6 +101,7 @@ class _TunerPanelState extends State<TunerPanel> {
             soundPlaying: scope.drone.isPlaying || scope.metronome.isPlaying,
             names: names,
             numbering: settings.octaveNumbering,
+            transposition: transposition,
             onToggle: _tuner.toggle,
           ),
           // Chromatic or an instrument, in the place of Straight / Swing and
@@ -249,7 +255,13 @@ class _TuningSwitch extends StatelessWidget {
                           onTap: () => settings.setTunerChromatic(true),
                           child: label(
                             chromatic,
-                            Text(l10n.tuningChromatic, maxLines: 1),
+                            Text(
+                              settings.transposition == Transposition.c
+                                  ? l10n.tuningChromatic
+                                  : '${l10n.tuningChromatic} · '
+                                        '${Note(settings.transposition.key, 4).name(names)}',
+                              maxLines: 1,
+                            ),
                           ),
                         ),
                       ),
@@ -343,6 +355,7 @@ class _StrobeDisc extends StatefulWidget {
     required this.soundPlaying,
     required this.names,
     required this.numbering,
+    required this.transposition,
     required this.onToggle,
   });
 
@@ -359,6 +372,9 @@ class _StrobeDisc extends StatefulWidget {
   final bool soundPlaying;
   final NoteNames names;
   final OctaveNumbering numbering;
+
+  /// The key the notes are named in (see [AppSettings.transposition]).
+  final Transposition transposition;
 
   /// Touching the middle pauses or resumes listening.
   final VoidCallback onToggle;
@@ -481,6 +497,7 @@ class _StrobeDiscState extends State<_StrobeDisc>
                         soundPlaying: widget.soundPlaying,
                         names: widget.names,
                         numbering: widget.numbering,
+                        transposition: widget.transposition,
                       ),
                     ),
                   ),
@@ -615,6 +632,7 @@ class _NoteDisplay extends StatelessWidget {
     required this.soundPlaying,
     required this.names,
     required this.numbering,
+    required this.transposition,
   });
 
   final TunerReading? reading;
@@ -624,6 +642,7 @@ class _NoteDisplay extends StatelessWidget {
   final bool soundPlaying;
   final NoteNames names;
   final OctaveNumbering numbering;
+  final Transposition transposition;
 
   @override
   Widget build(BuildContext context) {
@@ -671,14 +690,22 @@ class _NoteDisplay extends StatelessWidget {
       cents > 0 ? '+$cents' : (cents < 0 ? '−${-cents}' : '$cents'),
     );
     final color = _centsColor(theme, r.cents, tolerance);
+    // The note as the player reads it: written, for a transposing
+    // instrument.
+    final target = transposition.written(r.target);
+    final played = transposition.written(r.played);
+    final key = transposition == Transposition.c
+        ? null
+        : l10n.transpositionKey(Note(transposition.key, 4).name(names));
     // Screen readers hear the note and whether it is flat, sharp or in tune,
     // only when that changes: reading every cent aloud would never stop.
     return Semantics(
       container: true,
       liveRegion: true,
       label:
-          '${r.target.label(names, numbering: numbering)}, $direction'
-          '${r.onStrings && r.played != r.target ? ', ${l10n.tunerHeard(r.played.label(names, numbering: numbering))}' : ''}',
+          '${target.label(names, numbering: numbering)}'
+          '${key == null ? '' : ' $key'}, $direction'
+          '${r.onStrings && r.played != r.target ? ', ${l10n.tunerHeard(played.label(names, numbering: numbering))}' : ''}',
       child: ExcludeSemantics(
         // A note that is only held fades: the string has stopped.
         child: Opacity(
@@ -687,7 +714,7 @@ class _NoteDisplay extends StatelessWidget {
             // The note in the ink of the text; the verdict alone, under it,
             // turns green, orange or red.
             _NoteName(
-              note: r.target,
+              note: target,
               names: names,
               numbering: numbering,
               color: theme.colorScheme.onSurface,
@@ -724,10 +751,13 @@ class _NoteDisplay extends StatelessWidget {
                 ),
               if (r.played != r.target)
                 Text(
-                  l10n.tunerHeard(r.played.label(names, numbering: numbering)),
+                  l10n.tunerHeard(played.label(names, numbering: numbering)),
                   style: muted,
                 ),
             ],
+            // Written notes say for which key.
+            if (key != null)
+              Text(key, style: muted?.copyWith(fontWeight: FontWeight.w700)),
             Text(
               // A held note says so in words, not only by fading.
               held
@@ -782,7 +812,8 @@ class _NoteName extends StatelessWidget {
 /// The cents, 50 flat to 50 sharp, in the third row under the dial, drawn
 /// like the balance slider of the other tabs but as wide as the rows above
 /// it: the same thin track, the same short mark in the middle and the same
-/// round thumb. The thumb says how far off the note is, with the "in tune" zone
+/// round thumb. The thumb says how far off the note is, by its place, its
+/// size and the verdict's colour, with the "in tune" zone
 /// shaded behind the middle. The strobe shows the same thing by turning,
 /// which is hard to read at a glance, and this by position, which is not.
 class _CentsBar extends StatelessWidget {
@@ -826,12 +857,13 @@ class _CentsBar extends StatelessWidget {
               child: CustomPaint(
                 painter: _CentsBarPainter(
                   cents: show ? r.cents : null,
-                  // Silver like the dial: the note alone turns green, ochre or red.
+                  // The verdict's colour: green in tune, yellow close, red
+                  // far off; grey while the note is only held.
                   marker: show && !held
-                      ? theme.colorScheme.primary
+                      ? _centsColor(theme, r.cents, tolerance)
                       : theme.colorScheme.outline,
-                  // A neutral zone, the colour of the chosen half of the switches:
-                  // the marker alone turns green when it is in it.
+                  // A neutral zone, the colour of the chosen half of the
+                  // switches: the thumb alone turns green when it is in it.
                   zone: theme.colorScheme.primaryContainer,
                   tolerance: tolerance,
                   track: theme.colorScheme.outlineVariant,
@@ -856,6 +888,14 @@ class _CentsBar extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The radius of the cents bar's thumb: 10 dp within [tolerance] of the
+/// note, down to 5 dp at 50 cents off.
+double centsThumbRadius(double cents, double tolerance) {
+  final off = cents.abs() - tolerance;
+  if (off <= 0) return 10;
+  return 10 - 5 * (off / math.max(1, 50 - tolerance)).clamp(0.0, 1.0);
 }
 
 class _CentsBarPainter extends CustomPainter {
@@ -910,11 +950,13 @@ class _CentsBarPainter extends CustomPainter {
     );
     final c = cents;
     if (c == null) return;
-    // A round thumb of the size of a slider's, with a thin halo against the
-    // zone and the mark.
+    // A round thumb, with a thin halo against the zone and the mark: as big
+    // as a slider's when in tune, smaller the further off the note is, so
+    // that it reads as a reading, not as something to drag.
     final at = Offset(x(c), mid);
-    canvas.drawCircle(at, 11.5, Paint()..color = hub);
-    canvas.drawCircle(at, 10, Paint()..color = marker);
+    final r = centsThumbRadius(c, tolerance);
+    canvas.drawCircle(at, r + 1.5, Paint()..color = hub);
+    canvas.drawCircle(at, r, Paint()..color = marker);
   }
 
   @override

@@ -82,6 +82,10 @@ class TimeSignature {
     return 2;
   }
 
+  /// True when the click can fall on 2 and 4 only, the beats a jazz
+  /// drummer's hi-hat plays: in 2/4 and 4/4.
+  bool get hasBackbeat => denominator == 4 && !grouped && numerator.isEven;
+
   /// Written as "6/8".
   String get label => '$numerator/$denominator';
 

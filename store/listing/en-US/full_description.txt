@@ -1,9 +1,9 @@
 Low End is a practice companion for musicians: a metronome, a piano harmony section and a tuner in one light app. Made by an amateur double bass player with the friends from the orchestra in mind, it is useful to everyone. It is free, has no ads, needs no account and works fully offline.
 
 METRONOME
-• Tempo from 30 to 250 BPM: tap the number to type it, hold − or + to move in steps, or use TAP.
+• Tempo from 30 to 250 BPM: type it with the pencil, hold − or + to run through it, or use TAP.
 • Time signatures 1/1, 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8, with the beats grouped the way you count them.
-• A ring that lights up beat by beat, with the downbeat marked, and a short, dry click that stays steady, straight or swing. The piano follows the swing too.
+• A ring that lights up beat by beat, with the downbeat marked, and a short, dry click that stays steady. Subdivisions (eighths, triplets, sixteenths), swing, or a click on 2 and 4 only. The piano follows the swing too.
 
 HARMONY
 • Twelve keys on a dial: touch a note and it plays on a real piano, in time with the metronome.
@@ -13,7 +13,8 @@ HARMONY
 
 TUNER
 • Chromatic, with a round strobe and the note in the middle: play any note and it shows up, no string to choose first.
-• Hears low and high notes alike, from 28 to 700 Hz (a low B on a five-string bass up to a high violin note).
+• Hears low and high notes alike, from 28 to 2800 Hz (a low B on a five-string bass up to the top of the violin and the flute).
+• For B♭, E♭ and F instruments it can name the written note.
 • Reference A: 415, 430, 432 or 438 to 445 Hz. The sound is analysed on the phone and never recorded.
 
 MADE FOR PLAYING

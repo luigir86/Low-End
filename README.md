@@ -16,7 +16,7 @@ The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens o
 
 - Tempo from 30 to 250 BPM: touch the number to type it, hold − or + to move in steps, or tap TAP.
 - Time signatures 1/1 (one click a bar), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8, with the beats grouped the way you count them.
-- A ring that lights up beat by beat (the downbeat marked) and a short, dry woodblock-like click (higher on the downbeat), in a straight or swing feel (a soft skip note after beats 2 and 4). The audio engine loops a whole bar, so the time stays steady.
+- A ring that lights up beat by beat (the downbeat marked) and a short, dry woodblock-like click (higher on the downbeat), with subdivisions (eighths, triplets, sixteenths) or a swing feel (a soft skip note after beats 2 and 4), and a click on 2 and 4 only. The audio engine loops a whole bar, so the time stays steady.
 
 ### Harmony
 
@@ -29,7 +29,7 @@ The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens o
 
 - Chromatic, with a round strobe and the note in the middle: play any note and it shows up, no string to choose first.
 - Under the strobe, a bar like the Balance slider shows how far off the note is: a dot on a thin track, with the shaded "in tune" zone around the middle mark.
-- Finds the note with the YIN algorithm ([`lib/audio/pitch_detector.dart`](lib/audio/pitch_detector.dart)), from 28 to 700 Hz: from the lowest strings to a violin's high notes.
+- Finds the note with the YIN algorithm ([`lib/audio/pitch_detector.dart`](lib/audio/pitch_detector.dart)), from 28 to 2800 Hz (700 Hz with the bass chosen): from the lowest strings to the top of the violin and the flute. For B♭, E♭ and F instruments it can name the written note.
 - The instrument menu switches from Chromatic to the strings of guitar, violin, viola, cello, ukulele or bass, with the string number shown.
 - It listens only while it is on screen (and you can pause it). Opening the tuner pauses the metronome and the harmony, so the microphone hears only your instrument.
 
@@ -56,7 +56,7 @@ To the **Power Flower Orchestra of Fossano**, who inspired this app and put it t
 
 Nothing here is promised.
 
-- Metronome: subdivisions, more time signatures, a tempo trainer, latency compensation.
+- Metronome: more time signatures, a tempo trainer, latency compensation.
 - Harmony: more progressions and chords, just intonation.
 - More languages (Spanish, German, French, Portuguese, Japanese).
 - A PDF library for sheet music, set lists and annotations, and later PDF to MusicXML and MIDI playback.
