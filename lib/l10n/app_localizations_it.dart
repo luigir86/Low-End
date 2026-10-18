@@ -434,11 +434,11 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get guideRing =>
-      'Tocca l\'anello del metronomo per avviarlo e fermarlo.';
+      'Metronomo e armonia partono e si fermano toccando il centro del loro cerchio.';
 
   @override
   String get guideTempo =>
-      'Tocca la matita per scrivere il tempo. Tieni premuto − o + e il tempo scorre, sempre più veloce.';
+      'Tocca la matita per scrivere il tempo, o batti TAP. Tieni premuto − o + e il tempo scorre, sempre più veloce.';
 
   @override
   String get guideSwipe => 'Scorri a destra e a sinistra per cambiare sezione.';
@@ -453,7 +453,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get guideTuner =>
-      'L\'accordatore ascolta da solo. Entrando, metronomo e armonia vanno in pausa.';
+      'L\'accordatore ascolta da solo se nulla suona. Se suona qualcosa, tocca il suo cerchio: metronomo e armonia vanno in pausa.';
 
   @override
   String get guideVolume =>
