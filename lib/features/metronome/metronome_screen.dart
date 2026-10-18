@@ -13,6 +13,7 @@ import '../../widgets/dial.dart';
 import '../../widgets/row_controls.dart';
 import 'feel.dart';
 import 'metronome_controller.dart';
+import 'note_icon.dart';
 import 'subdivision.dart';
 import 'tempo_dialog.dart';
 import 'time_signature.dart';
@@ -426,10 +427,11 @@ String beatUnitName(AppLocalizations l10n, BeatUnit unit) => switch (unit) {
   BeatUnit.eighth => l10n.beatUnitEighth,
 };
 
-/// What sounds inside each beat: the beat alone, eighths, triplets or
-/// sixteenths (softer clicks between the beats), or the swing, chosen as
-/// Root, Chord and Progression are on the harmony tab. Bars counted in
-/// eighths are always played plain, so it is off there.
+/// What sounds inside each beat: straight, with a menu to choose what
+/// fills the beat (a quarter note, two eighths, a triplet, four sixteenths:
+/// softer clicks between the beats), or the swing. Chosen as Root, Chord and
+/// Progression are on the harmony tab. Bars counted in eighths are always
+/// played plain, so it is off there.
 class _FeelSwitch extends StatelessWidget {
   const _FeelSwitch({required this.metronome});
 
@@ -438,67 +440,89 @@ class _FeelSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    // A note value says it best, with its name for screen readers.
-    ButtonSegment<_Pulse> segment(
-      _Pulse value,
-      String text,
-      String name, {
-      bool glyph = true,
-    }) => ButtonSegment(
-      value: value,
-      label: Semantics(
-        label: name,
-        excludeSemantics: true,
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            text,
-            maxLines: 1,
-            // The note symbols come from another font, small beside the
-            // letters: larger, and a little taller so as not to clip.
-            style: TextStyle(
-              height: 1.35,
-              fontSize: glyph ? LowEndType.headline : null,
-            ),
-          ),
-        ),
-      ),
-    );
-    final selected = metronome.feel == MetronomeFeel.swing
-        ? _Pulse.swing
-        : _Pulse.values[metronome.subdivision.index];
+    final applies = metronome.feelApplies;
+    final subdivision = metronome.subdivision;
     return Semantics(
       label: l10n.feelLabel,
       container: true,
       child: SizedBox(
         width: double.infinity,
-        child: SegmentedButton<_Pulse>(
+        child: SegmentedButton<MetronomeFeel>(
           key: const Key('feelSwitch'),
           showSelectedIcon: false,
           style: SegmentedButton.styleFrom(
             minimumSize: const Size(0, LowEndShape.row),
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: EdgeInsets.zero,
           ),
           segments: [
-            segment(_Pulse.straight, '♩', l10n.feelStraight),
-            segment(_Pulse.eighths, '♫', l10n.subdivisionEighths),
-            segment(
-              _Pulse.triplets,
-              '3',
-              l10n.subdivisionTriplets,
-              glyph: false,
-            ),
-            segment(_Pulse.sixteenths, '♬', l10n.subdivisionSixteenths),
-            segment(_Pulse.swing, l10n.feelSwing, l10n.feelSwing, glyph: false),
-          ],
-          selected: {selected},
-          onSelectionChanged: metronome.feelApplies
-              ? (s) => switch (s.first) {
-                  _Pulse.swing => metronome.setFeel(MetronomeFeel.swing),
-                  final pulse => metronome.setSubdivision(
-                    Subdivision.values[pulse.index],
+            ButtonSegment(
+              value: MetronomeFeel.straight,
+              // The menu opens from the label; the rest of the segment
+              // just picks the straight feel.
+              label: PopupMenuButton<Subdivision>(
+                key: const Key('subdivisionMenu'),
+                enabled: applies,
+                tooltip: l10n.feelStraight,
+                position: PopupMenuPosition.over,
+                initialValue: subdivision,
+                padding: EdgeInsets.zero,
+                onSelected: metronome.setSubdivision,
+                itemBuilder: (context) => [
+                  for (final s in Subdivision.values)
+                    PopupMenuItem(
+                      value: s,
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 56,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: NoteIcon(s, height: 26),
+                            ),
+                          ),
+                          Flexible(
+                            child: Text(
+                              subdivisionName(l10n, s),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+                child: Semantics(
+                  label:
+                      '${l10n.feelStraight}, ${subdivisionName(l10n, subdivision)}',
+                  excludeSemantics: true,
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: LowEndShape.row,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(l10n.feelStraight, maxLines: 1),
+                          const SizedBox(width: 8),
+                          NoteIcon(subdivision, height: 26),
+                          const Icon(Icons.arrow_drop_down),
+                        ],
+                      ),
+                    ),
                   ),
-                }
+                ),
+              ),
+            ),
+            ButtonSegment(
+              value: MetronomeFeel.swing,
+              label: Text(l10n.feelSwing, maxLines: 1),
+            ),
+          ],
+          selected: {metronome.feel},
+          onSelectionChanged: applies
+              ? (s) => s.first == MetronomeFeel.swing
+                    ? metronome.setFeel(MetronomeFeel.swing)
+                    : metronome.setSubdivision(subdivision)
               : null,
         ),
       ),
@@ -506,9 +530,13 @@ class _FeelSwitch extends StatelessWidget {
   }
 }
 
-/// The choices of [_FeelSwitch]: the first four in the order of
-/// [Subdivision], then the swing.
-enum _Pulse { straight, eighths, triplets, sixteenths, swing }
+/// What fills the beat, for the menu and for screen readers.
+String subdivisionName(AppLocalizations l10n, Subdivision s) => switch (s) {
+  Subdivision.none => l10n.subdivisionQuarters,
+  Subdivision.eighths => l10n.subdivisionEighths,
+  Subdivision.triplets => l10n.subdivisionTriplets,
+  Subdivision.sixteenths => l10n.subdivisionSixteenths,
+};
 
 /// A chip of the − + pair that steps by one when tapped. Held, it keeps
 /// going by one, faster and faster, and after a couple of seconds by fives

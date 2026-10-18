@@ -595,6 +595,9 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
+  String get subdivisionQuarters => 'Semiminime';
+
+  @override
   String get subdivisionEighths => 'Crome';
 
   @override

@@ -171,6 +171,7 @@
   "songsSubtitle": "Imposta tonalità, progressione e tempo in un tocco",
   "tunerHeld": "Nota in attesa",
   "aboutSource": "Codice sorgente: {url}",
+  "subdivisionQuarters": "Semiminime",
   "subdivisionEighths": "Crome",
   "subdivisionTriplets": "Terzine",
   "subdivisionSixteenths": "Semicrome",

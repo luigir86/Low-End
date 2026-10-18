@@ -813,8 +813,8 @@ class _NoteName extends StatelessWidget {
 /// like the balance slider of the other tabs but as wide as the rows above
 /// it: the same thin track, the same short mark in the middle and the same
 /// round thumb. The thumb says how far off the note is, by its place, its
-/// size and the verdict's colour, with the "in tune" zone
-/// shaded behind the middle. The strobe shows the same thing by turning,
+/// size and the verdict's colour; no shaded zone, which looked like
+/// something to drag. The strobe shows the same thing by turning,
 /// which is hard to read at a glance, and this by position, which is not.
 class _CentsBar extends StatelessWidget {
   const _CentsBar({
@@ -862,9 +862,6 @@ class _CentsBar extends StatelessWidget {
                   marker: show && !held
                       ? _centsColor(theme, r.cents, tolerance)
                       : theme.colorScheme.outline,
-                  // A neutral zone, the colour of the chosen half of the
-                  // switches: the thumb alone turns green when it is in it.
-                  zone: theme.colorScheme.primaryContainer,
                   tolerance: tolerance,
                   track: theme.colorScheme.outlineVariant,
                   middle: theme.colorScheme.outline,
@@ -902,7 +899,6 @@ class _CentsBarPainter extends CustomPainter {
   _CentsBarPainter({
     required this.cents,
     required this.marker,
-    required this.zone,
     required this.tolerance,
     required this.track,
     required this.middle,
@@ -911,7 +907,6 @@ class _CentsBarPainter extends CustomPainter {
 
   final double? cents;
   final Color marker;
-  final Color zone;
   final double tolerance;
   final Color track;
   final Color middle;
@@ -932,17 +927,6 @@ class _CentsBarPainter extends CustomPainter {
       ),
       Paint()..color = track,
     );
-    // The in-tune zone, behind the mark in the middle.
-    canvas.drawRRect(
-      RRect.fromLTRBR(
-        x(-tolerance),
-        mid - 8,
-        x(tolerance),
-        mid + 8,
-        const Radius.circular(4),
-      ),
-      Paint()..color = zone,
-    );
     // The middle, as on the balance slider: 2 by 16 dp.
     canvas.drawRect(
       Rect.fromCenter(center: Offset(x(0), mid), width: 2, height: 16),
@@ -950,7 +934,7 @@ class _CentsBarPainter extends CustomPainter {
     );
     final c = cents;
     if (c == null) return;
-    // A round thumb, with a thin halo against the zone and the mark: as big
+    // A round thumb, with a thin halo against the track and the mark: as big
     // as a slider's when in tune, smaller the further off the note is, so
     // that it reads as a reading, not as something to drag.
     final at = Offset(x(c), mid);
@@ -963,7 +947,6 @@ class _CentsBarPainter extends CustomPainter {
   bool shouldRepaint(_CentsBarPainter old) =>
       old.cents != cents ||
       old.marker != marker ||
-      old.zone != zone ||
       old.tolerance != tolerance ||
       old.track != track ||
       old.middle != middle ||
