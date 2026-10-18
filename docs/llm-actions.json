@@ -1,7 +1,7 @@
 [
   {
     "name": "get_state",
-    "description": "Returns what the app is doing now, without changing anything: the section on screen (metronome, drone, tuner); the tuner (status idle, starting, listening, permissionDenied or failed, and the last note heard with its cents off); the Harmony section, called drone (playing, note, voicing, chord, progression, style, sevenths, current step of a progression); the metronome (playing, tempo, time signature, subdivision, click on 2 and 4) and the settings (reference A, language, note names, transposition). \"playing\" is true as soon as a start is asked, also while the sound waits for the other one's next bar line. Notes are always written with letters and octave (Bb4), whatever the note names setting. Loudness follows the phone's media volume.",
+    "description": "Returns what the app is doing now, without changing anything: the section on screen (metronome, drone, tuner); the tuner (status idle, starting, listening, permissionDenied or failed, and the last note heard with its cents off); the Harmony section, called drone (playing, note, voicing, chord, progression, style, current step of a progression); the metronome (playing, tempo, time signature, subdivision, click on 2 and 4) and the settings (reference A, language, note names, transposition). \"playing\" is true as soon as a start is asked, also while the sound waits for the other one's next bar line. Notes are always written with letters and octave (Bb4), whatever the note names setting. Loudness follows the phone's media volume.",
     "input_schema": {
       "type": "object",
       "properties": {},
@@ -71,9 +71,14 @@
           "enum": [
             "major",
             "minor",
-            "seventh"
+            "dominant",
+            "major7",
+            "minor7",
+            "halfDiminished",
+            "diminished",
+            "sus4"
           ],
-          "description": "The chord played when voicing is \"chord\"; \"seventh\" is the dominant seventh."
+          "description": "The chord played when voicing is \"chord\": major, minor, dominant (7), major7 (maj7), minor7 (m7), halfDiminished (m7b5), diminished (dim) or sus4."
         },
         "progression": {
           "type": "string",
@@ -94,10 +99,6 @@
             "arpeggio"
           ],
           "description": "How the piano plays the note, chord or progression: struck once a bar (held), on every beat, or as an arpeggio, one note a beat (the piano follows the tempo and time signature of the metronome)."
-        },
-        "sevenths": {
-          "type": "boolean",
-          "description": "Adds the seventh to the chords and progressions (maj7, m7, 7, m7b5)."
         }
       },
       "additionalProperties": false
@@ -209,9 +210,14 @@
           "enum": [
             "major",
             "minor",
-            "seventh"
+            "dominant",
+            "major7",
+            "minor7",
+            "halfDiminished",
+            "diminished",
+            "sus4"
           ],
-          "description": "The chord played when voicing is \"chord\"; \"seventh\" is the dominant seventh."
+          "description": "The chord played when voicing is \"chord\": major, minor, dominant (7), major7 (maj7), minor7 (m7), halfDiminished (m7b5), diminished (dim) or sus4."
         },
         "progression": {
           "type": "string",
@@ -232,10 +238,6 @@
             "arpeggio"
           ],
           "description": "How the piano plays the note, chord or progression: struck once a bar (held), on every beat, or as an arpeggio, one note a beat (the piano follows the tempo and time signature of the metronome)."
-        },
-        "sevenths": {
-          "type": "boolean",
-          "description": "Adds the seventh to the chords and progressions (maj7, m7, 7, m7b5)."
         }
       },
       "additionalProperties": false

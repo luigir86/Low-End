@@ -13,6 +13,7 @@ import 'package:low_end/audio/audio_scope.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
+import 'package:low_end/features/tuner/drone/harmony.dart';
 
 // Roboto and the Material icons, copied from the Flutter SDK into the repo
 // (Apache 2.0, licences beside them) so the tests find them on any machine.
@@ -172,7 +173,7 @@ void main() {
         await drone.tapNote(1);
         await h.settle('play C#');
         drone.setVoicing(DroneVoicing.chord);
-        drone.setChord(ChordType.seventh);
+        drone.setChord(ChordQuality.dominant);
         await h.settle('seventh');
         h.settings.setNaming(NoteNaming.solfege);
         await h.settle('solfege');
@@ -239,7 +240,7 @@ void main() {
       await h.start();
       await h.tab(AppSection.drone);
       h.scope.drone.setVoicing(DroneVoicing.chord);
-      h.scope.drone.setChord(ChordType.minor);
+      h.scope.drone.setChord(ChordQuality.minor);
       await h.settle('chord');
       expect(find.text('Minor'), findsOneWidget);
       h.settings.setLanguage('it');

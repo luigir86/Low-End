@@ -149,8 +149,6 @@ class _KeySheet extends StatelessWidget {
                   (
                     root: (drone.note.pitchClass + s.offset) % 12,
                     quality: s.quality,
-                    seventh:
-                        drone.sevenths || s.quality == ChordQuality.dominant,
                   ),
                   spell(
                     (drone.note.pitchClass + s.offset) % 12,

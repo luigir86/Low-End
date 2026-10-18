@@ -608,29 +608,30 @@ class _StepDots extends StatelessWidget {
 }
 
 /// The name of a kind of chord, as listed in the chord menu.
-String chordName(AppLocalizations l10n, ChordType chord) => switch (chord) {
-  ChordType.major => l10n.chordMajor,
-  ChordType.minor => l10n.chordMinor,
-  ChordType.seventh => l10n.chordSeventh,
+String chordName(AppLocalizations l10n, ChordQuality chord) => switch (chord) {
+  ChordQuality.major => l10n.chordMajor,
+  ChordQuality.minor => l10n.chordMinor,
+  ChordQuality.dominant => l10n.chordDominant,
+  ChordQuality.major7 => l10n.chordMajor7,
+  ChordQuality.minor7 => l10n.chordMinor7,
+  ChordQuality.halfDiminished => l10n.chordHalfDiminished,
+  ChordQuality.diminished => l10n.chordDiminished,
+  ChordQuality.sus4 => l10n.chordSus4,
 };
 
 /// A chord on [note], as musicians write it: "A major", "La minore", "A7",
 /// "Rem7", "Domaj7".
-String chordSymbol(AppLocalizations l10n, DroneChord chord, String note) {
-  if (chord.seventh) {
-    return switch (chord.quality) {
-      ChordQuality.major => '${note}maj7',
-      ChordQuality.minor => '${note}m7',
+String chordSymbol(AppLocalizations l10n, DroneChord chord, String note) =>
+    switch (chord.quality) {
+      ChordQuality.major => l10n.droneChordMajor(note),
+      ChordQuality.minor => l10n.droneChordMinor(note),
       ChordQuality.dominant => l10n.droneChordSeventh(note),
+      ChordQuality.major7 => '${note}maj7',
+      ChordQuality.minor7 => '${note}m7',
       ChordQuality.halfDiminished => l10n.droneChordHalfDiminished(note),
+      ChordQuality.diminished => l10n.droneChordDiminished(note),
+      ChordQuality.sus4 => '${note}sus4',
     };
-  }
-  return switch (chord.quality) {
-    ChordQuality.major || ChordQuality.dominant => l10n.droneChordMajor(note),
-    ChordQuality.minor => l10n.droneChordMinor(note),
-    ChordQuality.halfDiminished => l10n.droneChordDiminished(note),
-  };
-}
 
 /// The name of a progression, as listed in its menu.
 String progressionName(AppLocalizations l10n, Progression p) => switch (p) {
@@ -767,7 +768,7 @@ class _VoicingSwitch extends StatelessWidget {
   }
 }
 
-/// Which chord or which progression, and whether to add sevenths: hidden
+/// Which chord or which progression: hidden
 /// for the root alone, its place kept so the rows line up with the other
 /// sections. The button for the sound options is always there.
 class _ChordMenu extends StatelessWidget {
@@ -830,13 +831,13 @@ class _ChordMenu extends StatelessWidget {
                                   if (p != null) drone.setProgression(p);
                                 },
                               )
-                            : DropdownMenu<ChordType>(
+                            : DropdownMenu<ChordQuality>(
                                 key: ValueKey('chord-${l10n.localeName}'),
                                 expandedInsets: EdgeInsets.zero,
                                 label: Text(l10n.chordLabel),
                                 initialSelection: drone.chord,
                                 dropdownMenuEntries: [
-                                  for (final chord in ChordType.values)
+                                  for (final chord in ChordQuality.values)
                                     DropdownMenuEntry(
                                       value: chord,
                                       label: chordName(l10n, chord),
@@ -846,34 +847,6 @@ class _ChordMenu extends StatelessWidget {
                                   if (c != null) drone.setChord(c);
                                 },
                               ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Adds the seventh to every chord: maj7, m7, 7, m7♭5.
-                      Tooltip(
-                        message: l10n.addSevenths,
-                        child: FilterChip(
-                          // The digit says it all; a tick would crowd it.
-                          showCheckmark: false,
-                          label: Text(
-                            '+7',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: drone.sevenths
-                                      ? Theme.of(context).colorScheme.onPrimary
-                                      : Theme.of(context).colorScheme.onSurface,
-                                ),
-                          ),
-                          selected: drone.sevenths,
-                          onSelected: drone.setSevenths,
-                          side: BorderSide(
-                            color: Theme.of(context).colorScheme.outline,
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: chipPadding,
-                          ),
-                        ),
                       ),
                     ],
                   ),
@@ -913,8 +886,12 @@ String _shapeName(AppLocalizations l10n, ChordShape shape) => switch (shape) {
 /// root: C E G, D♭ F A♭.
 List<String> _chordNotes(DroneChord chord, int rootLetter, NoteNames names) => [
   spell(chord.root, rootLetter, names),
-  for (final (i, s) in chord.quality.semitones(seventh: chord.seventh).indexed)
-    spell((chord.root + s) % 12, (rootLetter + 2 * (i + 1)) % 7, names),
+  for (final (i, s) in chord.quality.semitones.indexed)
+    spell(
+      (chord.root + s) % 12,
+      (rootLetter + chord.quality.letterSteps[i]) % 7,
+      names,
+    ),
 ];
 
 /// The sound options: how the chord or the progression is played (held, on

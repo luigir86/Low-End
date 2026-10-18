@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
+import 'package:low_end/features/tuner/drone/harmony.dart';
 import 'package:low_end/features/tuner/tuner_controller.dart';
 
 /// A microphone whose answers the test releases by hand.
@@ -305,7 +306,7 @@ void main() {
       final out = SilentToneOutput();
       final d = DroneController(out);
       d.setVoicing(DroneVoicing.chord);
-      d.setChord(ChordType.seventh);
+      d.setChord(ChordQuality.dominant);
       d.setPitchClass(0);
       d.setReferencePitch(438);
       expect(out.frequencies, isEmpty);

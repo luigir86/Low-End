@@ -45,7 +45,6 @@
   "thanksTitle": "Thanks",
   "thanksInstagram": "Follow them on Instagram",
   "thanksText": "Thanks to the Power Flower Orchestra of Fossano, who inspired this app and put it to the test.",
-  "addSevenths": "Add the seventh to the chords",
   "droneChordDiminished": "{note} diminished",
   "@droneChordDiminished": {
     "placeholders": {
@@ -99,7 +98,12 @@
   "chordLabel": "Chord",
   "chordMajor": "Major",
   "chordMinor": "Minor",
-  "chordSeventh": "Dominant 7th",
+  "chordDominant": "Dominant 7th (7)",
+  "chordMajor7": "Major 7th (maj7)",
+  "chordMinor7": "Minor 7th (m7)",
+  "chordHalfDiminished": "Half-diminished (m7♭5)",
+  "chordDiminished": "Diminished (dim)",
+  "chordSus4": "Suspended 4th (sus4)",
   "droneChordHalfDiminished": "{note} half-diminished",
   "@droneChordHalfDiminished": {
     "description": "The half-diminished seventh chord (m7♭5) in the middle of the drone dial.",

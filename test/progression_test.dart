@@ -77,23 +77,6 @@ void main() {
     await drone.stop();
   });
 
-  testWidgets('with sevenths: Dm7, G7, Cmaj7', (tester) async {
-    drone
-      ..setVoicing(DroneVoicing.progression)
-      ..setSevenths(true);
-    await drone.tapNote(0);
-    await tester.pump();
-    final d = _hz(2);
-    expect(output.frequencies, _sounds([d, d * 6 / 5, d * 3 / 2, d * 9 / 5]));
-    await tester.pump(const Duration(seconds: 2));
-    final g = _hz(7);
-    expect(output.frequencies, _sounds([g, g * 5 / 4, g * 3 / 2, g * 16 / 9]));
-    await tester.pump(const Duration(seconds: 2));
-    final c = _hz(0);
-    expect(output.frequencies, _sounds([c, c * 5 / 4, c * 3 / 2, c * 15 / 8]));
-    await drone.stop();
-  });
-
   testWidgets('changes chord on the metronome\'s "one"', (tester) async {
     clock.barPhase = 0.75; // A quarter of the bar still to go.
     drone.setVoicing(DroneVoicing.progression);
@@ -122,50 +105,51 @@ void main() {
     await drone.stop();
   });
 
-  test('chords take the seventh too, and the 7 chord always has it', () async {
+  test('the chord types sound their pure intervals', () async {
     drone.setVoicing(DroneVoicing.chord);
     await drone.start();
-    expect(output.frequencies, hasLength(3));
-    drone.setSevenths(true);
-    await pumpEventQueue();
     final a = _hz(9);
-    expect(output.frequencies, _sounds([a, a * 5 / 4, a * 3 / 2, a * 15 / 8]));
-    drone
-      ..setSevenths(false)
-      ..setChord(ChordType.seventh);
-    await pumpEventQueue();
-    expect(output.frequencies, hasLength(4));
+    expect(output.frequencies, _sounds([a, a * 5 / 4, a * 3 / 2]));
+    final expected = {
+      ChordQuality.minor: [6 / 5, 3 / 2],
+      ChordQuality.dominant: [5 / 4, 3 / 2, 16 / 9],
+      ChordQuality.major7: [5 / 4, 3 / 2, 15 / 8],
+      ChordQuality.minor7: [6 / 5, 3 / 2, 9 / 5],
+      ChordQuality.halfDiminished: [6 / 5, 64 / 45, 16 / 9],
+      ChordQuality.diminished: [6 / 5, 64 / 45],
+      ChordQuality.sus4: [4 / 3, 3 / 2],
+    };
+    for (final e in expected.entries) {
+      drone.setChord(e.key);
+      await pumpEventQueue();
+      expect(output.frequencies, _sounds([a, for (final r in e.value) a * r]));
+    }
     await drone.stop();
   });
 
-  test('the blues is all dominant sevenths, with "7" off too', () async {
+  test('the blues is all dominant sevenths', () async {
     drone
       ..setVoicing(DroneVoicing.progression)
       ..setProgression(Progression.blues)
       ..setPitchClass(0);
-    expect(drone.sevenths, isFalse);
     expect(Progression.blues.steps.map((s) => s.quality).toSet(), {
       ChordQuality.dominant,
     });
-    expect(drone.currentChord?.seventh, isTrue);
+    expect(drone.currentChord?.quality, ChordQuality.dominant);
     await drone.start();
     final c = _hz(0);
     expect(output.frequencies, _sounds([c, c * 5 / 4, c * 3 / 2, c * 16 / 9]));
     await drone.stop();
   });
 
-  test('"7" off leaves the other chords of a progression as triads', () {
+  test('the other chords of a progression are triads', () {
     drone
       ..setVoicing(DroneVoicing.progression)
       ..setPitchClass(0);
     // II–V–I: Dm, G7, C.
-    expect(drone.currentChord, (
-      root: 2,
-      quality: ChordQuality.minor,
-      seventh: false,
-    ));
+    expect(drone.currentChord, (root: 2, quality: ChordQuality.minor));
     drone.setProgression(Progression.oneFourFive);
-    expect(drone.currentChord?.seventh, isFalse);
+    expect(drone.currentChord?.quality.semitones, hasLength(2));
   });
 
   group('chords are spelled as in their key', () {
@@ -223,8 +207,8 @@ void main() {
 
   test('minor II–V–I has a diminished II', () {
     final steps = Progression.minorTwoFiveOne.steps;
-    expect(steps.first.quality, ChordQuality.halfDiminished);
-    expect(ChordQuality.halfDiminished.semitones(seventh: false), [3, 6]);
+    expect(steps.first.quality, ChordQuality.diminished);
+    expect(ChordQuality.diminished.semitones, [3, 6]);
     expect(steps.last.quality, ChordQuality.minor);
   });
 }

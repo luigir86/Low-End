@@ -3,43 +3,49 @@
 /// checking intonation.
 library;
 
-/// The kind of a chord, with its triad and, when sevenths are on, the
-/// seventh added on top.
+/// The kind of a chord: its notes above the root as pure ratios, as
+/// semitones, and as steps up the scale (2 for a third, 3 for a fourth, 6
+/// for a seventh), which say what letter each note is written with.
 enum ChordQuality {
-  /// Major triad; with the seventh, maj7 (major seventh, 15/8).
-  major([1, 5 / 4, 3 / 2], [4, 7], 15 / 8, 11),
+  /// Major triad.
+  major([1, 5 / 4, 3 / 2], [4, 7], [2, 4]),
 
-  /// Minor triad; with the seventh, m7 (minor seventh, 9/5).
-  minor([1, 6 / 5, 3 / 2], [3, 7], 9 / 5, 10),
+  /// Minor triad.
+  minor([1, 6 / 5, 3 / 2], [3, 7], [2, 4]),
 
-  /// Dominant seventh, 7: always played with its seventh, which makes it a
-  /// dominant (see DroneController). The seventh is 16/9
-  /// (996 cents), the pure ratio closest to the minor seventh a bassist
-  /// plays: the harmonic seventh, 7/4, would sound 31 cents flat of it.
-  dominant([1, 5 / 4, 3 / 2], [4, 7], 16 / 9, 10),
+  /// Dominant seventh, 7. The seventh is 16/9 (996 cents), the pure ratio
+  /// closest to the minor seventh a bassist plays: the harmonic seventh,
+  /// 7/4, would sound 31 cents flat of it.
+  dominant([1, 5 / 4, 3 / 2, 16 / 9], [4, 7, 10], [2, 4, 6]),
 
-  /// Diminished triad; with the seventh, half-diminished (m7♭5).
-  halfDiminished([1, 6 / 5, 64 / 45], [3, 6], 16 / 9, 10);
+  /// Major seventh, maj7 (15/8).
+  major7([1, 5 / 4, 3 / 2, 15 / 8], [4, 7, 11], [2, 4, 6]),
 
-  const ChordQuality(
-    this._triad,
-    this._triadSemitones,
-    this._seventh,
-    this._seventhSemitones,
-  );
+  /// Minor seventh, m7 (9/5).
+  minor7([1, 6 / 5, 3 / 2, 9 / 5], [3, 7, 10], [2, 4, 6]),
 
-  final List<double> _triad;
-  final List<int> _triadSemitones;
-  final double _seventh;
-  final int _seventhSemitones;
+  /// Half-diminished seventh, m7♭5.
+  halfDiminished([1, 6 / 5, 64 / 45, 16 / 9], [3, 6, 10], [2, 4, 6]),
+
+  /// Diminished triad.
+  diminished([1, 6 / 5, 64 / 45], [3, 6], [2, 4]),
+
+  /// Suspended fourth, sus4: the fourth in place of the third.
+  sus4([1, 4 / 3, 3 / 2], [5, 7], [3, 4]);
+
+  const ChordQuality(this._ratios, this._semitones, this.letterSteps);
+
+  final List<double> _ratios;
+  final List<int> _semitones;
+
+  /// How many letters above the root's each note above it is written.
+  final List<int> letterSteps;
 
   /// Ratios to the root, the root first.
-  List<double> ratios({required bool seventh}) =>
-      seventh ? [..._triad, _seventh] : _triad;
+  List<double> get ratios => _ratios;
 
   /// The notes above the root, in semitones.
-  List<int> semitones({required bool seventh}) =>
-      seventh ? [..._triadSemitones, _seventhSemitones] : _triadSemitones;
+  List<int> get semitones => _semitones;
 }
 
 /// One chord of a progression: its root, in semitones above the key, its
@@ -67,16 +73,16 @@ class ProgressionStep {
 /// Standard progressions, one chord per bar, played over and over in the
 /// key of the note touched.
 enum Progression {
-  /// Major II–V–I: in C, Dm G7 C (Dm7 G7 Cmaj7 with sevenths).
+  /// Major II–V–I: in C, Dm G7 C.
   twoFiveOne([
     ProgressionStep(2, ChordQuality.minor, 'II'),
     ProgressionStep(7, ChordQuality.dominant, 'V'),
     ProgressionStep(0, ChordQuality.major, 'I'),
   ]),
 
-  /// Minor II–V–I: in C, D° G7 Cm (Dm7♭5 G7 Cm7 with sevenths).
+  /// Minor II–V–I: in C, D° G7 Cm.
   minorTwoFiveOne([
-    ProgressionStep(2, ChordQuality.halfDiminished, 'II'),
+    ProgressionStep(2, ChordQuality.diminished, 'II'),
     ProgressionStep(7, ChordQuality.dominant, 'V'),
     ProgressionStep(0, ChordQuality.minor, 'I'),
   ]),

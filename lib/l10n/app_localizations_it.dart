@@ -96,9 +96,6 @@ class AppLocalizationsIt extends AppLocalizations {
       'Grazie alla Power Flower Orchestra di Fossano, che ha ispirato e provato quest’app.';
 
   @override
-  String get addSevenths => 'Aggiungi la settima agli accordi';
-
-  @override
   String droneChordDiminished(String note) {
     return '$note diminuito';
   }
@@ -164,7 +161,22 @@ class AppLocalizationsIt extends AppLocalizations {
   String get chordMinor => 'Minore';
 
   @override
-  String get chordSeventh => 'Settima di dominante';
+  String get chordDominant => 'Settima di dominante (7)';
+
+  @override
+  String get chordMajor7 => 'Settima maggiore (maj7)';
+
+  @override
+  String get chordMinor7 => 'Settima minore (m7)';
+
+  @override
+  String get chordHalfDiminished => 'Semidiminuito (m7♭5)';
+
+  @override
+  String get chordDiminished => 'Diminuito (dim)';
+
+  @override
+  String get chordSus4 => 'Quarta sospesa (sus4)';
 
   @override
   String droneChordHalfDiminished(String note) {

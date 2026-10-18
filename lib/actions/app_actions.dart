@@ -96,7 +96,7 @@ class AppActions {
           'idle, starting, listening, permissionDenied or failed, and the '
           'last note heard with its cents off); the Harmony section, called '
           'drone (playing, note, voicing, chord, progression, style, '
-          'sevenths, current step of a progression); the metronome (playing, '
+          'current step of a progression); the metronome (playing, '
           'tempo, time signature, subdivision, click on 2 and 4) and the '
           'settings (reference A, language, note names, transposition). '
           '"playing" is true as soon as a start is asked, also while the '
@@ -288,10 +288,20 @@ class AppActions {
     },
     'chord': {
       'type': 'string',
-      'enum': ['major', 'minor', 'seventh'],
+      'enum': [
+        'major',
+        'minor',
+        'dominant',
+        'major7',
+        'minor7',
+        'halfDiminished',
+        'diminished',
+        'sus4',
+      ],
       'description':
-          'The chord played when voicing is "chord"; "seventh" is the dominant '
-          'seventh.',
+          'The chord played when voicing is "chord": major, minor, dominant '
+          '(7), major7 (maj7), minor7 (m7), halfDiminished (m7b5), diminished '
+          '(dim) or sus4.',
     },
     'progression': {
       'type': 'string',
@@ -314,12 +324,6 @@ class AppActions {
           '(held), on every beat, or as an '
           'arpeggio, one note a beat (the piano follows the tempo and time '
           'signature of the metronome).',
-    },
-    'sevenths': {
-      'type': 'boolean',
-      'description':
-          'Adds the seventh to the chords and progressions (maj7, m7, 7, '
-          'm7b5).',
     },
   };
 
@@ -456,14 +460,9 @@ class AppActions {
     final progression = args['progression'] == null
         ? null
         : _enum(Progression.values, args['progression']);
-    final sevenths = switch (args['sevenths']) {
-      null => null,
-      final bool b => b,
-      _ => throw ActionError('"sevenths" must be true or false.'),
-    };
     final chord = args['chord'] == null
         ? null
-        : _enum(ChordType.values, args['chord']);
+        : _enum(ChordQuality.values, args['chord']);
     final style = args['style'] == null
         ? null
         : _enum(DroneStyle.values, args['style']);
@@ -473,7 +472,6 @@ class AppActions {
       if (chord != null) drone.setChord(chord);
       if (progression != null) drone.setProgression(progression);
       if (style != null) drone.setStyle(style);
-      if (sevenths != null) drone.setSevenths(sevenths);
     };
   }
 
@@ -515,7 +513,6 @@ class AppActions {
         'voicing': drone.voicing.name,
         'chord': drone.chord.name,
         'progression': drone.progression.name,
-        'sevenths': drone.sevenths,
         'style': drone.style.name,
         'progression_step': drone.voicing == DroneVoicing.progression
             ? drone.step
