@@ -12,6 +12,7 @@ import '../../audio/mic_input.dart';
 import '../../audio/pitch.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/dial.dart';
+import '../../widgets/pill_switch.dart';
 import '../../widgets/reference_pitch_row.dart';
 import 'tuner_controller.dart';
 import 'tuner_reading.dart';
@@ -192,137 +193,79 @@ class _TuningSwitch extends StatelessWidget {
         .map((n) => n.label(names, numbering: settings.octaveNumbering))
         .join(' ');
     final chromatic = settings.tunerChromatic;
-    Widget label(bool selected, Widget child) => Center(
-      child: DefaultTextStyle.merge(
-        style: theme.textTheme.labelLarge?.copyWith(
-          color: selected ? scheme.onPrimaryContainer : scheme.onSurface,
+    Widget label(bool selected, Widget child) =>
+        PillSwitch.label(context, selected, child);
+    return PillSwitch(
+      key: const Key('tuningSwitch'),
+      leftFilled: chromatic,
+      rightFilled: !chromatic,
+      left: PillSwitch.half(
+        left: true,
+        child: Semantics(
+          button: true,
+          selected: chromatic,
+          child: InkWell(
+            key: const Key('tuningChromatic'),
+            onTap: () => settings.setTunerChromatic(true),
+            child: label(
+              chromatic,
+              Text(
+                settings.transposition == Transposition.c
+                    ? l10n.tuningChromatic
+                    : '${l10n.tuningChromatic} · '
+                          '${Note(settings.transposition.key, 4).name(names)}',
+                maxLines: 1,
+              ),
+            ),
+          ),
         ),
-        child: FittedBox(fit: BoxFit.scaleDown, child: child),
       ),
-    );
-    return Semantics(
-      container: true,
-      child: SizedBox(
-        key: const Key('tuningSwitch'),
-        width: double.infinity,
-        height: 48,
-        child: Stack(
-          children: [
-            // What is seen: the pill, with the chosen half filled.
-            Center(
-              child: SizedBox(
-                height: 40,
-                child: Material(
-                  type: MaterialType.transparency,
-                  shape: StadiumBorder(side: BorderSide(color: scheme.outline)),
-                  clipBehavior: Clip.antiAlias,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+      right: PillSwitch.half(
+        left: false,
+        child: Semantics(
+          button: true,
+          selected: !chromatic,
+          child: PopupMenuButton<TunerTuning>(
+            key: const Key('tuningInstrument'),
+            tooltip: l10n.tuningInstrument,
+            position: PopupMenuPosition.over,
+            initialValue: settings.tunerInstrument,
+            padding: EdgeInsets.zero,
+            onOpened: () => settings.setTunerChromatic(false),
+            onSelected: settings.setTunerInstrument,
+            itemBuilder: (context) => [
+              for (final t in TunerTuning.instruments)
+                PopupMenuItem(
+                  value: t,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Expanded(
-                        child: ColoredBox(
-                          color: chromatic
-                              ? scheme.primaryContainer
-                              : Colors.transparent,
-                        ),
-                      ),
-                      VerticalDivider(width: 1, color: scheme.outline),
-                      Expanded(
-                        child: ColoredBox(
-                          color: chromatic
-                              ? Colors.transparent
-                              : scheme.primaryContainer,
+                      Text(_tuningName(l10n, t)),
+                      Text(
+                        strings(t),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-            ),
-            // What is touched: the two halves, as high as a finger.
-            Material(
-              type: MaterialType.transparency,
-              child: Row(
+            ],
+            child: label(
+              !chromatic,
+              Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: _PillHalf(
-                      left: true,
-                      child: Semantics(
-                        button: true,
-                        selected: chromatic,
-                        child: InkWell(
-                          key: const Key('tuningChromatic'),
-                          onTap: () => settings.setTunerChromatic(true),
-                          child: label(
-                            chromatic,
-                            Text(
-                              settings.transposition == Transposition.c
-                                  ? l10n.tuningChromatic
-                                  : '${l10n.tuningChromatic} · '
-                                        '${Note(settings.transposition.key, 4).name(names)}',
-                              maxLines: 1,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                  Text(
+                    _tuningName(l10n, settings.tunerInstrument),
+                    maxLines: 1,
                   ),
-                  const SizedBox(width: 1),
-                  Expanded(
-                    child: _PillHalf(
-                      left: false,
-                      child: Semantics(
-                        button: true,
-                        selected: !chromatic,
-                        child: PopupMenuButton<TunerTuning>(
-                          key: const Key('tuningInstrument'),
-                          tooltip: l10n.tuningInstrument,
-                          position: PopupMenuPosition.over,
-                          initialValue: settings.tunerInstrument,
-                          padding: EdgeInsets.zero,
-                          onOpened: () => settings.setTunerChromatic(false),
-                          onSelected: settings.setTunerInstrument,
-                          itemBuilder: (context) => [
-                            for (final t in TunerTuning.instruments)
-                              PopupMenuItem(
-                                value: t,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(_tuningName(l10n, t)),
-                                    Text(
-                                      strings(t),
-                                      style: theme.textTheme.bodySmall
-                                          ?.copyWith(
-                                            color: scheme.onSurfaceVariant,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                          ],
-                          child: label(
-                            !chromatic,
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  _tuningName(l10n, settings.tunerInstrument),
-                                  maxLines: 1,
-                                ),
-                                const Icon(Icons.arrow_drop_down),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  const Icon(Icons.arrow_drop_down),
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -951,49 +894,4 @@ class _CentsBarPainter extends CustomPainter {
       old.track != track ||
       old.middle != middle ||
       old.hub != hub;
-}
-
-/// One half of the tuning switch, touchable over its 48 dp but with its ink
-/// (press, hover, focus) kept inside the 40 dp pill, with the rounded outer
-/// corners and the flat inner side of the half it is.
-class _PillHalf extends StatelessWidget {
-  const _PillHalf({required this.left, required this.child});
-
-  final bool left;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => ClipPath(
-    clipper: _PillHalfClipper(left),
-    child: Material(type: MaterialType.transparency, child: child),
-  );
-}
-
-class _PillHalfClipper extends CustomClipper<Path> {
-  const _PillHalfClipper(this.left);
-
-  final bool left;
-
-  static const _height = 40.0;
-
-  @override
-  Path getClip(Size size) {
-    const round = Radius.circular(_height / 2);
-    final top = (size.height - _height) / 2;
-    return Path()..addRRect(
-      RRect.fromLTRBAndCorners(
-        0,
-        top,
-        size.width,
-        top + _height,
-        topLeft: left ? round : Radius.zero,
-        bottomLeft: left ? round : Radius.zero,
-        topRight: left ? Radius.zero : round,
-        bottomRight: left ? Radius.zero : round,
-      ),
-    );
-  }
-
-  @override
-  bool shouldReclip(_PillHalfClipper old) => old.left != left;
 }

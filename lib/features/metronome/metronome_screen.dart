@@ -10,6 +10,7 @@ import '../../audio/audio_scope.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/balance_slider.dart';
 import '../../widgets/dial.dart';
+import '../../widgets/pill_switch.dart';
 import '../../widgets/row_controls.dart';
 import 'feel.dart';
 import 'metronome_controller.dart';
@@ -427,11 +428,13 @@ String beatUnitName(AppLocalizations l10n, BeatUnit unit) => switch (unit) {
   BeatUnit.eighth => l10n.beatUnitEighth,
 };
 
-/// What sounds inside each beat: straight, with a menu to choose what
-/// fills the beat (a quarter note, two eighths, a triplet, four sixteenths:
-/// softer clicks between the beats), or the swing. Chosen as Root, Chord and
-/// Progression are on the harmony tab. Bars counted in eighths are always
-/// played plain, so it is off there.
+/// What sounds inside each beat, in the first row under the dial, drawn
+/// exactly as the tuner's Chromatic / instrument switch: two menus, the feel
+/// (Straight or Swing) on the left, and on the right what fills the beat (a
+/// quarter note, two eighths, a triplet, four sixteenths: softer clicks
+/// between the beats). The swing brings its own skip note, so the right menu
+/// is off then, and in the bars counted in eighths, which are always played
+/// plain, both are.
 class _FeelSwitch extends StatelessWidget {
   const _FeelSwitch({required this.metronome});
 
@@ -441,89 +444,106 @@ class _FeelSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final applies = metronome.feelApplies;
+    final swing = metronome.feel == MetronomeFeel.swing;
     final subdivision = metronome.subdivision;
-    return Semantics(
-      label: l10n.feelLabel,
-      container: true,
-      child: SizedBox(
-        width: double.infinity,
-        child: SegmentedButton<MetronomeFeel>(
-          key: const Key('feelSwitch'),
-          showSelectedIcon: false,
-          style: SegmentedButton.styleFrom(
-            minimumSize: const Size(0, LowEndShape.row),
-            padding: EdgeInsets.zero,
+    String feelName(MetronomeFeel f) => switch (f) {
+      MetronomeFeel.straight => l10n.feelStraight,
+      MetronomeFeel.swing => l10n.feelSwing,
+    };
+    Widget half({
+      required bool left,
+      required bool enabled,
+      required String semantics,
+      required Widget menu,
+    }) => PillSwitch.half(
+      left: left,
+      child: Semantics(
+        button: true,
+        enabled: enabled,
+        label: semantics,
+        excludeSemantics: true,
+        child: Opacity(opacity: enabled ? 1 : 0.38, child: menu),
+      ),
+    );
+    return PillSwitch(
+      key: const Key('feelSwitch'),
+      leftFilled: false,
+      rightFilled: false,
+      left: half(
+        left: true,
+        enabled: applies,
+        semantics: '${l10n.feelLabel}: ${feelName(metronome.feel)}',
+        menu: PopupMenuButton<MetronomeFeel>(
+          key: const Key('feelMenu'),
+          enabled: applies,
+          tooltip: l10n.feelLabel,
+          position: PopupMenuPosition.over,
+          initialValue: metronome.feel,
+          padding: EdgeInsets.zero,
+          onSelected: metronome.setFeel,
+          itemBuilder: (context) => [
+            for (final f in MetronomeFeel.values)
+              PopupMenuItem(value: f, child: Text(feelName(f))),
+          ],
+          child: PillSwitch.label(
+            context,
+            false,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(feelName(metronome.feel), maxLines: 1),
+                const Icon(Icons.arrow_drop_down),
+              ],
+            ),
           ),
-          segments: [
-            ButtonSegment(
-              value: MetronomeFeel.straight,
-              // The menu opens from the label; the rest of the segment
-              // just picks the straight feel.
-              label: PopupMenuButton<Subdivision>(
-                key: const Key('subdivisionMenu'),
-                enabled: applies,
-                tooltip: l10n.feelStraight,
-                position: PopupMenuPosition.over,
-                initialValue: subdivision,
-                padding: EdgeInsets.zero,
-                onSelected: metronome.setSubdivision,
-                itemBuilder: (context) => [
-                  for (final s in Subdivision.values)
-                    PopupMenuItem(
-                      value: s,
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 56,
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: NoteIcon(s, height: 26),
-                            ),
-                          ),
-                          Flexible(
-                            child: Text(
-                              subdivisionName(l10n, s),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
+        ),
+      ),
+      right: half(
+        left: false,
+        enabled: applies && !swing,
+        semantics: subdivisionName(l10n, subdivision),
+        menu: PopupMenuButton<Subdivision>(
+          key: const Key('subdivisionMenu'),
+          enabled: applies && !swing,
+          tooltip: subdivisionName(l10n, subdivision),
+          position: PopupMenuPosition.over,
+          initialValue: subdivision,
+          padding: EdgeInsets.zero,
+          onSelected: metronome.setSubdivision,
+          itemBuilder: (context) => [
+            for (final s in Subdivision.values)
+              PopupMenuItem(
+                value: s,
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 56,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: NoteIcon(s, height: 26),
                       ),
                     ),
-                ],
-                child: Semantics(
-                  label:
-                      '${l10n.feelStraight}, ${subdivisionName(l10n, subdivision)}',
-                  excludeSemantics: true,
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: LowEndShape.row,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(l10n.feelStraight, maxLines: 1),
-                          const SizedBox(width: 8),
-                          NoteIcon(subdivision, height: 26),
-                          const Icon(Icons.arrow_drop_down),
-                        ],
+                    Flexible(
+                      child: Text(
+                        subdivisionName(l10n, s),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
-            ),
-            ButtonSegment(
-              value: MetronomeFeel.swing,
-              label: Text(l10n.feelSwing, maxLines: 1),
-            ),
           ],
-          selected: {metronome.feel},
-          onSelectionChanged: applies
-              ? (s) => s.first == MetronomeFeel.swing
-                    ? metronome.setFeel(MetronomeFeel.swing)
-                    : metronome.setSubdivision(subdivision)
-              : null,
+          child: PillSwitch.label(
+            context,
+            false,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                NoteIcon(subdivision, height: 26),
+                const Icon(Icons.arrow_drop_down),
+              ],
+            ),
+          ),
         ),
       ),
     );

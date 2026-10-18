@@ -221,27 +221,30 @@ void main() {
       return AudioScope.of(tester.element(find.byType(HomeShell))).metronome;
     }
 
-    testWidgets(
-      'the switch chooses straight with a menu of subdivisions, or swing',
-      (tester) async {
-        final metronome = await pump(tester);
-        await tester.tap(find.byKey(const Key('subdivisionMenu')));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Triplets'));
-        await tester.pumpAndSettle();
-        expect(metronome.subdivision, Subdivision.triplets);
-        expect(metronome.feel, MetronomeFeel.straight);
-        await tester.tap(find.text('Swing'));
-        await tester.pump();
-        expect(metronome.feel, MetronomeFeel.swing);
-        // From the swing, the menu brings back the straight feel.
-        await tester.tap(find.byKey(const Key('subdivisionMenu')));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Eighth notes'));
-        await tester.pumpAndSettle();
-        expect(metronome.subdivision, Subdivision.eighths);
-      },
-    );
+    testWidgets('two menus: the feel, and what fills the beat', (tester) async {
+      final metronome = await pump(tester);
+      await tester.tap(find.byKey(const Key('subdivisionMenu')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Triplets'));
+      await tester.pumpAndSettle();
+      expect(metronome.subdivision, Subdivision.triplets);
+      expect(metronome.feel, MetronomeFeel.straight);
+      await tester.tap(find.byKey(const Key('feelMenu')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Swing').last);
+      await tester.pumpAndSettle();
+      expect(metronome.feel, MetronomeFeel.swing);
+      expect(metronome.subdivision, Subdivision.none);
+      // The swing has its own skip note: the subdivisions are off.
+      await tester.tap(find.byKey(const Key('subdivisionMenu')));
+      await tester.pumpAndSettle();
+      expect(find.text('Eighth notes'), findsNothing);
+      await tester.tap(find.byKey(const Key('feelMenu')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Straight').last);
+      await tester.pumpAndSettle();
+      expect(metronome.feel, MetronomeFeel.straight);
+    });
 
     testWidgets('the click on 2 and 4 is in the time signature list', (
       tester,
