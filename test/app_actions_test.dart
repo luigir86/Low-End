@@ -42,6 +42,26 @@ void main() {
     expect(text, exportActions());
   });
 
+  test('a link cannot change the saved settings, a direct call can', () async {
+    for (final (name, args) in [
+      ('set_reference_pitch', <String, Object?>{'hz': 442}),
+      ('settings_set', <String, Object?>{'language': 'it'}),
+    ]) {
+      final refused = await actions.call(name, args, true);
+      expect(refused['ok'], false, reason: name);
+      expect('${refused['error']}', contains('link'));
+    }
+    expect(settings.a4, 440);
+    expect(settings.languageCode, isNull);
+    expect(
+      (await actions.call('set_reference_pitch', {'hz': 442}))['ok'],
+      true,
+    );
+    expect(settings.a4, 442);
+    // The harmless actions still work from a link.
+    expect((await actions.call('drone_stop', const {}, true))['ok'], true);
+  });
+
   test('reads note names in English and Italian', () {
     expect(parseNote('A'), (pitchClass: 9, octave: null));
     expect(parseNote('Bb1'), (pitchClass: 10, octave: 1));

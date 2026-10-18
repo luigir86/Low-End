@@ -328,7 +328,7 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
       return true;
     }
     final (name, args) = link;
-    _actions.call(name, args).then((result) {
+    _actions.call(name, args, true).then((result) {
       if (result['ok'] != true) debugPrint('Action link failed: $result');
     });
     return true;

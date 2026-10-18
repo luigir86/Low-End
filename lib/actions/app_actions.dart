@@ -330,15 +330,30 @@ class AppActions {
     },
   };
 
+  /// Actions that change the saved settings. A `lowend://` link is open to
+  /// any web page, so it may not use them: only a caller that talks to the
+  /// app directly (an assistant through the action layer, the screens) may.
+  static const settingsActions = {'set_reference_pitch', 'settings_set'};
+
   /// Runs the action [name] and returns `{ok: true, state: …}`, or
   /// `{ok: false, error: …}` when the name or the arguments are wrong.
+  ///
+  /// [fromLink] is true for an action that arrives as a `lowend://` link.
   Future<Map<String, Object?>> call(
     String name, [
     Map<String, Object?> args = const {},
+    bool fromLink = false,
   ]) async {
     try {
       final action = catalog.where((a) => a.name == name).firstOrNull;
       if (action == null) throw ActionError('Unknown action "$name".');
+      if (fromLink && settingsActions.contains(name)) {
+        throw ActionError(
+          '"$name" changes the saved settings, so it cannot be run from a '
+          'link: change them in the app\'s Settings, or call the action '
+          'directly instead of through a lowend:// link.',
+        );
+      }
       for (final key in args.keys) {
         if (!action.parameters.containsKey(key)) {
           throw ActionError('"$name" has no parameter "$key".');
