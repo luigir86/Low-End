@@ -43,42 +43,23 @@ void main() {
     expect(find.text('Tap to start'), findsOneWidget);
   });
 
-  testWidgets('tapping the current tab does nothing with gestures locked', (
-    tester,
-  ) async {
-    final scope = await _launch(
-      tester,
-      prefs: {'gestures_locked': true},
-      portrait: true,
-    );
-    scope.metronome.start();
-    await tester.pump();
-    await tester.tap(
-      find.descendant(
-        of: find.byType(NavigationBar),
-        matching: find.text('Metronome'),
-      ),
-    );
-    await tester.pump(const Duration(milliseconds: 300));
-    expect(scope.metronome.isPlaying, isTrue);
-    scope.metronome.stop();
-  });
-
-  testWidgets('tapping the current tab still stops it when not locked', (
-    tester,
-  ) async {
-    final scope = await _launch(tester, portrait: true);
-    scope.metronome.start();
-    await tester.pump();
-    await tester.tap(
-      find.descendant(
-        of: find.byType(NavigationBar),
-        matching: find.text('Metronome'),
-      ),
-    );
-    await tester.pump(const Duration(milliseconds: 300));
-    expect(scope.metronome.isPlaying, isFalse);
-  });
+  testWidgets(
+    'tapping the current tab changes nothing: a tab only goes to its section',
+    (tester) async {
+      final scope = await _launch(tester, portrait: true);
+      scope.metronome.start();
+      await tester.pump();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(NavigationBar),
+          matching: find.text('Metronome'),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(scope.metronome.isPlaying, isTrue);
+      scope.metronome.stop();
+    },
+  );
 
   testWidgets('the key is written out and a numeral says its degree', (
     tester,

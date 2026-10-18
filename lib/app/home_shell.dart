@@ -1,6 +1,4 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../audio/audio_scope.dart';
 import '../features/metronome/metronome_screen.dart';
@@ -9,7 +7,6 @@ import '../features/tuner/tuner_panel.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/dial.dart';
 import '../widgets/flip_detector.dart';
-import '../widgets/pulsing_dot.dart';
 import 'app_navigation.dart';
 import 'guide.dart';
 import 'settings_page.dart';
@@ -115,95 +112,10 @@ class _HomeShellState extends State<HomeShell> {
     });
   }
 
-  /// The hint shown over a tab after holding it, one per section.
-  final _hints = {
-    for (final s in AppSection.values) s: GlobalKey<TooltipState>(),
-  };
-
-  /// Starts or stops what a tab plays, on a long press. On the tuner, while
-  /// the microphone listens, it only stops: the tuner pauses the sound so
-  /// as to hear the bass, and holding a tab must not undo that unseen.
-  void _toggle(AppSection section) {
-    final scope = AudioScope.of(context);
-    final playing = switch (section) {
-      AppSection.metronome => scope.metronome.isPlaying,
-      AppSection.drone => scope.drone.isPlaying,
-      AppSection.tuner => true,
-    };
-    final listening =
-        scope.navigation.section == AppSection.tuner && scope.tuner.isListening;
-    if (listening && !playing) return;
-    HapticFeedback.mediumImpact();
-    switch (section) {
-      case AppSection.metronome:
-        scope.metronome.toggle();
-      case AppSection.drone:
-        scope.drone.toggle();
-      case AppSection.tuner:
-        break;
-    }
-    // Says what holding does, also to those who found it by chance.
-    _hints[section]?.currentState?.ensureTooltipVisible();
-  }
-
-  /// A tap on the tab of the section on screen starts or stops what it
-  /// plays (the tuner: listens or pauses), like the middle of its dial; a
-  /// tap on another tab only goes there, and holding it starts or stops
-  /// that section from here.
-  void _onDestination(int i) {
-    final navigation = AudioScope.of(context).navigation;
-    final section = AppSection.values[i];
-    if (navigation.section != section) {
-      navigation.open(section);
-      return;
-    }
-    final scope = AudioScope.of(context);
-    // With the gestures locked for a rehearsal the current tab does nothing:
-    // a hand brushing it on the music stand must not stop the click. The
-    // ring (or the middle of the dial) starts and stops it.
-    if (scope.settings.gesturesLocked) return;
-    switch (section) {
-      case AppSection.metronome:
-        scope.metronome.toggle();
-      case AppSection.drone:
-        scope.drone.toggle();
-      case AppSection.tuner:
-        scope.tuner.toggle();
-    }
-  }
-
-  Widget _tab(AppSection section, Widget tabContent, {required bool active}) {
-    final l10n = AppLocalizations.of(context);
-    final destination = tabContent;
-    // The tuner has nothing to hold for, and with the gestures locked for a
-    // rehearsal no tab does: it only answers a tap, but still says it plays.
-    if (section == AppSection.tuner ||
-        AudioScope.of(context).settings.gesturesLocked) {
-      return Semantics(value: active ? l10n.playing : null, child: destination);
-    }
-    return Semantics(
-      onLongPressHint: l10n.holdToToggle,
-      // Screen readers hear it too, with the tab's name.
-      value: active ? l10n.playing : null,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onLongPress: () => _toggle(section),
-        // Shown only after a hold (the hold itself is the shortcut): a
-        // tooltip of its own would take the long press away from it.
-        child: _HoldFeedback(
-          child: Tooltip(
-            key: _hints[section],
-            message: l10n.holdToToggle,
-            triggerMode: TooltipTriggerMode.manual,
-            excludeFromSemantics: true,
-            preferBelow: false,
-            verticalOffset: 42,
-            child: destination,
-          ),
-        ),
-      ),
-    );
-  }
+  /// A tap on a tab goes to its section; what plays is started and stopped
+  /// from the section itself (the middle of its dial, the pill under it).
+  void _onDestination(int i) =>
+      AudioScope.of(context).navigation.open(AppSection.values[i]);
 
   @override
   void didChangeDependencies() {
@@ -223,17 +135,9 @@ class _HomeShellState extends State<HomeShell> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final scope = AudioScope.of(context);
-    final drone = scope.drone;
-    final metronome = scope.metronome;
     final navigation = scope.navigation;
     return ListenableBuilder(
-      listenable: Listenable.merge([
-        drone,
-        metronome,
-        navigation,
-        scope.tuner,
-        scope.settings,
-      ]),
+      listenable: Listenable.merge([navigation, scope.settings]),
       builder: (context, _) {
         final section = navigation.section;
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -275,28 +179,15 @@ class _HomeShellState extends State<HomeShell> {
             ),
           ],
         );
+        // In the order of AppSection.
         final entries = [
           (
-            section: AppSection.metronome,
             icon: Icons.timer_outlined,
-            activeIcon: Icons.timer,
+            selectedIcon: Icons.timer,
             label: l10n.metronomeTab,
-            active: metronome.isPlaying,
           ),
-          (
-            section: AppSection.drone,
-            icon: Icons.graphic_eq,
-            activeIcon: null,
-            label: l10n.harmonyTab,
-            active: drone.isPlaying,
-          ),
-          (
-            section: AppSection.tuner,
-            icon: Icons.mic_none,
-            activeIcon: Icons.mic,
-            label: l10n.tunerTab,
-            active: scope.tuner.isListening,
-          ),
+          (icon: Icons.graphic_eq, selectedIcon: null, label: l10n.harmonyTab),
+          (icon: Icons.mic_none, selectedIcon: Icons.mic, label: l10n.tunerTab),
         ];
         return Scaffold(
           // No title bar: the three sections share the whole height, and the
@@ -311,21 +202,17 @@ class _HomeShellState extends State<HomeShell> {
                         FlipDetector(
                           child: _TabRail(
                             items: [
-                              for (final e in entries)
-                                _tab(
-                                  e.section,
-                                  active: e.active,
-                                  _RailItem(
-                                    icon: ActivityIcon(
-                                      icon: e.icon,
-                                      activeIcon: e.activeIcon,
-                                      active: e.active,
-                                    ),
-                                    label: e.label,
-                                    selected: section == e.section,
-                                    onTap: () =>
-                                        _onDestination(e.section.index),
+                              for (var i = 0; i < entries.length; i++)
+                                _RailItem(
+                                  icon: Icon(
+                                    section.index == i
+                                        ? entries[i].selectedIcon ??
+                                              entries[i].icon
+                                        : entries[i].icon,
                                   ),
+                                  label: entries[i].label,
+                                  selected: section.index == i,
+                                  onTap: () => _onDestination(i),
                                 ),
                             ],
                           ),
@@ -336,120 +223,26 @@ class _HomeShellState extends State<HomeShell> {
                   : pages,
             ),
           ),
-          // Each section starts and stops its own sound; the pulsing dot on
-          // a tab says which ones are playing.
+          // The tabs only go to a section; each one starts and stops its own
+          // sound (the middle of the dial, the pill under it).
           bottomNavigationBar: landscape
               ? null
               : NavigationBar(
                   selectedIndex: section.index,
                   onDestinationSelected: _onDestination,
-                  // In the order of AppSection.
                   destinations: [
-                    _tab(
-                      AppSection.metronome,
-                      active: metronome.isPlaying,
+                    for (final e in entries)
                       NavigationDestination(
-                        icon: ActivityIcon(
-                          icon: Icons.timer_outlined,
-                          activeIcon: Icons.timer,
-                          active: metronome.isPlaying,
-                        ),
-                        label: l10n.metronomeTab,
-                        // No tooltip: holding the tab starts and stops it instead.
-                        tooltip: '',
+                        icon: Icon(e.icon),
+                        selectedIcon: e.selectedIcon == null
+                            ? null
+                            : Icon(e.selectedIcon),
+                        label: e.label,
                       ),
-                    ),
-                    _tab(
-                      AppSection.drone,
-                      active: drone.isPlaying,
-                      NavigationDestination(
-                        icon: ActivityIcon(
-                          icon: Icons.graphic_eq,
-                          active: drone.isPlaying,
-                        ),
-                        label: l10n.harmonyTab,
-                        tooltip: '',
-                      ),
-                    ),
-                    _tab(
-                      AppSection.tuner,
-                      active: scope.tuner.isListening,
-                      NavigationDestination(
-                        // It listens: the microphone says what the tab does, and
-                        // the dot, as on the others, that it is on now.
-                        icon: ActivityIcon(
-                          icon: Icons.mic_none,
-                          activeIcon: Icons.mic,
-                          active: scope.tuner.isListening,
-                        ),
-                        label: l10n.tunerTab,
-                      ),
-                    ),
                   ],
                 ),
         );
       },
-    );
-  }
-}
-
-/// Fills the tab with colour while a finger rests on it, for as long as a
-/// long press takes, so that the hold is seen coming and not only after it.
-class _HoldFeedback extends StatefulWidget {
-  const _HoldFeedback({required this.child});
-
-  final Widget child;
-
-  @override
-  State<_HoldFeedback> createState() => _HoldFeedbackState();
-}
-
-class _HoldFeedbackState extends State<_HoldFeedback>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _fill = AnimationController(
-    vsync: this,
-    duration: kLongPressTimeout,
-  );
-
-  void _down() {
-    if (MediaQuery.disableAnimationsOf(context)) return;
-    _fill.forward(from: 0);
-  }
-
-  void _up() => _fill.reverse();
-
-  @override
-  void dispose() {
-    _fill.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Listener(
-      onPointerDown: (_) => _down(),
-      onPointerUp: (_) => _up(),
-      onPointerCancel: (_) => _up(),
-      child: Stack(
-        fit: StackFit.passthrough,
-        children: [
-          widget.child,
-          Positioned.fill(
-            child: IgnorePointer(
-              child: AnimatedBuilder(
-                animation: _fill,
-                builder: (context, _) => DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: colors.primary.withValues(alpha: 0.28 * _fill.value),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

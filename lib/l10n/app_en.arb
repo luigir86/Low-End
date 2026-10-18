@@ -17,7 +17,6 @@
   },
   "timeSignature": "Time signature",
   "backgroundPlaying": "Playing in the background",
-  "holdToToggle": "Hold to start or stop",
   "slower": "Slower",
   "faster": "Faster",
   "tapTempo": "Tap the tempo",
@@ -55,22 +54,11 @@
       }
     }
   },
-  "balanceTitle": "Balance",
-  "@balanceTitle": {
-    "description": "The word over the balance slider, so that its two side icons do not read as tabs"
+  "mixBoth": "Both",
+  "@mixBoth": {
+    "description": "The middle part of the pill that chooses what plays: the metronome, both, or the harmony"
   },
-  "balanceLabel": "Balance between the metronome and the harmony",
-  "balanceValue": "Metronome {metronome}%, harmony {drone}%",
-  "@balanceValue": {
-    "placeholders": {
-      "metronome": {
-        "type": "String"
-      },
-      "drone": {
-        "type": "String"
-      }
-    }
-  },
+  "mixLabel": "What plays",
   "referencePitch": "Reference A",
   "lowerPitch": "Lower the reference A",
   "higherPitch": "Raise the reference A",
@@ -217,7 +205,6 @@
   "beatUnitEighth": "eighth note",
   "pausedForTuner": "Paused while you tune",
   "resume": "Resume",
-  "playing": "Playing",
   "openSettings": "Open settings",
   "keepScreenOnTitle": "Keep the screen on",
   "keepScreenOnSubtitle": "While it plays or the tuner listens",
@@ -272,7 +259,7 @@
   },
   "swipeHint": "Swipe up or down over the dial or the tabs to change section.",
   "gesturesLockedTitle": "Lock the gestures",
-  "gesturesLockedSubtitle": "For rehearsals: no swiping between sections and no holding a tab, and tapping the current tab no longer stops anything",
+  "gesturesLockedSubtitle": "For rehearsals: no swiping between sections",
   "inTuneZoneTitle": "Tuner: in tune within",
   "inTuneZoneSubtitle": "How far off a note can be, in cents (hundredths of a semitone), and still show as in tune",
   "shapeLabel": "Chord position",
@@ -284,10 +271,10 @@
   "guideTempo": "Touch the pencil to type the tempo. Hold − or + and the tempo runs, faster and faster.",
   "guideSwipe": "Swipe left and right to change section.",
   "guideSwipeVertical": "Turned sideways, swipe up and down over the dial or the tabs to change section.",
-  "guideHold": "Hold a tab to start or stop its sound from any section.",
+  "guideMix": "The pill under the dial chooses what plays: the metronome, both, or the harmony. Tap the lit one to stop.",
   "guideDrone": "In Harmony, tap a note to play it. Hold C♯ or F♯ to write them D♭ or G♭.",
   "guideTuner": "The tuner listens by itself. Going there pauses the metronome and the harmony.",
-  "guideVolume": "The volume is the phone's: use its volume keys. The slider at the bottom only balances the metronome and the harmony.",
+  "guideVolume": "The volume is the phone's: use its volume keys.",
   "guideDone": "Got it",
   "writeAs": "Write as {note}",
   "@writeAs": {
@@ -313,7 +300,7 @@
       }
     }
   },
-  "guideLock": "For rehearsals, lock the gestures in the settings: tapping the current tab then no longer stops anything.",
+  "guideLock": "For rehearsals, lock the gestures in the settings: swiping between sections then does nothing.",
   "guideCents": "A cent is a hundredth of a semitone: within a few cents a note is in tune.",
   "progressionBluesShort": "Blues",
   "keyLine": "{progression} in {key}",

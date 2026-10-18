@@ -158,12 +158,6 @@ abstract class AppLocalizations {
   /// **'Playing in the background'**
   String get backgroundPlaying;
 
-  /// No description provided for @holdToToggle.
-  ///
-  /// In en, this message translates to:
-  /// **'Hold to start or stop'**
-  String get holdToToggle;
-
   /// No description provided for @slower.
   ///
   /// In en, this message translates to:
@@ -278,23 +272,17 @@ abstract class AppLocalizations {
   /// **'{note} diminished'**
   String droneChordDiminished(String note);
 
-  /// The word over the balance slider, so that its two side icons do not read as tabs
+  /// The middle part of the pill that chooses what plays: the metronome, both, or the harmony
   ///
   /// In en, this message translates to:
-  /// **'Balance'**
-  String get balanceTitle;
+  /// **'Both'**
+  String get mixBoth;
 
-  /// No description provided for @balanceLabel.
+  /// No description provided for @mixLabel.
   ///
   /// In en, this message translates to:
-  /// **'Balance between the metronome and the harmony'**
-  String get balanceLabel;
-
-  /// No description provided for @balanceValue.
-  ///
-  /// In en, this message translates to:
-  /// **'Metronome {metronome}%, harmony {drone}%'**
-  String balanceValue(String metronome, String drone);
+  /// **'What plays'**
+  String get mixLabel;
 
   /// No description provided for @referencePitch.
   ///
@@ -656,12 +644,6 @@ abstract class AppLocalizations {
   /// **'Resume'**
   String get resume;
 
-  /// No description provided for @playing.
-  ///
-  /// In en, this message translates to:
-  /// **'Playing'**
-  String get playing;
-
   /// No description provided for @openSettings.
   ///
   /// In en, this message translates to:
@@ -833,7 +815,7 @@ abstract class AppLocalizations {
   /// No description provided for @gesturesLockedSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'For rehearsals: no swiping between sections and no holding a tab, and tapping the current tab no longer stops anything'**
+  /// **'For rehearsals: no swiping between sections'**
   String get gesturesLockedSubtitle;
 
   /// No description provided for @inTuneZoneTitle.
@@ -902,11 +884,11 @@ abstract class AppLocalizations {
   /// **'Turned sideways, swipe up and down over the dial or the tabs to change section.'**
   String get guideSwipeVertical;
 
-  /// No description provided for @guideHold.
+  /// No description provided for @guideMix.
   ///
   /// In en, this message translates to:
-  /// **'Hold a tab to start or stop its sound from any section.'**
-  String get guideHold;
+  /// **'The pill under the dial chooses what plays: the metronome, both, or the harmony. Tap the lit one to stop.'**
+  String get guideMix;
 
   /// No description provided for @guideDrone.
   ///
@@ -923,7 +905,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideVolume.
   ///
   /// In en, this message translates to:
-  /// **'The volume is the phone\'s: use its volume keys. The slider at the bottom only balances the metronome and the harmony.'**
+  /// **'The volume is the phone\'s: use its volume keys.'**
   String get guideVolume;
 
   /// No description provided for @guideDone.
@@ -971,7 +953,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideLock.
   ///
   /// In en, this message translates to:
-  /// **'For rehearsals, lock the gestures in the settings: tapping the current tab then no longer stops anything.'**
+  /// **'For rehearsals, lock the gestures in the settings: swiping between sections then does nothing.'**
   String get guideLock;
 
   /// No description provided for @guideCents.

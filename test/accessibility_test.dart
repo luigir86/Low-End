@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:low_end/app/low_end_app.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
-import 'package:low_end/widgets/pulsing_dot.dart';
 
 /// Checks the main screens against Flutter's accessibility guidelines: touch
 /// targets of at least 48 dp, a label on every tappable element, and text
@@ -40,8 +39,8 @@ Future<void> pumpApp(
   await tester.pumpAndSettle();
 }
 
-/// The Harmony and Metronome tabs: their names are also under the balance
-/// slider.
+/// The Harmony and Metronome tabs: their names are also in the pill under
+/// the dial.
 final _harmonyTab = find.descendant(
   of: find.byType(NavigationBar),
   matching: find.text('Harmony'),
@@ -134,23 +133,6 @@ void main() {
     await tester.tap(_metronomeTab);
     await tester.pump(const Duration(milliseconds: 300));
     expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('the playing dot stays still when animations are off', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      const MediaQuery(
-        data: MediaQueryData(disableAnimations: true),
-        child: Directionality(
-          textDirection: TextDirection.ltr,
-          child: PulsingDot(),
-        ),
-      ),
-    );
-    // Would time out if the dot kept pulsing.
-    await tester.pumpAndSettle();
-    expect(find.byType(PulsingDot), findsOneWidget);
   });
 }
 

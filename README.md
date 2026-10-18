@@ -10,7 +10,7 @@ Low End is a free, open-source practice app for musicians: a **metronome**, a pi
 
 ## What it does
 
-The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens on the metronome. Swipe left and right to change section, touch the tab you are on to start or stop its sound, or hold another tab to do it from anywhere. A pulsing dot on a tab shows that its sound is playing.
+The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens on the metronome. Swipe left and right to change section. The pill under the dial chooses what plays: the metronome, both, or the harmony.
 
 ### Metronome
 
@@ -23,12 +23,12 @@ The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens o
 - Twelve note keys round a dial: touch one to play it on a real piano, in time with the metronome, and touch it again to stop.
 - The note alone (**Root**), a major, minor or seventh **Chord**, or a **Progression** of one chord per bar: II–V–I (major and minor), I–IV–V, I–VI–IV–V and the twelve-bar blues, in the key of the note touched. The menu names each with a well-known song (Autumn Leaves, Blue Bossa, Twist and Shout, Stand by Me, Sweet Home Chicago).
 - Held for the bar, struck on every beat or arpeggiated; choose the octave of the root and where the chord sits (stacked, close or without the root).
-- One **Balance** slider mixes the metronome and the harmony. The volume itself is the phone's.
+- One **pill** chooses what plays: the metronome, both, or the harmony. The volume itself is the phone's.
 
 ### Tuner
 
 - Chromatic, with a round strobe and the note in the middle: play any note and it shows up, no string to choose first.
-- Under the strobe, a bar like the Balance slider shows how far off the note is: a dot on a thin track, with a short mark in the middle.
+- Under the strobe, a bar shows how far off the note is: a dot on a thin track, with a short mark in the middle.
 - Finds the note with the YIN algorithm ([`lib/audio/pitch_detector.dart`](lib/audio/pitch_detector.dart)), from 28 to 2800 Hz (700 Hz with the bass chosen): from the lowest strings to the top of the violin and the flute. For B♭, E♭ and F instruments it can name the written note.
 - The instrument menu switches from Chromatic to the strings of guitar, violin, viola, cello, ukulele or bass, with the string number shown.
 - It listens only while it is on screen (and you can pause it). Opening the tuner pauses the metronome and the harmony, so the microphone hears only your instrument.

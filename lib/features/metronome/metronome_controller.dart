@@ -41,7 +41,6 @@ class MetronomeController extends ChangeNotifier implements BarClock {
   TimeSignature _signature = TimeSignature.fourFour;
   Subdivision _subdivision = Subdivision.quarters;
   bool _backbeat = false;
-  double _level = 1;
   bool _playing = false;
   bool _audioFailed = false;
   var _disposed = false;
@@ -171,19 +170,6 @@ class MetronomeController extends ChangeNotifier implements BarClock {
     if (phase != null) _restartClock(barLength * phase);
     _notify();
     if (_playing) _sync();
-  }
-
-  /// Sets the level from the metronome / drone balance, 0 to 1; the
-  /// phone's volume buttons set how loud it all is.
-  void setLevel(double level) {
-    final value = level.clamp(0.0, 1.0);
-    if (value == _level) return;
-    _level = value;
-    try {
-      _output.setVolume(value);
-    } catch (error) {
-      debugPrint('Metronome level could not change: $error');
-    }
   }
 
   /// Changes the time signature, keeping the number of the tempo (in 6/8

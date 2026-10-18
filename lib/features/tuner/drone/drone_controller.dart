@@ -135,11 +135,8 @@ class DroneController extends ChangeNotifier {
   /// Loudness at full level.
   static const _fullVolume = 0.8;
 
-  /// Set by the metronome / drone balance; the phone's volume buttons set
-  /// how loud it all is.
-  double _level = 1;
-
-  double get _volume => _fullVolume * _level;
+  /// How loud it all is, the phone's volume buttons aside.
+  double get _volume => _fullVolume;
 
   bool _playing = false;
   bool _audioFailed = false;
@@ -449,21 +446,6 @@ class DroneController extends ChangeNotifier {
   void setStyle(DroneStyle style) {
     if (style == _style) return;
     _update(() => _style = style, restart: true);
-  }
-
-  /// Sets the level from the metronome / drone balance, 0 to 1.
-  void setLevel(double level) {
-    final value = level.clamp(0.0, 1.0);
-    if (value == _level) return;
-    _level = value;
-    if (_playing && !_disposed) {
-      try {
-        _output.setVolume(_volume);
-        _piano?.setVolume(_volume);
-      } catch (error) {
-        debugPrint('Drone level could not change: $error');
-      }
-    }
   }
 
   void setReferencePitch(double a4) {

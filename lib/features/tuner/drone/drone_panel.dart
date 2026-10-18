@@ -11,7 +11,7 @@ import '../../../app/theme.dart';
 import '../../../audio/audio_scope.dart';
 import '../../../audio/pitch.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../widgets/balance_slider.dart';
+import '../../../widgets/mix_pill.dart';
 import '../../../widgets/dial.dart';
 import '../../metronome/metronome_controller.dart';
 import 'drone_controller.dart';
@@ -73,7 +73,7 @@ class DronePanel extends StatelessWidget {
             ],
           ),
           lower: _ChordMenu(drone: drone),
-          footer: const BalanceSlider(),
+          footer: const MixPill(),
         );
       },
     );
