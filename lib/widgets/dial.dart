@@ -123,30 +123,31 @@ class DialLayout extends StatelessWidget {
   const DialLayout({
     super.key,
     required this.dial,
+    this.header = const SizedBox.shrink(),
     required this.upper,
     required this.lower,
-    this.footer = const SizedBox.shrink(),
   });
 
   final Widget dial;
 
-  /// The first row under the dial: the tempo, Root or Chord, the tuner's
-  /// messages.
+  /// The first row under the dial: the tuner's cents scale (or its messages).
+  /// The metronome and the harmony leave it empty, so that their controls sit
+  /// lower, nearer the thumb, and in the same place as the tuner's.
+  final Widget header;
+
+  /// The second row: the tempo, Root or Chord, the tuner's Chromatic /
+  /// instrument switch.
   final Widget upper;
 
-  /// The second row: TAP, the chord, Pause.
+  /// The third row: TAP, the chord, Pause, the tuner's reference A.
   final Widget lower;
-
-  /// The third row: the reference A on the tuner. The metronome and the
-  /// harmony leave it empty, so that their rows stay where the tuner's are.
-  final Widget footer;
 
   /// Largest dial, on tablets.
   static const _maxSize = 420.0;
 
   /// The height of each of the three rows, spacing included: the same for
   /// all, so that every tab is a dial and three equal rows whatever is in
-  /// them (or in none, as the third of the metronome and the harmony). With
+  /// them (or in none, as the first of the metronome and the harmony). With
   /// large text a row grows and
   /// the screen scrolls.
   static const rowHeight = 80.0;
@@ -211,7 +212,7 @@ class DialLayout extends StatelessWidget {
                 SizedBox(height: top),
                 SizedBox.square(key: dialKey, dimension: size, child: dial),
                 SizedBox(height: _dialGap + gap),
-                for (final row in [upper, lower, footer])
+                for (final row in [header, upper, lower])
                   ConstrainedBox(
                     constraints: const BoxConstraints(
                       minHeight: rowHeight,
@@ -268,7 +269,7 @@ class DialLayout extends StatelessWidget {
                     child: Column(
                       children: [
                         SizedBox(height: top),
-                        for (final row in [upper, lower, footer])
+                        for (final row in [header, upper, lower])
                           ConstrainedBox(
                             constraints: const BoxConstraints(
                               minHeight: rowHeight,
