@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
 /// What a vertical flick does in the landscape layout: [onFlip] gets +1 for
@@ -29,11 +32,10 @@ class FlipDetector extends StatefulWidget {
 
   final Widget child;
 
-  /// How far the finger must go, how long it may take, and the strip along
-  /// the screen's top and bottom edges that is not ours.
-  static const distance = 72.0;
-  static const duration = Duration(milliseconds: 500);
-  static const edge = 32.0;
+  /// How far the finger must go (two pan slops) and how long it may take (a
+  /// long press): what Flutter counts as a deliberate drag.
+  static const distance = kPanSlop * 2;
+  static const duration = kLongPressTimeout;
 
   @override
   State<FlipDetector> createState() => _FlipDetectorState();
@@ -51,12 +53,22 @@ class _FlipDetectorState extends State<FlipDetector> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onVerticalDragStart: (d) {
-        final height = MediaQuery.sizeOf(context).height;
+        final media = MediaQuery.of(context);
+        // The strip along the top and bottom edges is the system's: the
+        // status bar and the notification shade, the home gesture.
+        final top = math.max(
+          media.viewPadding.top,
+          media.systemGestureInsets.top,
+        );
+        final bottom = math.max(
+          media.viewPadding.bottom,
+          media.systemGestureInsets.bottom,
+        );
         _travel = 0;
         _start = d.sourceTimeStamp;
         _ignored =
-            d.globalPosition.dy < FlipDetector.edge ||
-            d.globalPosition.dy > height - FlipDetector.edge;
+            d.globalPosition.dy < top ||
+            d.globalPosition.dy > media.size.height - bottom;
       },
       onVerticalDragUpdate: (d) {
         if (_ignored) return;

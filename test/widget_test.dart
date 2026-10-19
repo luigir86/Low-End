@@ -178,6 +178,15 @@ void main() {
       tester,
     ) async {
       final scope = await open(tester);
+      // The status bar and the home gesture: the system's strips.
+      tester.view.viewPadding = const FakeViewPadding(top: 80, bottom: 80);
+      tester.view.systemGestureInsets = const FakeViewPadding(
+        top: 80,
+        bottom: 80,
+      );
+      addTearDown(tester.view.resetViewPadding);
+      addTearDown(tester.view.resetSystemGestureInsets);
+      await tester.pumpAndSettle();
       await tester.dragFrom(
         tester.getCenter(find.text('TAP')),
         const Offset(0, -150),

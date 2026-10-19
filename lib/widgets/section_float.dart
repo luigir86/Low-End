@@ -64,7 +64,7 @@ class SectionFloat extends InheritedWidget {
   /// Opacity of a section [away] pages from the screen: the one leaving
   /// fades out as the one coming fades in, not both at half.
   static double opacity(double away) =>
-      Curves.easeIn.transform((1 - away.abs()).clamp(0.0, 1.0));
+      Easing.standardAccelerate.transform((1 - away.abs()).clamp(0.0, 1.0));
 
   /// Keeps the page where the dial is whatever the pages do: the page view
   /// slides its pages, this takes the slide back so that all sections are in
