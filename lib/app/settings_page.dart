@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../audio/audio_scope.dart';
 import '../audio/pitch.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/choice_menu.dart';
+import '../widgets/row_controls.dart';
 import 'about.dart';
 import 'guide.dart';
 import 'settings.dart';
@@ -85,20 +87,16 @@ class SettingsPage extends StatelessWidget {
               _Section(title: l10n.referencePitch),
               ListTile(
                 title: Text(l10n.referencePitchHint(example)),
-                // Screen readers would otherwise announce only "440 Hz".
-                trailing: Semantics(
+                // The field announces its name too, not only "440 Hz".
+                trailing: _MenuField<double>(
+                  key: const Key('referencePitchMenu'),
                   label: l10n.referencePitch,
-                  child: DropdownButton<double>(
-                    value: settings.a4,
-                    items: [
-                      for (final hz in referencePitches)
-                        DropdownMenuItem(
-                          value: hz,
-                          child: Text('${hz.round()} Hz'),
-                        ),
-                    ],
-                    onChanged: (hz) => settings.setReferencePitch(hz!),
-                  ),
+                  selected: settings.a4,
+                  choices: [
+                    for (final hz in referencePitches)
+                      Choice(value: hz, title: '${hz.round()} Hz'),
+                  ],
+                  onSelected: settings.setReferencePitch,
                 ),
               ),
               const Divider(),
@@ -180,19 +178,18 @@ class SettingsPage extends StatelessWidget {
               ListTile(
                 title: Text(l10n.inTuneZoneTitle),
                 subtitle: Text(l10n.inTuneZoneSubtitle),
-                trailing: Semantics(
+                trailing: _MenuField<double>(
+                  key: const Key('inTuneZoneMenu'),
                   label: l10n.inTuneZoneTitle,
-                  child: DropdownButton<double>(
-                    value: settings.inTuneCents,
-                    items: [
-                      for (final cents in AppSettings.inTuneChoices)
-                        DropdownMenuItem(
-                          value: cents,
-                          child: Text(l10n.centsValue('±${cents.round()}')),
-                        ),
-                    ],
-                    onChanged: (cents) => settings.setInTuneCents(cents!),
-                  ),
+                  selected: settings.inTuneCents,
+                  choices: [
+                    for (final cents in AppSettings.inTuneChoices)
+                      Choice(
+                        value: cents,
+                        title: l10n.centsValue('±${cents.round()}'),
+                      ),
+                  ],
+                  onSelected: settings.setInTuneCents,
                 ),
               ),
               ListTile(
@@ -290,4 +287,39 @@ class _Section extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A setting chosen from a list: the field of the rows under the dials, its
+/// name left to the line it ends, opening the menu of the whole app.
+class _MenuField<T> extends StatelessWidget {
+  const _MenuField({
+    super.key,
+    required this.label,
+    required this.selected,
+    required this.choices,
+    required this.onSelected,
+  });
+
+  final String label;
+  final T selected;
+  final List<Choice<T>> choices;
+  final ValueChanged<T> onSelected;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 136,
+    child: LabeledField(
+      label: label,
+      showLabel: false,
+      value: choices.firstWhere((c) => c.value == selected).title,
+      onTap: () async {
+        final picked = await showChoiceMenu(
+          anchor: context,
+          selected: selected,
+          choices: choices,
+        );
+        if (picked != null) onSelected(picked);
+      },
+    ),
+  );
 }
