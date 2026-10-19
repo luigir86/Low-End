@@ -71,6 +71,19 @@ The middle of a dial is its button: touching it starts or stops the metronome, t
 
 When one starts while the other plays, it comes in on the other's next bar line: until then the middle of its dial shows the seconds to go, large and in the muted ink (the metronome in place of the tempo, the harmony in place of the note, with the chord under it).
 
+## Motion
+
+No timings of our own: movement uses what Flutter and Material 3 provide, so the app moves like the rest of Android and follows it when it changes.
+
+| What | Duration and curve |
+| --- | --- |
+| Settings page | the system page transition (`MaterialPageRoute` and the theme's `pageTransitionsTheme`), left as it is |
+| Sheets, dialogs, snackbars | the Material defaults, left as they are |
+| Slide to another section, tab bar indicator | `Durations.medium1` (250 ms), `Easing.standard` |
+| A state that changes in place: the filled half of a pill, the rail's indicator, a control greyed out (`enabled`), the note that fades when only held | `Durations.short4` (200 ms), `Easing.standard` |
+
+Rules: write `Durations.*` and `Easing.*`, never a `Duration(milliseconds: …)` or a `Curves.*` for something the player sees. Every animation of a change takes zero time when `MediaQuery.disableAnimationsOf(context)` is true (the phone is set to fewer animations). What moves with the music (the beat ring, the strobe) is not a transition and follows the sound, not these values.
+
 ## Choices and typed numbers
 
 Three gestures, each with one component, so a choice looks the same wherever it is made:

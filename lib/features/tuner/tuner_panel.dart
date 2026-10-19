@@ -648,7 +648,10 @@ class _NoteDisplay extends StatelessWidget {
           '${r.onStrings && r.played != r.target ? ', ${l10n.tunerHeard(played.label(names, numbering: numbering))}' : ''}',
       child: ExcludeSemantics(
         // A note that is only held fades: the string has stopped.
-        child: Opacity(
+        child: AnimatedOpacity(
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : Durations.short4,
           opacity: held ? 0.55 : 1,
           child: fit([
             // The note in the ink of the text; the verdict alone, under it,
