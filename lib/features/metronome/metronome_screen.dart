@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/gestures.dart' show kLongPressTimeout;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -526,7 +527,7 @@ class _StepButton extends StatefulWidget {
   final void Function(int unit) onHold;
 
   /// How long a touch lasts before it counts as held.
-  static const holdAfter = Duration(milliseconds: 400);
+  static const holdAfter = kLongPressTimeout;
 
   /// The pause between the first steps of a hold, and the shortest one it
   /// shrinks to.

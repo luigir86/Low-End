@@ -380,9 +380,7 @@ class _NoteKey extends StatelessWidget {
                                 : inChord
                                 ? colors.onSecondary
                                 : outOfKey
-                                ? colors.onSurfaceVariant.withValues(
-                                    alpha: 0.55,
-                                  )
+                                ? colors.onSurfaceVariant
                                 : colors.onSurface,
                             // Bold for the root, so it stands out by more
                             // than colour alone.

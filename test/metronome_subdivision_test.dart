@@ -270,7 +270,7 @@ void main() {
       // No tooltip comes up.
       expect(find.text('Faster'), findsNothing);
       // After a couple of seconds, steps of 5, on round numbers.
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(milliseconds: 1100));
       await tester.pump(const Duration(milliseconds: 140));
       final before = metronome.bpm;
       expect(before % 5, 0);
