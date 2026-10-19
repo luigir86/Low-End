@@ -265,10 +265,7 @@ void main() {
       await _settle(tester);
       // Its place is kept, so the rows line up, but it cannot be seen or
       // touched.
-      expect(
-        find.byType(DropdownMenu<ChordQuality>).hitTestable(),
-        findsNothing,
-      );
+      expect(find.byKey(const Key('chordMenu')).hitTestable(), findsNothing);
       await tester.tap(find.text('La'));
       await _settle(tester);
       expect(find.text('La4'), findsOneWidget);
@@ -276,7 +273,7 @@ void main() {
 
       await tester.tap(find.text('Accordo').first);
       await _settle(tester);
-      expect(find.byType(DropdownMenu<ChordQuality>), findsOneWidget);
+      expect(find.byKey(const Key('chordMenu')), findsOneWidget);
       expect(find.text('La maggiore'), findsOneWidget);
       scope.drone.setChord(ChordQuality.minor);
       await _settle(tester);

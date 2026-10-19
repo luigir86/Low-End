@@ -70,3 +70,11 @@ When the screen is wider than tall (`DialLayout.isLandscape`) the same pieces ar
 The middle of a dial is its button: touching it starts or stops the metronome, the harmony, or the tuner's listening. It is the only way to start or stop a sound by touch: the tabs and the swipes only navigate. What is written there is the state: the value (display), then one hint (caption) when stopped. On the tuner, while the metronome or the harmony plays, the hint adds that listening pauses them; touching the dial pauses them and a snackbar offers *Resume*.
 
 When one starts while the other plays, it comes in on the other's next bar line: until then the middle of its dial shows the seconds to go, large and in the muted ink (the metronome in place of the tempo, the harmony in place of the note, with the chord under it).
+
+## Choices and typed numbers
+
+Three gestures, each with one component, so a choice looks the same wherever it is made:
+
+- **A short list** (chord, progression, what fills the beat, tuner instrument, reference A and in-tune zone in the settings): `showChoiceMenu` (`lib/widgets/choice_menu.dart`), a menu under the field, as wide as it, with the card's round corners and raised surface (`popupMenuTheme`). Lines at least 48 dp, an optional explanation under the name, the chosen line in the accent with a tick (never colour alone). The field that opens it is `LabeledField`.
+- **A number to type** (tempo, reference A): `showNumberSheet` (`lib/widgets/number_sheet.dart`), a sheet from the bottom with the field, its range, the usual values and OK.
+- **A long list with explanations** (time signature, example songs): a sheet from the bottom with a `titleLarge` header.
