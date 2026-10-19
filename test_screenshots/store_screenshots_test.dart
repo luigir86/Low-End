@@ -112,11 +112,18 @@ void main() {
       await settle();
       await tester.tap(find.text(t('Chord', 'Accordo')).first);
       await settle();
-      await tester.tap(find.byWidgetPredicate((w) => w is DropdownMenu).first);
+      await tester.tap(find.byKey(const Key('chordMenu')));
       await settle();
       await tester.tap(find.text(t('Minor', 'Minore')).last);
       await settle();
       await shot('2_harmony');
+
+      // 4. The progressions, the menu open on the harmony's dial.
+      await tester.tap(find.text(t('Progression', 'Progressione')).first);
+      await settle();
+      await tester.tap(find.byKey(const Key('progressionMenu')));
+      await settle();
+      await shot('4_progressions');
     });
   }
 }

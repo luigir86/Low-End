@@ -7,7 +7,7 @@ store/
   listing/en-US, it-IT   title, short and full description, release notes
   graphics/icon-512.png  app icon (512 × 512)
   graphics/<locale>/feature-graphic-1024x500.png  (text: tool/feature_graphic_text_test.dart)
-  graphics/phone/<locale>/*.png   phone screenshots (1156 × 2312)
+  graphics/phone/<locale>/*.png   phone screenshots (1156 × 2312), four per language
 ```
 
 Default language of the listing: English (United States), with Italian (Italy) as a translation.

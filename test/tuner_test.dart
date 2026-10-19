@@ -9,6 +9,7 @@ import 'package:low_end/audio/pitch.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/features/tuner/tuner_controller.dart';
 import 'package:low_end/features/tuner/tuner_reading.dart';
+import 'package:record/record.dart';
 
 /// Chunk number [chunk] of a continuous sine, as the microphone would send it.
 Float64List _sine(double hz, int length, {int chunk = 0, int rate = 16000}) =>
@@ -93,6 +94,16 @@ void main() {
         .expand((s) => s)
         .toList();
     expect(samples, [0.5, -1.0, 0.0]);
+  });
+
+  test('listening leaves the audio of other apps alone', () {
+    // With audio focus, Android stopped Spotify for good whenever the tuner
+    // came on screen.
+    for (final source in AndroidAudioSource.values) {
+      final config = RecordMicInput.micConfig(16000, source);
+      expect(config.audioInterruption, AudioInterruptionMode.none);
+      expect(config.androidConfig.manageBluetooth, isFalse);
+    }
   });
 
   testWidgets('the tuner screen shows the string being played', (tester) async {

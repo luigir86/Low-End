@@ -57,19 +57,31 @@ class RecordMicInput implements MicInput {
     }
   }
 
-  RecordConfig _config(int sampleRate) => RecordConfig(
-    encoder: AudioEncoder.pcm16bits,
-    sampleRate: sampleRate,
-    numChannels: 1,
-    // Phone voice processing would flatten and filter the low notes.
-    autoGain: false,
-    echoCancel: false,
-    noiseSuppress: false,
-    androidConfig: AndroidRecordConfig(
-      audioSource: _sources[_source],
-      manageBluetooth: false,
-    ),
-  );
+  RecordConfig _config(int sampleRate) =>
+      micConfig(sampleRate, _sources[_source]);
+
+  /// How the tuner records. Shown to the tests.
+  @visibleForTesting
+  static RecordConfig micConfig(int sampleRate, AndroidAudioSource source) =>
+      RecordConfig(
+        encoder: AudioEncoder.pcm16bits,
+        sampleRate: sampleRate,
+        numChannels: 1,
+        // Phone voice processing would flatten and filter the low notes.
+        autoGain: false,
+        echoCancel: false,
+        noiseSuppress: false,
+        // Listening takes no audio focus: with focus, Android stopped
+        // Spotify or any other player for good the moment the tuner came on
+        // screen, and nothing started it again when the tuner went away.
+        // Another app's music keeps playing; our own sound pauses only when
+        // the tuner's dial is touched.
+        audioInterruption: AudioInterruptionMode.none,
+        androidConfig: AndroidRecordConfig(
+          audioSource: source,
+          manageBluetooth: false,
+        ),
+      );
 
   @override
   Future<void> stop() async {
