@@ -7,9 +7,11 @@ import '../features/tuner/tuner_panel.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/dial.dart';
 import '../widgets/flip_detector.dart';
+import '../widgets/section_float.dart';
 import 'app_navigation.dart';
 import 'guide.dart';
 import 'settings_page.dart';
+import 'theme.dart';
 
 /// Main screen with bottom navigation between the app's sections.
 class HomeShell extends StatefulWidget {
@@ -26,6 +28,9 @@ class _HomeShellState extends State<HomeShell> {
   /// Swiping moves between the sections; a tap on a tab or an action link
   /// moves the page to match.
   final _pages = PageController();
+
+  /// The scroll of each section's page, for the disc under them.
+  final _scrolls = SectionScrolls();
 
   /// Keeps the sections' state when the phone turns and the pages move from
   /// under the bottom bar to beside the rail.
@@ -61,6 +66,7 @@ class _HomeShellState extends State<HomeShell> {
   @override
   void dispose() {
     _pages.dispose();
+    _scrolls.dispose();
     super.dispose();
   }
 
@@ -148,6 +154,17 @@ class _HomeShellState extends State<HomeShell> {
         _hintSwipe(landscape: landscape, locked: locked);
         final pages = Stack(
           children: [
+            // The disc stays still under the pages: moving between sections
+            // only the ring and the controls come and go over it.
+            Positioned.fill(
+              child: DialBackdrop(
+                pages: _pages,
+                scrolls: _scrolls,
+                landscape: landscape,
+                disc: LowEndColors.of(context).strobeBackground,
+                hub: Theme.of(context).colorScheme.surface,
+              ),
+            ),
             PageView(
               key: _pagesKey,
               controller: _pages,
@@ -163,7 +180,22 @@ class _HomeShellState extends State<HomeShell> {
               },
               children: [
                 for (var i = 0; i < _screens.length; i++)
-                  _KeepAlive(child: _screens[i]),
+                  SectionFloat(
+                    pages: _pages,
+                    index: i,
+                    scrolls: _scrolls,
+                    child: _KeepAlive(
+                      // The page view slides its pages; they stay in place
+                      // and float (see [SectionFloat.page]).
+                      child: SectionFloat.page(
+                        pages: _pages,
+                        index: i,
+                        axis: landscape ? Axis.vertical : Axis.horizontal,
+                        direction: Directionality.of(context),
+                        child: _screens[i],
+                      ),
+                    ),
+                  ),
               ],
             ),
             PositionedDirectional(

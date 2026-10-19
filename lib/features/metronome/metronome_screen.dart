@@ -201,7 +201,6 @@ class _BeatRingState extends State<_BeatRing>
                     signature: metronome.signature,
                     frame: _ringFrame,
                     colors: theme.colorScheme,
-                    background: LowEndColors.of(context).strobeBackground,
                     downbeat: LowEndColors.of(context).downbeat,
                   ),
                 ),
@@ -231,7 +230,6 @@ class _RingPainter extends CustomPainter {
     required this.signature,
     required ValueNotifier<int> frame,
     required this.colors,
-    required this.background,
     required this.downbeat,
   }) : super(repaint: frame);
 
@@ -241,7 +239,6 @@ class _RingPainter extends CustomPainter {
   /// at once, also while the metronome is stopped and nothing else does.
   final TimeSignature signature;
   final ColorScheme colors;
-  final Color background;
 
   /// The colour of the "one".
   final Color downbeat;
@@ -257,8 +254,6 @@ class _RingPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final dial = DialGeometry(size);
-    dial.paintBase(canvas, disc: background, hub: colors.surface);
-
     final beat = metronome.beat;
     final count = signature.beats;
     final slice = 2 * math.pi / count;
@@ -320,7 +315,6 @@ class _RingPainter extends CustomPainter {
       old.metronome != metronome ||
       old.signature != signature ||
       old.colors != colors ||
-      old.background != background ||
       old.downbeat != downbeat;
 }
 
