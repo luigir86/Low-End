@@ -5,7 +5,6 @@ import 'package:low_end/app/settings.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/piano_output.dart';
 import 'package:low_end/audio/tone_output.dart';
-import 'package:low_end/features/tuner/drone/harmony.dart';
 
 Future<void> _open(
   WidgetTester tester, {
@@ -44,7 +43,7 @@ void main() {
     await _open(tester);
     // Chosen, the field says only the name: the song would not fit.
     expect(find.text('II–V–I'), findsOneWidget);
-    await tester.tap(find.byType(DropdownMenu<Progression>));
+    await tester.tap(find.byKey(const Key('progressionMenu')));
     await tester.pumpAndSettle();
     expect(find.text('Jazz standard, like Autumn Leaves'), findsOneWidget);
     expect(find.text('Jazz in a minor key, like Blue Bossa'), findsOneWidget);
@@ -62,7 +61,7 @@ void main() {
     tester,
   ) async {
     await _open(tester, language: 'it', size: const Size(840, 1700));
-    await tester.tap(find.byType(DropdownMenu<Progression>));
+    await tester.tap(find.byKey(const Key('progressionMenu')));
     await tester.pumpAndSettle();
     expect(find.text('Standard jazz, come Autumn Leaves'), findsOneWidget);
     expect(find.text('Blues in 12 battute'), findsOneWidget);

@@ -12,6 +12,7 @@ import '../../../app/theme.dart';
 import '../../../audio/audio_scope.dart';
 import '../../../audio/pitch.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../widgets/choice_menu.dart';
 import '../../../widgets/dial.dart';
 import '../../metronome/metronome_controller.dart';
 import 'drone_controller.dart';
@@ -673,32 +674,6 @@ String progressionGenre(AppLocalizations l10n, Progression p) => switch (p) {
 String progressionNote(AppLocalizations l10n, Progression p) =>
     l10n.progressionLike(progressionGenre(l10n, p), progressionSong(p));
 
-/// A progression in the menu: its name, and under it the genre and a song.
-class _ProgressionEntry extends StatelessWidget {
-  const _ProgressionEntry({required this.name, required this.note});
-
-  final String name;
-  final String note;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(name, style: theme.textTheme.titleMedium),
-        Text(
-          note,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 /// A line under the voicing switch while the root is below about 120 Hz: a
 /// phone speaker hardly plays such notes, so headphones or a speaker are
 /// advised.
@@ -809,53 +784,54 @@ class _ChordMenu extends StatelessWidget {
                   child: Row(
                     children: [
                       Expanded(
-                        child: progression
-                            ? DropdownMenu<Progression>(
-                                // The text field keeps the name it was given: a new
-                                // language needs a new menu.
-                                // A song chosen from the list sets it from outside.
-                                key: ValueKey(
-                                  'progression-${l10n.localeName}-'
-                                  '${drone.progression.name}',
+                        // The field shows just the name once chosen (the
+                        // song would not fit); the menu lists it with its
+                        // note under it.
+                        child: Builder(
+                          builder: (field) => progression
+                              ? LabeledField(
+                                  key: const Key('progressionMenu'),
+                                  label: l10n.progressionLabel,
+                                  value: progressionName(
+                                    l10n,
+                                    drone.progression,
+                                  ),
+                                  onTap: () async {
+                                    final p = await showChoiceMenu(
+                                      anchor: field,
+                                      selected: drone.progression,
+                                      choices: [
+                                        for (final p in Progression.values)
+                                          Choice(
+                                            value: p,
+                                            title: progressionName(l10n, p),
+                                            subtitle: progressionNote(l10n, p),
+                                          ),
+                                      ],
+                                    );
+                                    if (p != null) drone.setProgression(p);
+                                  },
+                                )
+                              : LabeledField(
+                                  key: const Key('chordMenu'),
+                                  label: l10n.chordLabel,
+                                  value: chordName(l10n, drone.chord),
+                                  onTap: () async {
+                                    final c = await showChoiceMenu(
+                                      anchor: field,
+                                      selected: drone.chord,
+                                      choices: [
+                                        for (final c in ChordQuality.values)
+                                          Choice(
+                                            value: c,
+                                            title: chordName(l10n, c),
+                                          ),
+                                      ],
+                                    );
+                                    if (c != null) drone.setChord(c);
+                                  },
                                 ),
-                                expandedInsets: EdgeInsets.zero,
-                                // Also what screen readers announce with the choice.
-                                label: Text(l10n.progressionLabel),
-                                initialSelection: drone.progression,
-                                dropdownMenuEntries: [
-                                  for (final p in Progression.values)
-                                    DropdownMenuEntry(
-                                      value: p,
-                                      // The field shows just the name once chosen
-                                      // (the song would not fit); the menu lists it
-                                      // with its note under it.
-                                      label: progressionName(l10n, p),
-                                      labelWidget: _ProgressionEntry(
-                                        name: progressionName(l10n, p),
-                                        note: progressionNote(l10n, p),
-                                      ),
-                                    ),
-                                ],
-                                onSelected: (p) {
-                                  if (p != null) drone.setProgression(p);
-                                },
-                              )
-                            : DropdownMenu<ChordQuality>(
-                                key: ValueKey('chord-${l10n.localeName}'),
-                                expandedInsets: EdgeInsets.zero,
-                                label: Text(l10n.chordLabel),
-                                initialSelection: drone.chord,
-                                dropdownMenuEntries: [
-                                  for (final chord in ChordQuality.values)
-                                    DropdownMenuEntry(
-                                      value: chord,
-                                      label: chordName(l10n, chord),
-                                    ),
-                                ],
-                                onSelected: (c) {
-                                  if (c != null) drone.setChord(c);
-                                },
-                              ),
+                        ),
                       ),
                     ],
                   ),

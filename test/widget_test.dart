@@ -749,15 +749,15 @@ void main() {
     expect(scope.metronome.bpm, MetronomeController.maxBpm);
     await tester.tap(find.byIcon(Icons.edit_outlined));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('60').last);
+    await tester.tap(find.text('60 BPM'));
     await tester.pumpAndSettle();
     expect(scope.metronome.bpm, 60);
 
-    // Cancelling leaves it as it was.
+    // Closing the sheet leaves it as it was.
     await tester.tap(find.byIcon(Icons.edit_outlined));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), '90');
-    await tester.tap(find.text('Cancel'));
+    await tester.tapAt(const Offset(10, 10));
     await tester.pumpAndSettle();
     expect(scope.metronome.bpm, 60);
   });

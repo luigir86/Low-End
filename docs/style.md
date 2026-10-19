@@ -83,3 +83,11 @@ No timings of our own: movement uses what Flutter and Material 3 provide, so the
 | A state that changes in place: the filled half of a pill, the rail's indicator, a control greyed out (`enabled`), the note that fades when only held | `Durations.short4` (200 ms), `Easing.standard` |
 
 Rules: write `Durations.*` and `Easing.*`, never a `Duration(milliseconds: …)` or a `Curves.*` for something the player sees. Every animation of a change takes zero time when `MediaQuery.disableAnimationsOf(context)` is true (the phone is set to fewer animations). What moves with the music (the beat ring, the strobe) is not a transition and follows the sound, not these values.
+
+## Choices and typed numbers
+
+Three gestures, each with one component, so a choice looks the same wherever it is made:
+
+- **A short list** (chord, progression, what fills the beat, tuner instrument, reference A and in-tune zone in the settings): `showChoiceMenu` (`lib/widgets/choice_menu.dart`), a menu under the field, as wide as it, with the card's round corners and raised surface (`popupMenuTheme`). Lines at least 48 dp, an optional explanation under the name, the chosen line in the accent with a tick (never colour alone). The field that opens it is `LabeledField`.
+- **A number to type** (tempo, reference A): `showNumberSheet` (`lib/widgets/number_sheet.dart`), a sheet from the bottom with the field, its range, the usual values and OK.
+- **A long list with explanations** (time signature, example songs): a sheet from the bottom with a `titleLarge` header.

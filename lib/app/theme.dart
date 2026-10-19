@@ -211,6 +211,15 @@ abstract final class LowEndTheme {
         shape: shape,
         elevation: 0,
       ),
+      // The menu of every list of choices (`showChoiceMenu`): round corners
+      // like the cards, on the raised surface, with no tint.
+      popupMenuTheme: PopupMenuThemeData(
+        color: scheme.surfaceContainerHigh,
+        surfaceTintColor: Colors.transparent,
+        shape: shape,
+        elevation: 3,
+        menuPadding: const EdgeInsets.symmetric(vertical: 8),
+      ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(shape: shape),
       ),

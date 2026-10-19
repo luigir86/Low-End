@@ -1,0 +1,122 @@
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+
+/// One line of a [showChoiceMenu]: the [title], and under it a [subtitle]
+/// in the muted ink ("Jazz standard, like Autumn Leaves", the strings of an
+/// instrument); a [leading] picture before them, as the note figures of the
+/// metronome.
+class Choice<T> {
+  const Choice({
+    required this.value,
+    required this.title,
+    this.subtitle,
+    this.leading,
+  });
+
+  final T value;
+  final String title;
+  final String? subtitle;
+  final Widget? leading;
+}
+
+/// The one menu of the app, for every short list of choices: the
+/// instrument of the tuner, what fills the beat, the chord and the
+/// progression, the reference A and the in-tune zone in the settings.
+///
+/// It opens under the control that [anchor] is the context of, starting at
+/// its edge and at least as wide as it, with the round corners and the
+/// raised surface of the theme (`popupMenuTheme`). Every line is at least
+/// 48 dp high, and the [selected] one is marked the same way as in the
+/// lists of the sheets: its words in the accent and a tick at the end, so
+/// that the choice is not told by colour alone (WCAG 1.4.1). Returns the
+/// value chosen, or null when the menu is closed without a choice.
+Future<T?> showChoiceMenu<T>({
+  required BuildContext anchor,
+  required List<Choice<T>> choices,
+  required T? selected,
+}) {
+  final box = anchor.findRenderObject()! as RenderBox;
+  final overlay = Overlay.of(anchor).context.findRenderObject()! as RenderBox;
+  final topLeft = box.localToGlobal(Offset.zero, ancestor: overlay);
+  final field = topLeft & box.size;
+  // Under the field: its bottom edge is the top of the menu.
+  final position = RelativeRect.fromLTRB(
+    field.left,
+    field.bottom,
+    overlay.size.width - field.right,
+    overlay.size.height - field.bottom,
+  );
+  return showMenu<T>(
+    context: anchor,
+    position: position,
+    initialValue: selected,
+    constraints: BoxConstraints(
+      minWidth: field.width,
+      maxWidth: math.max(field.width, 320),
+    ),
+    items: [
+      for (final c in choices)
+        PopupMenuItem<T>(
+          value: c.value,
+          child: _ChoiceLine(choice: c, selected: c.value == selected),
+        ),
+    ],
+  );
+}
+
+class _ChoiceLine<T> extends StatelessWidget {
+  const _ChoiceLine({required this.choice, required this.selected});
+
+  final Choice<T> choice;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final subtitle = choice.subtitle;
+    return Semantics(
+      selected: selected,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            if (choice.leading != null) ...[
+              choice.leading!,
+              const SizedBox(width: 12),
+            ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    choice.title,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: selected ? scheme.primary : scheme.onSurface,
+                    ),
+                  ),
+                  if (subtitle != null)
+                    Text(
+                      subtitle,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            // Its room kept on every line, so that the words line up.
+            SizedBox(
+              width: 36,
+              child: selected
+                  ? Icon(Icons.check, color: scheme.primary)
+                  : const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

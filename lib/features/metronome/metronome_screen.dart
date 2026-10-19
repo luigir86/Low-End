@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart';
 import '../../app/theme.dart';
 import '../../audio/audio_scope.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/choice_menu.dart';
 import '../../widgets/dial.dart';
 import '../../widgets/pill_switch.dart';
 import '../../widgets/row_controls.dart';
@@ -474,43 +475,23 @@ class _SubdivisionField extends StatelessWidget {
     );
   }
 
-  /// The menu, opened over the field.
+  /// The menu, opened under the field.
   Future<void> _choose(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
-    final box = context.findRenderObject()! as RenderBox;
-    final overlay =
-        Overlay.of(context).context.findRenderObject()! as RenderBox;
-    final position = RelativeRect.fromRect(
-      Rect.fromPoints(
-        box.localToGlobal(Offset.zero, ancestor: overlay),
-        box.localToGlobal(box.size.bottomRight(Offset.zero), ancestor: overlay),
-      ),
-      Offset.zero & overlay.size,
-    );
-    final picked = await showMenu<Subdivision>(
-      context: context,
-      position: position,
-      initialValue: metronome.subdivision,
-      items: [
+    final picked = await showChoiceMenu(
+      anchor: context,
+      selected: metronome.subdivision,
+      choices: [
         for (final s in Subdivision.values)
-          PopupMenuItem(
+          Choice(
             value: s,
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 110,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: NoteIcon(s, height: 26),
-                  ),
-                ),
-                Flexible(
-                  child: Text(
-                    subdivisionName(l10n, s),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
+            title: subdivisionName(l10n, s),
+            leading: SizedBox(
+              width: 110,
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: NoteIcon(s, height: 26),
+              ),
             ),
           ),
       ],
@@ -703,9 +684,13 @@ class _SignatureButton extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                l10n.timeSignature,
-                style: Theme.of(context).textTheme.titleMedium,
+              // Titled like the other sheets (the example songs).
+              Semantics(
+                header: true,
+                child: Text(
+                  l10n.timeSignature,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ),
               for (final s in TimeSignature.all)
                 ListTile(

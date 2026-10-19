@@ -11,6 +11,7 @@ import '../../audio/audio_scope.dart';
 import '../../audio/mic_input.dart';
 import '../../audio/pitch.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/choice_menu.dart';
 import '../../widgets/dial.dart';
 import '../../widgets/pill_switch.dart';
 import '../../widgets/reference_pitch_row.dart';
@@ -186,8 +187,6 @@ class _TuningSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
     final names = settings.noteNames(Localizations.localeOf(context));
     String strings(TunerTuning t) => t.strings
         .map((n) => n.label(names, numbering: settings.octaveNumbering))
@@ -225,44 +224,42 @@ class _TuningSwitch extends StatelessWidget {
         child: Semantics(
           button: true,
           selected: !chromatic,
-          child: PopupMenuButton<TunerTuning>(
-            key: const Key('tuningInstrument'),
-            tooltip: l10n.tuningInstrument,
-            position: PopupMenuPosition.over,
-            initialValue: settings.tunerInstrument,
-            padding: EdgeInsets.zero,
-            onOpened: () => settings.setTunerChromatic(false),
-            onSelected: settings.setTunerInstrument,
-            itemBuilder: (context) => [
-              for (final t in TunerTuning.instruments)
-                PopupMenuItem(
-                  value: t,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          child: Builder(
+            builder: (half) => InkWell(
+              key: const Key('tuningInstrument'),
+              // Touched, the half is chosen at once, with the instrument it
+              // had; the menu that opens offers another.
+              onTap: () async {
+                settings.setTunerChromatic(false);
+                final picked = await showChoiceMenu(
+                  anchor: half,
+                  selected: settings.tunerInstrument,
+                  choices: [
+                    for (final t in TunerTuning.instruments)
+                      Choice(
+                        value: t,
+                        title: _tuningName(l10n, t),
+                        subtitle: strings(t),
+                      ),
+                  ],
+                );
+                if (picked != null) settings.setTunerInstrument(picked);
+              },
+              child: Tooltip(
+                message: l10n.tuningInstrument,
+                child: label(
+                  !chromatic,
+                  Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(_tuningName(l10n, t)),
                       Text(
-                        strings(t),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                        ),
+                        _tuningName(l10n, settings.tunerInstrument),
+                        maxLines: 1,
                       ),
+                      const Icon(Icons.arrow_drop_down),
                     ],
                   ),
                 ),
-            ],
-            child: label(
-              !chromatic,
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _tuningName(l10n, settings.tunerInstrument),
-                    maxLines: 1,
-                  ),
-                  const Icon(Icons.arrow_drop_down),
-                ],
               ),
             ),
           ),
