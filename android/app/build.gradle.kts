@@ -61,12 +61,22 @@ android {
 
     buildTypes {
         release {
-            // Without key.properties (a fresh checkout, CI) the release build
-            // is signed with the debug key, so it still builds and runs, but
-            // it cannot go to the Play Store.
+            // Without key.properties a release build must fail: signed with
+            // the debug key it would build and run, but could not be updated
+            // by the Play Store version (see the check below).
             signingConfig = signingConfigs.findByName("release")
-                ?: signingConfigs.getByName("debug")
         }
+    }
+}
+
+// Debug and test builds need no key; only a release build does.
+gradle.taskGraph.whenReady {
+    val releaseBuild = allTasks.any { it.name.contains("Release", ignoreCase = true) }
+    if (releaseBuild && !rootProject.file("key.properties").exists()) {
+        throw GradleException(
+            "android/key.properties is missing: a release build must be signed " +
+                "with the upload key (see store/README.md).",
+        )
     }
 }
 

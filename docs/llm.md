@@ -63,6 +63,7 @@ for example `lowend://action/drone_play?note=D&voicing=chord&chord=minor` or `lo
 - Values are read as text and converted by the type in the catalog: numbers for `bpm` and `hz`, and `true`/`false` (also `1`/`0`, `yes`/`no`) for booleans.
 - Write sharps as `%23` (`note=F%23`) or use `b` for flats and `♯`; a bare `#` starts a fragment and cuts the link.
 - A link opens the app if it is closed. A link gives no answer to the caller: to read the result, use an integration that calls the actions and gets the JSON (see below).
+- Links cannot change the saved settings (`set_reference_pitch`, `settings_set`): any web page can open a link, and a page must not be able to change your reference A. An assistant that calls the actions directly can.
 - Links can only do what the buttons do, and the same rules apply: `tuner_start` brings the tuner to the front, listens and pauses the metronome and Harmony; the microphone never listens with the tuner off screen.
 
 ## Next steps

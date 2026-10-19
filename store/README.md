@@ -18,9 +18,9 @@ Default language of the listing: English (United States), with Italian (Italy) a
 flutter build appbundle --release
 ```
 
-The file is `build/app/outputs/bundle/release/app-release.aab`. It is signed with the **upload key** read from `android/key.properties` (git-ignored; see `android/app/build.gradle.kts`). Without that file the build falls back to the debug key, which Google Play rejects.
+The file is `build/app/outputs/bundle/release/app-release.aab`. It is signed with the **upload key** read from `android/key.properties` (git-ignored; see `android/app/build.gradle.kts`). Without that file a release build stops with an error, so an APK signed with the debug key can never be shared by mistake.
 
-**Keep the keystore and its passwords safe and backed up outside the repository** (they were created in `C:\Users\ribal\LowEnd-keys`). Enrol in *Play App Signing* when you create the app: Google keeps the real app-signing key, and the upload key can be replaced through Play support if it is ever lost.
+**Keep the keystore and its passwords safe and backed up outside the repository**. Enrol in *Play App Signing* when you create the app: Google keeps the real app-signing key, and the upload key can be replaced through Play support if it is ever lost.
 
 Raise `version:` in `pubspec.yaml` (the number after `+` must grow with every upload) before each new bundle.
 
