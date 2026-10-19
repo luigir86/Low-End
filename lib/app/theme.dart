@@ -239,6 +239,9 @@ abstract final class LowEndTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(shape: shape),
       ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(shape: shape),
+      ),
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: SegmentedButton.styleFrom(
           // As high as a finger (the harmony's switch under its dial is
