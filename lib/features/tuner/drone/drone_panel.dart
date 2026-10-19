@@ -616,7 +616,6 @@ String chordName(AppLocalizations l10n, ChordQuality chord) => switch (chord) {
   ChordQuality.minor7 => l10n.chordMinor7,
   ChordQuality.halfDiminished => l10n.chordHalfDiminished,
   ChordQuality.diminished => l10n.chordDiminished,
-  ChordQuality.diminished7 => l10n.chordDiminished7,
   ChordQuality.sus4 => l10n.chordSus4,
 };
 
@@ -631,7 +630,6 @@ String chordSymbol(AppLocalizations l10n, DroneChord chord, String note) =>
       ChordQuality.minor7 => '${note}m7',
       ChordQuality.halfDiminished => l10n.droneChordHalfDiminished(note),
       ChordQuality.diminished => l10n.droneChordDiminished(note),
-      ChordQuality.diminished7 => '${note}dim7',
       ChordQuality.sus4 => '${note}sus4',
     };
 
@@ -643,7 +641,6 @@ String progressionName(AppLocalizations l10n, Progression p) => switch (p) {
   Progression.oneSixFourFive => 'I–VI–IV–V',
   Progression.blues => l10n.progressionBlues,
   Progression.oneSixTwoFive => 'I–VI–II–V',
-  Progression.jazzBlues => l10n.progressionJazzBlues,
   Progression.oneFiveSixFour => 'I–V–VI–IV',
   Progression.andalusian => l10n.progressionAndalusian,
 };
@@ -656,7 +653,6 @@ String progressionSong(Progression p) => switch (p) {
   Progression.oneSixFourFive => 'Stand by Me',
   Progression.blues => 'Sweet Home Chicago',
   Progression.oneSixTwoFive => 'I Got Rhythm',
-  Progression.jazzBlues => 'Au Privave',
   Progression.oneFiveSixFour => 'Let It Be',
   Progression.andalusian => 'Hit the Road Jack',
 };
@@ -668,8 +664,7 @@ String progressionGenre(AppLocalizations l10n, Progression p) => switch (p) {
   Progression.oneFourFive => l10n.progressionGenreRock,
   Progression.oneSixFourFive => l10n.progressionGenrePop,
   Progression.blues => l10n.progressionGenreBlues,
-  Progression.oneSixTwoFive ||
-  Progression.jazzBlues => l10n.progressionGenreJazz,
+  Progression.oneSixTwoFive => l10n.progressionGenreJazz,
   Progression.oneFiveSixFour => l10n.progressionGenrePop,
   Progression.andalusian => l10n.progressionGenreFlamenco,
 };

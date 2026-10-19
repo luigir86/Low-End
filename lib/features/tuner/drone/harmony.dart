@@ -30,10 +30,6 @@ enum ChordQuality {
   /// Diminished triad.
   diminished([1, 6 / 5, 64 / 45], [3, 6], [2, 4]),
 
-  /// Diminished seventh, dim7: the sixth (5/3) stands for the doubly
-  /// flattened seventh.
-  diminished7([1, 6 / 5, 64 / 45, 5 / 3], [3, 6, 9], [2, 4, 6]),
-
   /// Suspended fourth, sus4: the fourth in place of the third.
   sus4([1, 4 / 3, 3 / 2], [5, 7], [3, 4]);
 
@@ -62,7 +58,7 @@ class ProgressionStep {
   final String numeral;
 
   /// Steps up the scale from the key, 0 for I, 4 for V: which letter the
-  /// root is written with. A ♯ or ♭ before the numeral does not count.
+  /// root is written with. A ♭ before the numeral does not count.
   int get degree => const [
     'I',
     'II',
@@ -71,7 +67,7 @@ class ProgressionStep {
     'V',
     'VI',
     'VII',
-  ].indexOf(numeral.replaceAll(RegExp('[♯♭]'), '').toUpperCase());
+  ].indexOf(numeral.replaceAll('♭', '').toUpperCase());
 }
 
 /// Standard progressions, one chord per bar, played over and over in the
@@ -127,23 +123,6 @@ enum Progression {
     ProgressionStep(0, ChordQuality.major7, 'I'),
     ProgressionStep(9, ChordQuality.dominant, 'VI'),
     ProgressionStep(2, ChordQuality.minor7, 'II'),
-    ProgressionStep(7, ChordQuality.dominant, 'V'),
-  ]),
-
-  /// Twelve-bar jazz blues, one chord a bar: C7 F7 C7 C7, F7 F♯dim7 C7 A7,
-  /// Dm7 G7 C7 G7.
-  jazzBlues([
-    ProgressionStep(0, ChordQuality.dominant, 'I'),
-    ProgressionStep(5, ChordQuality.dominant, 'IV'),
-    ProgressionStep(0, ChordQuality.dominant, 'I'),
-    ProgressionStep(0, ChordQuality.dominant, 'I'),
-    ProgressionStep(5, ChordQuality.dominant, 'IV'),
-    ProgressionStep(6, ChordQuality.diminished7, '♯IV'),
-    ProgressionStep(0, ChordQuality.dominant, 'I'),
-    ProgressionStep(9, ChordQuality.dominant, 'VI'),
-    ProgressionStep(2, ChordQuality.minor7, 'II'),
-    ProgressionStep(7, ChordQuality.dominant, 'V'),
-    ProgressionStep(0, ChordQuality.dominant, 'I'),
     ProgressionStep(7, ChordQuality.dominant, 'V'),
   ]),
 

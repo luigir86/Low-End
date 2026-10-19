@@ -156,24 +156,12 @@ void main() {
         expect(s.quality.semitones, hasLength(2), reason: p.name);
       }
     }
-    for (final p in [Progression.oneSixTwoFive, Progression.jazzBlues]) {
+    for (final p in [Progression.oneSixTwoFive]) {
       for (final s in p.steps) {
         expect(s.quality.semitones, hasLength(3), reason: p.name);
       }
     }
   });
-
-  test(
-    'the jazz blues passes through a diminished seventh on the sharp IV',
-    () {
-      final steps = Progression.jazzBlues.steps;
-      expect(steps, hasLength(12));
-      final dim = steps[5];
-      expect(dim.quality, ChordQuality.diminished7);
-      expect(dim.offset, 6);
-      expect(dim.degree, 3, reason: 'written on the letter of the fourth');
-    },
-  );
 
   test('the Andalusian cadence is a minor key: Am G F E', () {
     drone

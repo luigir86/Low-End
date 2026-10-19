@@ -242,12 +242,6 @@ abstract class AppLocalizations {
   /// **'Flamenco and rock'**
   String get progressionGenreFlamenco;
 
-  /// No description provided for @progressionJazzBlues.
-  ///
-  /// In en, this message translates to:
-  /// **'12-bar jazz blues'**
-  String get progressionJazzBlues;
-
   /// No description provided for @progressionAndalusian.
   ///
   /// In en, this message translates to:
@@ -415,12 +409,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Diminished (dim)'**
   String get chordDiminished;
-
-  /// No description provided for @chordDiminished7.
-  ///
-  /// In en, this message translates to:
-  /// **'Diminished 7th (dim7)'**
-  String get chordDiminished7;
 
   /// No description provided for @chordSus4.
   ///
@@ -997,12 +985,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Blues'**
   String get progressionBluesShort;
-
-  /// No description provided for @progressionJazzBluesShort.
-  ///
-  /// In en, this message translates to:
-  /// **'Jazz blues'**
-  String get progressionJazzBluesShort;
 
   /// The progression and its key: II–V–I in A major.
   ///

@@ -296,13 +296,12 @@ class AppActions {
         'minor7',
         'halfDiminished',
         'diminished',
-        'diminished7',
         'sus4',
       ],
       'description':
           'The chord played when voicing is "chord": major, minor, dominant '
           '(7), major7 (maj7), minor7 (m7), halfDiminished (m7b5), diminished '
-          '(dim), diminished7 (dim7) or sus4.',
+          '(dim) or sus4.',
     },
     'progression': {
       'type': 'string',
@@ -313,14 +312,12 @@ class AppActions {
         'oneSixFourFive',
         'blues',
         'oneSixTwoFive',
-        'jazzBlues',
         'oneFiveSixFour',
         'andalusian',
       ],
       'description':
           'The progression played when voicing is "progression": II-V-I, '
-          'minor II-V-I, I-IV-V, I-VI-IV-V, 12-bar blues, I-VI-II-V, 12-bar '
-          'jazz blues, I-V-VI-IV or the Andalusian cadence (minor).',
+          'minor II-V-I, I-IV-V, I-VI-IV-V, 12-bar blues, I-VI-II-V, I-V-VI-IV or the Andalusian cadence (minor).',
     },
     'style': {
       'type': 'string',

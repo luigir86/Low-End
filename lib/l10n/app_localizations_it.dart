@@ -84,9 +84,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get progressionGenreFlamenco => 'Flamenco e rock';
 
   @override
-  String get progressionJazzBlues => 'Blues jazz in 12 battute';
-
-  @override
   String get progressionAndalusian => 'Cadenza andalusa';
 
   @override
@@ -183,9 +180,6 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get chordDiminished => 'Diminuito (dim)';
-
-  @override
-  String get chordDiminished7 => 'Settima diminuita (dim7)';
 
   @override
   String get chordSus4 => 'Quarta sospesa (sus4)';
@@ -518,9 +512,6 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get progressionBluesShort => 'Blues';
-
-  @override
-  String get progressionJazzBluesShort => 'Blues jazz';
 
   @override
   String keyLine(String progression, String key) {

@@ -23,7 +23,6 @@ String keyName(AppLocalizations l10n, DroneController drone, NoteNames names) {
 String progressionShort(AppLocalizations l10n, Progression p) => switch (p) {
   Progression.minorTwoFiveOne => 'II–V–I',
   Progression.blues => l10n.progressionBluesShort,
-  Progression.jazzBlues => l10n.progressionJazzBluesShort,
   Progression.andalusian => 'I–♭VII–♭VI–V',
   _ => progressionName(l10n, p),
 };
