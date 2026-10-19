@@ -5,6 +5,8 @@ import 'package:low_end/audio/click_output.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/widgets/dial.dart';
+import 'package:low_end/widgets/pill_switch.dart';
+import 'package:low_end/widgets/reference_pitch_row.dart';
 
 /// The three round dials (beats, circle of fifths, strobe) and the rows under
 /// them must sit in the same place on every tab: moving between tabs, only
@@ -122,6 +124,36 @@ void main() {
       expect(g[2].top, g[1].bottom);
       expect(g[3].top, g[2].bottom);
     }
+  });
+
+  testWidgets('the first row is empty on the metronome and the harmony, and '
+      'holds the cents bar or message on the tuner', (tester) async {
+    await open(tester, const Size(390, 844), 1.0);
+    final tabs = await allTabs(tester);
+    // allTabs leaves the tuner open; check it first, then go back.
+    final tuner = tabs[2];
+    await tester.pumpAndSettle();
+    final hint = tester.getRect(find.text('Cents').last);
+    expect(hint.center.dy, inInclusiveRange(tuner[1].top, tuner[1].bottom));
+    expect(
+      tester.getRect(find.text('Chromatic').last).center.dy,
+      inInclusiveRange(tuner[2].top, tuner[2].bottom),
+    );
+    expect(
+      tester.getRect(find.byType(ReferencePitchRow).last).center.dy,
+      inInclusiveRange(tuner[3].top, tuner[3].bottom),
+    );
+    await tester.tap(find.text('Metronome').last);
+    await tester.pumpAndSettle();
+    final metro = tabs[0];
+    expect(
+      tester.getRect(find.text('TAP').last).center.dy,
+      inInclusiveRange(metro[3].top, metro[3].bottom),
+    );
+    expect(
+      tester.getRect(find.byType(PillSwitch).last).center.dy,
+      inInclusiveRange(metro[2].top, metro[2].bottom),
+    );
   });
 
   testWidgets('the dial stays put when the tuner shows a long message', (

@@ -105,17 +105,10 @@ class _TunerPanelState extends State<TunerPanel> {
             transposition: transposition,
             onToggle: _tuner.toggle,
           ),
-          // Chromatic or an instrument, in the place of the harmony's
-          // Root / Chord / Progression.
-          upper: _TuningSwitch(settings: settings),
-          // Listening starts and stops from the middle of the dial, like the
-          // other two tabs; the row below is the reference A, in the same
-          // pieces as the rows of the metronome and the harmony.
-          lower: const ReferencePitchRow(),
-          // The cents scale sits in the third row, which the other tabs
-          // leave empty. Announced by screen readers, e.g. when the microphone is
-          // denied, a message takes its place.
-          footer: message == null
+          // The cents scale sits in the first row, next to the strobe, which the
+          // other tabs leave empty. Announced by screen readers, e.g. when the
+          // microphone is denied, a message takes its place.
+          header: message == null
               ? _CentsBar(
                   reading: reading,
                   held: _tuner.held,
@@ -148,6 +141,13 @@ class _TunerPanelState extends State<TunerPanel> {
                     ],
                   ],
                 ),
+          // Chromatic or an instrument, in the place of the harmony's
+          // Root / Chord / Progression.
+          upper: _TuningSwitch(settings: settings),
+          // Listening starts and stops from the middle of the dial, like the
+          // other two tabs; the last row is the reference A, in the same
+          // pieces as the rows of the metronome and the harmony.
+          lower: const ReferencePitchRow(),
         );
       },
     );
@@ -752,7 +752,7 @@ class _NoteName extends StatelessWidget {
   }
 }
 
-/// The cents, 50 flat to 50 sharp, in the third row under the dial, drawn
+/// The cents, 50 flat to 50 sharp, in the first row under the dial, drawn
 /// with a thin track as wide as the rows above
 /// it: the same thin track, the same short mark in the middle and the same
 /// round thumb. The thumb says how far off the note is, by its place, its
