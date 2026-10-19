@@ -74,8 +74,8 @@ class _HomeShellState extends State<HomeShell> {
         section.index,
         duration: MediaQuery.disableAnimationsOf(context)
             ? Duration.zero
-            : const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
+            : Durations.medium1,
+        curve: Easing.standard,
       );
     } finally {
       _sliding = false;
@@ -228,6 +228,9 @@ class _HomeShellState extends State<HomeShell> {
           bottomNavigationBar: landscape
               ? null
               : NavigationBar(
+                  animationDuration: MediaQuery.disableAnimationsOf(context)
+                      ? Duration.zero
+                      : Durations.medium1,
                   selectedIndex: section.index,
                   onDestinationSelected: _onDestination,
                   destinations: [
@@ -326,12 +329,18 @@ class _RailItem extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
+                AnimatedContainer(
+                  duration: MediaQuery.disableAnimationsOf(context)
+                      ? Duration.zero
+                      : Durations.short4,
+                  curve: Easing.standard,
                   width: 56,
                   height: 32,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: selected ? colors.secondaryContainer : null,
+                    color: selected
+                        ? colors.secondaryContainer
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: icon,

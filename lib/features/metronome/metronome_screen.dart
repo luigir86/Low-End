@@ -449,7 +449,10 @@ class _SubdivisionField extends StatelessWidget {
         value: subdivisionName(l10n, subdivision),
         excludeSemantics: true,
         onTap: enabled ? () => _choose(context) : null,
-        child: Opacity(
+        child: AnimatedOpacity(
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : Durations.short4,
           opacity: enabled ? 1 : 0.38,
           child: InkWell(
             key: const Key('subdivisionMenu'),

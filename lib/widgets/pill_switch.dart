@@ -37,6 +37,16 @@ class PillSwitch extends StatelessWidget {
     );
   }
 
+  /// A half of the pill, whose fill changes over Material's short duration
+  /// (at once when the phone asks for fewer animations).
+  static Widget _fill(BuildContext context, Color color) => AnimatedContainer(
+    duration: MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : Durations.short4,
+    curve: Easing.standard,
+    color: color,
+  );
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -60,9 +70,9 @@ class PillSwitch extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(child: ColoredBox(color: fill(leftFilled))),
+                      Expanded(child: _fill(context, fill(leftFilled))),
                       VerticalDivider(width: 1, color: scheme.outline),
-                      Expanded(child: ColoredBox(color: fill(rightFilled))),
+                      Expanded(child: _fill(context, fill(rightFilled))),
                     ],
                   ),
                 ),
