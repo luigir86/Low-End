@@ -253,7 +253,7 @@ void main() {
       tester,
     ) async {
       final metronome = await pump(tester);
-      final plus = find.widgetWithIcon(ActionChip, Icons.add);
+      final plus = find.widgetWithIcon(OutlinedButton, Icons.add);
       final gesture = await tester.startGesture(tester.getCenter(plus));
       // Not yet a hold: nothing moves.
       await tester.pump(const Duration(milliseconds: 300));

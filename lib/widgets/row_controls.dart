@@ -61,15 +61,18 @@ class LabeledField extends StatelessWidget {
 }
 
 /// The height of a line of text in a row, and the padding above and below
-/// the label of a chip that makes a chip as tall as the field beside it (a
-/// line, 16 dp of padding on both sides, and the border).
+/// the label of a button that makes it as tall as the field beside it (a
+/// line, 16 dp of padding on both sides).
 const rowLineHeight = 24.0;
-const chipPadding = 15.0;
+const rowButtonPadding = 16.0;
 
-/// A chip of the row: TAP, − and + on the metronome.
-/// With [onPressed] null it is dimmed (the end of a range). With [filled]
-/// it is coloured in the container colour, to say that it is a button to
-/// press (TAP), unlike the chips that only show a value.
+/// Room a [RowChip] takes round its label, across.
+const rowButtonInset = 24.0;
+
+/// A button of the row: TAP, − and + on the metronome and the tuner. A
+/// Material button, outlined; with [filled] a tonal one, to say that it is
+/// the button to press (TAP), unlike the ones that only step a value.
+/// With [onPressed] null it is dimmed (the end of a range).
 class RowChip extends StatelessWidget {
   const RowChip({
     super.key,
@@ -85,27 +88,62 @@ class RowChip extends StatelessWidget {
   final bool filled;
 
   @override
-  Widget build(BuildContext context) => ActionChip(
-    // At least as tall as a line of text, so that an icon chip grows with
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    // At least as tall as a line of text, so that an icon button grows with
     // large text as the field beside it does.
-    label: ConstrainedBox(
+    final content = ConstrainedBox(
       constraints: BoxConstraints(
         minHeight: MediaQuery.textScalerOf(context).scale(rowLineHeight),
       ),
       child: Center(widthFactor: 1, child: label),
-    ),
-    tooltip: tooltip,
-    onPressed: onPressed,
-    backgroundColor: filled
-        ? Theme.of(context).colorScheme.primaryContainer
-        : null,
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: chipPadding),
-    labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-    side: BorderSide(
-      color: Theme.of(context).colorScheme.outline
-          .withValues(alpha: onPressed == null ? 0.4 : 1),
-    ),
-  );
+    );
+    // What a screen reader says: the tooltip is the name of an icon.
+    final named = tooltip == null
+        ? content
+        : Semantics(label: tooltip, child: content);
+    final padding = const EdgeInsets.symmetric(
+      horizontal: rowButtonInset / 2,
+      vertical: rowButtonPadding,
+    );
+    final Widget button = filled
+        ? FilledButton.tonal(
+            onPressed: onPressed,
+            style: FilledButton.styleFrom(
+              padding: padding,
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: named,
+          )
+        : OutlinedButton(
+            onPressed: onPressed,
+            style:
+                OutlinedButton.styleFrom(
+                  padding: padding,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  foregroundColor: scheme.onSurface,
+                  side: BorderSide(color: scheme.outline),
+                  disabledForegroundColor: scheme.onSurface.withValues(
+                    alpha: 0.38,
+                  ),
+                  disabledBackgroundColor: Colors.transparent,
+                ).copyWith(
+                  side: WidgetStateProperty.resolveWith(
+                    (states) => BorderSide(
+                      color: states.contains(WidgetState.disabled)
+                          ? scheme.outlineVariant
+                          : scheme.outline,
+                    ),
+                  ),
+                ),
+            child: named,
+          );
+    return tooltip == null
+        ? button
+        : Tooltip(message: tooltip, excludeFromSemantics: true, child: button);
+  }
 }
 
 /// The text of a [RowChip]: bold, the size of a body.

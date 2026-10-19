@@ -604,7 +604,7 @@ class _NoteDisplay extends StatelessWidget {
         if (soundPlaying)
           Text(
             l10n.tunerWillPause,
-            style: muted?.copyWith(fontWeight: FontWeight.w600),
+            style: muted?.copyWith(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
       ]);
@@ -673,7 +673,7 @@ class _NoteDisplay extends StatelessWidget {
                   r.inTune ? direction : '$direction $centsText',
                   style: theme.textTheme.headlineSmall?.copyWith(
                     color: color,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -729,7 +729,7 @@ class _NoteName extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = _noteStyle(Theme.of(context))
-        ?.copyWith(color: color, fontWeight: FontWeight.w600);
+        ?.copyWith(color: color, fontWeight: FontWeight.w700);
     return Text.rich(
       TextSpan(
         children: [
