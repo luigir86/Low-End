@@ -236,6 +236,18 @@ abstract class AppLocalizations {
   /// **'Blues'**
   String get progressionGenreBlues;
 
+  /// No description provided for @progressionGenreFlamenco.
+  ///
+  /// In en, this message translates to:
+  /// **'Flamenco and rock'**
+  String get progressionGenreFlamenco;
+
+  /// No description provided for @progressionAndalusian.
+  ///
+  /// In en, this message translates to:
+  /// **'Andalusian cadence'**
+  String get progressionAndalusian;
+
   /// A progression described by its genre and a well-known song that uses it, in the progression menu.
   ///
   /// In en, this message translates to:
@@ -259,12 +271,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Thanks to the Power Flower Orchestra of Fossano, who inspired this app and put it to the test.'**
   String get thanksText;
-
-  /// No description provided for @addSevenths.
-  ///
-  /// In en, this message translates to:
-  /// **'Add the seventh to the chords'**
-  String get addSevenths;
 
   /// No description provided for @droneChordDiminished.
   ///
@@ -374,11 +380,41 @@ abstract class AppLocalizations {
   /// **'Minor'**
   String get chordMinor;
 
-  /// No description provided for @chordSeventh.
+  /// No description provided for @chordDominant.
   ///
   /// In en, this message translates to:
-  /// **'Dominant 7th'**
-  String get chordSeventh;
+  /// **'Dominant 7th (7)'**
+  String get chordDominant;
+
+  /// No description provided for @chordMajor7.
+  ///
+  /// In en, this message translates to:
+  /// **'Major 7th (maj7)'**
+  String get chordMajor7;
+
+  /// No description provided for @chordMinor7.
+  ///
+  /// In en, this message translates to:
+  /// **'Minor 7th (m7)'**
+  String get chordMinor7;
+
+  /// No description provided for @chordHalfDiminished.
+  ///
+  /// In en, this message translates to:
+  /// **'Half-diminished (m7♭5)'**
+  String get chordHalfDiminished;
+
+  /// No description provided for @chordDiminished.
+  ///
+  /// In en, this message translates to:
+  /// **'Diminished (dim)'**
+  String get chordDiminished;
+
+  /// No description provided for @chordSus4.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspended 4th (sus4)'**
+  String get chordSus4;
 
   /// The half-diminished seventh chord (m7♭5) in the middle of the drone dial.
   ///
@@ -1003,6 +1039,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Leading tone'**
   String get degreeName7;
+
+  /// No description provided for @degreeName7Minor.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtonic'**
+  String get degreeName7Minor;
 
   /// No description provided for @legendTitle.
   ///

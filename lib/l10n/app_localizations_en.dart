@@ -81,6 +81,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get progressionGenreBlues => 'Blues';
 
   @override
+  String get progressionGenreFlamenco => 'Flamenco and rock';
+
+  @override
+  String get progressionAndalusian => 'Andalusian cadence';
+
+  @override
   String progressionLike(String genre, String song) {
     return '$genre, like $song';
   }
@@ -94,9 +100,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get thanksText =>
       'Thanks to the Power Flower Orchestra of Fossano, who inspired this app and put it to the test.';
-
-  @override
-  String get addSevenths => 'Add the seventh to the chords';
 
   @override
   String droneChordDiminished(String note) {
@@ -163,7 +166,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chordMinor => 'Minor';
 
   @override
-  String get chordSeventh => 'Dominant 7th';
+  String get chordDominant => 'Dominant 7th (7)';
+
+  @override
+  String get chordMajor7 => 'Major 7th (maj7)';
+
+  @override
+  String get chordMinor7 => 'Minor 7th (m7)';
+
+  @override
+  String get chordHalfDiminished => 'Half-diminished (m7♭5)';
+
+  @override
+  String get chordDiminished => 'Diminished (dim)';
+
+  @override
+  String get chordSus4 => 'Suspended 4th (sus4)';
 
   @override
   String droneChordHalfDiminished(String note) {
@@ -521,6 +539,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get degreeName7 => 'Leading tone';
+
+  @override
+  String get degreeName7Minor => 'Subtonic';
 
   @override
   String get legendTitle => 'Legend';

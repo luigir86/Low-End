@@ -34,11 +34,11 @@ void main() {
     final root = drone.frequency;
     expect(output.frequencies, [root, root * 5 / 4, root * 3 / 2]);
 
-    drone.setChord(ChordType.minor);
+    drone.setChord(ChordQuality.minor);
     await _settle();
     expect(output.frequencies, [root, root * 6 / 5, root * 3 / 2]);
 
-    drone.setChord(ChordType.seventh);
+    drone.setChord(ChordQuality.dominant);
     await _settle();
     expect(output.frequencies, [
       root,
@@ -64,9 +64,9 @@ void main() {
     expect(drone.chordTones, isEmpty, reason: 'root only');
     drone.setVoicing(DroneVoicing.chord);
     expect(drone.chordTones, {1, 4}); // C# and E
-    drone.setChord(ChordType.minor);
+    drone.setChord(ChordQuality.minor);
     expect(drone.chordTones, {0, 4}); // C and E
-    drone.setChord(ChordType.seventh);
+    drone.setChord(ChordQuality.dominant);
     expect(drone.chordTones, {1, 4, 7}); // C#, E and G
   });
 }

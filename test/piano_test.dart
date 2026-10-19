@@ -9,6 +9,7 @@ import 'package:low_end/audio/piano_sound.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/features/metronome/time_signature.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
+import 'package:low_end/features/tuner/drone/harmony.dart';
 
 /// Pure tones in place of the piano: each recorded note a sine at its own
 /// pitch, a second long, so what is played can be told by its frequency.
@@ -301,7 +302,7 @@ void main() {
       Float64List render(double level) => PianoSound.loop(
         samples: loud(level),
         chords: [
-          [60, 64, 67, 71],
+          [60, 64, 67],
         ],
         style: PianoStyle.beat,
         bpm: 120,
@@ -391,7 +392,7 @@ void main() {
     });
     test('a seventh chord adds the seventh', () async {
       drone.setVoicing(DroneVoicing.chord);
-      drone.setChord(ChordType.seventh);
+      drone.setChord(ChordQuality.dominant);
       drone.setStyle(DroneStyle.arpeggio);
       await drone.tapNote(7); // G
       // G in the bass, then F B D close together above it.
@@ -403,18 +404,18 @@ void main() {
       drone.setVoicing(DroneVoicing.progression);
       drone.setStyle(DroneStyle.beat);
       await drone.tapNote(0);
-      // II–V–I in C: D minor, G7 (the dominant with its seventh), C.
+      // II–V–I in C: Dm7, G7, Cmaj7.
       // Close together: the hand stays in one place from chord to chord.
       expect(piano.chords, [
-        [62, 65, 69],
+        [62, 65, 69, 72],
         [67, 65, 71, 74],
-        [60, 64, 67],
+        [60, 64, 67, 71],
       ]);
     });
 
     test('the chord shapes: stacked, close and without the root', () async {
       drone.setVoicing(DroneVoicing.chord);
-      drone.setChord(ChordType.seventh);
+      drone.setChord(ChordQuality.dominant);
       drone.setStyle(DroneStyle.beat);
       drone.setShape(ChordShape.stacked);
       await drone.tapNote(7); // G7

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// The pieces of the row of controls under a dial, shared by the metronome,
 /// the harmony and the tuner so that the three look the same: a field with
-/// its name on the border, round-cornered chips (like +7) and a plain icon
+/// its name on the border, round-cornered chips and a plain icon
 /// button in the primary colour (like the sound options).
 
 /// A field in the style of the chord menu: its [label] written on the
@@ -66,7 +66,7 @@ class LabeledField extends StatelessWidget {
 const rowLineHeight = 24.0;
 const chipPadding = 15.0;
 
-/// A chip of the row: "+7" on the harmony, TAP, − and + on the metronome.
+/// A chip of the row: TAP, − and + on the metronome.
 /// With [onPressed] null it is dimmed (the end of a range). With [filled]
 /// it is coloured in the container colour, to say that it is a button to
 /// press (TAP), unlike the chips that only show a value.

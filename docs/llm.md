@@ -24,11 +24,11 @@ Three sections: **Metronome**, **Harmony** (Armonia) and **Tuner**. Harmony keep
 
 | Action | Arguments | What it does |
 |---|---|---|
-| `get_state` | none | Changes nothing. Returns the section on screen, the tuner (status `idle`, `starting`, `listening`, `permissionDenied` or `failed`; the last reading with target note, played note, `written` note for a transposing instrument, frequency, cents, `in_tune`), Harmony (`playing`, note, voicing, chord, progression, style, sevenths, `progression_step`, `audio_failed`), the metronome (`playing`, `bpm`, `time_signature`, `subdivision`, `backbeat`) and the settings (reference A, language, note names, transposition) |
+| `get_state` | none | Changes nothing. Returns the section on screen, the tuner (status `idle`, `starting`, `listening`, `permissionDenied` or `failed`; the last reading with target note, played note, `written` note for a transposing instrument, frequency, cents, `in_tune`), Harmony (`playing`, note, voicing, chord, progression, style, `progression_step`, `audio_failed`), the metronome (`playing`, `bpm`, `time_signature`, `subdivision`, `backbeat`) and the settings (reference A, language, note names, transposition) |
 | `open_section` | `section`: `tuner`, `drone` (Harmony) or `metronome` | Shows the section. Starts and stops nothing, except the tuner's microphone as described above |
 | `tuner_start` | none | Opens the tuner and listens; pauses the metronome and Harmony if they play. The answer says `listening`, or `permissionDenied` / `failed` |
 | `tuner_stop` | none | Pauses the tuner and turns the microphone off, until `tuner_start` |
-| `drone_play` | all optional: `note`, `voicing`, `chord`, `progression`, `style`, `sevenths` | Opens Harmony, applies the arguments and plays the piano if it was not playing (if it was, only the arguments change). See below for the values |
+| `drone_play` | all optional: `note`, `voicing`, `chord`, `progression`, `style` | Opens Harmony, applies the arguments and plays the piano if it was not playing (if it was, only the arguments change). See below for the values |
 | `drone_stop` | none | Stops Harmony, also during the countdown |
 | `drone_set` | same as `drone_play` | Changes Harmony without starting, stopping or changing section |
 | `metronome_start` | all optional: `bpm`, `subdivision`, `backbeat` | Opens the metronome, applies the arguments and starts it if it was not playing, in its current time signature |
@@ -41,10 +41,9 @@ Values:
 
 - `note`: A, Bb, F#, or La, Sib, Fa#. Harmony always plays the middle octave (A4 = 440 Hz), so an octave number is ignored. It is the root, or the key of a progression.
 - `voicing`: `root` (the note alone), `chord`, `progression`.
-- `chord` (with voicing `chord`): `major`, `minor`, `seventh` (dominant seventh).
-- `progression` (with voicing `progression`): `twoFiveOne`, `minorTwoFiveOne`, `oneFourFive`, `oneSixFourFive`, `blues`. One chord per bar, at the metronome tempo.
+- `chord` (with voicing `chord`): `major`, `minor`, `dominant` (7), `major7`, `minor7`, `halfDiminished` (m7b5), `diminished`, `sus4`.
+- `progression` (with voicing `progression`): `twoFiveOne`, `minorTwoFiveOne`, `oneFourFive`, `oneSixFourFive`, `blues`, `oneSixTwoFive`, `oneFiveSixFour`, `andalusian` (minor key). One chord per bar, at the metronome tempo.
 - `style`: `held` (struck once a bar), `beat` (on every beat), `arpeggio` (one note a beat). A `root` voicing is always sustained.
-- `sevenths`: adds the seventh to chords and progressions (maj7, m7, 7, m7b5).
 - `bpm`: a whole number from 30 to 250, or to 400 in 7/8. It counts the beat of the current time signature (quarters in x/4, dotted quarters in 6/8, 9/8, 12/8, eighths in 7/8), so the same number can be refused after the signature changes.
 - `subdivision`: `quarters`, `eighths`, `swing_eighths`, `triplets`, `sixteenths`, `swing_sixteenths`. Only heard in bars counted in quarters.
 - `backbeat`: `true` clicks only on beats 2 and 4. Only heard in 2/4 and 4/4.

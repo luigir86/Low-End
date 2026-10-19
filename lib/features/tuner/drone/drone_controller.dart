@@ -42,19 +42,6 @@ enum ChordShape {
   rootless,
 }
 
-/// The chords offered in Chord mode.
-enum ChordType {
-  major(ChordQuality.major),
-  minor(ChordQuality.minor),
-
-  /// The dominant seventh: always with its seventh, which names it.
-  seventh(ChordQuality.dominant);
-
-  const ChordType(this.quality);
-
-  final ChordQuality quality;
-}
-
 /// The length, position, tempo and time signature of the bar a progression
 /// follows: the metronome's, so chords change on its "one". It notifies when
 /// the tempo or the time signature change.
@@ -94,7 +81,7 @@ class _FixedBar implements BarClock {
 }
 
 /// A chord as the drone plays it.
-typedef DroneChord = ({int root, ChordQuality quality, bool seventh});
+typedef DroneChord = ({int root, ChordQuality quality});
 
 /// State and playback of the drone: the piano playing a note, a chord or a
 /// progression, in time with the metronome, to practise on.
@@ -144,9 +131,8 @@ class DroneController extends ChangeNotifier {
   Note _note = const Note(9, defaultOctave);
   ChordShape _shape = ChordShape.close;
   DroneVoicing _voicing = DroneVoicing.root;
-  ChordType _chord = ChordType.major;
+  ChordQuality _chord = ChordQuality.major;
   Progression _progression = Progression.twoFiveOne;
-  bool _sevenths = false;
   DroneStyle _style = DroneStyle.beat;
   int _step = 0;
   Timer? _barTimer;
@@ -188,11 +174,8 @@ class DroneController extends ChangeNotifier {
   /// How the piano spreads a chord (see [ChordShape]).
   ChordShape get shape => _shape;
   DroneVoicing get voicing => _voicing;
-  ChordType get chord => _chord;
+  ChordQuality get chord => _chord;
   Progression get progression => _progression;
-
-  /// Whether chords and progressions add the seventh to their triads.
-  bool get sevenths => _sevenths;
 
   DroneStyle get style => _style;
 
@@ -269,19 +252,10 @@ class DroneController extends ChangeNotifier {
 
   DroneChord? _chordAt(int step) => switch (_voicing) {
     DroneVoicing.root => null,
-    DroneVoicing.chord => (
-      root: _note.pitchClass,
-      quality: _chord.quality,
-      seventh: _sevenths || _chord == ChordType.seventh,
-    ),
-    // A dominant always has its seventh, as in Chord mode: it is what makes
-    // it a dominant (the blues is all sevenths).
+    DroneVoicing.chord => (root: _note.pitchClass, quality: _chord),
     DroneVoicing.progression => (
       root: (_note.pitchClass + _progression.steps[step].offset) % 12,
       quality: _progression.steps[step].quality,
-      seventh:
-          _sevenths ||
-          _progression.steps[step].quality == ChordQuality.dominant,
     ),
   };
 
@@ -322,8 +296,8 @@ class DroneController extends ChangeNotifier {
   /// note chosen is its key, playing or not.
   bool get showsKey => _voicing == DroneVoicing.progression;
 
-  /// The key is minor: the minor II–V–I (the other progressions are major).
-  bool get keyIsMinor => _progression == Progression.minorTwoFiveOne;
+  /// The key is minor (see [Progression.minor]).
+  bool get keyIsMinor => _progression.minor;
 
   /// The seven notes of the key (natural minor for a minor key), as pitch
   /// classes; empty when the circle shows no key.
@@ -355,10 +329,7 @@ class DroneController extends ChangeNotifier {
   Set<int> get chordTones {
     final c = currentChord;
     if (c == null) return const {};
-    return {
-      for (final s in c.quality.semitones(seventh: c.seventh))
-        (c.root + s) % 12,
-    };
+    return {for (final s in c.quality.semitones) (c.root + s) % 12};
   }
 
   /// Frequencies currently sounding: the root, then the rest of the chord.
@@ -366,7 +337,7 @@ class DroneController extends ChangeNotifier {
 
   List<double> _frequenciesOf(DroneChord? c) {
     final root = Note(c?.root ?? _note.pitchClass, _octave).frequency(a4: _a4);
-    final ratios = c == null ? [1.0] : c.quality.ratios(seventh: c.seventh);
+    final ratios = c == null ? [1.0] : c.quality.ratios;
     return [for (final r in ratios) root * r];
   }
 
@@ -436,7 +407,7 @@ class DroneController extends ChangeNotifier {
     _update(() => _voicing = voicing, restart: true);
   }
 
-  void setChord(ChordType chord) {
+  void setChord(ChordQuality chord) {
     if (chord == _chord) return;
     _update(() => _chord = chord);
   }
@@ -444,11 +415,6 @@ class DroneController extends ChangeNotifier {
   void setProgression(Progression progression) {
     if (progression == _progression) return;
     _update(() => _progression = progression, restart: true);
-  }
-
-  void setSevenths(bool sevenths) {
-    if (sevenths == _sevenths) return;
-    _update(() => _sevenths = sevenths);
   }
 
   void setStyle(DroneStyle style) {
@@ -561,7 +527,7 @@ class DroneController extends ChangeNotifier {
       // A single note: the piano plays the root alone.
       if (c == null) return [bass + _note.pitchClass];
       final root = bass + c.root;
-      final above = c.quality.semitones(seventh: c.seventh);
+      final above = c.quality.semitones;
       if (_shape == ChordShape.stacked) {
         return [root, for (final s in above) root + s];
       }

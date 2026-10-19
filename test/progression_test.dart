@@ -43,7 +43,7 @@ void main() {
   });
 
   // testWidgets for its fake clock: the bar timers run without waiting.
-  testWidgets('II–V–I in C plays D minor, G7, C, one chord a bar', (
+  testWidgets('II–V–I in C plays Dm7, G7, Cmaj7, one chord a bar', (
     tester,
   ) async {
     drone.setVoicing(DroneVoicing.progression);
@@ -52,9 +52,9 @@ void main() {
     expect(drone.currentChord?.root, 2);
     expect(
       output.frequencies,
-      _sounds([_hz(2), _hz(2) * 6 / 5, _hz(2) * 3 / 2]),
+      _sounds([_hz(2), _hz(2) * 6 / 5, _hz(2) * 3 / 2, _hz(2) * 9 / 5]),
     );
-    expect(drone.chordTones, {5, 9}); // F and A
+    expect(drone.chordTones, {5, 9, 0}); // F, A and C
     // The numerals stay on their notes while it plays.
     expect(drone.degreeLabels, {2: 'II', 7: 'V', 0: 'I'});
     // Every chord is made ready at the start.
@@ -63,7 +63,7 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
     expect(drone.step, 1);
     expect(output.frequencies.first, closeTo(_hz(7), 1e-9)); // G
-    // The dominant always has its seventh, as in Chord mode.
+    // The dominant has its seventh.
     final g = _hz(7);
     expect(output.frequencies, _sounds([g, g * 5 / 4, g * 3 / 2, g * 16 / 9]));
 
@@ -74,23 +74,6 @@ void main() {
     // And round again.
     await tester.pump(const Duration(seconds: 2));
     expect(drone.step, 0);
-    await drone.stop();
-  });
-
-  testWidgets('with sevenths: Dm7, G7, Cmaj7', (tester) async {
-    drone
-      ..setVoicing(DroneVoicing.progression)
-      ..setSevenths(true);
-    await drone.tapNote(0);
-    await tester.pump();
-    final d = _hz(2);
-    expect(output.frequencies, _sounds([d, d * 6 / 5, d * 3 / 2, d * 9 / 5]));
-    await tester.pump(const Duration(seconds: 2));
-    final g = _hz(7);
-    expect(output.frequencies, _sounds([g, g * 5 / 4, g * 3 / 2, g * 16 / 9]));
-    await tester.pump(const Duration(seconds: 2));
-    final c = _hz(0);
-    expect(output.frequencies, _sounds([c, c * 5 / 4, c * 3 / 2, c * 15 / 8]));
     await drone.stop();
   });
 
@@ -122,50 +105,77 @@ void main() {
     await drone.stop();
   });
 
-  test('chords take the seventh too, and the 7 chord always has it', () async {
+  test('the chord types sound their pure intervals', () async {
     drone.setVoicing(DroneVoicing.chord);
     await drone.start();
-    expect(output.frequencies, hasLength(3));
-    drone.setSevenths(true);
-    await pumpEventQueue();
     final a = _hz(9);
-    expect(output.frequencies, _sounds([a, a * 5 / 4, a * 3 / 2, a * 15 / 8]));
-    drone
-      ..setSevenths(false)
-      ..setChord(ChordType.seventh);
-    await pumpEventQueue();
-    expect(output.frequencies, hasLength(4));
+    expect(output.frequencies, _sounds([a, a * 5 / 4, a * 3 / 2]));
+    final expected = {
+      ChordQuality.minor: [6 / 5, 3 / 2],
+      ChordQuality.dominant: [5 / 4, 3 / 2, 16 / 9],
+      ChordQuality.major7: [5 / 4, 3 / 2, 15 / 8],
+      ChordQuality.minor7: [6 / 5, 3 / 2, 9 / 5],
+      ChordQuality.halfDiminished: [6 / 5, 64 / 45, 16 / 9],
+      ChordQuality.diminished: [6 / 5, 64 / 45],
+      ChordQuality.sus4: [4 / 3, 3 / 2],
+    };
+    for (final e in expected.entries) {
+      drone.setChord(e.key);
+      await pumpEventQueue();
+      expect(output.frequencies, _sounds([a, for (final r in e.value) a * r]));
+    }
     await drone.stop();
   });
 
-  test('the blues is all dominant sevenths, with "7" off too', () async {
+  test('the blues is all dominant sevenths', () async {
     drone
       ..setVoicing(DroneVoicing.progression)
       ..setProgression(Progression.blues)
       ..setPitchClass(0);
-    expect(drone.sevenths, isFalse);
     expect(Progression.blues.steps.map((s) => s.quality).toSet(), {
       ChordQuality.dominant,
     });
-    expect(drone.currentChord?.seventh, isTrue);
+    expect(drone.currentChord?.quality, ChordQuality.dominant);
     await drone.start();
     final c = _hz(0);
     expect(output.frequencies, _sounds([c, c * 5 / 4, c * 3 / 2, c * 16 / 9]));
     await drone.stop();
   });
 
-  test('"7" off leaves the other chords of a progression as triads', () {
+  test('jazz progressions are in sevenths, the others in triads', () {
     drone
       ..setVoicing(DroneVoicing.progression)
       ..setPitchClass(0);
-    // II–V–I: Dm, G7, C.
-    expect(drone.currentChord, (
-      root: 2,
-      quality: ChordQuality.minor,
-      seventh: false,
-    ));
-    drone.setProgression(Progression.oneFourFive);
-    expect(drone.currentChord?.seventh, isFalse);
+    // II–V–I: Dm7, G7, Cmaj7.
+    expect(drone.currentChord, (root: 2, quality: ChordQuality.minor7));
+    for (final p in [Progression.oneFourFive, Progression.oneSixFourFive]) {
+      drone.setProgression(p);
+      for (final s in p.steps.where(
+        (s) => s.quality != ChordQuality.dominant,
+      )) {
+        expect(s.quality.semitones, hasLength(2), reason: p.name);
+      }
+    }
+    for (final p in [Progression.oneSixTwoFive]) {
+      for (final s in p.steps) {
+        expect(s.quality.semitones, hasLength(3), reason: p.name);
+      }
+    }
+  });
+
+  test('the Andalusian cadence is a minor key: Am G F E', () {
+    drone
+      ..setVoicing(DroneVoicing.progression)
+      ..setProgression(Progression.andalusian)
+      ..setPitchClass(9);
+    expect(drone.keyIsMinor, isTrue);
+    expect(Progression.andalusian.steps.map((s) => (s.offset + 9) % 12), [
+      9,
+      7,
+      5,
+      4,
+    ]);
+    expect(drone.keyNotes, contains(7)); // G is in A minor.
   });
 
   group('chords are spelled as in their key', () {
@@ -221,10 +231,10 @@ void main() {
     });
   });
 
-  test('minor II–V–I has a diminished II', () {
+  test('minor II–V–I has a half-diminished II', () {
     final steps = Progression.minorTwoFiveOne.steps;
     expect(steps.first.quality, ChordQuality.halfDiminished);
-    expect(ChordQuality.halfDiminished.semitones(seventh: false), [3, 6]);
-    expect(steps.last.quality, ChordQuality.minor);
+    expect(ChordQuality.halfDiminished.semitones, [3, 6, 10]);
+    expect(steps.last.quality, ChordQuality.minor7);
   });
 }

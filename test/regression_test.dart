@@ -16,6 +16,7 @@ import 'package:low_end/audio/audio_scope.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
+import 'package:low_end/features/tuner/drone/harmony.dart';
 import 'package:low_end/features/tuner/tuner_controller.dart';
 
 /// Counts the calls to [play], to tell when the drone was retuned.
@@ -115,7 +116,7 @@ void main() {
         final drone = DroneController(out);
         final starting = drone.tapNote(9);
         drone.setVoicing(DroneVoicing.chord);
-        drone.setChord(ChordType.minor);
+        drone.setChord(ChordQuality.minor);
         await _flush();
         expect(out.gates, hasLength(1), reason: 'changes waited their turn');
         out.openAll();
@@ -264,7 +265,10 @@ void main() {
       await _settle(tester);
       // Its place is kept, so the rows line up, but it cannot be seen or
       // touched.
-      expect(find.byType(DropdownMenu<ChordType>).hitTestable(), findsNothing);
+      expect(
+        find.byType(DropdownMenu<ChordQuality>).hitTestable(),
+        findsNothing,
+      );
       await tester.tap(find.text('La'));
       await _settle(tester);
       expect(find.text('La4'), findsOneWidget);
@@ -272,12 +276,12 @@ void main() {
 
       await tester.tap(find.text('Accordo').first);
       await _settle(tester);
-      expect(find.byType(DropdownMenu<ChordType>), findsOneWidget);
+      expect(find.byType(DropdownMenu<ChordQuality>), findsOneWidget);
       expect(find.text('La maggiore'), findsOneWidget);
-      scope.drone.setChord(ChordType.minor);
+      scope.drone.setChord(ChordQuality.minor);
       await _settle(tester);
       expect(find.text('La minore'), findsOneWidget);
-      scope.drone.setChord(ChordType.seventh);
+      scope.drone.setChord(ChordQuality.dominant);
       await _settle(tester);
       expect(find.text('La7'), findsOneWidget);
       expect(tester.takeException(), isNull);

@@ -9,6 +9,7 @@ import 'package:low_end/audio/click_output.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
+import 'package:low_end/features/tuner/drone/harmony.dart';
 import 'package:low_end/widgets/row_controls.dart';
 
 /// In the row of controls under each dial, the field (the time signature, the
@@ -41,7 +42,7 @@ void main() {
           for (final finder in [
             find.byType(LabeledField),
             find.byType(RowChip),
-            find.byType(DropdownMenu<ChordType>),
+            find.byType(DropdownMenu<ChordQuality>),
             find.byType(FilterChip),
           ])
             for (final e in finder.hitTestable().evaluate())
