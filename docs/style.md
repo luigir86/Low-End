@@ -9,16 +9,16 @@ The metronome, the harmony and the tuner do different things, but they must look
 - The dial is the same size, in the same place, on all three tabs; its middle is the button and says the state in the same two sizes (display, then caption).
 - Under it, the same three rows. The first is empty on the metronome and the harmony, so that their controls sit lower, near the thumb, and holds the cents bar on the tuner, next to the strobe. The second is a pill or a switch: on the metronome a pill with two halves that open menus (the time signature, and what fills the beat: note figures drawn by `NoteIcon`: a quarter, two eighths beamed, a beamed triplet under a 3, four sixteenths beamed, and the swung ones with the word "Swing" beside them); on the harmony Root / Chord / Progression; on the tuner Chromatic | instrument. The third is the row of controls: TAP over half the row with −, + and the pencil on the metronome; the chord or progression menu and the options on the harmony; the reference A on the tuner.
 - The row of controls is built from the same pieces everywhere (`lib/widgets/row_controls.dart`): a **field with its name on the border** (the reference A; on the harmony with the note alone, the Example songs field, a bare border that keeps its name for screen readers: `LabeledField(showLabel: false)`), **chips** (TAP, −, +) and an **icon button** at the end (the sound options, the pencil). A new control is made from these; if none fits, change them for everyone.
-- **A chip that is a button to press is filled.** The chips that show a value or step it (−, +) are outlined; TAP, which you play rather than set, is filled with `primaryContainer` and its text is `onPrimaryContainer` (`RowChip(filled: true)`), so that it reads as pressable. The pair keeps the contrast checked by `theme_test.dart` and `accessibility_test.dart`.
+- **A button that is to be pressed is filled.** The buttons that step a value (−, +) are Material `OutlinedButton`s; TAP, which you play rather than set, is a `FilledButton.tonal` in `primaryContainer` with its text in `onPrimaryContainer` (`RowChip(filled: true)`), so that it reads as pressable. The pair keeps the contrast checked by `theme_test.dart` and `accessibility_test.dart`.
 - − and + step a value, the pencil types it or chooses from a list, a touch on the field opens the same choice. Where holding − or + runs the value (the metronome's tempo), the chips have no tooltip, which a hold would open: their name is a semantics label. A touch counts as a hold after `kLongPressTimeout`, like every long press on the phone.
 
 ## Type
 
-Font: Edwin (Noto Music for ♩ ♫ ♬). Sizes in sp, they grow with the phone's text size and shrink to fit where needed (`FittedBox`, never overflow).
+Font: Edwin (Noto Music for ♩ ♫ ♬), which has only a regular and a bold weight: write `FontWeight.w400` or `w700`, no other. Sizes in sp, they grow with the phone's text size and shrink to fit where needed (`FittedBox`, never overflow).
 
 | Role | sp | Text style | Used for |
 | --- | --- | --- | --- |
-| display | 45 | `displayMedium`, weight 600 | The value in the middle of a dial: the tempo, the note on the tuner, the note on the harmony. The octave beside a note is 0.4 of it. |
+| display | 45 | `displayMedium` | The value in the middle of a dial: the tempo, the note on the tuner, the note on the harmony. The octave beside a note is 0.4 of it. |
 | headline | 24 | `headlineSmall` | The verdict on the tuner ("Flat −20 cents"). |
 | title | 22 | `titleLarge`, weight 700 | A value on a control: the time signature, TAP. |
 | body | 16 | `titleMedium`, `bodyLarge` | The chord on the harmony dial, the notes on the keys, the chord menu, dialog titles. |
@@ -59,7 +59,7 @@ All text and shapes keep at least 4.5:1 / 3:1 contrast (`theme_test.dart`, `acce
 
 When the screen is wider than tall (`DialLayout.isLandscape`) the same pieces are laid out in a row: **tab rail | dial | column of the three rows**. The portrait layout does not change.
 
-- **Rail**: on the left, inside the safe areas, an icon above its name (`labelMedium`, 13 sp, 96 dp wide), the same three tabs as the bottom bar; a tab only goes to its section.
+- **Rail**: on the left, inside the safe areas, Material's `NavigationRail` with its labels, 96 dp wide (names shrink to fit), configured by `navigationRailTheme`, the same three tabs as the bottom bar; a tab only goes to its section.
 - **Dial**: nearly the whole height (height − 56, at most 420), next to the rail, so it is not centred on the screen. It gets smaller (down to 160) on narrow phones to leave the column its minimum width, `DialLayout.columnMinWidth` (320).
 - **Column**: the three rows of `DialLayout.rowHeight` (80), no space between them, at the same place on every tab (the tuner has all three: the cents bar, the switch, the reference A); it scrolls with large text. The **settings gear** is above it, top right.
 - **Swipe**: up or down on the dial or the rail changes section (up: the next one), like a vertical page view; not on the column of rows, and not from the strips the system keeps along the top and bottom edges (status bar, notification shade, home gesture: `MediaQuery.viewPadding` and `systemGestureInsets`). It must go two pan slops (72 dp) within a long press (`kLongPressTimeout`, 500 ms), so that a resting finger or a slow drag does not change section; with the gestures locked in the settings it does nothing. In portrait the swipe stays horizontal. See `FlipDetector`.

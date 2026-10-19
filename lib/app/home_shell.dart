@@ -232,21 +232,29 @@ class _HomeShellState extends State<HomeShell> {
                   ? Row(
                       children: [
                         FlipDetector(
-                          child: _TabRail(
-                            items: [
-                              for (var i = 0; i < entries.length; i++)
-                                _RailItem(
-                                  icon: Icon(
-                                    section.index == i
-                                        ? entries[i].selectedIcon ??
-                                              entries[i].icon
-                                        : entries[i].icon,
+                          // 96 dp however long the names: they shrink to fit.
+                          child: SizedBox(
+                            width: 96,
+                            child: NavigationRail(
+                              key: const Key('tabRail'),
+                              selectedIndex: section.index,
+                              onDestinationSelected: _onDestination,
+                              labelType: NavigationRailLabelType.all,
+                              groupAlignment: 0,
+                              destinations: [
+                                for (final e in entries)
+                                  NavigationRailDestination(
+                                    icon: Icon(e.icon),
+                                    selectedIcon: e.selectedIcon == null
+                                        ? null
+                                        : Icon(e.selectedIcon),
+                                    label: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(e.label),
+                                    ),
                                   ),
-                                  label: entries[i].label,
-                                  selected: section.index == i,
-                                  onTap: () => _onDestination(i),
-                                ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                         Expanded(child: pages),
@@ -302,96 +310,5 @@ class _KeepAliveState extends State<_KeepAlive>
   Widget build(BuildContext context) {
     super.build(context);
     return widget.child;
-  }
-}
-
-/// The tabs in landscape: a column on the left, an icon above its name, the
-/// same three destinations as the bottom bar.
-class _TabRail extends StatelessWidget {
-  const _TabRail({required this.items});
-
-  final List<Widget> items;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Container(
-      key: const Key('tabRail'),
-      width: 96,
-      color: colors.surfaceContainer,
-      child: Center(
-        child: SingleChildScrollView(
-          child: Column(mainAxisSize: MainAxisSize.min, children: items),
-        ),
-      ),
-    );
-  }
-}
-
-class _RailItem extends StatelessWidget {
-  const _RailItem({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final Widget icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    return Semantics(
-      button: true,
-      selected: selected,
-      excludeSemantics: true,
-      label: label,
-      onTap: onTap,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 72, minWidth: 96),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AnimatedContainer(
-                  duration: MediaQuery.disableAnimationsOf(context)
-                      ? Duration.zero
-                      : Durations.short4,
-                  curve: Easing.standard,
-                  width: 56,
-                  height: 32,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: selected
-                        ? colors.secondaryContainer
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: icon,
-                ),
-                const SizedBox(height: 4),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    label,
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      fontWeight: selected ? FontWeight.w700 : null,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

@@ -343,7 +343,7 @@ class _Hub extends StatelessWidget {
         Text(
           '$number',
           style: theme.textTheme.displayMedium?.copyWith(
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             color: waiting
                 ? theme.colorScheme.onSurfaceVariant
                 : theme.colorScheme.onSurface,
@@ -753,8 +753,8 @@ class _TapButtonState extends State<_TapButton> {
             // Coloured: the one chip of the row that is a button to press.
             filled: true,
             label: SizedBox(
-              // Less the chip's own padding and border.
-              width: math.max(0, box.maxWidth - 28),
+              // Less the button's own padding.
+              width: math.max(0, box.maxWidth - rowButtonInset),
               child: Center(
                 child: Text(
                   'TAP',

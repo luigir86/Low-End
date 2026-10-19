@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../widgets/page_dots.dart';
 
 /// A short guide to the gestures that nothing on screen gives away, in three
 /// brief pages, shown at the first launch and from the settings.
@@ -85,26 +86,8 @@ class _GuideState extends State<_Guide> {
               child: pages[_page],
             ),
             const SizedBox(height: 8),
-            ExcludeSemantics(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (var i = 0; i < _pages; i++)
-                    Container(
-                      width: 10,
-                      height: 10,
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: i == _page ? theme.colorScheme.primary : null,
-                        border: Border.all(
-                          color: theme.colorScheme.outline,
-                          width: 1.2,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+            Center(
+              child: PageDots(count: _pages, current: _page),
             ),
             const SizedBox(height: 12),
             FilledButton(

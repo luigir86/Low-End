@@ -14,6 +14,7 @@ import '../../../audio/pitch.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../widgets/choice_menu.dart';
 import '../../../widgets/dial.dart';
+import '../../../widgets/page_dots.dart';
 import '../../metronome/metronome_controller.dart';
 import 'drone_controller.dart';
 import 'drone_key_sheets.dart';
@@ -385,8 +386,8 @@ class _NoteKey extends StatelessWidget {
                             // Bold for the root, so it stands out by more
                             // than colour alone.
                             fontWeight: playing
-                                ? FontWeight.w800
-                                : FontWeight.w500,
+                                ? FontWeight.w700
+                                : FontWeight.w400,
                           ),
                         ),
                       ],
@@ -489,7 +490,7 @@ class _DialCenterState extends State<_DialCenter> {
     // The note in the ink of the text, as on the other dials: the tab's
     // colour is on the ring.
     final noteStyle = theme.textTheme.displayMedium?.copyWith(
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w700,
       color: theme.colorScheme.onSurface,
     );
     final root = Note(drone.rootPitchClass, drone.octave);
@@ -557,47 +558,16 @@ class _DialCenterState extends State<_DialCenter> {
             if (keyText != null)
               Text(keyText, textAlign: TextAlign.center, style: muted),
             const SizedBox(height: 6),
-            _StepDots(
+            PageDots(
               count: drone.progression.steps.length,
               current: drone.step,
+              // Twelve bars of blues need smaller dots to fit.
+              size: drone.progression.steps.length > 6 ? 7 : 10,
             ),
           ] else
             Text(
               l10n.frequencyHz(drone.frequency.toStringAsFixed(1)),
               style: muted,
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-/// One dot per chord of the progression, the one playing filled.
-class _StepDots extends StatelessWidget {
-  const _StepDots({required this.count, required this.current});
-
-  final int count;
-  final int current;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    // Twelve bars of blues need smaller dots to fit.
-    final size = count > 6 ? 7.0 : 10.0;
-    return ExcludeSemantics(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var i = 0; i < count; i++)
-            Container(
-              width: size,
-              height: size,
-              margin: EdgeInsets.symmetric(horizontal: size / 3),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: i == current ? colors.primary : null,
-                border: Border.all(color: colors.outline, width: 1.2),
-              ),
             ),
         ],
       ),
@@ -975,7 +945,6 @@ class _Options extends StatelessWidget {
             width: double.infinity,
             child: SegmentedButton<int>(
               showSelectedIcon: false,
-              style: SegmentedButton.styleFrom(minimumSize: const Size(0, 48)),
               segments: [
                 // The root in each octave, as it is written: A2, A3, A4.
                 for (final o in DroneController.octaves)
@@ -1027,9 +996,6 @@ class _Options extends StatelessWidget {
                 width: double.infinity,
                 child: SegmentedButton<ChordShape>(
                   showSelectedIcon: false,
-                  style: SegmentedButton.styleFrom(
-                    minimumSize: const Size(0, 48),
-                  ),
                   segments: [
                     for (final s in ChordShape.values)
                       ButtonSegment(

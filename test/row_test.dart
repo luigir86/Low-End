@@ -122,13 +122,13 @@ void main() {
       scope.settings.setReferencePitch(415);
       await tester.pump();
       // At the lowest, − is dimmed and does nothing; + still works.
-      final lower = find.widgetWithIcon(ActionChip, Icons.remove);
-      expect(tester.widget<ActionChip>(lower).onPressed, isNull);
+      final lower = find.widgetWithIcon(OutlinedButton, Icons.remove);
+      expect(tester.widget<OutlinedButton>(lower).onPressed, isNull);
       scope.settings.setReferencePitch(445);
       await tester.pump();
-      final higher = find.widgetWithIcon(ActionChip, Icons.add);
-      expect(tester.widget<ActionChip>(higher).onPressed, isNull);
-      expect(tester.widget<ActionChip>(lower).onPressed, isNotNull);
+      final higher = find.widgetWithIcon(OutlinedButton, Icons.add);
+      expect(tester.widget<OutlinedButton>(higher).onPressed, isNull);
+      expect(tester.widget<OutlinedButton>(lower).onPressed, isNotNull);
     });
 
     testWidgets('− and + move one hertz at a time, also between standards', (

@@ -187,7 +187,7 @@ abstract final class LowEndTheme {
           fontFamily: 'Edwin',
           fontFamilyFallback: const ['NotoMusic'],
           color: scheme.onSurface,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           letterSpacing: 0.2,
         ),
       ),
@@ -198,12 +198,28 @@ abstract final class LowEndTheme {
             color: scheme.onSurface,
             fontWeight: states.contains(WidgetState.selected)
                 ? FontWeight.w700
-                : FontWeight.w500,
+                : FontWeight.w400,
           ),
         ),
         backgroundColor: scheme.surfaceContainer,
         indicatorColor: scheme.primaryContainer,
         surfaceTintColor: Colors.transparent,
+      ),
+      // The tabs in landscape, the same three destinations as the bottom
+      // bar, in the same colours and text.
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: scheme.surfaceContainer,
+        indicatorColor: scheme.primaryContainer,
+        minWidth: 96,
+        selectedLabelTextStyle: TextStyle(
+          fontSize: LowEndType.small,
+          color: scheme.onSurface,
+          fontWeight: FontWeight.w700,
+        ),
+        unselectedLabelTextStyle: TextStyle(
+          fontSize: LowEndType.small,
+          color: scheme.onSurface,
+        ),
       ),
       cardTheme: CardThemeData(
         color: scheme.surfaceContainerLow,
@@ -225,6 +241,9 @@ abstract final class LowEndTheme {
       ),
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: SegmentedButton.styleFrom(
+          // As high as a finger (the harmony's switch under its dial is
+          // taller still, in its own style).
+          minimumSize: const Size(0, 48),
           selectedBackgroundColor: scheme.primaryContainer,
           selectedForegroundColor: scheme.onPrimaryContainer,
           // The choices not taken in the muted ink: the colour marks the one
