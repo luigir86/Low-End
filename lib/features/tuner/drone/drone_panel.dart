@@ -240,7 +240,6 @@ class _FifthsPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final dial = DialGeometry(size);
-    dial.paintBase(canvas, disc: disc, hub: colors.surface);
     const step = math.pi / 6;
     for (var i = 0; i < 12; i++) {
       final pc = order[i];

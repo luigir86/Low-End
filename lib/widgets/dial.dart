@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'flip_detector.dart';
+import 'section_float.dart';
 
 /// The round dial at the heart of every section: the strobe of the tuner,
 /// the circle of fifths of the drone, the beats of the metronome. One
@@ -180,25 +181,9 @@ class DialLayout extends StatelessWidget {
     if (isLandscape(context)) return _landscape();
     return LayoutBuilder(
       builder: (context, constraints) {
-        final size = math.max(
-          200.0,
-          math.min(
-            math.min(constraints.maxWidth - 32, _maxSize),
-            constraints.maxHeight - _controlsRoom,
-          ),
-        );
-        // The room left with every row at its minimum height, shared out the
-        // same on every tab, so the three dials never move between tabs and
-        // stay put when a row grows (the tuner's messages): a little stays
-        // under the rows for that, some goes between the dial and the rows,
-        // which sit lower, nearer the thumb and with no empty band above the
-        // tabs, and the rest goes above the dial.
-        final block = size + _dialGap + 3 * rowHeight;
-        final free = math.max(0.0, constraints.maxHeight - 32 - block);
-        final slack = math.min(free * 0.2, 32.0);
-        final gap = math.min(free * 0.4, 48.0);
-        final top = free - slack - gap;
-        return SingleChildScrollView(
+        final m = _portrait(constraints.biggest);
+        final float = SectionFloat.of(context);
+        Widget scroll = SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: ConstrainedBox(
             // The dial and the rows sit in the same place on every tab, and
@@ -209,38 +194,95 @@ class DialLayout extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SizedBox(height: top),
-                SizedBox.square(key: dialKey, dimension: size, child: dial),
-                SizedBox(height: _dialGap + gap),
+                SizedBox(height: m.top),
+                SizedBox.square(
+                  key: dialKey,
+                  dimension: m.size,
+                  child: SectionFloat.ring(context, dial),
+                ),
+                SizedBox(height: _dialGap + m.gap),
                 for (final row in [header, upper, lower])
                   ConstrainedBox(
                     constraints: const BoxConstraints(
                       minHeight: rowHeight,
                       maxWidth: _maxSize,
                     ),
-                    child: Center(child: row),
+                    child: Center(
+                      child: SectionFloat.row(
+                        context,
+                        row,
+                        axis: Axis.horizontal,
+                      ),
+                    ),
                   ),
               ],
             ),
           ),
         );
+        if (float != null) {
+          // The disc under the pages follows this page when it scrolls.
+          scroll = NotificationListener<ScrollNotification>(
+            onNotification: (n) {
+              if (n.depth == 0 && n.metrics.axis == Axis.vertical) {
+                float.scrolls[float.index] = n.metrics.pixels;
+              }
+              return false;
+            },
+            child: scroll,
+          );
+        }
+        return scroll;
       },
     );
+  }
+
+  /// The size of the dial and the room around it in portrait, in an area of
+  /// [area]: the rows sit in the same place on every tab, a little room
+  /// stays under them for a row that grows (the tuner's messages), some goes
+  /// between the dial and the rows, which sit lower, nearer the thumb and
+  /// with no empty band above the tabs, and the rest goes above the dial.
+  static ({double size, double top, double gap}) _portrait(Size area) {
+    final size = math.max(
+      200.0,
+      math.min(
+        math.min(area.width - 32, _maxSize),
+        area.height - _controlsRoom,
+      ),
+    );
+    final block = size + _dialGap + 3 * rowHeight;
+    final free = math.max(0.0, area.height - 32 - block);
+    final slack = math.min(free * 0.2, 32.0);
+    final gap = math.min(free * 0.4, 48.0);
+    return (size: size, top: free - slack - gap, gap: gap);
+  }
+
+  /// The size of the dial in landscape, in an area of [area]: nearly the
+  /// whole height, but never so wide that the column of rows loses its
+  /// minimum width; very narrow phones get a smaller dial.
+  static double _landscapeSize(Size area) => math
+      .min(
+        math.min(_maxSize, area.height - 56),
+        area.width - columnMinWidth - 48,
+      )
+      .clamp(_minLandscapeDial, _maxSize)
+      .toDouble();
+
+  /// Where the dial sits in the area of the pages: the one place of the
+  /// disc under them, the same as the dial of the section on screen.
+  static Rect dialRect(Size area, {required bool landscape}) {
+    if (landscape) {
+      final size = _landscapeSize(area);
+      return Rect.fromLTWH(16, (area.height - size) / 2, size, size);
+    }
+    final m = _portrait(area);
+    return Rect.fromLTWH((area.width - m.size) / 2, 16 + m.top, m.size, m.size);
   }
 
   Widget _landscape() {
     return LayoutBuilder(
       builder: (context, constraints) {
         final height = constraints.maxHeight;
-        // Nearly the whole height, but never so wide that the column of rows
-        // loses its minimum width; very narrow phones get a smaller dial.
-        final size = math
-            .min(
-              math.min(_maxSize, height - 56),
-              constraints.maxWidth - columnMinWidth - 48,
-            )
-            .clamp(_minLandscapeDial, _maxSize)
-            .toDouble();
+        final size = _landscapeSize(constraints.biggest);
         // As in portrait, the rows start where the block would if it were
         // centred with every row at its minimum height, so they never move
         // between tabs; the settings button has the room above.
@@ -257,7 +299,7 @@ class DialLayout extends StatelessWidget {
                   child: SizedBox.square(
                     key: dialKey,
                     dimension: size,
-                    child: dial,
+                    child: SectionFloat.ring(context, dial),
                   ),
                 ),
               ),
@@ -275,7 +317,13 @@ class DialLayout extends StatelessWidget {
                               minHeight: rowHeight,
                               maxWidth: _maxSize,
                             ),
-                            child: Center(child: row),
+                            child: Center(
+                              child: SectionFloat.row(
+                                context,
+                                row,
+                                axis: Axis.vertical,
+                              ),
+                            ),
                           ),
                       ],
                     ),
@@ -288,4 +336,77 @@ class DialLayout extends StatelessWidget {
       },
     );
   }
+}
+
+/// The disc and the hub of the dial, drawn once under the pages: moving
+/// between tabs the circle and the background stay still and only the ring
+/// and the controls of each section come and go over them.
+class DialBackdrop extends StatelessWidget {
+  const DialBackdrop({
+    super.key,
+    required this.pages,
+    required this.scrolls,
+    required this.landscape,
+    required this.disc,
+    required this.hub,
+  });
+
+  final PageController pages;
+  final SectionScrolls scrolls;
+  final bool landscape;
+  final Color disc;
+  final Color hub;
+
+  /// Marks the disc, for tests.
+  static const discKey = ValueKey('dialDisc');
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final rect = DialLayout.dialRect(
+          constraints.biggest,
+          landscape: landscape,
+        );
+        return AnimatedBuilder(
+          animation: Listenable.merge([pages, scrolls]),
+          builder: (context, _) {
+            // In portrait the dial scrolls with its page (very large text).
+            final scroll = landscape
+                ? 0.0
+                : scrolls.at(SectionFloat.pageOf(pages));
+            return Stack(
+              children: [
+                Positioned.fromRect(
+                  key: discKey,
+                  rect: rect.shift(Offset(0, -scroll)),
+                  child: ExcludeSemantics(
+                    child: RepaintBoundary(
+                      child: CustomPaint(
+                        painter: _BasePainter(disc: disc, hub: hub),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _BasePainter extends CustomPainter {
+  const _BasePainter({required this.disc, required this.hub});
+
+  final Color disc;
+  final Color hub;
+
+  @override
+  void paint(Canvas canvas, Size size) =>
+      DialGeometry(size).paintBase(canvas, disc: disc, hub: hub);
+
+  @override
+  bool shouldRepaint(_BasePainter old) => old.disc != disc || old.hub != hub;
 }

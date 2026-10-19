@@ -398,7 +398,6 @@ class _StrobeDiscState extends State<_StrobeDisc>
               painter: _DiscPainter(
                 phase: _phase,
                 segments: segments,
-                background: LowEndColors.of(context).strobeBackground,
                 hub: theme.colorScheme.surface,
                 // A still marker for players who turned animations off.
                 stillCents: _animate ? null : r?.cents,
@@ -455,7 +454,6 @@ class _DiscPainter extends CustomPainter {
   _DiscPainter({
     required this.phase,
     required this.segments,
-    required this.background,
     required this.hub,
     required this.stillCents,
     required this.scale,
@@ -464,7 +462,6 @@ class _DiscPainter extends CustomPainter {
 
   final ValueNotifier<double> phase;
   final Color segments;
-  final Color background;
   final Color hub;
   final double? stillCents;
   final Color scale;
@@ -475,8 +472,6 @@ class _DiscPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final dial = DialGeometry(size);
-    dial.paintBase(canvas, disc: background, hub: hub);
-
     // Two bands of segments fill the ring, the inner one turning twice as
     // fast: the same ring the drone and the metronome use.
     const step = 2 * math.pi / _count;
@@ -556,7 +551,6 @@ class _DiscPainter extends CustomPainter {
   @override
   bool shouldRepaint(_DiscPainter old) =>
       old.segments != segments ||
-      old.background != background ||
       old.hub != hub ||
       old.stillCents != stillCents ||
       old.scale != scale ||

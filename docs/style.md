@@ -80,7 +80,12 @@ No timings of our own: movement uses what Flutter and Material 3 provide, so the
 | Settings page | the system page transition (`MaterialPageRoute` and the theme's `pageTransitionsTheme`), left as it is |
 | Sheets, dialogs, snackbars | the Material defaults, left as they are |
 | Slide to another section, tab bar indicator | `Durations.medium1` (250 ms), `Easing.standard` |
+| Between sections: the disc and the hub | still, drawn once under the pages by `DialBackdrop`; the sections' own painters draw only the ring |
+| Between sections: the ring and the hub's content | stay on the disc and fade (`SectionFloat.ring`), the one leaving out as the one coming in |
+| Between sections: the three rows | fade and drift a fifth of the slide the way the finger goes (`SectionFloat.row`) |
 | A state that changes in place: the filled half of a pill, the rail's indicator, a control greyed out (`enabled`), the note that fades when only held | `Durations.short4` (200 ms), `Easing.standard` |
+
+The page view still carries the swipe (and its snap), but the pages do not slide with it: `SectionFloat.page` takes the slide back, so every section sits where the dial is, and keeps a section that is not on screen out of the way (`Offstage`, not touched). The disc and the dial of a section come from the same measure (`DialLayout.dialRect`), so they cannot drift apart; in portrait with very large text the page scrolls, and the disc follows the page on screen.
 
 Rules: write `Durations.*` and `Easing.*`, never a `Duration(milliseconds: …)` or a `Curves.*` for something the player sees. Every animation of a change takes zero time when `MediaQuery.disableAnimationsOf(context)` is true (the phone is set to fewer animations). What moves with the music (the beat ring, the strobe) is not a transition and follows the sound, not these values.
 
