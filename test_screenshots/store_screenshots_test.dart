@@ -112,7 +112,7 @@ void main() {
       await settle();
       await tester.tap(find.text(t('Chord', 'Accordo')).first);
       await settle();
-      await tester.tap(find.byWidgetPredicate((w) => w is DropdownMenu).first);
+      await tester.tap(find.byKey(const Key('chordMenu')));
       await settle();
       await tester.tap(find.text(t('Minor', 'Minore')).last);
       await settle();
