@@ -11,8 +11,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 const _notes = [
-  'A2', 'C3', 'D#3', 'F#3', 'A3', 'C4', 'D#4', 'F#4', 'A4', 'C5', 'D#5', //
-  'F#5', 'A5', 'C6',
+  'A2', 'C3', 'D#3', 'F#3', 'A3', 'C4', 'D#4', 'F#4', 'A4', 'C5', //
 ];
 
 /// Velocity layer used (1 to 16): a medium-soft touch.

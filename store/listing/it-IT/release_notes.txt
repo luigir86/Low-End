@@ -1,1 +1,1 @@
-Prima versione: metronomo con tempi musicali, armonia al pianoforte con accordi e progressioni, e accordatore cromatico.
+Armonia più semplice: la nota da sola è ora la prima voce del menu degli accordi, la fondamentale suona sempre in un'ottava medio-grave e le note che non senti si attenuano mentre suona. Nei menu la voce scelta non ha più la fascia grigia.

@@ -8,6 +8,7 @@ import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/features/metronome/metronome_screen.dart';
 import 'package:low_end/features/metronome/time_signature.dart';
+import 'package:low_end/features/tuner/drone/drone_controller.dart';
 import 'package:low_end/features/tuner/tuner_reading.dart';
 import 'package:low_end/widgets/flip_detector.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -187,7 +188,7 @@ void main() {
     });
   });
 
-  testWidgets('low octaves of the drone warn about the phone speaker', (
+  testWidgets('the drone has no octave to choose, nor a speaker warning', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1080, 2400);
@@ -205,12 +206,12 @@ void main() {
     );
     await tester.pumpAndSettle();
     final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
-    scope.drone.setOctave(4);
+    scope.drone.setVoicing(DroneVoicing.chord);
     await tester.tap(find.byTooltip('Sound options'));
     await tester.pumpAndSettle();
+    expect(find.text('Octave of the root'), findsNothing);
     expect(find.textContaining('faint on the phone'), findsNothing);
-    scope.drone.setOctave(2);
-    await tester.pumpAndSettle();
-    expect(find.textContaining('faint on the phone'), findsOneWidget);
+    expect(find.text('Chord position'), findsNothing);
+    expect(scope.drone.octave, 3);
   });
 }

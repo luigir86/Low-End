@@ -29,7 +29,7 @@ Matcher _sounds(List<double> hz) => pairwiseCompare<double, double>(
 );
 
 double _hz(int pitchClass) =>
-    Note(pitchClass, DroneController.defaultOctave).frequency();
+    Note(pitchClass, DroneController.rootOctave).frequency();
 
 void main() {
   late SilentToneOutput output;

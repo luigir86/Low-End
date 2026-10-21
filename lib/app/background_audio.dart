@@ -100,7 +100,11 @@ class MediaNotificationAudio implements BackgroundAudio {
     try {
       final data = await rootBundle.load('assets/brand/logo.png');
       final file = File('${Directory.systemTemp.path}/low_end_cover.png');
-      await file.writeAsBytes(data.buffer.asUint8List(), flush: true);
+      // Only this asset's bytes: the data may be a view into a larger buffer.
+      await file.writeAsBytes(
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+        flush: true,
+      );
       return _art = file.uri;
     } catch (error) {
       debugPrint('Notification cover not written: $error');

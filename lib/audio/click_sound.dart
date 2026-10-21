@@ -23,6 +23,12 @@ abstract final class ClickSound {
   /// Level of the clicks between the beats, against a plain click.
   static const _skipLevel = 0.45;
 
+  /// The clicks a bar is made of, made once: they never change.
+  static final _plain = click(accent: false);
+  static final _accent = click(accent: true);
+  static final _group = click(accent: false, hz: groupHz);
+  static final _skip = skip();
+
   /// One click, samples from -1 to 1.
   static Float64List click({required bool accent, double? hz}) {
     final f = hz ?? (accent ? accentHz : plainHz);
@@ -71,9 +77,6 @@ abstract final class ClickSound {
     final beats = signature.beats;
     final beatLength = (sampleRate * 60 / bpm).round();
     final samples = Float64List(beatLength * beats);
-    final plain = click(accent: false), accent = click(accent: true);
-    final group = click(accent: false, hz: groupHz);
-    final skipNote = skip();
     final inEighths = signature.denominator == 8;
     final inner = inEighths ? const <double>[] : subdivision.inner;
     final offBeats = backbeat && signature.hasBackbeat;
@@ -86,13 +89,13 @@ abstract final class ClickSound {
     for (var b = 0; b < beats; b++) {
       if (offBeats && b.isEven) continue;
       final tick = switch (signature.accent(b)) {
-        0 => accent,
-        1 => group,
-        _ => plain,
+        0 => _accent,
+        1 => _group,
+        _ => _plain,
       };
       put(b * beatLength, tick);
       for (final fraction in inner) {
-        put(b * beatLength + (beatLength * fraction).round(), skipNote);
+        put(b * beatLength + (beatLength * fraction).round(), _skip);
       }
     }
     return wav(samples);
@@ -121,9 +124,24 @@ abstract final class ClickSound {
     bytes.setUint16(34, 16, Endian.little); // Bits per sample.
     ascii(36, 'data');
     bytes.setUint32(40, data, Endian.little);
+    // Every phone is little-endian, as WAV is: the samples go straight into
+    // the file, without a call per byte (a slow bar has 350 000 of them).
+    final pcm = Endian.host == Endian.little
+        ? bytes.buffer.asInt16List(44, samples.length)
+        : null;
     for (var i = 0; i < samples.length; i++) {
-      final s = (samples[i].clamp(-1.0, 1.0) * 32767).round();
-      bytes.setInt16(44 + i * 2, s, Endian.little);
+      var v = samples[i];
+      if (v > 1) {
+        v = 1;
+      } else if (v < -1) {
+        v = -1;
+      }
+      final s = (v * 32767).round();
+      if (pcm != null) {
+        pcm[i] = s;
+      } else {
+        bytes.setInt16(44 + i * 2, s, Endian.little);
+      }
     }
     return bytes.buffer.asUint8List();
   }

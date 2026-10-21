@@ -52,24 +52,32 @@ void main() {
   const cMajor = [60, 64, 67];
 
   group('the piano loop', () {
-    test('doubles the root an octave down, unless rootless or too low', () {
-      Float64List render(List<int> chord, {bool rootless = false}) =>
-          PianoSound.loop(
-            samples: samples,
-            chords: [chord],
-            style: PianoStyle.bar,
-            bpm: 120,
-            signature: TimeSignature.fourFour,
-            rootless: rootless,
-          );
+    test('doubles the root an octave down, unless it is too low', () {
+      Float64List render(List<int> chord) => PianoSound.loop(
+        samples: samples,
+        chords: [chord],
+        style: PianoStyle.bar,
+        bpm: 120,
+        signature: TimeSignature.fourFour,
+      );
+      // How strong [hz] is in [s], by correlation with a sine.
+      double power(Float64List s, double hz) {
+        var re = 0.0, im = 0.0;
+        for (var i = 0; i < s.length; i++) {
+          final a = 2 * math.pi * hz * i / ClickSound.sampleRate;
+          re += s[i] * math.cos(a);
+          im += s[i] * math.sin(a);
+        }
+        return re * re + im * im;
+      }
 
-      // C4: the C3 below it is there, and gone when the chord has no root.
-      final doubled = render(cMajor);
-      expect(doubled, isNot(equals(render(cMajor, rootless: true))));
+      // C4: the C3 below it is struck too.
+      final c = render(cMajor);
+      expect(power(c, _hz(48)), greaterThan(power(c, _hz(60)) * 0.05));
       // A2: the A1 would be a piano slowed down to a rumble, so it is left
-      // out whatever the flag says.
-      const low = [45, 61, 64];
-      expect(render(low), equals(render(low, rootless: true)));
+      // out.
+      final a = render(const [45, 61, 64]);
+      expect(power(a, _hz(33)), lessThan(power(a, _hz(45)) * 0.01));
     });
 
     test('is whole bars of the metronome length', () {
@@ -381,7 +389,7 @@ void main() {
       drone.setStyle(DroneStyle.beat);
       await drone.tapNote(0); // C
       expect(piano.chords, [
-        [60, 64, 67],
+        [48, 64, 67],
       ]);
       expect(piano.style, PianoStyle.beat);
       expect(piano.bpm, 120);
@@ -395,8 +403,8 @@ void main() {
       drone.setChord(ChordQuality.dominant);
       drone.setStyle(DroneStyle.arpeggio);
       await drone.tapNote(7); // G
-      // G in the bass, then F B D close together above it.
-      expect(piano.chords!.single, [67, 65, 71, 74]);
+      // G in the bass, then D F B close together above it.
+      expect(piano.chords!.single, [55, 62, 65, 71]);
       expect(piano.style, PianoStyle.arpeggio);
     });
 
@@ -407,31 +415,52 @@ void main() {
       // II–V–I in C: Dm7, G7, Cmaj7.
       // Close together: the hand stays in one place from chord to chord.
       expect(piano.chords, [
-        [62, 65, 69, 72],
-        [67, 65, 71, 74],
-        [60, 64, 67, 71],
+        [50, 60, 65, 69],
+        [55, 62, 65, 71],
+        [48, 64, 67, 71],
       ]);
     });
 
-    test('the chord shapes: stacked, close and without the root', () async {
+    test('the root in the bass, the rest close together above it', () async {
       drone.setVoicing(DroneVoicing.chord);
       drone.setChord(ChordQuality.dominant);
       drone.setStyle(DroneStyle.beat);
-      drone.setShape(ChordShape.stacked);
-      await drone.tapNote(7); // G7
-      expect(piano.chords!.single, [67, 71, 74, 77]);
-      expect(piano.rootless, isFalse);
+      await drone.tapNote(7); // G7: G3, then F, B and D from C4 up.
+      expect(piano.chords!.single, [55, 62, 65, 71]);
+    });
 
-      drone.setShape(ChordShape.close);
-      await Future<void>.delayed(const Duration(milliseconds: 10));
-      expect(piano.chords!.single, [67, 65, 71, 74]);
-      expect(piano.rootless, isFalse);
+    test('every note played has a recording close to it', () async {
+      // The highest and lowest keys Harmony reaches, the root doubled an
+      // octave down included, must be within a tone of a recording.
+      var low = 127, high = 0;
+      void take() {
+        for (final chord in piano.chords!) {
+          for (final n in chord) {
+            low = math.min(low, n);
+            high = math.max(high, n);
+          }
+        }
+      }
 
-      // The bass player has the root: the third, fifth and seventh only.
-      drone.setShape(ChordShape.rootless);
-      await Future<void>.delayed(const Duration(milliseconds: 10));
-      expect(piano.chords!.single, [65, 71, 74]);
-      expect(piano.rootless, isTrue);
+      drone.setStyle(DroneStyle.beat);
+      for (final voicing in DroneVoicing.values) {
+        drone.setVoicing(voicing);
+        for (final q in ChordQuality.values) {
+          drone.setChord(q);
+          for (final p in Progression.values) {
+            drone.setProgression(p);
+            for (var pc = 0; pc < 12; pc++) {
+              await drone.tapNote(pc);
+              await Future<void>.delayed(const Duration(milliseconds: 1));
+              take();
+              await drone.stop();
+            }
+          }
+        }
+      }
+      expect(low, 48);
+      expect(high, lessThanOrEqualTo(PianoSamples.roots.last + 2));
+      expect(low - 12, greaterThanOrEqualTo(36));
     });
 
     test('every chord sits in the same octave of keys when close', () async {
@@ -442,7 +471,7 @@ void main() {
         await Future<void>.delayed(const Duration(milliseconds: 5));
         final upper = piano.chords!.single.sublist(1);
         for (final n in upper) {
-          expect(n, inInclusiveRange(64, 75), reason: 'pitch class $pc');
+          expect(n, inInclusiveRange(60, 71), reason: 'pitch class $pc');
         }
         // The notes are what the chord says, wherever they sit.
         expect({
@@ -452,36 +481,22 @@ void main() {
       }
     });
 
-    test(
-      'the root can be played lower, and the chord stays above it',
-      () async {
-        drone.setVoicing(DroneVoicing.chord);
-        drone.setStyle(DroneStyle.beat);
-        expect(drone.octave, 4);
-        drone.setOctave(2);
-        expect(drone.octave, 2);
-        expect(drone.note.octave, 2);
-        await drone.tapNote(9); // A
-        // A2 in the bass, then C♯ and E from G3 up.
-        expect(piano.chords!.single, [45, 61, 64]);
-
-        drone.setOctave(3);
-        await Future<void>.delayed(const Duration(milliseconds: 10));
-        expect(piano.chords!.single.first, 57);
-        expect(drone.frequency, closeTo(220, 0.01));
-        expect(drone.note.octave, 3);
-
-        // Only the octaves offered.
-        drone.setOctave(7);
-        expect(drone.octave, 3);
-        await drone.stop();
-      },
-    );
+    test('the root is in octave 3, and the chord stays above it', () async {
+      drone.setVoicing(DroneVoicing.chord);
+      drone.setStyle(DroneStyle.beat);
+      expect(drone.octave, 3);
+      expect(drone.note.octave, 3);
+      await drone.tapNote(9); // A
+      // A3 in the bass, then C♯ and E from C4 up.
+      expect(piano.chords!.single, [57, 61, 64]);
+      expect(drone.frequency, closeTo(220, 0.01));
+      await drone.stop();
+    });
 
     test("a single note is played by the piano too", () async {
       await drone.tapNote(9); // A
       expect(piano.chords, [
-        [69],
+        [57],
       ]);
       // Kept sounding, not struck on every beat, whatever the style.
       expect(piano.style, PianoStyle.drone);
@@ -539,7 +554,7 @@ void main() {
       await drone.tapNote(0);
       await drone.tapNote(2); // D
       await Future<void>.delayed(const Duration(milliseconds: 10));
-      expect(piano.chords!.single.first, 62);
+      expect(piano.chords!.single.first, 50);
       expect(piano.startAt, Duration.zero);
     });
 
@@ -592,7 +607,6 @@ class _SlowPianoOutput extends SilentPianoOutput {
     required double a4,
     required double volume,
     Duration? startAt,
-    bool rootless = false,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 20));
     return super.play(
@@ -603,7 +617,6 @@ class _SlowPianoOutput extends SilentPianoOutput {
       a4: a4,
       volume: volume,
       startAt: startAt,
-      rootless: rootless,
     );
   }
 }

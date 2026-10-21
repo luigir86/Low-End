@@ -356,17 +356,17 @@ abstract class AppLocalizations {
   /// **'Touch a note to play it. Touch it again to stop.'**
   String get droneHint;
 
-  /// No description provided for @rootOnly.
-  ///
-  /// In en, this message translates to:
-  /// **'Root'**
-  String get rootOnly;
-
   /// No description provided for @chordLabel.
   ///
   /// In en, this message translates to:
   /// **'Chord'**
   String get chordLabel;
+
+  /// No description provided for @noteAlone.
+  ///
+  /// In en, this message translates to:
+  /// **'Note alone'**
+  String get noteAlone;
 
   /// No description provided for @chordMajor.
   ///
@@ -698,30 +698,6 @@ abstract class AppLocalizations {
   /// **'Sound options'**
   String get optionsLabel;
 
-  /// No description provided for @octaveLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Octave of the root'**
-  String get octaveLabel;
-
-  /// No description provided for @octaveSpeakerNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Low notes are faint on the phone’s own speaker: use headphones or a speaker, or pick a higher octave.'**
-  String get octaveSpeakerNote;
-
-  /// No description provided for @lowRootNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Low note: use headphones or a speaker'**
-  String get lowRootNote;
-
-  /// No description provided for @bassPreset.
-  ///
-  /// In en, this message translates to:
-  /// **'Bass: low octave, held tone'**
-  String get bassPreset;
-
   /// No description provided for @continuousToneTitle.
   ///
   /// In en, this message translates to:
@@ -731,7 +707,7 @@ abstract class AppLocalizations {
   /// No description provided for @continuousToneSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'A steady tone instead of the piano struck again and again. Always used in octave 1.'**
+  /// **'A steady tone instead of the piano struck again and again.'**
   String get continuousToneSubtitle;
 
   /// No description provided for @octaveNumberingLabel.
@@ -853,30 +829,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'How far off a note can be, in cents (hundredths of a semitone), and still show as in tune'**
   String get inTuneZoneSubtitle;
-
-  /// No description provided for @shapeLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Chord position'**
-  String get shapeLabel;
-
-  /// No description provided for @shapeStacked.
-  ///
-  /// In en, this message translates to:
-  /// **'Stacked'**
-  String get shapeStacked;
-
-  /// No description provided for @shapeClose.
-  ///
-  /// In en, this message translates to:
-  /// **'Close'**
-  String get shapeClose;
-
-  /// No description provided for @shapeRootless.
-  ///
-  /// In en, this message translates to:
-  /// **'No root'**
-  String get shapeRootless;
 
   /// No description provided for @guideTitle.
   ///

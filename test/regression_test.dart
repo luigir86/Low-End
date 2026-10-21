@@ -15,9 +15,12 @@ import 'package:low_end/app/settings_page.dart';
 import 'package:low_end/audio/audio_scope.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
+import 'package:low_end/features/metronome/metronome_screen.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
+import 'package:low_end/features/tuner/drone/drone_panel.dart';
 import 'package:low_end/features/tuner/drone/harmony.dart';
 import 'package:low_end/features/tuner/tuner_controller.dart';
+import 'package:low_end/features/tuner/tuner_panel.dart';
 
 /// Counts the calls to [play], to tell when the drone was retuned.
 class _CountingOutput extends SilentToneOutput {
@@ -125,7 +128,7 @@ void main() {
         out.openAll();
         await _flush();
         expect(out.mostAtOnce, 1);
-        expect(out.sounding, [440, 528, 660]);
+        expect(out.sounding, [220, 264, 330]);
       },
     );
   });
@@ -252,8 +255,8 @@ void main() {
       expect(find.textContaining('-'), findsNothing);
     });
 
-    testWidgets('the chord menu shows only for a chord, and the dial names '
-        'the chord', (tester) async {
+    testWidgets('the note alone is the first chord of the menu, and the dial '
+        'names the chord', (tester) async {
       // A small phone with large text, in Italian: the longest labels.
       final scope = await _pumpApp(
         tester,
@@ -263,17 +266,20 @@ void main() {
       );
       scope.navigation.open(AppSection.drone);
       await _settle(tester);
-      // Its place is kept, so the rows line up, but it cannot be seen or
-      // touched.
-      expect(find.byKey(const Key('chordMenu')).hitTestable(), findsNothing);
+      // Two choices only: the chord (the note alone among them) and the
+      // progression.
+      expect(find.text('Tonica'), findsNothing);
+      expect(find.byKey(const Key('chordMenu')).hitTestable(), findsOneWidget);
+      expect(find.text('Solo la nota'), findsOneWidget);
       await tester.tap(find.text('La'));
       await _settle(tester);
-      expect(find.text('La4'), findsOneWidget);
-      expect(find.text('Tonica'), findsOneWidget, reason: 'switch only');
+      expect(find.text('La3'), findsOneWidget);
 
-      await tester.tap(find.text('Accordo').first);
+      await tester.tap(find.byKey(const Key('chordMenu')));
       await _settle(tester);
-      expect(find.byKey(const Key('chordMenu')), findsOneWidget);
+      await tester.tap(find.text('Maggiore').last);
+      await _settle(tester);
+      expect(scope.drone.voicing, DroneVoicing.chord);
       expect(find.text('La maggiore'), findsOneWidget);
       scope.drone.setChord(ChordQuality.minor);
       await _settle(tester);
@@ -281,8 +287,68 @@ void main() {
       scope.drone.setChord(ChordQuality.dominant);
       await _settle(tester);
       expect(find.text('La7'), findsOneWidget);
+
+      // To a progression and back: the chord is still the one chosen.
+      await tester.tap(find.text('Progressione').first);
+      await _settle(tester);
+      expect(scope.drone.voicing, DroneVoicing.progression);
+      await tester.tap(find.text('Accordo').first);
+      await _settle(tester);
+      expect(scope.drone.voicing, DroneVoicing.chord);
+
+      // And the note alone again, from the menu.
+      await tester.tap(find.byKey(const Key('chordMenu')));
+      await _settle(tester);
+      await tester.tap(find.text('Solo la nota').last);
+      await _settle(tester);
+      expect(scope.drone.voicing, DroneVoicing.root);
       expect(tester.takeException(), isNull);
       await scope.drone.stop();
+    });
+
+    testWidgets('while it sounds, the notes not heard recede, as the ones '
+        'out of the key do in a progression', (tester) async {
+      final scope = await _pumpApp(tester);
+      scope.navigation.open(AppSection.drone);
+      await _settle(tester);
+      final colors = Theme.of(tester.element(find.byType(HomeShell)))
+          .colorScheme;
+      Color? ink(String note) =>
+          tester.widget<Text>(find.text(note).first).style?.color;
+
+      // Silent: every note is an invitation to touch it.
+      expect(ink('E'), colors.onSurface);
+      await tester.tap(find.text('A'));
+      await _settle(tester);
+      expect(ink('A'), colors.onPrimary);
+      expect(ink('E'), colors.onSurfaceVariant);
+
+      // A major: its third and fifth sound too, the rest recedes.
+      scope.drone.setVoicing(DroneVoicing.chord);
+      await _settle(tester);
+      expect(ink('E'), colors.onSecondary);
+      expect(ink('D'), colors.onSurfaceVariant);
+
+      await scope.drone.stop();
+      await _settle(tester);
+      expect(ink('D'), colors.onSurface);
+    });
+
+    testWidgets('only the section in sight runs its animations', (
+      tester,
+    ) async {
+      final scope = await _pumpApp(tester);
+      bool animates(Type screen) => TickerMode.valuesOf(
+        tester.element(find.byType(screen, skipOffstage: false)),
+      ).enabled;
+      // On the tuner: a metronome playing behind it would run no frames.
+      expect(animates(TunerPanel), isTrue);
+      expect(animates(MetronomeScreen), isFalse);
+      expect(animates(DronePanel), isFalse);
+      scope.navigation.open(AppSection.metronome);
+      await _settle(tester);
+      expect(animates(MetronomeScreen), isTrue);
+      expect(animates(TunerPanel), isFalse);
     });
 
     testWidgets('the reference A has its own heading in the settings', (

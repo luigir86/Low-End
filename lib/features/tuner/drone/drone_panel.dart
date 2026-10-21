@@ -60,9 +60,6 @@ class DronePanel extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               _VoicingSwitch(drone: drone),
-              // A low root: the speaker will hardly play it. Said here, in
-              // sight, not only in the options.
-              if (drone.rootIsLow) _LowRootNote(drone: drone),
               if (drone.audioFailed)
                 Semantics(
                   liveRegion: true,
@@ -103,6 +100,16 @@ class _FifthsDial extends StatelessWidget {
     // rest.
     final tonic = drone.showsKey ? drone.note.pitchClass : null;
     final keyNotes = drone.keyNotes;
+    // The notes that recede into the disc, still there to be touched: out of
+    // the key in a progression; otherwise, while it sounds, all but those
+    // sounding, so that a lit note always means one heard.
+    final receding = <int>{
+      for (var pc = 0; pc < 12; pc++)
+        if (keyNotes.isNotEmpty
+            ? !keyNotes.contains(pc)
+            : playing != null && pc != playing && !chord.contains(pc))
+          pc,
+    };
     // The Roman numerals of the progression, written small on the notes
     // they stand on, and not moving: you read II, then go to V.
     final degrees = drone.degreeLabels;
@@ -135,8 +142,7 @@ class _FifthsDial extends StatelessWidget {
                   order: order,
                   playing: playing,
                   chord: chord,
-                  keyNotes: keyNotes,
-                  tonic: tonic,
+                  receding: receding,
                   colors: theme.colorScheme,
                   disc: LowEndColors.of(context).strobeBackground,
                 ),
@@ -157,7 +163,7 @@ class _FifthsDial extends StatelessWidget {
                   // Touching the numeral says what the degree is.
                   onDegreeTap: (numeral) =>
                       showKeySheet(context, numeral: numeral),
-                  outOfKey: keyNotes.isNotEmpty && !keyNotes.contains(order[i]),
+                  receding: receding.contains(order[i]),
                   onTap: () => drone.tapNote(order[i]),
                   // C♯ or D♭, F♯ or G♭: the other name is written small
                   // under it, and holding the key switches to it, with the
@@ -221,8 +227,7 @@ class _FifthsPainter extends CustomPainter {
     required this.order,
     required this.playing,
     required this.chord,
-    required this.keyNotes,
-    required this.tonic,
+    required this.receding,
     required this.colors,
     required this.disc,
   });
@@ -231,10 +236,8 @@ class _FifthsPainter extends CustomPainter {
   final int? playing;
   final Set<int> chord;
 
-  /// The seven notes of the key, or empty when none is shown: the others
-  /// recede into the disc (still there to be touched).
-  final Set<int> keyNotes;
-  final int? tonic;
+  /// The notes that recede into the disc (still there to be touched).
+  final Set<int> receding;
   final ColorScheme colors;
   final Color disc;
 
@@ -246,7 +249,7 @@ class _FifthsPainter extends CustomPainter {
       final pc = order[i];
       final lit = playing == pc;
       final inChord = chord.contains(pc);
-      final outOfKey = keyNotes.isNotEmpty && !keyNotes.contains(pc);
+      final recedes = receding.contains(pc);
       final start = i * step - step / 2 + DialGeometry.gap / 2;
       const sweep = step - DialGeometry.gap;
       dial.paintSegment(
@@ -257,10 +260,10 @@ class _FifthsPainter extends CustomPainter {
             ? colors.primary
             : inChord
             ? colors.secondary
-            : outOfKey
+            : recedes
             ? Color.lerp(disc, colors.surface, 0.6)!
             : colors.outlineVariant,
-        border: lit || inChord || outOfKey ? null : colors.outline,
+        border: lit || inChord || recedes ? null : colors.outline,
       );
     }
   }
@@ -270,8 +273,7 @@ class _FifthsPainter extends CustomPainter {
       !listEquals(old.order, order) ||
       old.playing != playing ||
       !setEquals(old.chord, chord) ||
-      !setEquals(old.keyNotes, keyNotes) ||
-      old.tonic != tonic ||
+      !setEquals(old.receding, receding) ||
       old.colors != colors ||
       old.disc != disc;
 }
@@ -285,7 +287,7 @@ class _NoteKey extends StatelessWidget {
     required this.inChord,
     required this.degree,
     required this.onDegreeTap,
-    required this.outOfKey,
+    required this.receding,
     required this.onTap,
     required this.respelling,
     required this.onLongPress,
@@ -294,8 +296,9 @@ class _NoteKey extends StatelessWidget {
   final String name;
   final bool playing;
 
-  /// A key is shown and the note is not in it.
-  final bool outOfKey;
+  /// The note recedes: out of the key shown, or not sounding while others
+  /// do.
+  final bool receding;
 
   /// Sounding as part of the chord built on the note playing.
   final bool inChord;
@@ -380,7 +383,7 @@ class _NoteKey extends StatelessWidget {
                                 ? colors.onPrimary
                                 : inChord
                                 ? colors.onSecondary
-                                : outOfKey
+                                : receding
                                 ? colors.onSurfaceVariant
                                 : colors.onSurface,
                             // Bold for the root, so it stands out by more
@@ -415,9 +418,6 @@ class _NoteKey extends StatelessWidget {
   }
 }
 
-/// What is sounding, in the middle of the dial: the root with its octave
-/// small beside it, as on the tuner, then the chord, and in a progression
-/// its degree in the key and how far through it is.
 /// What the hub says: the hint, or what sounds, or, while the piano waits for
 /// the metronome's bar line, the seconds to go (as on the metronome).
 class _DialCenter extends StatefulWidget {
@@ -641,48 +641,8 @@ String progressionGenre(AppLocalizations l10n, Progression p) => switch (p) {
 String progressionNote(AppLocalizations l10n, Progression p) =>
     l10n.progressionLike(progressionGenre(l10n, p), progressionSong(p));
 
-/// A line under the voicing switch while the root is below about 120 Hz: a
-/// phone speaker hardly plays such notes, so headphones or a speaker are
-/// advised.
-class _LowRootNote extends StatelessWidget {
-  const _LowRootNote({required this.drone});
-
-  final DroneController drone;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    return Semantics(
-      liveRegion: true,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.volume_down,
-              size: 18,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(width: 6),
-            Flexible(
-              child: Text(
-                l10n.lowRootNote,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Root, Chord or Progression, full width, as tall as the other sections'
-/// first row.
+/// Chord (the note alone being one of them) or Progression, full width, as
+/// tall as the other sections' first row.
 class _VoicingSwitch extends StatelessWidget {
   const _VoicingSwitch({required this.drone});
 
@@ -694,34 +654,33 @@ class _VoicingSwitch extends StatelessWidget {
     // Long words ("Progressione") shrink rather than break mid-word.
     Widget label(String text) =>
         FittedBox(fit: BoxFit.scaleDown, child: Text(text, maxLines: 1));
+    final progression = drone.voicing == DroneVoicing.progression;
     return SizedBox(
       width: double.infinity,
-      child: SegmentedButton<DroneVoicing>(
+      child: SegmentedButton<bool>(
         // A tick would take room from the labels; the filled segment
         // already shows the choice.
         showSelectedIcon: false,
         style: SegmentedButton.styleFrom(minimumSize: const Size(0, 64)),
         segments: [
-          ButtonSegment(value: DroneVoicing.root, label: label(l10n.rootOnly)),
-          ButtonSegment(
-            value: DroneVoicing.chord,
-            label: label(l10n.chordLabel),
-          ),
-          ButtonSegment(
-            value: DroneVoicing.progression,
-            label: label(l10n.progressionLabel),
-          ),
+          ButtonSegment(value: false, label: label(l10n.chordLabel)),
+          ButtonSegment(value: true, label: label(l10n.progressionLabel)),
         ],
-        selected: {drone.voicing},
-        onSelectionChanged: (s) => drone.setVoicing(s.first),
+        selected: {progression},
+        // Back from a progression, the note alone or the chord last chosen.
+        onSelectionChanged: (s) => drone.setVoicing(
+          s.first ? DroneVoicing.progression : drone.chordVoicing,
+        ),
       ),
     );
   }
 }
 
-/// Which chord or which progression: hidden
-/// for the root alone, its place kept so the rows line up with the other
-/// sections. The button for the sound options is always there.
+/// What the chord menu offers: the note alone, or a chord built on it.
+typedef _ChordChoice = ({DroneVoicing voicing, ChordQuality? quality});
+
+/// Which chord (the note alone first) or which progression; the button for
+/// the sound options beside it.
 class _ChordMenu extends StatelessWidget {
   const _ChordMenu({required this.drone});
 
@@ -730,79 +689,62 @@ class _ChordMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final progression = drone.voicing == DroneVoicing.progression;
+    const _ChordChoice alone = (voicing: DroneVoicing.root, quality: null);
+    final _ChordChoice current = drone.voicing == DroneVoicing.chord
+        ? (voicing: DroneVoicing.chord, quality: drone.chord)
+        : alone;
     return Row(
       children: [
         Expanded(
-          // Root alone has no chord to choose: the place of the menu offers
-          // the example songs instead of an empty gap.
-          child: drone.voicing == DroneVoicing.root
-              ? LabeledField(
-                  label: l10n.songsTitle,
-                  showLabel: false,
-                  value: l10n.songsTitle,
-                  onTap: () => showSongsSheet(context),
-                )
-              : Visibility(
-                  visible: true,
-                  maintainSize: true,
-                  maintainAnimation: true,
-                  maintainState: true,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        // The field shows just the name once chosen (the
-                        // song would not fit); the menu lists it with its
-                        // note under it.
-                        child: Builder(
-                          builder: (field) => progression
-                              ? LabeledField(
-                                  key: const Key('progressionMenu'),
-                                  label: l10n.progressionLabel,
-                                  value: progressionName(
-                                    l10n,
-                                    drone.progression,
-                                  ),
-                                  onTap: () async {
-                                    final p = await showChoiceMenu(
-                                      anchor: field,
-                                      selected: drone.progression,
-                                      choices: [
-                                        for (final p in Progression.values)
-                                          Choice(
-                                            value: p,
-                                            title: progressionName(l10n, p),
-                                            subtitle: progressionNote(l10n, p),
-                                          ),
-                                      ],
-                                    );
-                                    if (p != null) drone.setProgression(p);
-                                  },
-                                )
-                              : LabeledField(
-                                  key: const Key('chordMenu'),
-                                  label: l10n.chordLabel,
-                                  value: chordName(l10n, drone.chord),
-                                  onTap: () async {
-                                    final c = await showChoiceMenu(
-                                      anchor: field,
-                                      selected: drone.chord,
-                                      choices: [
-                                        for (final c in ChordQuality.values)
-                                          Choice(
-                                            value: c,
-                                            title: chordName(l10n, c),
-                                          ),
-                                      ],
-                                    );
-                                    if (c != null) drone.setChord(c);
-                                  },
-                                ),
-                        ),
-                      ),
-                    ],
+          // The field shows just the name once chosen (the song would not
+          // fit); the menu lists it with its note under it.
+          child: Builder(
+            builder: (field) => drone.voicing == DroneVoicing.progression
+                ? LabeledField(
+                    key: const Key('progressionMenu'),
+                    label: l10n.progressionLabel,
+                    value: progressionName(l10n, drone.progression),
+                    onTap: () async {
+                      final p = await showChoiceMenu(
+                        anchor: field,
+                        selected: drone.progression,
+                        choices: [
+                          for (final p in Progression.values)
+                            Choice(
+                              value: p,
+                              title: progressionName(l10n, p),
+                              subtitle: progressionNote(l10n, p),
+                            ),
+                        ],
+                      );
+                      if (p != null) drone.setProgression(p);
+                    },
+                  )
+                : LabeledField(
+                    key: const Key('chordMenu'),
+                    label: l10n.chordLabel,
+                    value: current.quality == null
+                        ? l10n.noteAlone
+                        : chordName(l10n, current.quality!),
+                    onTap: () async {
+                      final c = await showChoiceMenu<_ChordChoice>(
+                        anchor: field,
+                        selected: current,
+                        choices: [
+                          Choice(value: alone, title: l10n.noteAlone),
+                          for (final q in ChordQuality.values)
+                            Choice(
+                              value: (voicing: DroneVoicing.chord, quality: q),
+                              title: chordName(l10n, q),
+                            ),
+                        ],
+                      );
+                      if (c == null) return;
+                      if (c.quality case final q?) drone.setChord(q);
+                      drone.setVoicing(c.voicing);
+                    },
                   ),
-                ),
+          ),
         ),
         RowIconButton(
           icon: Icons.tune,
@@ -828,12 +770,6 @@ String _styleName(AppLocalizations l10n, DroneStyle style) => switch (style) {
   DroneStyle.arpeggio => l10n.styleArpeggio,
 };
 
-String _shapeName(AppLocalizations l10n, ChordShape shape) => switch (shape) {
-  ChordShape.stacked => l10n.shapeStacked,
-  ChordShape.close => l10n.shapeClose,
-  ChordShape.rootless => l10n.shapeRootless,
-};
-
 /// The notes of [chord], root first, spelled by thirds from the letter of the
 /// root: C E G, D♭ F A♭.
 List<String> _chordNotes(DroneChord chord, int rootLetter, NoteNames names) => [
@@ -846,9 +782,9 @@ List<String> _chordNotes(DroneChord chord, int rootLetter, NoteNames names) => [
     ),
 ];
 
-/// The sound options: how the chord or the progression is played (held, on
-/// every beat or as an arpeggio, at the metronome's tempo), where its notes
-/// sit on the keys, and the octave of the root.
+/// The sound options: the piano or a held tone, and how the piano plays the
+/// chord or the progression (held, on every beat or as an arpeggio, at the
+/// metronome's tempo).
 Future<void> _showOptions(BuildContext context, DroneController drone) {
   final scope = AudioScope.of(context);
   return showModalBottomSheet<void>(
@@ -858,23 +794,13 @@ Future<void> _showOptions(BuildContext context, DroneController drone) {
     builder: (sheet) => SafeArea(
       child: SingleChildScrollView(
         child: ListenableBuilder(
-          listenable: Listenable.merge([
-            drone,
-            scope.metronome,
-            scope.settings,
-          ]),
+          listenable: Listenable.merge([drone, scope.metronome]),
           // Here `context` is still the harmony tab's, which outlives the
           // sheet: the entries below open other sheets from it.
           builder: (inner, _) => Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _Options(
-                drone: drone,
-                metronome: scope.metronome,
-                names: scope.settings.noteNames(
-                  Localizations.localeOf(context),
-                ),
-              ),
+              _Options(drone: drone, metronome: scope.metronome),
               SongsAndLegendTiles(panel: context),
             ],
           ),
@@ -885,15 +811,10 @@ Future<void> _showOptions(BuildContext context, DroneController drone) {
 }
 
 class _Options extends StatelessWidget {
-  const _Options({
-    required this.drone,
-    required this.metronome,
-    required this.names,
-  });
+  const _Options({required this.drone, required this.metronome});
 
   final DroneController drone;
   final MetronomeController metronome;
-  final NoteNames names;
 
   @override
   Widget build(BuildContext context) {
@@ -911,104 +832,20 @@ class _Options extends StatelessWidget {
         ),
       ),
     );
-    Widget label(String text) =>
-        FittedBox(fit: BoxFit.scaleDown, child: Text(text, maxLines: 1));
-    final chords = drone.voicing != DroneVoicing.root;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // The bass in one tap: low octave, the root alone, a held tone.
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-          child: SizedBox(
-            width: double.infinity,
-            child: drone.isBassPreset
-                ? FilledButton.icon(
-                    key: const Key('bassPreset'),
-                    onPressed: drone.bassPreset,
-                    icon: const Icon(Icons.check),
-                    label: Text(l10n.bassPreset),
-                  )
-                : OutlinedButton.icon(
-                    key: const Key('bassPreset'),
-                    onPressed: drone.bassPreset,
-                    icon: const Icon(Icons.graphic_eq),
-                    label: Text(l10n.bassPreset),
-                  ),
-          ),
-        ),
-        heading(l10n.octaveLabel),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<int>(
-              showSelectedIcon: false,
-              segments: [
-                // The root in each octave, as it is written: A2, A3, A4.
-                for (final o in DroneController.octaves)
-                  ButtonSegment(
-                    value: o,
-                    label: label(
-                      Note(drone.note.pitchClass, o).label(
-                        names,
-                        numbering: AudioScope.of(context)
-                            .settings
-                            .octaveNumbering,
-                      ),
-                    ),
-                  ),
-              ],
-              selected: {drone.octave},
-              onSelectionChanged: (s) => drone.setOctave(s.first),
-            ),
-          ),
-        ),
-        // The phone's speaker hardly plays low notes: said on the drone's
-        // own screen too, here with the way out.
-        if (drone.rootIsLow)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Text(
-              l10n.octaveSpeakerNote,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-        // Piano struck again and again, or a tone that holds on (the piano
-        // does not reach the lowest octave: it is then always the tone).
+        // Piano struck again and again, or a tone that holds on.
         if (drone.hasPiano)
           SwitchListTile(
             key: const Key('continuousTone'),
-            value: drone.continuous || !drone.usesPiano,
-            onChanged: drone.octave < 2 ? null : drone.setContinuous,
+            value: drone.continuous,
+            onChanged: drone.setContinuous,
             title: Text(l10n.continuousToneTitle),
             subtitle: Text(l10n.continuousToneSubtitle),
           ),
         if (drone.usesPiano) ...[
-          if (chords) ...[
-            heading(l10n.shapeLabel),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: SizedBox(
-                width: double.infinity,
-                child: SegmentedButton<ChordShape>(
-                  showSelectedIcon: false,
-                  segments: [
-                    for (final s in ChordShape.values)
-                      ButtonSegment(
-                        value: s,
-                        label: label(_shapeName(l10n, s)),
-                      ),
-                  ],
-                  selected: {drone.shape},
-                  onSelectionChanged: (s) => drone.setShape(s.first),
-                ),
-              ),
-            ),
-          ],
           heading(l10n.styleLabel),
           RadioGroup<DroneStyle>(
             groupValue: drone.style,

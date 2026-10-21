@@ -83,8 +83,8 @@ class AppActions {
     'type': 'string',
     'description':
         'Note name in English (A, Bb, F#) or Italian (La, Sib, Fa#). The '
-        'drone always plays it in the middle octave (A4 = 440 Hz), so an '
-        'octave number, if given, is ignored.',
+        'drone always plays it in octave 3 (A3 = 220 Hz with A4 at 440), so '
+        'an octave number, if given, is ignored.',
   };
 
   static final catalog = <AppAction>[
@@ -95,7 +95,7 @@ class AppActions {
           'section on screen (metronome, drone, tuner); the tuner (status '
           'idle, starting, listening, permissionDenied or failed, and the '
           'last note heard with its cents off); the Harmony section, called '
-          'drone (playing, note, voicing, chord, progression, style, '
+          'drone (playing, note, voicing, chord, progression, style, held tone, '
           'current step of a progression); the metronome (playing, '
           'tempo, time signature, subdivision, click on 2 and 4) and the '
           'settings (reference A, language, note names, transposition). '
@@ -284,7 +284,8 @@ class AppActions {
       'enum': ['root', 'chord', 'progression'],
       'description':
           'The note alone, the chord built on it, or a progression in its '
-          'key (one chord per bar, at the metronome tempo).',
+          'key (one chord per bar, at the metronome tempo). On screen the '
+          'note alone is the first entry of the chord menu.',
     },
     'chord': {
       'type': 'string',
@@ -327,6 +328,12 @@ class AppActions {
           '(held), on every beat, or as an '
           'arpeggio, one note a beat (the piano follows the tempo and time '
           'signature of the metronome).',
+    },
+    'held_tone': {
+      'type': 'boolean',
+      'description':
+          'true for a steady tone instead of the piano struck again and '
+          'again (the style then does not apply); false for the piano.',
     },
   };
 
@@ -484,12 +491,18 @@ class AppActions {
     final style = args['style'] == null
         ? null
         : _enum(DroneStyle.values, args['style']);
+    final heldTone = switch (args['held_tone']) {
+      null => null,
+      final bool b => b,
+      _ => throw ActionError('"held_tone" must be true or false.'),
+    };
     return () {
       if (pitchClass != null) drone.setPitchClass(pitchClass);
       if (voicing != null) drone.setVoicing(voicing);
       if (chord != null) drone.setChord(chord);
       if (progression != null) drone.setProgression(progression);
       if (style != null) drone.setStyle(style);
+      if (heldTone != null) drone.setContinuous(heldTone);
     };
   }
 
@@ -532,6 +545,7 @@ class AppActions {
         'chord': drone.chord.name,
         'progression': drone.progression.name,
         'style': drone.style.name,
+        'held_tone': drone.continuous,
         'progression_step': drone.voicing == DroneVoicing.progression
             ? drone.step
             : null,

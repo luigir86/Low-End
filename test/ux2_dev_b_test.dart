@@ -97,7 +97,9 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    // In Root mode the gap of the chord menu offers the songs.
+    // The songs are in the sound options.
+    await tester.tap(find.byTooltip('Sound options'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Example songs'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Blue Bossa'));

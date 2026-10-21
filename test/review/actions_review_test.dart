@@ -124,11 +124,7 @@ void main() {
           final r = await actions.call('drone_set', {'note': text});
           expect(r['ok'], isTrue, reason: text);
           expect(drone.note.pitchClass, pc, reason: text);
-          expect(
-            drone.note.octave,
-            DroneController.defaultOctave,
-            reason: text,
-          );
+          expect(drone.note.octave, DroneController.rootOctave, reason: text);
         }
       },
     );
@@ -146,7 +142,7 @@ void main() {
       expect(r['ok'], isTrue);
       final s = _state(r);
       expect((s['tuner']! as Map)['reading'], isNull);
-      expect((s['drone']! as Map)['frequency_hz'], 440.0);
+      expect((s['drone']! as Map)['frequency_hz'], 220.0);
       expect(s['metronome'], {
         'playing': false,
         'bpm': 80,
@@ -234,7 +230,7 @@ void main() {
       await scope.drone.tapNote(9);
       s.setReferencePitch(445);
       await tester.pump();
-      expect(output.frequencies.single, closeTo(445, 1e-9));
+      expect(output.frequencies.single, closeTo(445 / 2, 1e-9));
       expect(scope.drone.a4, 445);
       await scope.drone.stop();
     });

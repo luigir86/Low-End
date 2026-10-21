@@ -1,1 +1,1 @@
-First release: metronome with time signatures, piano harmony with chords and progressions, and a chromatic tuner.
+Simpler Harmony: the note alone is now the first entry of the chord menu, the root always plays in a middle-low octave, and the notes not heard fade while it sounds. Menus show the chosen line without a grey band.
