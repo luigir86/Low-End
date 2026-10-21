@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -40,10 +41,10 @@ class PianoSamples {
 
   static const sampleRate = 22050;
 
-  /// The notes recorded, a minor third apart, from A2 to C6.
-  static const roots = [
-    45, 48, 51, 54, 57, 60, 63, 66, 69, 72, 75, 78, 81, 84, //
-  ];
+  /// The notes recorded, a minor third apart, from A2 to C5: Harmony
+  /// plays from C2 (the root doubled) to B4, so higher ones would never
+  /// sound.
+  static const roots = [45, 48, 51, 54, 57, 60, 63, 66, 69, 72];
 
   static String assetOf(int midi) =>
       'assets/piano/${_names[midi % 12]}${midi ~/ 12 - 1}.wav'.replaceAll(
@@ -61,18 +62,29 @@ class PianoSamples {
     final notes = <int, Float32List>{};
     for (final midi in roots) {
       final data = await b.load(assetOf(midi));
-      notes[midi] = decodeWav(data.buffer.asUint8List(data.offsetInBytes));
+      notes[midi] = decodeWav(
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+      );
     }
     return PianoSamples(notes);
   }
 
   /// Mono 16-bit samples of a WAV file, from -1 to 1.
   static Float32List decodeWav(Uint8List wav) {
-    final view = ByteData.sublistView(wav);
     final n = (wav.length - 44) ~/ 2;
     final out = Float32List(n);
-    for (var i = 0; i < n; i++) {
-      out[i] = view.getInt16(44 + i * 2, Endian.little) / 32768;
+    if (Endian.host == Endian.little) {
+      // Read as 16-bit numbers in one go, from a copy of the data (which
+      // starts aligned), rather than one call per sample.
+      final pcm = Int16List.view(wav.sublist(44, 44 + n * 2).buffer, 0, n);
+      for (var i = 0; i < n; i++) {
+        out[i] = pcm[i] / 32768;
+      }
+    } else {
+      final view = ByteData.sublistView(wav);
+      for (var i = 0; i < n; i++) {
+        out[i] = view.getInt16(44 + i * 2, Endian.little) / 32768;
+      }
     }
     return out;
   }

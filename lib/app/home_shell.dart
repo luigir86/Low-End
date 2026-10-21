@@ -192,7 +192,13 @@ class _HomeShellState extends State<HomeShell> {
                         index: i,
                         axis: landscape ? Axis.vertical : Axis.horizontal,
                         direction: Directionality.of(context),
-                        child: _screens[i],
+                        // The sections out of sight keep their state but
+                        // not their animations: a metronome playing behind
+                        // the tuner runs no frames for a ring nobody sees.
+                        child: TickerMode(
+                          enabled: i == section.index,
+                          child: _screens[i],
+                        ),
                       ),
                     ),
                   ),

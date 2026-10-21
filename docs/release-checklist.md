@@ -92,9 +92,10 @@ Consistent with PRIVACY.md and the code (to be filled in by the owner):
 
 ## 7. Known residual risks
 
-- First `ClickSound.bar` rendering runs on the UI thread at each tempo, bar or
-  subdivision change (≈ 235k samples at 30 BPM): possible small hitch while
-  holding − / +. Not measured on the phone; left as it is.
+- `ClickSound.bar` runs on the UI thread at each tempo, bar or subdivision
+  change. Since 1.1.0 the clicks are made once and the WAV is written in one
+  pass: about 5 ms for the slowest bar (30 BPM) on a desktop, three times
+  less than before. Not measured on the phone.
 - SoLoud is never de-initialised (negligible idle cost).
 - Performance numbers are from code reading, not from `gfxinfo` on the
   phone (adb was not available to the review). Run

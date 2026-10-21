@@ -15,9 +15,12 @@ import 'package:low_end/app/settings_page.dart';
 import 'package:low_end/audio/audio_scope.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
+import 'package:low_end/features/metronome/metronome_screen.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
+import 'package:low_end/features/tuner/drone/drone_panel.dart';
 import 'package:low_end/features/tuner/drone/harmony.dart';
 import 'package:low_end/features/tuner/tuner_controller.dart';
+import 'package:low_end/features/tuner/tuner_panel.dart';
 
 /// Counts the calls to [play], to tell when the drone was retuned.
 class _CountingOutput extends SilentToneOutput {
@@ -329,6 +332,23 @@ void main() {
       await scope.drone.stop();
       await _settle(tester);
       expect(ink('D'), colors.onSurface);
+    });
+
+    testWidgets('only the section in sight runs its animations', (
+      tester,
+    ) async {
+      final scope = await _pumpApp(tester);
+      bool animates(Type screen) => TickerMode.of(
+        tester.element(find.byType(screen, skipOffstage: false)),
+      );
+      // On the tuner: a metronome playing behind it would run no frames.
+      expect(animates(TunerPanel), isTrue);
+      expect(animates(MetronomeScreen), isFalse);
+      expect(animates(DronePanel), isFalse);
+      scope.navigation.open(AppSection.metronome);
+      await _settle(tester);
+      expect(animates(MetronomeScreen), isTrue);
+      expect(animates(TunerPanel), isFalse);
     });
 
     testWidgets('the reference A has its own heading in the settings', (

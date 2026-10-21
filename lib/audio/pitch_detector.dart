@@ -75,17 +75,23 @@ class PitchDetector {
     final level = math.sqrt(energy / n);
     if (level < (expected == null ? minLevel : _holdLevel)) return null;
 
-    // Cumulative mean normalised difference for each lag.
+    // Cumulative mean normalised difference for each lag, worked out only
+    // as far as it is read: once the period is found, the longer lags (most
+    // of the work, for any note but the lowest) are not needed.
     final d = Float64List(maxLag + 1)..[0] = 1;
     var runningSum = 0.0;
-    for (var lag = 1; lag <= maxLag; lag++) {
-      var sum = 0.0;
-      for (var i = 0; i < width; i++) {
-        final delta = samples[i] - samples[i + lag];
-        sum += delta * delta;
+    var filled = 0;
+    void fill(int upTo) {
+      for (var lag = filled + 1; lag <= upTo; lag++) {
+        var sum = 0.0;
+        for (var i = 0; i < width; i++) {
+          final delta = samples[i] - samples[i + lag];
+          sum += delta * delta;
+        }
+        runningSum += sum;
+        d[lag] = runningSum == 0 ? 1 : sum * lag / runningSum;
       }
-      runningSum += sum;
-      d[lag] = runningSum == 0 ? 1 : sum * lag / runningSum;
+      if (upTo > filled) filled = upTo;
     }
 
     // The first dip under the threshold is the period; later dips are
@@ -94,23 +100,30 @@ class PitchDetector {
     // multiples would pass for a lower note, so it is dropped whole, also when a note was heard just
     // before (the hold search below would otherwise find such a multiple).
     for (var lag = 2; lag < maxLag; lag++) {
+      fill(lag);
       if (d[lag] >= threshold) continue;
       // The bottom of the dip is its lowest point, not the first place the
       // curve stops falling: with noise (a low string heard through room
       // sound has only three periods in the window) the curve ripples on
       // the way down and stopping at the first ripple reads sharp.
       var end = lag;
-      while (end + 1 < maxLag && d[end + 1] < threshold) {
+      while (end + 1 < maxLag) {
+        fill(end + 1);
+        if (d[end + 1] >= threshold) break;
         end++;
       }
       for (var i = lag; i <= end; i++) {
         if (d[i] < d[lag]) lag = i;
       }
       if (lag < _minLag) return null;
+      // What [_period] reads: the next lag, and for a short period its
+      // multiples up to [_farthest].
+      fill(lag < _shortPeriod ? math.min(maxLag, _farthest + 4) : lag + 1);
       return sampleRate / _period(d, lag, maxLag);
     }
 
     if (expected == null) return null;
+    fill(maxLag);
     final period = sampleRate / expected;
     final from = math.max((period / 1.06).floor(), math.max(_minLag, 2));
     final to = math.min((period * 1.06).ceil(), maxLag - 1);

@@ -429,6 +429,40 @@ void main() {
       expect(piano.chords!.single, [55, 62, 65, 71]);
     });
 
+    test('every note played has a recording close to it', () async {
+      // The highest and lowest keys Harmony reaches, the root doubled an
+      // octave down included, must be within a tone of a recording.
+      var low = 127, high = 0;
+      void take() {
+        for (final chord in piano.chords!) {
+          for (final n in chord) {
+            low = math.min(low, n);
+            high = math.max(high, n);
+          }
+        }
+      }
+
+      drone.setStyle(DroneStyle.beat);
+      for (final voicing in DroneVoicing.values) {
+        drone.setVoicing(voicing);
+        for (final q in ChordQuality.values) {
+          drone.setChord(q);
+          for (final p in Progression.values) {
+            drone.setProgression(p);
+            for (var pc = 0; pc < 12; pc++) {
+              await drone.tapNote(pc);
+              await Future<void>.delayed(const Duration(milliseconds: 1));
+              take();
+              await drone.stop();
+            }
+          }
+        }
+      }
+      expect(low, 48);
+      expect(high, lessThanOrEqualTo(PianoSamples.roots.last + 2));
+      expect(low - 12, greaterThanOrEqualTo(36));
+    });
+
     test('every chord sits in the same octave of keys when close', () async {
       drone.setVoicing(DroneVoicing.chord);
       drone.setStyle(DroneStyle.beat);
