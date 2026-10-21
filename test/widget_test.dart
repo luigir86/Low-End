@@ -233,7 +233,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(tone.frequencies.single, closeTo(440, 0.01));
+    expect(tone.frequencies.single, closeTo(220, 0.01));
 
     await tester.tap(_metronomeTab);
     await tester.pump();
@@ -251,7 +251,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(tone.frequencies.single, closeTo(440, 0.01));
+    expect(tone.frequencies.single, closeTo(220, 0.01));
     expect(click.bar, isNotNull);
     expect(mic.isCapturing, isFalse);
     expect(find.text('Listening pauses what is playing'), findsOneWidget);
@@ -286,7 +286,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(tone.frequencies.single, closeTo(440, 0.01));
+    expect(tone.frequencies.single, closeTo(220, 0.01));
     expect(click.bar, isNotNull);
   });
 
@@ -412,7 +412,7 @@ void main() {
     // Again: the last note plays again.
     await tester.tap(find.bySemanticsLabel(RegExp('^Play D')).last);
     await tester.pump(const Duration(milliseconds: 300));
-    expect(tone.frequencies.single, closeTo(293.66, 0.01));
+    expect(tone.frequencies.single, closeTo(146.83, 0.01));
   });
 
   testWidgets('settings change the language, note names and reference A', (
@@ -458,8 +458,8 @@ void main() {
     // Italian app, but letter names as chosen; the drone follows 442 Hz.
     await tester.tap(find.text('A'));
     await tester.pump();
-    expect(output.frequencies.single, closeTo(442, 0.01));
-    expect(find.text('Tonica'), findsWidgets);
+    expect(output.frequencies.single, closeTo(221, 0.01));
+    expect(find.text('Solo la nota'), findsWidgets);
   });
 
   testWidgets('the About dialog shows the licence and the package notices', (
@@ -691,7 +691,7 @@ void main() {
     },
   );
 
-  testWidgets('the sound options set the octave and where the chord sits', (
+  testWidgets('the sound options set the style and the held tone', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1080, 2400);
@@ -714,18 +714,14 @@ void main() {
 
     await tester.tap(find.byTooltip('Sound options'));
     await tester.pumpAndSettle();
-    // The root of the key (A), in each octave.
-    expect(find.text('A2'), findsOneWidget);
-    await tester.tap(find.text('A2'));
-    await tester.pumpAndSettle();
-    expect(scope.drone.octave, 2);
-
-    await tester.tap(find.text('No root'));
-    await tester.pumpAndSettle();
-    expect(scope.drone.shape, ChordShape.rootless);
     await tester.tap(find.text('Arpeggio'));
     await tester.pumpAndSettle();
     expect(scope.drone.style, DroneStyle.arpeggio);
+    // A held tone has no style: the piano's choices go.
+    await tester.tap(find.text('Held tone'));
+    await tester.pumpAndSettle();
+    expect(scope.drone.continuous, isTrue);
+    expect(find.text('Arpeggio'), findsNothing);
   });
 
   testWidgets('touching the tempo opens the keyboard to type it', (

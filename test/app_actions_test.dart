@@ -81,13 +81,24 @@ void main() {
     expect(result['ok'], isTrue);
     final drone = (result['state']! as Map)['drone'] as Map;
     expect(drone['playing'], isTrue);
-    expect(drone['note'], 'D4');
+    expect(drone['note'], 'D3');
     expect(drone['voicing'], 'chord');
     expect(drone['chord'], 'minor');
     expect(output.frequencies, hasLength(3));
 
     await actions.call('drone_stop');
     expect(output.frequencies, isEmpty);
+  });
+
+  test('sets the held tone of Harmony', () async {
+    var result = await actions.call('drone_set', {'held_tone': true});
+    expect(result['ok'], isTrue);
+    expect(((result['state']! as Map)['drone'] as Map)['held_tone'], isTrue);
+    expect(actions.drone.continuous, isTrue);
+    result = await actions.call('drone_set', {'held_tone': 'maybe'});
+    expect(result['ok'], isFalse);
+    result = await actions.call('drone_set', {'held_tone': false});
+    expect(actions.drone.continuous, isFalse);
   });
 
   test('changes and reports the settings', () async {
@@ -171,7 +182,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(output.frequencies.single, closeTo(329.63, 0.1)); // E4
+    expect(output.frequencies.single, closeTo(164.81, 0.1)); // E3
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 300));

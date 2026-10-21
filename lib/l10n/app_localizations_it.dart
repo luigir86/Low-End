@@ -155,10 +155,10 @@ class AppLocalizationsIt extends AppLocalizations {
       'Tocca una nota per farla suonare. Toccala di nuovo per fermarla.';
 
   @override
-  String get rootOnly => 'Tonica';
+  String get chordLabel => 'Accordo';
 
   @override
-  String get chordLabel => 'Accordo';
+  String get noteAlone => 'Solo la nota';
 
   @override
   String get chordMajor => 'Maggiore';
@@ -346,24 +346,11 @@ class AppLocalizationsIt extends AppLocalizations {
   String get optionsLabel => 'Opzioni del suono';
 
   @override
-  String get octaveLabel => 'Ottava della fondamentale';
-
-  @override
-  String get octaveSpeakerNote =>
-      'Le note gravi si sentono poco dall’altoparlante del telefono: usa le cuffie o una cassa, oppure scegli un’ottava più alta.';
-
-  @override
-  String get lowRootNote => 'Nota grave: usa cuffie o cassa';
-
-  @override
-  String get bassPreset => 'Basso: ottava bassa, tono continuo';
-
-  @override
   String get continuousToneTitle => 'Tono continuo';
 
   @override
   String get continuousToneSubtitle =>
-      'Un suono fisso al posto del pianoforte ribattuto. Sempre attivo nell’ottava 1.';
+      'Un suono fisso al posto del pianoforte ribattuto.';
 
   @override
   String get octaveNumberingLabel => 'Numeri delle ottave';
@@ -434,18 +421,6 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get inTuneZoneSubtitle =>
       'Quanto può scostarsi una nota (in cent, centesimi di semitono) e risultare ancora intonata';
-
-  @override
-  String get shapeLabel => 'Posizione dell\'accordo';
-
-  @override
-  String get shapeStacked => 'Impilato';
-
-  @override
-  String get shapeClose => 'Vicino';
-
-  @override
-  String get shapeRootless => 'Senza fondamentale';
 
   @override
   String get guideTitle => 'Gesti e scorciatoie';

@@ -227,10 +227,10 @@ void main() {
         // No tab stops the drone by itself, the tuner included: it waits
         // for a touch.
         expect(h.scope.drone.isPlaying, isTrue);
-        expect(h.output.frequencies.single, closeTo(440, 1e-9));
+        expect(h.output.frequencies.single, closeTo(220, 1e-9));
         expect((h.mic as FakeMicInput).isCapturing, isFalse);
         expect(h.scope.navigation.section, tab);
-        if (tab == AppSection.drone) expect(find.text('La4'), findsOneWidget);
+        if (tab == AppSection.drone) expect(find.text('La3'), findsOneWidget);
         h.expectClean();
       });
     }

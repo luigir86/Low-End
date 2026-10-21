@@ -16,12 +16,12 @@ void main() {
   test('a note key plays, switches and stops', () async {
     await drone.tapNote(2); // D
     expect(drone.isPlaying, isTrue);
-    // Always the middle octave: D4.
-    expect(output.frequencies.single, closeTo(293.66, 0.01));
+    // Always octave 3: D3.
+    expect(output.frequencies.single, closeTo(146.83, 0.01));
 
-    await drone.tapNote(9); // Another key switches to A4.
+    await drone.tapNote(9); // Another key switches to A3.
     expect(drone.isPlaying, isTrue);
-    expect(output.frequencies.single, closeTo(440, 0.01));
+    expect(output.frequencies.single, closeTo(220, 0.01));
 
     await drone.tapNote(9); // The lit key again stops it.
     expect(drone.isPlaying, isFalse);
@@ -56,7 +56,10 @@ void main() {
     await drone.start();
     drone.setReferencePitch(442);
     await _settle();
-    expect(output.frequencies.single, closeTo(442, 0.001)); // A4 at 442
+    expect(
+      output.frequencies.single,
+      closeTo(221, 0.001),
+    ); // A3, with A4 at 442
   });
 
   test('names the other notes of the chord', () {

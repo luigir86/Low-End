@@ -154,10 +154,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get droneHint => 'Touch a note to play it. Touch it again to stop.';
 
   @override
-  String get rootOnly => 'Root';
+  String get chordLabel => 'Chord';
 
   @override
-  String get chordLabel => 'Chord';
+  String get noteAlone => 'Note alone';
 
   @override
   String get chordMajor => 'Major';
@@ -343,24 +343,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get optionsLabel => 'Sound options';
 
   @override
-  String get octaveLabel => 'Octave of the root';
-
-  @override
-  String get octaveSpeakerNote =>
-      'Low notes are faint on the phone’s own speaker: use headphones or a speaker, or pick a higher octave.';
-
-  @override
-  String get lowRootNote => 'Low note: use headphones or a speaker';
-
-  @override
-  String get bassPreset => 'Bass: low octave, held tone';
-
-  @override
   String get continuousToneTitle => 'Held tone';
 
   @override
   String get continuousToneSubtitle =>
-      'A steady tone instead of the piano struck again and again. Always used in octave 1.';
+      'A steady tone instead of the piano struck again and again.';
 
   @override
   String get octaveNumberingLabel => 'Octave numbers';
@@ -431,18 +418,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get inTuneZoneSubtitle =>
       'How far off a note can be, in cents (hundredths of a semitone), and still show as in tune';
-
-  @override
-  String get shapeLabel => 'Chord position';
-
-  @override
-  String get shapeStacked => 'Stacked';
-
-  @override
-  String get shapeClose => 'Close';
-
-  @override
-  String get shapeRootless => 'No root';
 
   @override
   String get guideTitle => 'Gestures and shortcuts';

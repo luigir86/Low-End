@@ -311,7 +311,7 @@ void main() {
       d.setReferencePitch(438);
       expect(out.frequencies, isEmpty);
       expect(d.frequencies, hasLength(4));
-      expect(d.frequency, closeTo(438 * math.pow(2, -9 / 12), 1e-9));
+      expect(d.frequency, closeTo(438 / 2 * math.pow(2, -9 / 12), 1e-9));
     });
 
     test(

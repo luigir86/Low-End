@@ -175,7 +175,6 @@ abstract final class PianoSound {
     required int bpm,
     required TimeSignature signature,
     double a4 = 440,
-    bool rootless = false,
   }) => ClickSound.wav(
     loop(
       samples: samples,
@@ -184,13 +183,11 @@ abstract final class PianoSound {
       bpm: bpm,
       signature: signature,
       a4: a4,
-      rootless: rootless,
     ),
   );
 
-  /// The samples of the loop, from -1 to 1 (see [loopWav]). With [rootless],
-  /// the chords have no root to double an octave down: their first note is
-  /// not one. The bar keeps the metronome's length.
+  /// The samples of the loop, from -1 to 1 (see [loopWav]). The bar keeps
+  /// the metronome's length.
   static Float64List loop({
     required PianoSamples samples,
     required List<PianoChord> chords,
@@ -198,7 +195,6 @@ abstract final class PianoSound {
     required int bpm,
     required TimeSignature signature,
     double a4 = 440,
-    bool rootless = false,
   }) {
     final beat = (ClickSound.sampleRate * 60 / bpm).round();
     final barLength = beat * signature.beats;
@@ -247,7 +243,7 @@ abstract final class PianoSound {
     /// The chord, with its root again an octave down for the weight, struck
     /// at [at] at [gain] and held for [hold] samples.
     void strikeChord(PianoChord chord, double gain, int at, int hold) {
-      final doubled = !rootless && chord[0] - 12 >= _lowestDouble;
+      final doubled = chord[0] - 12 >= _lowestDouble;
       final level = gain * chordGain(chord.length + (doubled ? 1 : 0));
       for (var i = 0; i < chord.length; i++) {
         strike(chord[i], level * (i == 0 ? 1 : 0.82), at, hold);

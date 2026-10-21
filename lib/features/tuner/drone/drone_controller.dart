@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../../../audio/drone_sound.dart';
 import '../../../audio/piano_output.dart';
 import '../../../audio/piano_sound.dart';
 import '../../../audio/pitch.dart';
@@ -26,20 +25,6 @@ enum DroneStyle {
   const DroneStyle(this.piano);
 
   final PianoStyle piano;
-}
-
-/// How the piano spreads a chord over the keys.
-enum ChordShape {
-  /// The notes stacked above the root, as the chord is spelled.
-  stacked,
-
-  /// The root as the bass, and the other notes close together above it, in
-  /// one place on the keyboard whatever the chord: from one chord to the next
-  /// they move as little as they can, as a pianist's hand does.
-  close,
-
-  /// As [close] but without the bass: the root is left to the bass player.
-  rootless,
 }
 
 /// The length, position, tempo and time signature of the bar a progression
@@ -99,25 +84,11 @@ class DroneController extends ChangeNotifier {
   final PianoOutput? _piano;
   final BarClock _clock;
 
-  /// The drone opens in the middle octave (A4 = 440 Hz): high enough for any
-  /// phone speaker, and easy to hear against a bass.
-  static const defaultOctave = 4;
-
-  /// The octaves it can play the root in (scientific numbering: E1 is the
-  /// low E of a bass, 41.2 Hz): lower ones for a bass, to hear the beats
-  /// against its note on headphones or a speaker that reaches them.
-  static const octaves = [1, 2, 3, 4];
-
-  /// The octave the bass preset plays in: E2 is 82 Hz, A2 110 Hz.
-  static const bassOctave = 2;
-
-  /// Below this root, in Hz, the phone's speaker hardly plays the drone: the
-  /// screen says so (see [rootIsLow]).
-  static const lowRootHz = DroneSound.lowRootHz;
-
-  /// The lowest octave the piano samples can still play decently (they
-  /// start at A2): below it the drone is a sustained tone.
-  static const _lowestPianoOctave = 2;
+  /// The one octave the root is played in (scientific numbering: A3 is
+  /// 220 Hz, C3 131 Hz): low enough to sit with a bass or a cello, high
+  /// enough for a guitar, a voice or a wind, and above what a phone speaker
+  /// can hardly play (about 120 Hz).
+  static const rootOctave = 3;
 
   /// Loudness at full level.
   static const _fullVolume = 0.8;
@@ -127,10 +98,12 @@ class DroneController extends ChangeNotifier {
 
   bool _playing = false;
   bool _audioFailed = false;
-  var _octave = defaultOctave;
-  Note _note = const Note(9, defaultOctave);
-  ChordShape _shape = ChordShape.close;
+  Note _note = const Note(9, rootOctave);
   DroneVoicing _voicing = DroneVoicing.root;
+
+  /// The last of [DroneVoicing.root] and [DroneVoicing.chord] chosen, to
+  /// come back to from a progression.
+  DroneVoicing _chordVoicing = DroneVoicing.root;
   ChordQuality _chord = ChordQuality.major;
   Progression _progression = Progression.twoFiveOne;
   DroneStyle _style = DroneStyle.beat;
@@ -168,19 +141,21 @@ class DroneController extends ChangeNotifier {
   /// The note touched: the root, or the key of a progression.
   Note get note => _note;
 
-  /// The octave the root is played in, one of [octaves].
-  int get octave => _octave;
+  /// The octave the root is played in: always [rootOctave].
+  int get octave => rootOctave;
 
-  /// How the piano spreads a chord (see [ChordShape]).
-  ChordShape get shape => _shape;
   DroneVoicing get voicing => _voicing;
+
+  /// What the chord menu holds: the note alone or a chord, the last chosen
+  /// of the two, also while a progression is selected.
+  DroneVoicing get chordVoicing => _chordVoicing;
   ChordQuality get chord => _chord;
   Progression get progression => _progression;
 
   DroneStyle get style => _style;
 
-  /// True when the piano plays (always, bar in tests, in the lowest octave
-  /// and when the player chose a continuous tone: see the class).
+  /// True when the piano plays: always, except in tests and when the player
+  /// chose a continuous tone (see the class).
   bool get _patterned => usesPiano;
 
   /// Whether the piano can play at all (the styles are offered only then).
@@ -192,34 +167,11 @@ class DroneController extends ChangeNotifier {
   /// again and again.
   bool get continuous => _continuous;
 
-  /// True when the sound is the piano, false when it is the sustained tone:
-  /// the player's choice, or the only way to play octave 1.
-  bool get usesPiano =>
-      _piano != null && !_continuous && _octave >= _lowestPianoOctave;
+  /// True when the sound is the piano, false when it is the sustained tone.
+  bool get usesPiano => _piano != null && !_continuous;
 
   /// Whether the tone (not the piano) has been started and may still sound.
   var _toneSounding = false;
-
-  /// True when the root is so low that the phone's speaker hardly plays it
-  /// (see [lowRootHz]), whether the drone is playing or not: the warning
-  /// belongs on the screen where the note is chosen.
-  bool get rootIsLow => _note.frequency(a4: _a4) < lowRootHz;
-
-  /// Whether the settings are those of the bass preset (see [bassPreset]).
-  bool get isBassPreset =>
-      _continuous && _octave <= bassOctave && _voicing == DroneVoicing.root;
-
-  /// The settings for playing along with a bass in one tap: a low octave,
-  /// the root alone, and a continuous tone rich in harmonics, which a phone
-  /// speaker can play better than a low piano note.
-  void bassPreset() {
-    _update(() {
-      _octave = bassOctave;
-      _note = Note(_note.pitchClass, bassOctave);
-      _continuous = true;
-      _voicing = DroneVoicing.root;
-    }, restart: true);
-  }
 
   /// Chooses between the piano struck again and again, and a tone that
   /// holds on.
@@ -323,7 +275,7 @@ class DroneController extends ChangeNotifier {
   int get rootPitchClass => currentChord?.root ?? _note.pitchClass;
 
   /// Frequency of the root sounding, in Hz.
-  double get frequency => Note(rootPitchClass, _octave).frequency(a4: _a4);
+  double get frequency => Note(rootPitchClass, rootOctave).frequency(a4: _a4);
 
   /// The pitch classes of the other notes of the chord sounding.
   Set<int> get chordTones {
@@ -336,7 +288,10 @@ class DroneController extends ChangeNotifier {
   List<double> get frequencies => _frequenciesOf(currentChord);
 
   List<double> _frequenciesOf(DroneChord? c) {
-    final root = Note(c?.root ?? _note.pitchClass, _octave).frequency(a4: _a4);
+    final root = Note(
+      c?.root ?? _note.pitchClass,
+      rootOctave,
+    ).frequency(a4: _a4);
     final ratios = c == null ? [1.0] : c.quality.ratios;
     return [for (final r in ratios) root * r];
   }
@@ -385,26 +340,15 @@ class DroneController extends ChangeNotifier {
 
   void setPitchClass(int pitchClass) {
     if (pitchClass == _note.pitchClass) return;
-    _update(() => _note = Note(pitchClass, _octave), restart: true);
-  }
-
-  void setOctave(int octave) {
-    if (octave == _octave || !octaves.contains(octave)) return;
-    final wasPiano = usesPiano;
-    _update(() {
-      _octave = octave;
-      _note = Note(_note.pitchClass, octave);
-    }, restart: wasPiano != usesPiano);
-  }
-
-  void setShape(ChordShape shape) {
-    if (shape == _shape) return;
-    _update(() => _shape = shape);
+    _update(() => _note = Note(pitchClass, rootOctave), restart: true);
   }
 
   void setVoicing(DroneVoicing voicing) {
     if (voicing == _voicing) return;
-    _update(() => _voicing = voicing, restart: true);
+    _update(() {
+      _voicing = voicing;
+      if (voicing != DroneVoicing.progression) _chordVoicing = voicing;
+    }, restart: true);
   }
 
   void setChord(ChordQuality chord) {
@@ -513,29 +457,21 @@ class DroneController extends ChangeNotifier {
 
   /// The chords of the loop, one per bar, as the piano plays them.
   List<PianoChord> get _pianoChords {
-    final bass = (_octave + 1) * 12;
-    // Where the notes above the bass sit in [ChordShape.close]: one octave of
-    // keys, from here up, the same for every chord (G3, C4 or E4, to clear
-    // the bass).
-    final floor = _octave <= 2
-        ? 55
-        : _octave == 3
-        ? 60
-        : 64;
+    // MIDI numbers: the root in its octave, and the octave of keys from C4
+    // up where the rest of every chord sits, clear of the root.
+    const bass = (rootOctave + 1) * 12;
+    const floor = bass + 12;
 
+    // The root as the bass, the other notes close together above it, in one
+    // place on the keyboard whatever the chord: from one chord to the next
+    // they move as little as they can, as a pianist's hand does.
     List<int> notes(DroneChord? c) {
       // A single note: the piano plays the root alone.
       if (c == null) return [bass + _note.pitchClass];
-      final root = bass + c.root;
-      final above = c.quality.semitones;
-      if (_shape == ChordShape.stacked) {
-        return [root, for (final s in above) root + s];
-      }
-      // Each note on the key of its name within the octave from the floor:
-      // whatever the chord, the hand stays in one place.
-      final upper = [for (final s in above) floor + (c.root + s - floor) % 12]
-        ..sort();
-      return _shape == ChordShape.rootless ? upper : [root, ...upper];
+      final upper = [
+        for (final s in c.quality.semitones) floor + (c.root + s - floor) % 12,
+      ]..sort();
+      return [bass + c.root, ...upper];
     }
 
     return [
@@ -632,7 +568,6 @@ class DroneController extends ChangeNotifier {
       a4: _a4,
       volume: _volume,
       startAt: fromTheTop ? Duration.zero : null,
-      rootless: _voicing != DroneVoicing.root && _shape == ChordShape.rootless,
     );
     if (!_playing || _disposed) return;
     final bar = _clock.barLength;

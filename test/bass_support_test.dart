@@ -244,7 +244,7 @@ void main() {
     });
   });
 
-  group('the drone for a bass', () {
+  group('the drone: its octave and its sound', () {
     late SilentToneOutput tone;
     late SilentPianoOutput piano;
     late DroneController drone;
@@ -255,38 +255,15 @@ void main() {
       drone = DroneController(tone, piano: piano);
     });
 
-    test('octaves 1 to 4, the middle one still the default', () {
-      expect(DroneController.octaves, [1, 2, 3, 4]);
-      expect(drone.octave, 4);
-    });
-
-    test('E1 is 41.2 Hz, and a low root is flagged, a high one is not', () {
-      drone.setPitchClass(4);
-      drone.setOctave(1);
-      expect(drone.frequency, closeTo(41.2, 0.01));
-      expect(drone.rootIsLow, isTrue);
-      drone.setOctave(2); // E2, 82 Hz
-      expect(drone.rootIsLow, isTrue);
-      drone.setOctave(3); // E3, 165 Hz
-      expect(drone.rootIsLow, isFalse);
-      drone.setPitchClass(9);
-      drone.setOctave(2); // A2, 110 Hz
-      expect(drone.rootIsLow, isTrue);
-      drone.setOctave(3); // A3, 220 Hz
-      expect(drone.rootIsLow, isFalse);
-    });
-
-    test('the bass preset: octave 2, the root alone, a held tone', () async {
-      drone.setVoicing(DroneVoicing.chord);
-      expect(drone.isBassPreset, isFalse);
-      drone.bassPreset();
-      expect(drone.octave, 2);
-      expect(drone.voicing, DroneVoicing.root);
-      expect(drone.continuous, isTrue);
-      expect(drone.isBassPreset, isTrue);
-      await drone.tapNote(4); // E
-      expect(tone.frequencies.single, closeTo(82.41, 0.01));
-      expect(piano.chords, isNull);
+    test('one octave, A3 = 220 Hz, every root above what a speaker loses', () {
+      expect(DroneController.rootOctave, 3);
+      expect(drone.octave, 3);
+      expect(drone.frequency, closeTo(220, 0.01));
+      // C3, the lowest root, at the lowest reference A still clears the
+      // 120 Hz under which a phone speaker hardly plays it.
+      drone.setReferencePitch(415);
+      drone.setPitchClass(0);
+      expect(drone.frequency, greaterThan(DroneSound.lowRootHz));
     });
 
     test('the piano plays by default and a held tone replaces it', () async {
@@ -298,25 +275,13 @@ void main() {
       drone.setContinuous(true);
       await Future<void>.delayed(Duration.zero);
       expect(drone.usesPiano, isFalse);
-      expect(tone.frequencies.single, closeTo(440, 0.01));
+      expect(tone.frequencies.single, closeTo(220, 0.01));
       expect(piano.chords, isNull);
 
       drone.setContinuous(false);
       await Future<void>.delayed(Duration.zero);
       expect(drone.usesPiano, isTrue);
       expect(piano.chords, isNotNull);
-      expect(tone.frequencies, isEmpty);
-    });
-
-    test('octave 1 is always a held tone, also with the piano', () async {
-      drone.setPitchClass(4);
-      drone.setOctave(1);
-      expect(drone.usesPiano, isFalse);
-      await drone.start();
-      expect(tone.frequencies.single, closeTo(41.2, 0.01));
-      drone.setOctave(3);
-      await Future<void>.delayed(Duration.zero);
-      expect(drone.usesPiano, isTrue);
       expect(tone.frequencies, isEmpty);
     });
   });
@@ -354,50 +319,35 @@ void main() {
   });
 
   group('on screen', () {
-    testWidgets(
-      'a low drone root says so, in sight, and the tuner has strings',
-      (tester) async {
-        tester.view.physicalSize = const Size(1080, 2400);
-        tester.view.devicePixelRatio = 2.5;
-        addTearDown(tester.view.reset);
-        final settings = AppSettings();
-        await tester.pumpWidget(
-          LowEndApp(
-            toneOutput: SilentToneOutput(),
-            micInput: FakeMicInput(),
-            settings: settings,
-          ),
-        );
-        await tester.pumpAndSettle();
-        final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
+    testWidgets('the tuner has strings', (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 2.5;
+      addTearDown(tester.view.reset);
+      final settings = AppSettings();
+      await tester.pumpWidget(
+        LowEndApp(
+          toneOutput: SilentToneOutput(),
+          micInput: FakeMicInput(),
+          settings: settings,
+        ),
+      );
+      await tester.pumpAndSettle();
+      final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
 
-        scope.navigation.open(AppSection.drone);
-        await tester.pumpAndSettle();
-        expect(
-          find.text('Low note: use headphones or a speaker'),
-          findsNothing,
-        );
-        scope.drone.setOctave(2);
-        await tester.pumpAndSettle();
-        expect(
-          find.text('Low note: use headphones or a speaker'),
-          findsOneWidget,
-        );
-        scope.navigation.open(AppSection.tuner);
-        await tester.pumpAndSettle();
-        expect(find.byKey(const Key('tuningSwitch')), findsOneWidget);
-        expect(settings.tuning, TunerTuning.chromatic);
-        await tester.tap(find.byKey(const Key('tuningInstrument')));
-        await tester.pumpAndSettle();
-        expect(settings.tuning, TunerTuning.guitar);
-        await tester.tap(find.text('Violin').last);
-        await tester.pumpAndSettle();
-        expect(settings.tuning, TunerTuning.violin);
-        await tester.tap(find.byKey(const Key('tuningChromatic')));
-        await tester.pumpAndSettle();
-        expect(settings.tuning, TunerTuning.chromatic);
-        expect(settings.tunerInstrument, TunerTuning.violin);
-      },
-    );
+      scope.navigation.open(AppSection.tuner);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('tuningSwitch')), findsOneWidget);
+      expect(settings.tuning, TunerTuning.chromatic);
+      await tester.tap(find.byKey(const Key('tuningInstrument')));
+      await tester.pumpAndSettle();
+      expect(settings.tuning, TunerTuning.guitar);
+      await tester.tap(find.text('Violin').last);
+      await tester.pumpAndSettle();
+      expect(settings.tuning, TunerTuning.violin);
+      await tester.tap(find.byKey(const Key('tuningChromatic')));
+      await tester.pumpAndSettle();
+      expect(settings.tuning, TunerTuning.chromatic);
+      expect(settings.tunerInstrument, TunerTuning.violin);
+    });
   });
 }

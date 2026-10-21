@@ -9,8 +9,8 @@ HARMONY
 • Twelve keys on a dial: touch a note and it plays on a real piano, in time with the metronome.
 • The note alone, or a major, minor or seventh chord, struck once a bar, on every beat or as an arpeggio.
 • Progressions to practise over, one chord per bar: II–V–I (major and minor), I–IV–V, I–VI–IV–V and the twelve-bar blues, in any key, each named after a song you know, with the Roman numerals on the keys.
-• Five example songs set the key, the progression and the tempo in one tap.
-• Choose the octave of the root, how the chord is laid out, or a held tone; a bass preset plays a low root along with you.
+• Example songs set the key, the progression and the tempo in one tap.
+• Or a held tone instead of the piano. The root sits in a middle-low octave that a phone speaker plays well; while it sounds, the notes not heard fade on the dial.
 • Start the harmony while the click is running and it comes in on the next bar, with a countdown on the dial.
 
 TUNER
