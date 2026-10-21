@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,16 +17,27 @@ import 'package:low_end/features/tuner/drone/harmony.dart';
 /// pitch, a second long, so what is played can be told by its frequency.
 PianoSamples _tones() {
   const rate = PianoSamples.sampleRate;
-  return PianoSamples({
-    for (final midi in PianoSamples.roots)
-      midi: Float32List.fromList([
-        for (var i = 0; i < rate; i++)
-          0.5 *
-              math.sin(
-                2 * math.pi * 440 * math.pow(2, (midi - 69) / 12) * i / rate,
-              ),
-      ]),
+  return PianoSamples.mono({
+    for (final midi in PianoSamples.roots) midi: _sine(_hz(midi), rate),
   });
+}
+
+/// [length] samples of a sine at [hz], at half the full level.
+Float32List _sine(double hz, int length) => Float32List.fromList([
+  for (var i = 0; i < length; i++)
+    0.5 * math.sin(2 * math.pi * hz * i / PianoSamples.sampleRate),
+]);
+
+/// How strong [hz] is in [s] from [from] for [length] samples, by
+/// correlation with a sine.
+double _power(Float64List s, double hz, [int from = 0, int? length]) {
+  var re = 0.0, im = 0.0;
+  for (var i = from; i < from + (length ?? s.length - from); i++) {
+    final a = 2 * math.pi * hz * i / ClickSound.sampleRate;
+    re += s[i] * math.cos(a);
+    im += s[i] * math.sin(a);
+  }
+  return re * re + im * im;
 }
 
 double _hz(int midi) => 440 * math.pow(2, (midi - 69) / 12).toDouble();
@@ -60,17 +73,7 @@ void main() {
         bpm: 120,
         signature: TimeSignature.fourFour,
       );
-      // How strong [hz] is in [s], by correlation with a sine.
-      double power(Float64List s, double hz) {
-        var re = 0.0, im = 0.0;
-        for (var i = 0; i < s.length; i++) {
-          final a = 2 * math.pi * hz * i / ClickSound.sampleRate;
-          re += s[i] * math.cos(a);
-          im += s[i] * math.sin(a);
-        }
-        return re * re + im * im;
-      }
-
+      const power = _power;
       // C4: the C3 below it is struck too.
       final c = render(cMajor);
       expect(power(c, _hz(48)), greaterThan(power(c, _hz(60)) * 0.05));
@@ -256,60 +259,61 @@ void main() {
     });
 
     test('a slow bar is struck again softly, never left silent', () {
-      // 4/4 at 50: a bar of 4.8 s, longer than a recording rings.
-      final beat = (ClickSound.sampleRate * 60 / 50).round();
-      expect(PianoSound.chordStrikes(0, 4, beat), [0, 2]);
-      // 5/4 at 40: beats of 1.5 s, two of them too long, so every beat.
-      final slow = (ClickSound.sampleRate * 60 / 40).round();
-      expect(PianoSound.chordStrikes(0, 5, slow), [0, 1, 2, 3, 4]);
-      // At 120 once a bar is enough, as before.
-      expect(PianoSound.chordStrikes(0, 4, ClickSound.sampleRate ~/ 2), [0]);
+      int beat(int bpm) => (ClickSound.sampleRate * 60 / bpm).round();
+      // 4/4 at 50: a bar of 4.8 s, which a recording outlasts: once.
+      expect(PianoSound.chordStrikes(0, 4, beat(50)), [0]);
+      // 4/4 at 25: a bar of 9.6 s, longer than a recording rings.
+      expect(PianoSound.chordStrikes(0, 4, beat(25)), [0, 2]);
+      // 5/4 at 20: beats of 3 s, so as evenly as the beats allow.
+      expect(PianoSound.chordStrikes(0, 5, beat(20)), [0, 1, 3]);
+      // At 120 once a bar is enough.
+      expect(PianoSound.chordStrikes(0, 4, beat(120)), [0]);
       // A long group of 7/8 in Chord on every beat: split as well.
-      final eighth = (ClickSound.sampleRate * 60 / 60).round();
-      expect(PianoSound.chordStrikes(4, 7, eighth), [4, 5]);
+      expect(PianoSound.chordStrikes(4, 7, beat(20)), [4, 5]);
 
-      // At 30 BPM in 4/4 a beat lasts 2 s, so even two beats are too long
-      // for a recording: the chord is struck again, softly, on each beat,
-      // and sounds again in the second half of the bar.
+      // At 25 BPM in 4/4 the chord is struck again, softly, half way, and
+      // sounds again in the second half of the bar.
       final loop = PianoSound.loop(
         samples: samples,
         chords: [cMajor],
         style: PianoStyle.bar,
-        bpm: 30,
+        bpm: 25,
         signature: TimeSignature.fourFour,
       );
-      final two = ClickSound.sampleRate * 2;
+      final half = beat(25) * 2;
       expect(_energy(loop, 0, 2000), greaterThan(1));
-      expect(_energy(loop, 2 * two, 2000), greaterThan(0.1));
+      expect(_energy(loop, half, 2000), greaterThan(0.1));
       // Softer than the first strike.
-      expect(_energy(loop, 2 * two, 2000), lessThan(_energy(loop, 0, 2000)));
+      expect(_energy(loop, half, 2000), lessThan(_energy(loop, 0, 2000)));
     });
 
     test('a held note is not struck on every beat of a slow 5/4 or 3/4', () {
       int bar(int bpm, int beats) =>
           (ClickSound.sampleRate * 60 / bpm).round() * beats;
-      // 5/4 at 60: a 5 s bar, struck twice, half way, between two beats.
-      final five = PianoSound.droneStrikes(bar(60, 5));
-      expect(five, hasLength(2));
-      expect(five[1], bar(60, 5) ~/ 2);
-      // 3/4 at 50 (3.6 s): twice, not three times.
-      expect(PianoSound.droneStrikes(bar(50, 3)), hasLength(2));
-      // 7/8 at ♪ = 100 (4.2 s): twice, not seven times.
-      expect(PianoSound.droneStrikes(bar(100, 7)), hasLength(2));
-      // A 4/4 at 80 (3 s) is struck once, as before.
-      expect(PianoSound.droneStrikes(bar(80, 4)), [0]);
-      // Never more often than the recordings need, whatever the bar.
-      final long = bar(30, 12);
+      // 5/4 at 60, 3/4 at 50, 7/8 at ♪ = 100, 4/4 at 80: once a bar.
+      for (final (bpm, beats) in [(60, 5), (50, 3), (100, 7), (80, 4)]) {
+        expect(PianoSound.droneStrikes(bar(bpm, beats)), [0]);
+      }
+      // 4/4 at 20 (12 s): twice, half way, between two beats.
+      final twelve = PianoSound.droneStrikes(bar(20, 4));
+      expect(twelve, [0, bar(20, 4) ~/ 2]);
+      // Never more often than the recordings need, nor less, whatever the
+      // bar.
+      final long = bar(20, 12);
       final strikes = PianoSound.droneStrikes(long);
-      expect(long / strikes.length, greaterThan(2 * ClickSound.sampleRate));
+      expect(long / strikes.length, greaterThan(4 * ClickSound.sampleRate));
+      expect(
+        long / strikes.length,
+        lessThanOrEqualTo(8.5 * ClickSound.sampleRate),
+      );
     });
 
     test('chords are turned down evenly, not bent at the peaks', () {
       // Loud test notes, so that the sum goes past the top.
-      PianoSamples loud(double level) => PianoSamples({
-        for (final e in samples.notes.entries)
-          e.key: Float32List.fromList([for (final v in e.value) v * level]),
-      });
+      PianoSamples loud(double level) => PianoSamples(
+        samples.notes,
+        gains: {for (final k in samples.notes.keys) k: level},
+      );
       Float64List render(double level) => PianoSound.loop(
         samples: loud(level),
         chords: [
@@ -328,7 +332,6 @@ void main() {
       final ratio = strong[1000] / quiet[1000];
       for (var i = 0; i < quiet.length; i += 97) {
         if (quiet[i].abs() < 1e-4) continue;
-        // (The test notes are 32-bit floats: equal to a few millionths.)
         expect(
           strong[i] / quiet[i],
           closeTo(ratio, ratio * 1e-4),
@@ -349,8 +352,8 @@ void main() {
       );
     });
 
-    test('the WAV is a valid 16-bit mono file', () {
-      final wav = PianoSound.loopWav(
+    test('the WAV is a valid 16-bit stereo file', () {
+      final (:wav, :scale) = PianoSound.loopWav(
         samples: samples,
         chords: [cMajor],
         style: PianoStyle.beat,
@@ -358,7 +361,217 @@ void main() {
         signature: TimeSignature.fourFour,
       );
       expect(String.fromCharCodes(wav.sublist(0, 4)), 'RIFF');
-      expect((wav.length - 44) ~/ 2, ClickSound.sampleRate * 2);
+      expect(ByteData.sublistView(wav).getUint16(22, Endian.little), 2);
+      expect((wav.length - 44) ~/ 4, ClickSound.sampleRate * 2);
+      expect(scale, 1);
+    });
+  });
+
+  group('the recordings', () {
+    const rate = PianoSamples.sampleRate;
+    Float64List play(
+      PianoSamples s,
+      List<PianoChord> chords, {
+      PianoStyle style = PianoStyle.bar,
+      int bpm = 120,
+    }) => PianoSound.loop(
+      samples: s,
+      chords: chords,
+      style: style,
+      bpm: bpm,
+      signature: TimeSignature.fourFour,
+    );
+
+    test('are put right where the piano was out of tune', () {
+      final sharp = PianoSamples(
+        samples.notes,
+        cents: {for (final k in samples.notes.keys) k: 100},
+      );
+      const from = rate ~/ 16, length = rate ~/ 2;
+      final ratio =
+          _pitch(
+            play(sharp, const [
+              [69],
+            ], style: PianoStyle.drone),
+            from,
+            length,
+          ) /
+          _pitch(
+            play(samples, const [
+              [69],
+            ], style: PianoStyle.drone),
+            from,
+            length,
+          );
+      // Recorded a semitone sharp: played a semitone lower.
+      expect(ratio, closeTo(1 / 1.0595, 0.02));
+    });
+
+    test('keep their two channels apart', () {
+      final left = PianoTake.mono(_sine(_hz(69), rate)).left;
+      final s = PianoSamples({
+        69: {PianoSamples.normal: PianoTake(left, Int16List(rate))},
+      });
+      final sound = PianoSound.render(
+        samples: s,
+        chords: const [
+          [69],
+        ],
+        style: PianoStyle.drone,
+        bpm: 120,
+        signature: TimeSignature.fourFour,
+      ).sound;
+      expect(_energy(sound.left, 0, 4000), greaterThan(1));
+      expect(_energy(sound.right, 0, 4000), 0);
+    });
+
+    test('the "one" of an arpeggio is struck with the firm touch', () {
+      // The firm take an octave up, so it can be told from the normal one.
+      final s = PianoSamples({
+        60: {
+          PianoSamples.normal: PianoTake.mono(_sine(_hz(60), rate * 5)),
+          PianoSamples.firm: PianoTake.mono(_sine(_hz(72), rate * 5)),
+        },
+      });
+      final loop = play(
+        s,
+        const [
+          [60],
+        ],
+        style: PianoStyle.arpeggio,
+        bpm: 60,
+      );
+      const window = rate ~/ 4;
+      // On the "one", the firm touch over the note of the beat before,
+      // still ringing.
+      expect(
+        _power(loop, _hz(72), 0, window),
+        greaterThan(_power(loop, _hz(60), 0, window) * 2),
+      );
+      // On the last beat, once the "one" has died away, the normal one.
+      const last = rate * 13 ~/ 4;
+      expect(
+        _power(loop, _hz(72), last, window),
+        lessThan(_power(loop, _hz(72), 0, window) * 1e-4),
+      );
+      expect(_power(loop, _hz(60), last, window), greaterThan(1e5));
+    });
+
+    test('a chord rolls a little from the root up, as a hand plays it', () {
+      // The root silent, the upper notes short, so only their onsets count.
+      final s = PianoSamples.mono({
+        60: Float32List(rate),
+        63: _sine(_hz(63), rate ~/ 5),
+        66: _sine(_hz(66), rate ~/ 5),
+      });
+      final loop = play(s, const [cMajor]);
+      // Nothing for the first 2.5 ms, both upper notes within 15 ms.
+      expect(_energy(loop, 0, rate * 25 ~/ 10000), 0);
+      expect(_energy(loop, rate * 15 ~/ 1000, 500), greaterThan(0.1));
+    });
+
+    test('the dampers are heard where the chord changes, only there', () {
+      final silent = PianoSamples.mono({
+        for (final k in PianoSamples.roots) k: Float32List(rate),
+      });
+      final dampers = PianoTake.mono(
+        Float32List.fromList(List.filled(rate ~/ 10, 0.5)),
+      );
+      final s = PianoSamples(silent.notes, releases: {60: dampers});
+      final bar = rate * 2;
+      final change = play(s, const [
+        cMajor,
+        [62, 65, 69],
+      ]);
+      expect(_energy(change, bar + 100, 1000), greaterThan(1e-4));
+      expect(_energy(change, 100, 1000), 0);
+      final same = play(s, const [cMajor, cMajor]);
+      expect(_energy(same, bar + 100, 1000), 0);
+    });
+
+    test('letting go carries on from the very sample the loop left', () {
+      Int16List pcm(Uint8List wav) =>
+          Int16List.sublistView(Uint8List.fromList(wav.sublist(44)));
+      const chords = [cMajor];
+      final (:wav, :scale) = PianoSound.loopWav(
+        samples: samples,
+        chords: chords,
+        style: PianoStyle.beat,
+        bpm: 120,
+        signature: TimeSignature.fourFour,
+      );
+      final position = rate * 3 ~/ 4;
+      final tail = pcm(
+        PianoSound.tailWav(
+          samples: samples,
+          chords: chords,
+          style: PianoStyle.beat,
+          bpm: 120,
+          signature: TimeSignature.fourFour,
+          position: position,
+          scale: scale,
+        ),
+      );
+      final loop = pcm(wav);
+      // Stereo: two values a frame. Equal but for the dither.
+      for (var i = 0; i < 200; i++) {
+        expect(
+          (tail[i] - loop[2 * position + i]).abs(),
+          lessThanOrEqualTo(8),
+          reason: 'at $i',
+        );
+      }
+      expect(tail.length ~/ 2, rate * 3 ~/ 2);
+      // And it dies away.
+      double rms(int from) {
+        var e = 0.0;
+        for (var i = from; i < from + 2000; i++) {
+          e += tail[i] * tail[i].toDouble();
+        }
+        return e;
+      }
+
+      expect(rms(tail.length - 2000), lessThan(rms(0) * 0.01));
+    });
+
+    test('a FLAC header says how many samples follow', () {
+      final flac = File('assets/piano/C4v8L.flac').readAsBytesSync();
+      final frames = PianoLibrary.flacFrames(flac);
+      // The normal touch is cut to 10 s.
+      expect(frames, closeTo(10 * rate, rate * 0.05));
+      expect(
+        () => PianoLibrary.flacFrames(Uint8List(40)),
+        throwsFormatException,
+      );
+    });
+
+    test('every file Harmony may load is shipped, and they stay small', () {
+      final files = [
+        for (final root in PianoSamples.roots)
+          for (final layer in PianoSamples.layers) ...[
+            PianoSamples.assetsOf(root, layer).$1,
+            PianoSamples.assetsOf(root, layer).$2,
+          ],
+        for (
+          var m = PianoSamples.releaseKeys.low;
+          m <= PianoSamples.releaseKeys.high;
+          m++
+        ) ...[
+          PianoSamples.releaseAssetsOf(m).$1,
+          PianoSamples.releaseAssetsOf(m).$2,
+        ],
+      ];
+      var bytes = 0;
+      for (final f in files) {
+        final file = File(f);
+        expect(file.existsSync(), isTrue, reason: f);
+        bytes += file.lengthSync();
+      }
+      expect(bytes, lessThan(10 * 1024 * 1024));
+      for (final root in PianoSamples.roots) {
+        expect(PianoSamples.tuning, contains(root));
+        expect(PianoSamples.levels, contains(root));
+      }
     });
   });
 
