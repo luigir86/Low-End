@@ -338,9 +338,9 @@ void main() {
       tester,
     ) async {
       final scope = await _pumpApp(tester);
-      bool animates(Type screen) => TickerMode.of(
+      bool animates(Type screen) => TickerMode.valuesOf(
         tester.element(find.byType(screen, skipOffstage: false)),
-      );
+      ).enabled;
       // On the tuner: a metronome playing behind it would run no frames.
       expect(animates(TunerPanel), isTrue);
       expect(animates(MetronomeScreen), isFalse);
