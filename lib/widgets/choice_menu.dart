@@ -50,7 +50,10 @@ Future<T?> showChoiceMenu<T>({
   return showMenu<T>(
     context: anchor,
     position: position,
-    initialValue: selected,
+    // No `initialValue`: it would paint the chosen line with a square grey
+    // band, already told by its accent and tick; and the menu clips its
+    // lines to its round corners.
+    clipBehavior: Clip.antiAlias,
     constraints: BoxConstraints(
       minWidth: field.width,
       maxWidth: math.max(field.width, 320),
