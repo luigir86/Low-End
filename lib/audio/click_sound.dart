@@ -149,4 +149,47 @@ abstract final class ClickSound {
     }
     return bytes.buffer.asUint8List();
   }
+
+  /// Wraps two channels from -1 to 1 into a 16-bit stereo PCM WAV file,
+  /// with a touch of triangular dither, so the quiet ends of the notes and
+  /// the room fade into noise rather than into steps.
+  static Uint8List stereoWav(Float64List left, Float64List right) {
+    final frames = left.length;
+    final data = frames * 4;
+    final bytes = ByteData(44 + data);
+    void ascii(int at, String text) {
+      for (var i = 0; i < text.length; i++) {
+        bytes.setUint8(at + i, text.codeUnitAt(i));
+      }
+    }
+
+    ascii(0, 'RIFF');
+    bytes.setUint32(4, 36 + data, Endian.little);
+    ascii(8, 'WAVE');
+    ascii(12, 'fmt ');
+    bytes.setUint32(16, 16, Endian.little);
+    bytes.setUint16(20, 1, Endian.little); // PCM.
+    bytes.setUint16(22, 2, Endian.little); // Stereo.
+    bytes.setUint32(24, sampleRate, Endian.little);
+    bytes.setUint32(28, sampleRate * 4, Endian.little);
+    bytes.setUint16(32, 4, Endian.little);
+    bytes.setUint16(34, 16, Endian.little);
+    ascii(36, 'data');
+    bytes.setUint32(40, data, Endian.little);
+    final pcm = Endian.host == Endian.little
+        ? bytes.buffer.asInt16List(44, frames * 2)
+        : null;
+    final random = math.Random(5);
+    for (var i = 0; i < frames * 2; i++) {
+      final v = (i.isEven ? left : right)[i >> 1];
+      final dither = random.nextDouble() - random.nextDouble();
+      final s = (v * 32767 + dither).round().clamp(-32768, 32767);
+      if (pcm != null) {
+        pcm[i] = s;
+      } else {
+        bytes.setInt16(44 + i * 2, s, Endian.little);
+      }
+    }
+    return bytes.buffer.asUint8List();
+  }
 }

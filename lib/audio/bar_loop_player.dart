@@ -13,7 +13,11 @@ import 'soloud_engine.dart';
 /// Calls are expected one at a time (the controllers wait for each one to
 /// finish before the next).
 class BarLoopPlayer {
-  BarLoopPlayer(this.name, {this.follows = false});
+  BarLoopPlayer(
+    this.name, {
+    this.follows = false,
+    this.crossfade = Duration.zero,
+  });
 
   /// 'click' or 'piano': how the other loop knows this one.
   final String name;
@@ -22,6 +26,11 @@ class BarLoopPlayer {
   /// tempo, rather than carrying on from its own place: the piano, which
   /// takes a moment to get ready, follows the clicks, which change at once.
   final bool follows;
+
+  /// How long a loop replacing another fades in over it when it carries on
+  /// (a change of tempo): the piano's ringing notes then pass from one to
+  /// the other without a jump. Zero for the clicks, which are short.
+  final Duration crossfade;
 
   AudioSource? _source;
   SoundHandle? _handle;
@@ -48,11 +57,16 @@ class BarLoopPlayer {
   /// of the loop, which must be silent, played first: the output comes up
   /// during it, and the first sound is not softened. It counts in the
   /// delay.
+  ///
+  /// [tailFor], when a new loop replaces one from its start, gives what the
+  /// old loop sounds like let go at a place in it (see [stop]); it plays
+  /// from the moment the old one stops.
   Future<LoopStart> play(
     Uint8List wav,
     Duration bar, {
     Duration? startAt,
     Duration preRoll = Duration.zero,
+    Uint8List Function(Duration position)? tailFor,
   }) async {
     await ensureSoLoud();
     final source = await _soloud.loadMem('$name-loop.wav', wav);
@@ -63,6 +77,10 @@ class BarLoopPlayer {
     final oldSource = _source;
     final carryOn = startAt == null && old != null;
     final wait = carryOn ? null : LoopTransport.instance.untilBarLine(name);
+    // The moment [wait] counts from, and where the old loop was then.
+    final waitedFrom = _soloud.getEngineTime();
+    final oldThen = old == null ? null : _soloud.getPosition(old);
+    final since = Stopwatch()..start();
     var position = startAt ?? Duration.zero;
     var delay = Duration.zero;
     if (carryOn) {
@@ -107,27 +125,46 @@ class BarLoopPlayer {
     }
     final SoundHandle handle;
     Duration? startsAt;
+    // The old loop let go where the new one takes over: a ringing piano
+    // dies away as under a pianist's hands rather than being cut.
+    _Tail? tail;
+    if (oldThen != null && !carryOn && tailFor != null) {
+      try {
+        tail = await _Tail.load(
+          tailFor,
+          oldThen + (wait ?? Duration.zero),
+          _length,
+          since,
+        );
+      } catch (_) {
+        // Without its tail the old loop is simply cut, as it used to be.
+      }
+    }
+    final fade = carryOn && crossfade > Duration.zero;
     if (wait == null) {
       handle = _soloud.play(
         source,
         paused: true,
         looping: true,
-        volume: _volume,
+        volume: fade ? 0 : _volume,
       );
       if (seekTo > Duration.zero) _soloud.seek(handle, seekTo);
       _soloud.setPause(handle, false);
+      if (fade) _soloud.fadeVolume(handle, _volume, crossfade);
+      tail?.playNow(_volume);
     } else {
       // The other loop is playing: come in on its next "one", on the
       // engine's own clock, read once for the start and the stop below.
       delay = wait;
       position = Duration.zero;
-      startsAt = _soloud.getEngineTime() + wait;
+      startsAt = waitedFrom + wait;
       handle = _soloud.playScheduled(
         source,
         startsAt,
         looping: true,
         volume: _volume,
       );
+      tail?.playAt(startsAt, _volume);
     }
     _handle = handle;
     _source = source;
@@ -142,6 +179,13 @@ class BarLoopPlayer {
       Future<void>.delayed(delay + const Duration(milliseconds: 100), () {
         if (oldSource != null) _soloud.disposeSource(oldSource);
       });
+    } else if (old != null && fade) {
+      // Carrying on at a new tempo: the two cross over.
+      _soloud.fadeVolume(old, 0, crossfade);
+      _soloud.scheduleStop(old, crossfade);
+      Future<void>.delayed(crossfade + const Duration(milliseconds: 100), () {
+        if (oldSource != null) _soloud.disposeSource(oldSource);
+      });
     } else {
       if (old != null) await _soloud.stop(old);
       if (oldSource != null) await _soloud.disposeSource(oldSource);
@@ -149,11 +193,29 @@ class BarLoopPlayer {
     return (position: position, delay: delay);
   }
 
-  Future<void> stop() async {
+  /// Stops the loop. With [tailFor], what the loop sounds like let go
+  /// where it is (see PianoSound.tailWav) plays on from that very sample.
+  Future<void> stop({Uint8List Function(Duration position)? tailFor}) async {
     final handle = _handle, source = _source;
     _handle = null;
     _source = null;
     LoopTransport.instance.unregister(name, handle);
+    if (handle != null &&
+        tailFor != null &&
+        _soloud.getIsValidVoiceHandle(handle)) {
+      try {
+        final since = Stopwatch()..start();
+        final tail = await _Tail.load(
+          tailFor,
+          _soloud.getPosition(handle),
+          _length,
+          since,
+        );
+        tail.playNow(_volume);
+      } catch (_) {
+        // Without its tail the loop is simply cut, as it used to be.
+      }
+    }
     if (handle != null) await _soloud.stop(handle);
     if (source != null) await _soloud.disposeSource(source);
   }
@@ -163,4 +225,55 @@ class BarLoopPlayer {
     final handle = _handle;
     if (handle != null) _soloud.setVolume(handle, volume);
   }
+}
+
+/// What a loop sounds like let go at a place in it, ready to play from
+/// that place on.
+class _Tail {
+  _Tail._(this._source, this._clock, this._length);
+
+  /// Makes the tail of a loop of [length] let go at [position] (taken
+  /// round the loop) and loads it. [clock] runs from when [position] was
+  /// read, so that a tail played at once starts where the loop is by then.
+  static Future<_Tail> load(
+    Uint8List Function(Duration position) tailFor,
+    Duration position,
+    Duration length,
+    Stopwatch clock,
+  ) async {
+    final at = length > Duration.zero
+        ? Duration(
+            microseconds: position.inMicroseconds % length.inMicroseconds,
+          )
+        : position;
+    final wav = tailFor(at);
+    final source = await SoLoud.instance.loadMem('tail.wav', wav);
+    return _Tail._(source, clock, SoLoud.instance.getLength(source));
+  }
+
+  final AudioSource _source;
+  final Stopwatch _clock;
+  final Duration _length;
+
+  SoLoud get _soloud => SoLoud.instance;
+
+  /// From where the loop is now, which went on while the tail was made.
+  void playNow(double volume) {
+    final handle = _soloud.play(_source, paused: true, volume: volume);
+    final skip = _clock.elapsed;
+    if (skip < _length) _soloud.seek(handle, skip);
+    _soloud.setPause(handle, false);
+    _disposeAfter(_length);
+  }
+
+  /// From its start, at [time] on the engine's clock.
+  void playAt(Duration time, double volume) {
+    _soloud.playScheduled(_source, time, volume: volume);
+    _disposeAfter(time - _soloud.getEngineTime() + _length);
+  }
+
+  void _disposeAfter(Duration wait) => Future<void>.delayed(
+    wait + const Duration(milliseconds: 200),
+    () => _soloud.disposeSource(_source),
+  );
 }

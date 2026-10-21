@@ -2,10 +2,10 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 
 import '../features/metronome/time_signature.dart';
 import 'click_sound.dart';
+import 'freeverb.dart';
 
 /// How the piano plays a chord or a progression, one bar after another.
 enum PianoStyle {
@@ -28,76 +28,169 @@ enum PianoStyle {
 /// A bar's worth of notes, as MIDI numbers (60 is middle C), root first.
 typedef PianoChord = List<int>;
 
+/// One recording: the two channels, 16-bit, as the microphones heard it.
+class PianoTake {
+  PianoTake(this.left, this.right) : assert(left.length == right.length);
+
+  /// A mono take, both channels the same: for tests.
+  factory PianoTake.mono(Float32List samples) {
+    final s = Int16List.fromList([
+      for (final v in samples) (v * 32767).round().clamp(-32768, 32767),
+    ]);
+    return PianoTake(s, s);
+  }
+
+  final Int16List left, right;
+
+  int get length => left.length;
+
+  /// The loudness of its first second, against which the layers of a note
+  /// are compared.
+  late final double rms = () {
+    final n = math.min(length, PianoSamples.sampleRate);
+    var e = 0.0;
+    for (var i = 0; i < n; i++) {
+      e += left[i] * left[i] + right[i] * right[i];
+    }
+    return n == 0 ? 0.0 : math.sqrt(e / (2 * n)) / 32768;
+  }();
+}
+
 /// Recorded piano notes, a few of them, pitched up and down to cover the
-/// range the drone plays in.
+/// range Harmony plays in, in three touches, with the sound of the
+/// dampers falling back on the strings.
 ///
 /// The recordings are the Salamander Grand Piano by Alexander Holm, a
-/// Yamaha C5 (public domain since 2022; see the About page).
+/// Yamaha C5 (public domain since 2022; see the About page), in stereo at
+/// 48 kHz, as they were made (see tool/prepare_piano.dart).
 class PianoSamples {
-  PianoSamples(this.notes);
+  PianoSamples(
+    this.notes, {
+    this.releases = const {},
+    this.cents = const {},
+    this.gains = const {},
+  });
 
-  /// Mono samples at [sampleRate], by the MIDI number they were played at.
-  final Map<int, Float32List> notes;
+  /// The normal touch only, mono, for tests: [notes] by MIDI number.
+  factory PianoSamples.mono(Map<int, Float32List> notes) => PianoSamples({
+    for (final e in notes.entries) e.key: {normal: PianoTake.mono(e.value)},
+  });
 
-  static const sampleRate = 22050;
+  /// The takes of each recorded note, by MIDI number and then by layer
+  /// ([soft], [normal], [firm]): only the notes loaded, see PianoLibrary.
+  final Map<int, Map<int, PianoTake>> notes;
 
-  /// The notes recorded, a minor third apart, from A2 to C5: Harmony
-  /// plays from C2 (the root doubled) to B4, so higher ones would never
-  /// sound.
-  static const roots = [45, 48, 51, 54, 57, 60, 63, 66, 69, 72];
+  /// The dampers of each key, by MIDI number.
+  final Map<int, PianoTake> releases;
 
-  static String assetOf(int midi) =>
-      'assets/piano/${_names[midi % 12]}${midi ~/ 12 - 1}.wav'.replaceAll(
-        '#',
-        's',
-      );
+  /// How far each recorded note is from equal temperament (see [tuning]).
+  final Map<int, double> cents;
+
+  /// The gain that brings each recorded note to a common level (see
+  /// [levels]).
+  final Map<int, double> gains;
+
+  static const sampleRate = 48000;
+
+  /// The notes recorded, a minor third apart, from C2 to C5: Harmony plays
+  /// from C2 (the root doubled) to B4, so higher ones would never sound.
+  static const roots = [36, 39, 42, 45, 48, 51, 54, 57, 60, 63, 66, 69, 72];
+
+  /// The velocity layers kept, of the sixteen recorded: a soft touch, the
+  /// normal one and a firm one (see tool/prepare_piano.dart).
+  static const soft = 5, normal = 8, firm = 11;
+  static const layers = [soft, normal, firm];
+
+  /// The keys whose dampers are kept: the ones Harmony plays.
+  static const releaseKeys = (low: 36, high: 71);
+
+  /// How far, in cents, each recording is from equal temperament at
+  /// A = 440, measured by tool/prepare_piano.dart (the mean of its first
+  /// two partials): the piano was tuned by ear, flat in the bass. The
+  /// notes are put right as they are played, so Harmony is exact against
+  /// the reference A.
+  static const tuning = <int, double>{
+    36: -11.7, 39: -9.4, 42: -6.2, 45: -2.5, 48: -6.3, 51: -2.9, 54: -4.7, //
+    57: -0.5, 60: -1.6, 63: 0.2, 66: -2.4, 69: 1.6, 72: 4.7,
+  };
+
+  /// The gain that brings each recording to the same loudness, measured by
+  /// tool/prepare_piano.dart on the normal touch; the files keep the level
+  /// they were recorded at, which packs smaller.
+  static const levels = <int, double>{
+    36: 1.977, 39: 1.608, 42: 1.422, 45: 2.026, 48: 2.014, 51: 1.892, //
+    54: 2.315, 57: 2.747, 60: 1.979, 63: 2.718, 66: 2.551, 69: 2.505,
+    72: 2.744,
+  };
+
+  static String _name(int midi) =>
+      '${_names[midi % 12]}${midi ~/ 12 - 1}'.replaceAll('#', 's');
 
   static const _names = [
     'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', //
   ];
 
-  /// Reads the recordings from the app's assets.
-  static Future<PianoSamples> load([AssetBundle? bundle]) async {
-    final b = bundle ?? rootBundle;
-    final notes = <int, Float32List>{};
-    for (final midi in roots) {
-      final data = await b.load(assetOf(midi));
-      notes[midi] = decodeWav(
-        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
-      );
+  /// The two files (left, right) of a recorded note in a layer.
+  static (String, String) assetsOf(int root, int layer) => (
+    'assets/piano/${_name(root)}v${layer}L.flac',
+    'assets/piano/${_name(root)}v${layer}R.flac',
+  );
+
+  /// The two files (left, right) of the dampers of a key.
+  static (String, String) releaseAssetsOf(int midi) =>
+      ('assets/piano/rel${midi}L.flac', 'assets/piano/rel${midi}R.flac');
+
+  /// The recording that plays [midi]: the nearest, of all of them, whether
+  /// loaded or not.
+  static int rootFor(int midi) {
+    var best = roots.first;
+    for (final k in roots) {
+      if ((k - midi).abs() < (best - midi).abs()) best = k;
     }
-    return PianoSamples(notes);
+    return best;
   }
 
-  /// Mono 16-bit samples of a WAV file, from -1 to 1.
-  static Float32List decodeWav(Uint8List wav) {
-    final n = (wav.length - 44) ~/ 2;
-    final out = Float32List(n);
-    if (Endian.host == Endian.little) {
-      // Read as 16-bit numbers in one go, from a copy of the data (which
-      // starts aligned), rather than one call per sample.
-      final pcm = Int16List.view(wav.sublist(44, 44 + n * 2).buffer, 0, n);
-      for (var i = 0; i < n; i++) {
-        out[i] = pcm[i] / 32768;
-      }
-    } else {
-      final view = ByteData.sublistView(wav);
-      for (var i = 0; i < n; i++) {
-        out[i] = view.getInt16(44 + i * 2, Endian.little) / 32768;
-      }
-    }
-    return out;
-  }
+  /// The recordings needed for [chords]: their notes and, a recording a
+  /// minor third away covering three keys, the doubled roots too.
+  static Set<int> rootsFor(Iterable<PianoChord> chords) => {
+    for (final c in chords)
+      for (final m in [...c, c.first - 12]) rootFor(m),
+  };
 
-  /// The recording nearest to [midi]: its number and its samples.
-  (int, Float32List) nearest(int midi) {
+  /// The recording nearest to [midi] among those loaded.
+  int nearest(int midi) {
     var best = notes.keys.first;
     for (final k in notes.keys) {
       if ((k - midi).abs() < (best - midi).abs()) best = k;
     }
-    return (best, notes[best]!);
+    return best;
   }
 }
+
+/// One stroke of a key, as the loop is written: where, how firm, how long
+/// it is held, and whether the dampers are heard when it is let go.
+class _Stroke {
+  _Stroke(this.midi, this.gain, this.at, this.hold, this.layer, this.damp);
+
+  final int midi;
+  final double gain;
+  final int at;
+  final int hold;
+  final int layer;
+  final bool damp;
+
+  _Stroke copy({int? at, int? hold, bool? damp}) => _Stroke(
+    midi,
+    gain,
+    at ?? this.at,
+    hold ?? this.hold,
+    layer,
+    damp ?? this.damp,
+  );
+}
+
+/// Two channels of sound, from -1 to 1.
+typedef Stereo = ({Float64List left, Float64List right});
 
 /// Renders the bars of a chord progression played on the piano as one
 /// looping recording, the same length as the metronome's bar so that the
@@ -119,23 +212,35 @@ abstract final class PianoSound {
   static const _lowestDouble = 36;
 
   /// How long a note rings before it is let go, in beats, and how long it
-  /// takes to die away after that.
+  /// takes to die away after that, a little longer in the bass, as the
+  /// dampers take longer to stop the heavier strings.
   static const _arpeggioHold = 2.0;
-  static const _release = Duration(milliseconds: 160);
+  static const _release = Duration(milliseconds: 300);
+  static const _bassRelease = Duration(milliseconds: 420);
+
+  /// The dampers against the note they stop, as on the Salamander's own
+  /// instrument definition.
+  static const _damperLevel = 0.0141; // -37 dB
 
   /// How long, in seconds, a held single note is left before it is struck
-  /// again: well within the length of the recordings.
-  static const _droneRenew = 2.8;
+  /// again: within the 10 s of the normal touch, whose last 1.5 s fade out.
+  static const _droneRenew = 8.5;
 
   /// How long, in seconds, a chord is left before it is struck again,
-  /// softly, so that a slow bar does not end in silence: the recordings
-  /// last 3.6 s, the last second fading out, and pitched up they are a
-  /// little shorter.
-  static const _chordRenew = 2.4;
+  /// softly, so that a slow bar does not end in silence.
+  static const _chordRenew = 8.0;
 
   /// Level of a chord struck again within the bar, against its first
   /// strike.
   static const _renewGain = 0.6;
+
+  /// The notes of a chord above the root come this much after it, low to
+  /// high, as a hand plays them, give or take [_spreadJitter]; the root
+  /// stays on the beat.
+  static const _spread = 0.004, _spreadJitter = 0.0015;
+
+  /// And differ in level by up to this much, in dB.
+  static const _levelJitter = 0.6;
 
   /// The level of each note of a chord of [notes] struck together: full up
   /// to [_fullChord] notes, then lower, so that a fuller chord is not louder
@@ -178,89 +283,59 @@ abstract final class PianoSound {
     return [for (var p = from; p < to; p++) p];
   }
 
-  /// One loop of [chords] (one per bar) at [bpm] in [signature], as a WAV
-  /// file. [a4] tunes the piano like the rest of the app.
-  static Uint8List loopWav({
-    required PianoSamples samples,
-    required List<PianoChord> chords,
-    required PianoStyle style,
-    required int bpm,
-    required TimeSignature signature,
-    double a4 = 440,
-  }) => ClickSound.wav(
-    loop(
-      samples: samples,
-      chords: chords,
-      style: style,
-      bpm: bpm,
-      signature: signature,
-      a4: a4,
-    ),
-  );
+  /// The touch for a stroke at [gain]: firm for the accented "one", soft
+  /// for the light strokes, normal otherwise.
+  static int _layerFor(double gain) => gain >= 0.95
+      ? PianoSamples.firm
+      : gain < 0.8
+      ? PianoSamples.soft
+      : PianoSamples.normal;
 
-  /// The samples of the loop, from -1 to 1 (see [loopWav]). The bar keeps
-  /// the metronome's length.
-  static Float64List loop({
-    required PianoSamples samples,
+  /// Every stroke of the loop, in order: what [loop] plays.
+  static List<_Stroke> _strokes({
     required List<PianoChord> chords,
     required PianoStyle style,
     required int bpm,
     required TimeSignature signature,
-    double a4 = 440,
   }) {
     final beat = (ClickSound.sampleRate * 60 / bpm).round();
     final barLength = beat * signature.beats;
-    final out = Float64List(barLength * chords.length);
-    final tuning = a4 / 440;
-    final release = _release.inMicroseconds * ClickSound.sampleRate ~/ 1000000;
-
-    void strike(int midi, double gain, int at, int hold) {
-      final (root, source) = samples.nearest(midi);
-      // Source samples per output sample: the pitch change, and the
-      // difference of the two sample rates.
-      final step =
-          math.pow(2, (midi - root) / 12) *
-          tuning *
-          PianoSamples.sampleRate /
-          ClickSound.sampleRate;
-      final length = (source.length / step).floor();
-      final sounding = math.min(length, hold + release);
-      for (var i = 0; i < sounding; i++) {
-        final position = i * step;
-        final k = position.floor();
-        final f = position - k;
-        // Cubic interpolation between four neighbours.
-        double s(int j) => source[(k + j).clamp(0, source.length - 1)];
-        final y0 = s(-1), y1 = s(0), y2 = s(1), y3 = s(2);
-        final value =
-            y1 +
-            0.5 *
-                f *
-                (y2 -
-                    y0 +
-                    f *
-                        (2 * y0 -
-                            5 * y1 +
-                            4 * y2 -
-                            y3 +
-                            f * (3 * (y1 - y2) + y3 - y0)));
-        // Let go: fade out over the release once the hold is over.
-        final fade = i < hold ? 1.0 : 1 - (i - hold) / release;
-        // The loop wraps round, so the end of a ringing note carries over
-        // into the start of the next turn.
-        out[(at + i) % out.length] += value * gain * fade * _headroom;
-      }
-    }
+    final strokes = <_Stroke>[];
+    // The hand's small unevenness, the same at every turn of the loop.
+    final random = math.Random(11);
 
     /// The chord, with its root again an octave down for the weight, struck
-    /// at [at] at [gain] and held for [hold] samples.
-    void strikeChord(PianoChord chord, double gain, int at, int hold) {
+    /// at [at] at [gain] and held for [hold] samples; let go with the
+    /// dampers heard if [damp].
+    void strikeChord(
+      PianoChord chord,
+      double gain,
+      int at,
+      int hold,
+      int layer, {
+      required bool damp,
+    }) {
       final doubled = chord[0] - 12 >= _lowestDouble;
       final level = gain * chordGain(chord.length + (doubled ? 1 : 0));
+      final upper = [...chord.skip(1)]..sort();
       for (var i = 0; i < chord.length; i++) {
-        strike(chord[i], level * (i == 0 ? 1 : 0.82), at, hold);
+        var g = level * (i == 0 ? 1 : 0.82);
+        var offset = 0;
+        if (i > 0) {
+          final order = upper.indexOf(chord[i]) + 1;
+          final spread =
+              _spread * order + (random.nextDouble() * 2 - 1) * _spreadJitter;
+          offset = (spread * ClickSound.sampleRate).round();
+          final db = (random.nextDouble() * 2 - 1) * _levelJitter;
+          g *= math.pow(10, db / 20);
+        }
+        strokes.add(
+          _Stroke(chord[i], g, at + offset, hold - offset, layer, damp),
+        );
       }
-      if (doubled) strike(chord[0] - 12, level * 0.6, at, hold);
+      if (doubled) {
+        strokes.add(_Stroke(chord[0] - 12, level * 0.6, at, hold, layer, damp));
+      }
     }
 
     /// The chord struck on [pulse] and held until [until] (a pulse, or the
@@ -271,16 +346,21 @@ abstract final class PianoSound {
       double gain,
       int start,
       int pulse,
-      int until,
-    ) {
+      int until, {
+      required bool damp,
+      required int layer,
+    }) {
       final strikes = chordStrikes(pulse, until, beat);
       for (var i = 0; i < strikes.length; i++) {
         final end = i + 1 < strikes.length ? strikes[i + 1] : until;
+        final last = i + 1 == strikes.length;
         strikeChord(
           chord,
           i == 0 ? gain : gain * _renewGain,
           start + strikes[i] * beat,
           (end - strikes[i]) * beat,
+          i == 0 ? layer : PianoSamples.soft,
+          damp: damp && last,
         );
       }
     }
@@ -288,6 +368,9 @@ abstract final class PianoSound {
     for (var bar = 0; bar < chords.length; bar++) {
       final chord = chords[bar];
       final start = bar * barLength;
+      // The dampers are heard where the chord changes: a pianist holding
+      // the same chord on does not lift the hands.
+      final changes = !listEquals(chords[(bar + 1) % chords.length], chord);
       switch (style) {
         case PianoStyle.drone:
           // Struck as seldom as the recording allows, wherever that falls
@@ -296,13 +379,25 @@ abstract final class PianoSound {
           final strikes = droneStrikes(barLength);
           final every = barLength ~/ strikes.length;
           for (final at in strikes) {
-            strike(chord[0], 1, start + at, every * 2);
+            const n = PianoSamples.normal;
+            strokes.add(_Stroke(chord[0], 1, start + at, every * 2, n, false));
             if (chord[0] - 12 >= _lowestDouble) {
-              strike(chord[0] - 12, 0.6, start + at, every * 2);
+              strokes.add(
+                _Stroke(chord[0] - 12, 0.6, start + at, every * 2, n, false),
+              );
             }
           }
         case PianoStyle.bar:
-          holdChord(chord, 1, start, 0, signature.beats);
+          // A chord held for the bar: the normal touch, which rings long.
+          holdChord(
+            chord,
+            1,
+            start,
+            0,
+            signature.beats,
+            damp: changes,
+            layer: PianoSamples.normal,
+          );
         case PianoStyle.beat:
           for (var pulse = 0; pulse < signature.beats; pulse++) {
             final accent = signature.accent(pulse);
@@ -311,7 +406,16 @@ abstract final class PianoSound {
             if (!isBeat) continue;
             final gain = accent == 0 ? 1.0 : (accent == 1 ? 0.85 : 0.72);
             final next = _nextStrike(signature, pulse);
-            holdChord(chord, gain, start, pulse, pulse + next);
+            final lastOfBar = pulse + next >= signature.beats;
+            holdChord(
+              chord,
+              gain,
+              start,
+              pulse,
+              pulse + next,
+              damp: changes && lastOfBar,
+              layer: _layerFor(gain),
+            );
           }
         case PianoStyle.arpeggio:
           // The notes go up and down the chord one after another.
@@ -321,24 +425,291 @@ abstract final class PianoSound {
             final tone = _arpeggioTone(signature, count++, chord.length);
             final gain = accent == 0 ? 1.0 : (accent == 1 ? 0.88 : 0.76);
             final hold = (_arpeggioHold * beat).round();
-            // A single note is quieter than a chord: lift it.
-            strike(chord[tone], gain * 1.6, start + pulse * beat, hold);
+            // A single note is quieter than a chord: lift it. The touch
+            // follows the accent.
+            final layer = accent == 0 ? PianoSamples.firm : PianoSamples.normal;
+            strokes.add(
+              _Stroke(
+                chord[tone],
+                gain * 1.6,
+                start + pulse * beat,
+                hold,
+                layer,
+                changes && pulse == signature.beats - 1,
+              ),
+            );
           }
       }
+    }
+    return strokes;
+  }
+
+  /// Adds [stroke] to [out] (its two channels), whose first sample is the
+  /// loop's sample [origin]; around the loop if [wrap], otherwise only what
+  /// falls inside [out]. [a4] tunes the piano like the rest of the app.
+  static void _play(
+    PianoSamples samples,
+    _Stroke stroke,
+    Stereo out,
+    double a4, {
+    required int origin,
+    required bool wrap,
+  }) {
+    final rate = ClickSound.sampleRate;
+    final length = out.left.length;
+    final root = samples.nearest(stroke.midi);
+    final takes = samples.notes[root]!;
+    final normal = takes[PianoSamples.normal] ?? takes.values.first;
+    // Source samples per output sample: the pitch change, the recording's
+    // own tuning put right, and the difference of the two sample rates.
+    final step =
+        math.pow(2, (stroke.midi - root) / 12) *
+        math.pow(2, -(samples.cents[root] ?? 0) / 1200) *
+        a4 /
+        440 *
+        PianoSamples.sampleRate /
+        rate;
+    final release =
+        (stroke.midi < 48 ? _bassRelease : _release).inMicroseconds *
+        rate ~/
+        1000000;
+    // The touch asked for, if it rings long enough: the soft and the firm
+    // ones last 4 s, the last of it fading.
+    var take = takes[stroke.layer] ?? normal;
+    final usable = take.length - PianoSamples.sampleRate;
+    if (take != normal && (stroke.hold + release) * step > usable) {
+      take = normal;
+    }
+    // The layers keep half their difference in level: the touch changes
+    // the colour more than the loudness.
+    final touch = take == normal || take.rms == 0
+        ? 1.0
+        : math.sqrt(normal.rms / take.rms);
+    final gain =
+        stroke.gain * touch * (samples.gains[root] ?? 1) * _headroom / 32768;
+    final sounding = math.min(
+      (take.length / step).floor(),
+      stroke.hold + release,
+    );
+    // Only the part that lands in [out], when it does not wrap.
+    var first = 0, last = sounding;
+    if (!wrap) {
+      first = math.max(0, origin - stroke.at);
+      last = math.min(sounding, origin + length - stroke.at);
+    }
+    final l = take.left, r = take.right;
+    final n = take.length;
+    for (var i = first; i < last; i++) {
+      final position = i * step;
+      final k = position.floor();
+      final f = position - k;
+      final k0 = math.max(0, k - 1), k2 = math.min(n - 1, k + 1);
+      final k3 = math.min(n - 1, k + 2), k1 = math.min(n - 1, k);
+      double cubic(Int16List s) {
+        final y0 = s[k0].toDouble(), y1 = s[k1].toDouble();
+        final y2 = s[k2].toDouble(), y3 = s[k3].toDouble();
+        return y1 +
+            0.5 *
+                f *
+                (y2 -
+                    y0 +
+                    f *
+                        (2 * y0 -
+                            5 * y1 +
+                            4 * y2 -
+                            y3 +
+                            f * (3 * (y1 - y2) + y3 - y0)));
+      }
+
+      // Let go: a smooth fall over the release once the hold is over.
+      final fade = i < stroke.hold
+          ? 1.0
+          : 0.5 * (1 + math.cos(math.pi * (i - stroke.hold) / release));
+      final g = gain * fade;
+      final at = wrap ? (stroke.at + i) % length : stroke.at + i - origin;
+      out.left[at] += cubic(l) * g;
+      out.right[at] += cubic(r) * g;
+    }
+    // The dampers, where the note is let go.
+    final dampers = samples.releases[stroke.midi];
+    if (stroke.damp && dampers != null) {
+      final g =
+          stroke.gain *
+          (samples.gains[root] ?? 1) *
+          _headroom *
+          _damperLevel /
+          32768;
+      final from = stroke.at + stroke.hold;
+      for (var i = 0; i < dampers.length; i++) {
+        var at = from + i;
+        if (wrap) {
+          at %= length;
+        } else {
+          at -= origin;
+          if (at < 0) continue;
+          if (at >= length) break;
+        }
+        out.left[at] += dampers.left[i] * g;
+        out.right[at] += dampers.right[i] * g;
+      }
+    }
+  }
+
+  /// The two channels of the loop, from -1 to 1, without the room (see
+  /// [loopWav]), and the gain that kept it under the top. The bar keeps
+  /// the metronome's length.
+  static ({Stereo sound, double scale}) render({
+    required PianoSamples samples,
+    required List<PianoChord> chords,
+    required PianoStyle style,
+    required int bpm,
+    required TimeSignature signature,
+    double a4 = 440,
+  }) {
+    final beat = (ClickSound.sampleRate * 60 / bpm).round();
+    final length = beat * signature.beats * chords.length;
+    final out = (left: Float64List(length), right: Float64List(length));
+    final strokes = _strokes(
+      chords: chords,
+      style: style,
+      bpm: bpm,
+      signature: signature,
+    );
+    for (final s in strokes) {
+      // The loop wraps round, so the end of a ringing note carries over
+      // into the start of the next turn.
+      _play(samples, s, out, a4, origin: 0, wrap: true);
     }
     // Chords and ringing notes pile up: where they would go past the top,
     // turn the whole loop down, evenly, rather than bend the peaks.
     var peak = 0.0;
-    for (final v in out) {
-      peak = math.max(peak, v.abs());
+    for (var i = 0; i < length; i++) {
+      peak = math.max(peak, math.max(out.left[i].abs(), out.right[i].abs()));
     }
-    if (peak > _ceiling) {
-      final scale = _ceiling / peak;
-      for (var i = 0; i < out.length; i++) {
-        out[i] *= scale;
+    final scale = peak > _ceiling ? _ceiling / peak : 1.0;
+    if (scale < 1) {
+      for (var i = 0; i < length; i++) {
+        out.left[i] *= scale;
+        out.right[i] *= scale;
       }
     }
-    return out;
+    return (sound: out, scale: scale);
+  }
+
+  /// The loop as one channel, the two averaged: what tests listen to.
+  @visibleForTesting
+  static Float64List loop({
+    required PianoSamples samples,
+    required List<PianoChord> chords,
+    required PianoStyle style,
+    required int bpm,
+    required TimeSignature signature,
+    double a4 = 440,
+  }) {
+    final s = render(
+      samples: samples,
+      chords: chords,
+      style: style,
+      bpm: bpm,
+      signature: signature,
+      a4: a4,
+    ).sound;
+    return Float64List.fromList([
+      for (var i = 0; i < s.left.length; i++) (s.left[i] + s.right[i]) / 2,
+    ]);
+  }
+
+  /// One loop of [chords] (one per bar) at [bpm] in [signature], in a
+  /// small room, as a stereo WAV file, and the gain that kept it under the
+  /// top (for [tailWav]).
+  static ({Uint8List wav, double scale}) loopWav({
+    required PianoSamples samples,
+    required List<PianoChord> chords,
+    required PianoStyle style,
+    required int bpm,
+    required TimeSignature signature,
+    double a4 = 440,
+  }) {
+    final r = render(
+      samples: samples,
+      chords: chords,
+      style: style,
+      bpm: bpm,
+      signature: signature,
+      a4: a4,
+    );
+    final sound = Freeverb.room().loop(r.sound);
+    return (wav: ClickSound.stereoWav(sound.left, sound.right), scale: r.scale);
+  }
+
+  /// How long the piano sounds on after it is let go: the release, the
+  /// dampers and the room.
+  static const tailLength = Duration(milliseconds: 1500);
+
+  /// What the loop played as [loopWav] (at [scale]) sounds like from
+  /// [position] (in samples into the loop) when the player lets go there:
+  /// the notes then ringing held up to that moment, released, with the
+  /// dampers and the room, and nothing struck after. Played in place of the
+  /// loop from that very sample, it stops the piano as a pianist does,
+  /// instead of cutting it.
+  static Uint8List tailWav({
+    required PianoSamples samples,
+    required List<PianoChord> chords,
+    required PianoStyle style,
+    required int bpm,
+    required TimeSignature signature,
+    required int position,
+    required double scale,
+    double a4 = 440,
+  }) {
+    final rate = ClickSound.sampleRate;
+    final beat = (rate * 60 / bpm).round();
+    final length = beat * signature.beats * chords.length;
+    // Enough before it for the room to be full, as it is in the loop.
+    final before = rate * 2;
+    final after = tailLength.inMicroseconds * rate ~/ 1000000;
+    final out = (
+      left: Float64List(before + after),
+      right: Float64List(before + after),
+    );
+    final origin = position - before;
+    final strokes = _strokes(
+      chords: chords,
+      style: style,
+      bpm: bpm,
+      signature: signature,
+    );
+    // This turn of the loop and the one before, whose last notes may still
+    // ring.
+    for (final turn in [0, -length]) {
+      for (final s in strokes) {
+        final at = s.at + turn;
+        if (at >= position) continue;
+        // Let go at [position] if still held then, with the dampers.
+        final held = at + s.hold > position;
+        _play(
+          samples,
+          s.copy(
+            at: at,
+            hold: held ? position - at : s.hold,
+            damp: held || s.damp,
+          ),
+          out,
+          a4,
+          origin: origin,
+          wrap: false,
+        );
+      }
+    }
+    for (var i = 0; i < out.left.length; i++) {
+      out.left[i] *= scale;
+      out.right[i] *= scale;
+    }
+    final sound = Freeverb.room().run(out);
+    return ClickSound.stereoWav(
+      Float64List.sublistView(sound.left, before),
+      Float64List.sublistView(sound.right, before),
+    );
   }
 
   /// Beats from [pulse] to the next strike of the chord in the bar, or to
