@@ -220,12 +220,23 @@ class _HomeShellState extends State<HomeShell> {
         // In the order of AppSection.
         final entries = [
           (
+            section: AppSection.metronome,
             icon: Icons.timer_outlined,
             selectedIcon: Icons.timer,
             label: l10n.metronomeTab,
           ),
-          (icon: Icons.graphic_eq, selectedIcon: null, label: l10n.harmonyTab),
-          (icon: Icons.mic_none, selectedIcon: Icons.mic, label: l10n.tunerTab),
+          (
+            section: AppSection.drone,
+            icon: Icons.graphic_eq,
+            selectedIcon: null,
+            label: l10n.harmonyTab,
+          ),
+          (
+            section: AppSection.tuner,
+            icon: Icons.mic_none,
+            selectedIcon: Icons.mic,
+            label: l10n.tunerTab,
+          ),
         ];
         return Scaffold(
           // No title bar: the three sections share the whole height, and the
@@ -250,10 +261,14 @@ class _HomeShellState extends State<HomeShell> {
                               destinations: [
                                 for (final e in entries)
                                   NavigationRailDestination(
-                                    icon: Icon(e.icon),
-                                    selectedIcon: e.selectedIcon == null
-                                        ? null
-                                        : Icon(e.selectedIcon),
+                                    icon: _TabIcon(
+                                      section: e.section,
+                                      icon: e.icon,
+                                    ),
+                                    selectedIcon: _TabIcon(
+                                      section: e.section,
+                                      icon: e.selectedIcon ?? e.icon,
+                                    ),
                                     label: FittedBox(
                                       fit: BoxFit.scaleDown,
                                       child: Text(e.label),
@@ -282,14 +297,51 @@ class _HomeShellState extends State<HomeShell> {
                   destinations: [
                     for (final e in entries)
                       NavigationDestination(
-                        icon: Icon(e.icon),
-                        selectedIcon: e.selectedIcon == null
-                            ? null
-                            : Icon(e.selectedIcon),
+                        icon: _TabIcon(section: e.section, icon: e.icon),
+                        selectedIcon: _TabIcon(
+                          section: e.section,
+                          icon: e.selectedIcon ?? e.icon,
+                        ),
                         label: e.label,
                       ),
                   ],
                 ),
+        );
+      },
+    );
+  }
+}
+
+/// The icon of a tab, with a dot while its section plays: from the tuner or
+/// the other section, the click or the harmony going on is seen, not only
+/// heard. The tuner makes no sound, so its tab never has one.
+class _TabIcon extends StatelessWidget {
+  const _TabIcon({required this.section, required this.icon});
+
+  final AppSection section;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final scope = AudioScope.of(context);
+    final sound = switch (section) {
+      AppSection.metronome => scope.metronome,
+      AppSection.drone => scope.drone,
+      AppSection.tuner => null,
+    };
+    if (sound == null) return Icon(icon);
+    // Only the icon listens: the bar is not built again on every change.
+    return ListenableBuilder(
+      listenable: sound,
+      builder: (context, _) {
+        final playing = switch (section) {
+          AppSection.metronome => scope.metronome.isPlaying,
+          AppSection.drone => scope.drone.isPlaying,
+          AppSection.tuner => false,
+        };
+        return Semantics(
+          value: playing ? AppLocalizations.of(context).sectionPlaying : null,
+          child: Badge(isLabelVisible: playing, child: Icon(icon)),
         );
       },
     );

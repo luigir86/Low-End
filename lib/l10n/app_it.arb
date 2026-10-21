@@ -10,6 +10,7 @@
   "bpmValue": "{bpm} BPM",
   "timeSignature": "Misura",
   "backgroundPlaying": "In riproduzione in background",
+  "sectionPlaying": "In riproduzione",
   "slower": "Più lento",
   "faster": "Più veloce",
   "tapTempo": "Batti il tempo",

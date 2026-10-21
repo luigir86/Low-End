@@ -164,7 +164,10 @@ class _FifthsDial extends StatelessWidget {
                   onDegreeTap: (numeral) =>
                       showKeySheet(context, numeral: numeral),
                   receding: receding.contains(order[i]),
-                  onTap: () => drone.tapNote(order[i]),
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    drone.tapNote(order[i]);
+                  },
                   // C♯ or D♭, F♯ or G♭: the other name is written small
                   // under it, and holding the key switches to it, with the
                   // chords of its key.
@@ -194,7 +197,10 @@ class _FifthsDial extends StatelessWidget {
                     type: MaterialType.transparency,
                     child: InkWell(
                       customBorder: const CircleBorder(),
-                      onTap: drone.toggle,
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        drone.toggle();
+                      },
                       child: Center(
                         child: SizedBox.square(
                           dimension: dial.hub * math.sqrt2,
@@ -703,6 +709,8 @@ class _ChordMenu extends StatelessWidget {
                 ? LabeledField(
                     key: const Key('progressionMenu'),
                     label: l10n.progressionLabel,
+                    // The switch above already names it.
+                    showLabel: false,
                     value: progressionName(l10n, drone.progression),
                     onTap: () async {
                       final p = await showChoiceMenu(
@@ -723,6 +731,8 @@ class _ChordMenu extends StatelessWidget {
                 : LabeledField(
                     key: const Key('chordMenu'),
                     label: l10n.chordLabel,
+                    // The switch above already names it.
+                    showLabel: false,
                     value: current.quality == null
                         ? l10n.noteAlone
                         : chordName(l10n, current.quality!),

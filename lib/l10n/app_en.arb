@@ -17,6 +17,10 @@
   },
   "timeSignature": "Time signature",
   "backgroundPlaying": "Playing in the background",
+  "sectionPlaying": "Playing",
+  "@sectionPlaying": {
+    "description": "Said by screen readers on the tab of a section that is sounding, where a dot shows it."
+  },
   "slower": "Slower",
   "faster": "Faster",
   "tapTempo": "Tap the tempo",

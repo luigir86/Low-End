@@ -158,6 +158,12 @@ abstract class AppLocalizations {
   /// **'Playing in the background'**
   String get backgroundPlaying;
 
+  /// Said by screen readers on the tab of a section that is sounding, where a dot shows it.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing'**
+  String get sectionPlaying;
+
   /// No description provided for @slower.
   ///
   /// In en, this message translates to:

@@ -42,6 +42,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get backgroundPlaying => 'In riproduzione in background';
 
   @override
+  String get sectionPlaying => 'In riproduzione';
+
+  @override
   String get slower => 'Più lento';
 
   @override
