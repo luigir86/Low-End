@@ -686,7 +686,7 @@ class _VoicingSwitch extends StatelessWidget {
 typedef _ChordChoice = ({DroneVoicing voicing, ChordQuality? quality});
 
 /// Which chord (the note alone first) or which progression; the button for
-/// the sound options beside it.
+/// the sound options beside it, and before a progression the example songs.
 class _ChordMenu extends StatelessWidget {
   const _ChordMenu({required this.drone});
 
@@ -699,13 +699,24 @@ class _ChordMenu extends StatelessWidget {
     final _ChordChoice current = drone.voicing == DroneVoicing.chord
         ? (voicing: DroneVoicing.chord, quality: drone.chord)
         : alone;
+    final inProgression = drone.voicing == DroneVoicing.progression;
     return Row(
       children: [
+        // The example songs set the key, the progression and the tempo:
+        // in sight beside the progressions, not inside the options.
+        if (inProgression)
+          RowIconButton(
+            key: const Key('songsButton'),
+            icon: Icons.library_music_outlined,
+            tooltip: l10n.songsTitle,
+            leads: true,
+            onPressed: () => showSongsSheet(context),
+          ),
         Expanded(
           // The field shows just the name once chosen (the song would not
           // fit); the menu lists it with its note under it.
           child: Builder(
-            builder: (field) => drone.voicing == DroneVoicing.progression
+            builder: (field) => inProgression
                 ? LabeledField(
                     key: const Key('progressionMenu'),
                     label: l10n.progressionLabel,
@@ -811,7 +822,7 @@ Future<void> _showOptions(BuildContext context, DroneController drone) {
             mainAxisSize: MainAxisSize.min,
             children: [
               _Options(drone: drone, metronome: scope.metronome),
-              SongsAndLegendTiles(panel: context),
+              LegendTile(panel: context),
             ],
           ),
         ),

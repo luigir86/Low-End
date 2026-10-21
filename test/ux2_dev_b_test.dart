@@ -97,10 +97,11 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    // The songs are in the sound options.
-    await tester.tap(find.byTooltip('Sound options'));
+    // The songs have their own button, before the progression menu.
+    expect(find.byTooltip('Example songs'), findsNothing, reason: 'chord');
+    await tester.tap(find.text('Progression'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Example songs'));
+    await tester.tap(find.byTooltip('Example songs'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Blue Bossa'));
     await tester.pumpAndSettle();

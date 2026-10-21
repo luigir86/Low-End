@@ -247,11 +247,11 @@ String _songKey(AppLocalizations l10n, ExampleSong song, NoteNames names) {
       : l10n.droneChordMajor(tonic);
 }
 
-/// The two entries added at the end of the sound options: the legend and the
-/// example songs. [panel] is the context of the harmony tab, which outlives
-/// the options sheet that these close.
-class SongsAndLegendTiles extends StatelessWidget {
-  const SongsAndLegendTiles({super.key, required this.panel});
+/// The entry added at the end of the sound options: the legend. [panel] is
+/// the context of the harmony tab, which outlives the options sheet that it
+/// closes.
+class LegendTile extends StatelessWidget {
+  const LegendTile({super.key, required this.panel});
 
   final BuildContext panel;
 
@@ -262,15 +262,6 @@ class SongsAndLegendTiles extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         const Divider(height: 1),
-        ListTile(
-          leading: const Icon(Icons.library_music_outlined),
-          title: Text(l10n.songsTitle),
-          subtitle: Text(l10n.songsSubtitle),
-          onTap: () {
-            Navigator.of(context).pop();
-            if (panel.mounted) showSongsSheet(panel);
-          },
-        ),
         ListTile(
           leading: const Icon(Icons.info_outline),
           title: Text(l10n.legendButton),

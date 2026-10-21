@@ -74,6 +74,11 @@ void main() {
         await tester.tap(_harmonyTab.first);
         await tester.pumpAndSettle();
         await expectAccessible(tester);
+        // A progression adds the button of the example songs to the row.
+        await tester.tap(find.text('Progression'));
+        await tester.pumpAndSettle();
+        expect(find.byTooltip('Example songs'), findsOneWidget);
+        await expectAccessible(tester);
 
         await tester.tap(_metronomeTab);
         await tester.pumpAndSettle();

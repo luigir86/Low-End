@@ -35,6 +35,8 @@ class SettingsPage extends StatelessWidget {
               // What the whole app speaks and shows.
               _Section(title: l10n.settingsGeneral),
               ListTile(
+                // The field is taller than a one-line tile: room around it.
+                contentPadding: _MenuField.tilePadding,
                 title: Text(l10n.languageLabel),
                 trailing: _MenuField<String>(
                   key: const Key('languageMenu'),
@@ -55,6 +57,8 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
               ListTile(
+                // The field is taller than a one-line tile: room around it.
+                contentPadding: _MenuField.tilePadding,
                 title: Text(l10n.noteNamesLabel),
                 trailing: _MenuField<NoteNaming>(
                   key: const Key('noteNamesMenu'),
@@ -296,6 +300,10 @@ class _MenuField<T> extends StatelessWidget {
 
   /// For words rather than numbers: "Follow the language".
   static const double wide = 176;
+
+  /// Around a tile whose only line is its title, so that two such fields
+  /// one under the other do not touch.
+  static const tilePadding = EdgeInsets.symmetric(horizontal: 16, vertical: 4);
 
   final String label;
   final double width;

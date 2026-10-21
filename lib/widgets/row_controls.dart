@@ -156,22 +156,27 @@ TextStyle? rowChipStyle(BuildContext context, {Color? color}) =>
 /// The button at the end of the row (the pencil, the sound options): boxed
 /// like the chips beside it, with its icon in the ink of their text (the
 /// borders carry the tab's colour), so that the row is a line of equal
-/// blocks. The gap before it is its own.
+/// blocks. The gap before it is its own, or the gap after it when it
+/// [leads] the row (the example songs).
 class RowIconButton extends StatelessWidget {
   const RowIconButton({
     super.key,
     required this.icon,
     required this.tooltip,
     required this.onPressed,
+    this.leads = false,
   });
 
   final IconData icon;
   final String tooltip;
   final VoidCallback onPressed;
+  final bool leads;
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsetsDirectional.only(start: 4),
+    padding: leads
+        ? const EdgeInsetsDirectional.only(end: 4)
+        : const EdgeInsetsDirectional.only(start: 4),
     child: RowChip(
       label: Icon(
         icon,
