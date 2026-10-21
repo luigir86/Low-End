@@ -5,8 +5,9 @@ marks anything that cannot be confirmed from the code.
 
 ## 1. Version and build
 
-- [ ] `pubspec.yaml`: `version: 1.0.0+1` (name `1.0.0`, versionCode `1`).
-      The number after `+` must grow with every upload to Play.
+- [ ] `pubspec.yaml`: `version: 1.1.0+2` (name `1.1.0`, versionCode `2`).
+      1.0.0+1 is in the closed test since 2026-10-19. The number after `+`
+      must grow with every upload to Play.
 - [ ] Target SDK: `flutter.targetSdkVersion` (36 with the current Flutter
       stable; minSdk 24, compileSdk 36). TO VERIFY in Play Console that 36 meets
       the current target-API deadline.
