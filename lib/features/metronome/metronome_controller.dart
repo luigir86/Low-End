@@ -8,10 +8,21 @@ import 'time_signature.dart';
 
 /// State and playback of the metronome.
 class MetronomeController extends ChangeNotifier implements BarClock {
-  MetronomeController(this._output, {Stopwatch? clock})
-    : _clock = clock ?? Stopwatch();
+  MetronomeController(
+    this._output, {
+    Stopwatch? clock,
+    Duration Function()? outputLatency,
+  }) : _clock = clock ?? Stopwatch(),
+       _outputLatency = outputLatency ?? _noLatency;
 
   final ClickOutput _output;
+
+  /// How long after the engine plays a click it is heard (see
+  /// AudioRoute.outputLatency): the beat on screen lags that much, so the
+  /// light comes with the sound and not before it.
+  final Duration Function() _outputLatency;
+
+  static Duration _noLatency() => Duration.zero;
 
   /// Measures time for the beat shown on screen (the sound keeps its own
   /// perfect time in the audio engine).
@@ -279,10 +290,18 @@ class MetronomeController extends ChangeNotifier implements BarClock {
         startAt: fresh ? Duration.zero : null,
       );
       // The sound starts now (or on the piano's next bar line): line the
-      // screen up with it.
+      // screen up with it, as it is heard. A fresh start lights up once the
+      // first click comes out; a bar carrying on shows its place as it was
+      // that long ago.
       _starting = false;
-      _restartClock(started.position);
-      _waiting = started.delay;
+      final latency = _outputLatency();
+      if (fresh) {
+        _restartClock(started.position);
+        _waiting = started.delay + latency;
+      } else {
+        _restartClock(started.position - latency);
+        _waiting = started.delay;
+      }
     } catch (error) {
       debugPrint('Metronome could not start: $error');
       _playing = false;

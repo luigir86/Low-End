@@ -9,7 +9,8 @@ import '../features/metronome/time_signature.dart';
 /// the ear. The first beat of the bar is a little higher, to hear the "one".
 /// The clicks between the beats are the same tick, softer.
 abstract final class ClickSound {
-  static const sampleRate = 44100;
+  /// The engine's rate (see engineSampleRate), so nothing is resampled.
+  static const sampleRate = 48000;
 
   /// Pitch of the plain click and of the accented first beat, in Hz.
   static const plainHz = 800.0;
@@ -81,9 +82,12 @@ abstract final class ClickSound {
     final inner = inEighths ? const <double>[] : subdivision.inner;
     final offBeats = backbeat && signature.hasBackbeat;
     void put(int at, Float64List note) {
-      // A late note at a fast tempo stops at the end of the bar.
+      // A late note at a fast tempo stops at the end of the bar. Added to
+      // what is there, so that a click never cuts the one before it short.
       final n = math.min(note.length, samples.length - at);
-      samples.setRange(at, at + n, note);
+      for (var i = 0; i < n; i++) {
+        samples[at + i] += note[i];
+      }
     }
 
     for (var b = 0; b < beats; b++) {

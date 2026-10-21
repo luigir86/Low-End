@@ -7,6 +7,36 @@ import 'package:flutter_soloud/flutter_soloud.dart';
 /// a double "tra-ta" instead of one tick.
 const engineWarmUp = Duration(milliseconds: 300);
 
+/// The engine's sample rate: the one phones play at natively, so that
+/// nothing is resampled on the way out, and the one the piano was recorded
+/// at.
+const engineSampleRate = 48000;
+
+/// Frames the engine mixes at a time (SoLoud's default): it is also the
+/// period of the audio device, so a sound comes out about that much later
+/// than it is mixed (see [outputLatencyFor]).
+const engineBufferFrames = 2048;
+
+/// Where the sound comes out, for [outputLatencyFor].
+enum AudioOutputKind { speaker, wired, bluetooth, bleAudio }
+
+/// About how long after it is mixed a sound is heard through [kind]: the
+/// engine's buffer and the device's own path, and, over Bluetooth, the
+/// radio. The screen shows the beat that much later, so the light and the
+/// click come together.
+Duration outputLatencyFor(AudioOutputKind kind) {
+  const buffer = Duration(
+    microseconds: engineBufferFrames * 1000000 ~/ engineSampleRate,
+  );
+  return buffer +
+      switch (kind) {
+        AudioOutputKind.speaker ||
+        AudioOutputKind.wired => const Duration(milliseconds: 20),
+        AudioOutputKind.bleAudio => const Duration(milliseconds: 100),
+        AudioOutputKind.bluetooth => const Duration(milliseconds: 160),
+      };
+}
+
 /// Starts an audio engine once, and lets the first sound wait until it has
 /// warmed up. Tried again on the next call if it failed.
 @visibleForTesting
@@ -28,7 +58,20 @@ class EngineStarter {
 }
 
 final _engine = EngineStarter(() async {
-  if (!SoLoud.instance.isInitialized) await SoLoud.instance.init();
+  final soloud = SoLoud.instance;
+  if (soloud.isInitialized) return;
+  await soloud.init(
+    sampleRate: engineSampleRate,
+    bufferSize: engineBufferFrames,
+  );
+  // A safety net on the whole mix: the piano, the click and the tone never
+  // go past full scale together, however they pile up. With no drive (its
+  // "threshold" is a boost, here 0 dB) it leaves alone everything below
+  // the ceiling, and it looks 1 ms ahead, so it never bends an attack.
+  final limiter = soloud.filters.limiterFilter;
+  limiter.activate();
+  limiter.threshold.value = 0;
+  limiter.outputCeiling.value = -0.3;
 });
 
 /// Starts the SoLoud audio engine once for the whole app, so the drone and

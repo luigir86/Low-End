@@ -246,8 +246,11 @@ void main() {
         signature: TimeSignature.twoFour,
         a4: a4,
       );
+      // Counted over most of the first beat, where the chord rings full.
+      const from = ClickSound.sampleRate ~/ 16;
+      const length = ClickSound.sampleRate ~/ 2;
       final ratio =
-          _pitch(at(466.16), 3000, 4000) / _pitch(at(440), 3000, 4000);
+          _pitch(at(466.16), from, length) / _pitch(at(440), from, length);
       // A semitone up.
       expect(ratio, closeTo(1.0595, 0.03));
     });

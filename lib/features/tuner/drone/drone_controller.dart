@@ -73,8 +73,13 @@ typedef DroneChord = ({int root, ChordQuality quality});
 ///
 /// Without a piano (in tests) it falls back to a sustained tone.
 class DroneController extends ChangeNotifier {
-  DroneController(this._output, {BarClock? clock, this._piano})
-    : _clock = clock ?? const _FixedBar() {
+  DroneController(
+    this._output, {
+    BarClock? clock,
+    this._piano,
+    Duration Function()? outputLatency,
+  }) : _clock = clock ?? const _FixedBar(),
+       _outputLatency = outputLatency ?? _noLatency {
     _clock.addListener(_onClockChanged);
     _lastBpm = _clock.bpm;
     _lastSignature = _clock.signature;
@@ -83,6 +88,13 @@ class DroneController extends ChangeNotifier {
   final ToneOutput _output;
   final PianoOutput? _piano;
   final BarClock _clock;
+
+  /// How long after the engine plays a sound it is heard (see
+  /// AudioRoute.outputLatency): the chord on screen changes that much
+  /// later, with the sound.
+  final Duration Function() _outputLatency;
+
+  static Duration _noLatency() => Duration.zero;
 
   /// The one octave the root is played in (scientific numbering: A3 is
   /// 220 Hz, C3 131 Hz): low enough to sit with a bass or a cello, high
@@ -571,8 +583,15 @@ class DroneController extends ChangeNotifier {
     );
     if (!_playing || _disposed) return;
     final bar = _clock.barLength;
-    _loopStartedAt = started.position;
-    _loopWaiting = started.delay;
+    // Lined up with the sound as it is heard, as the metronome does.
+    final latency = _outputLatency();
+    if (fromTheTop) {
+      _loopStartedAt = started.position;
+      _loopWaiting = started.delay + latency;
+    } else {
+      _loopStartedAt = started.position - latency;
+      _loopWaiting = started.delay;
+    }
     _loopClock
       ..reset()
       ..start();
@@ -580,8 +599,7 @@ class DroneController extends ChangeNotifier {
       // Waiting for the metronome, the first chord is still to come.
       _step = started.delay > Duration.zero
           ? 0
-          : started.position.inMicroseconds ~/
-                bar.inMicroseconds %
+          : (_loopStartedAt.inMicroseconds / bar.inMicroseconds).floor() %
                 chords.length;
       _notify();
       _scheduleBar();

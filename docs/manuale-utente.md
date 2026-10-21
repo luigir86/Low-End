@@ -73,6 +73,8 @@ L'ingranaggio in alto apre le impostazioni:
 
 Metronomo e armonia continuano a suonare se blocchi il telefono o passi a un'altra app. Una notifica dice cosa sta suonando, con i pulsanti per mettere in pausa o riprendere e per fermare. La prima volta Android può chiederti il permesso per le notifiche.
 
+Se **stacchi le cuffie** (o si scollegano quelle Bluetooth), il suono si ferma subito invece di passare all'altoparlante del telefono, con l'avviso *In pausa: cuffie scollegate* e un pulsante **Riprendi**.
+
 ## Domande e problemi
 
 Scrivi a ribaluigi@gmail.com oppure apri una segnalazione su https://github.com/luigir86/Low-End/issues.

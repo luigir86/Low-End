@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:low_end/audio/click_output.dart';
 import 'package:low_end/audio/click_sound.dart';
 import 'package:low_end/audio/loop_transport.dart';
+import 'package:low_end/audio/soloud_engine.dart';
 import 'package:low_end/features/metronome/subdivision.dart';
 import 'package:low_end/features/metronome/metronome_controller.dart';
 import 'package:low_end/features/metronome/time_signature.dart';
@@ -63,10 +64,15 @@ void main() {
   test('the "one" is higher than the rest, and a click is short and clean', () {
     double peak(Float64List s) =>
         s.map((v) => v.abs()).reduce((a, c) => a > c ? a : c);
-    // Crossings of zero in the first 20 ms: the pitch.
+    // Crossings of zero from 10 to 40 ms, once the wooden overtone has
+    // faded: the pitch.
     int crossings(Float64List s) {
       var n = 0;
-      for (var i = 1; i < ClickSound.sampleRate ~/ 50; i++) {
+      for (
+        var i = ClickSound.sampleRate ~/ 100;
+        i < ClickSound.sampleRate ~/ 25;
+        i++
+      ) {
         if ((s[i - 1] < 0) != (s[i] < 0)) n++;
       }
       return n;
@@ -450,6 +456,33 @@ void main() {
     expect(accents(TimeSignature.sevenEight), [0, 2, 1, 2, 1, 2, 2]);
     expect(TimeSignature.sixEight.feel, '3 + 3');
     expect(TimeSignature.threeFour.feel, '3');
+  });
+
+  test(
+    'the beat lights up when the click is heard, not when it is played',
+    () async {
+      // The phone plays a click some time after the engine mixes it: the
+      // screen waits as long, so the light and the sound come together.
+      final late = MetronomeController(
+        output,
+        outputLatency: () => const Duration(milliseconds: 250),
+      );
+      await late.start();
+      expect(late.barPhase, isNull);
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      expect(late.beat, 0);
+      expect(late.barPhase, lessThan(0.1));
+      await late.stop();
+    },
+  );
+
+  test('the light lags by about the output delay, more over Bluetooth', () {
+    final speaker = outputLatencyFor(AudioOutputKind.speaker);
+    final bluetooth = outputLatencyFor(AudioOutputKind.bluetooth);
+    // At least the engine's own buffer, 2048 frames at 48 kHz.
+    expect(speaker, greaterThanOrEqualTo(const Duration(milliseconds: 42)));
+    expect(speaker, lessThan(const Duration(milliseconds: 100)));
+    expect(bluetooth, greaterThan(speaker + const Duration(milliseconds: 100)));
   });
 
   test('a failure to start is reported, not thrown', () async {
