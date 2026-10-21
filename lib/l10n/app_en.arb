@@ -205,6 +205,10 @@
   "beatUnitDottedQuarter": "dotted quarter note",
   "beatUnitEighth": "eighth note",
   "pausedForTuner": "Paused while you tune",
+  "pausedUnplugged": "Paused: headphones unplugged",
+  "@pausedUnplugged": {
+    "description": "Notice shown when the sound stops because the headphones were unplugged; it has a Resume button."
+  },
   "resume": "Resume",
   "openSettings": "Open settings",
   "keepScreenOnTitle": "Keep the screen on",

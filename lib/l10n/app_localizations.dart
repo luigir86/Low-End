@@ -662,6 +662,12 @@ abstract class AppLocalizations {
   /// **'Paused while you tune'**
   String get pausedForTuner;
 
+  /// Notice shown when the sound stops because the headphones were unplugged; it has a Resume button.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused: headphones unplugged'**
+  String get pausedUnplugged;
+
   /// No description provided for @resume.
   ///
   /// In en, this message translates to:

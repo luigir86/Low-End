@@ -11,6 +11,7 @@ import 'package:low_end/features/metronome/metronome_controller.dart';
 import 'package:low_end/app/home_shell.dart';
 import 'package:low_end/app/low_end_app.dart';
 import 'package:low_end/app/screen_awake.dart';
+import 'package:low_end/audio/audio_route.dart';
 import 'package:low_end/audio/audio_scope.dart';
 import 'package:low_end/audio/click_output.dart';
 import 'package:low_end/audio/mic_input.dart';
@@ -314,6 +315,59 @@ void main() {
     expect(scope.metronome.isPlaying, isTrue);
     expect(click.bar, isNotNull);
     await scope.metronome.stop();
+  });
+
+  testWidgets('unplugging the headphones stops the sound, with Resume', (
+    tester,
+  ) async {
+    final click = SilentClickOutput();
+    final tone = SilentToneOutput();
+    final route = FakeAudioRoute();
+    await tester.pumpWidget(
+      LowEndApp(
+        toneOutput: tone,
+        clickOutput: click,
+        micInput: FakeMicInput(),
+        audioRoute: route,
+      ),
+    );
+    await tester.pumpAndSettle();
+    final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
+    await scope.metronome.start();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(click.bar, isNotNull);
+
+    // In a rehearsal room, the click must not jump to the speaker.
+    route.unplug();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(scope.metronome.isPlaying, isFalse);
+    expect(click.bar, isNull);
+    expect(find.text('Paused: headphones unplugged'), findsOneWidget);
+
+    await tester.tap(find.text('Resume'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(scope.metronome.isPlaying, isTrue);
+    await scope.metronome.stop();
+    await tester.pump(const Duration(milliseconds: 300));
+  });
+
+  testWidgets('unplugging with nothing playing says nothing', (tester) async {
+    final route = FakeAudioRoute();
+    await tester.pumpWidget(
+      LowEndApp(
+        toneOutput: SilentToneOutput(),
+        clickOutput: SilentClickOutput(),
+        micInput: FakeMicInput(),
+        audioRoute: route,
+      ),
+    );
+    await tester.pumpAndSettle();
+    route.unplug();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Paused: headphones unplugged'), findsNothing);
   });
 
   testWidgets('with the microphone refused, a button opens the settings', (

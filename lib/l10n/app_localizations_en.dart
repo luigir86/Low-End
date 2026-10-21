@@ -325,6 +325,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pausedForTuner => 'Paused while you tune';
 
   @override
+  String get pausedUnplugged => 'Paused: headphones unplugged';
+
+  @override
   String get resume => 'Resume';
 
   @override

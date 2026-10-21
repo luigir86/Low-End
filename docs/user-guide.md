@@ -73,6 +73,8 @@ The gear at the top opens the settings:
 
 The metronome and the harmony keep playing when you lock the phone or switch to another app. A notification says what is playing, with buttons to pause or resume, and to stop. Android may ask permission to show notifications the first time.
 
+If you **unplug the headphones** (or a Bluetooth headset goes away), the sound stops at once instead of carrying on from the phone's speaker, with a notice *Paused: headphones unplugged* and a **Resume** button.
+
 ## Questions and problems
 
 Write to ribaluigi@gmail.com or open an issue at https://github.com/luigir86/Low-End/issues.

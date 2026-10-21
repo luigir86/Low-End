@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../actions/app_actions.dart';
+import '../audio/audio_route.dart';
 import '../audio/audio_scope.dart';
 import '../audio/click_output.dart';
 import '../audio/mic_input.dart';
@@ -32,6 +33,7 @@ class LowEndApp extends StatefulWidget {
     this.backgroundAudio,
     this.pianoOutput,
     this.screenAwake,
+    this.audioRoute,
   });
 
   /// Audio output for the drone; defaults to the device's speakers.
@@ -57,6 +59,10 @@ class LowEndApp extends StatefulWidget {
   /// phone's wake lock by default.
   final ScreenAwake? screenAwake;
 
+  /// Where the sound comes out, and when the headphones are unplugged;
+  /// Android's audio manager by default, nothing with test outputs.
+  final AudioRoute? audioRoute;
+
   @override
   State<LowEndApp> createState() => _LowEndAppState();
 }
@@ -71,10 +77,19 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     piano:
         widget.pianoOutput ??
         (widget.toneOutput == null ? SoLoudPianoOutput() : null),
+    outputLatency: () => _route.outputLatency,
   );
   late final _metronome = MetronomeController(
     widget.clickOutput ?? SoLoudClickOutput(),
+    outputLatency: () => _route.outputLatency,
   );
+  // The real route only with the real sound: tests give their own outputs.
+  late final AudioRoute _route =
+      widget.audioRoute ??
+      (widget.toneOutput == null && widget.clickOutput == null
+          ? AndroidAudioRoute()
+          : FakeAudioRoute());
+  StreamSubscription<void>? _unplugged;
   late final _tuner = TunerController(widget.micInput ?? RecordMicInput());
   late final BackgroundAudio _background =
       widget.backgroundAudio ?? MediaNotificationAudio();
@@ -121,6 +136,8 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     _tuner.autoStartAllowed = () => !_drone.isPlaying && !_metronome.isPlaying;
     _tuner.addListener(_onTunerChanged);
     _commands = _background.commands.listen(_onMediaCommand);
+    // Headphones pulled out: the sound stops before it reaches the speaker.
+    _unplugged = _route.unplugged.listen((_) => _pauseFor(_Pause.unplugged));
     // If the app opens on the tuner (a link), start listening once the first
     // frame is up, so the microphone never delays it.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -169,11 +186,13 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
   void _onTunerChanged() {
     _keepScreenOn();
     if (_tuner.isListening && (_drone.isPlaying || _metronome.isPlaying)) {
-      _pauseForTuner();
+      _pauseFor(_Pause.tuner);
     }
   }
 
-  void _pauseForTuner() {
+  /// Stops whatever sounds, with a notice that says why and a button to play
+  /// it again.
+  void _pauseFor(_Pause why) {
     final drone = _drone.isPlaying, metronome = _metronome.isPlaying;
     if (!drone && !metronome) return;
     if (drone) _drone.stop();
@@ -183,7 +202,10 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
       ?..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(l10n.pausedForTuner),
+          content: Text(switch (why) {
+            _Pause.tuner => l10n.pausedForTuner,
+            _Pause.unplugged => l10n.pausedUnplugged,
+          }),
           persist: false,
           action: SnackBarAction(
             label: l10n.resume,
@@ -345,6 +367,8 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     _metronome.removeListener(_rememberMetronome);
     _tuner.removeListener(_onTunerChanged);
     _commands?.cancel();
+    _unplugged?.cancel();
+    if (widget.audioRoute == null) _route.dispose();
     _background.show(MediaState.off, title: '');
     _screenAwake.keepOn(false);
     _drone.dispose();
@@ -389,3 +413,6 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     ],
   );
 }
+
+/// Why the sound was stopped by the app rather than by the player.
+enum _Pause { tuner, unplugged }

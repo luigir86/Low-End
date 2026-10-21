@@ -94,6 +94,7 @@
   "beatUnitDottedQuarter": "semiminima puntata",
   "beatUnitEighth": "croma",
   "pausedForTuner": "In pausa mentre accordi",
+  "pausedUnplugged": "In pausa: cuffie scollegate",
   "resume": "Riprendi",
   "openSettings": "Apri impostazioni",
   "keepScreenOnTitle": "Tieni lo schermo acceso",
