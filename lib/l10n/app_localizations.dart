@@ -536,6 +536,12 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settingsTitle;
 
+  /// The first group of the settings page: what concerns the whole app.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get settingsGeneral;
+
   /// No description provided for @languageLabel.
   ///
   /// In en, this message translates to:
@@ -827,7 +833,7 @@ abstract class AppLocalizations {
   /// No description provided for @inTuneZoneTitle.
   ///
   /// In en, this message translates to:
-  /// **'Tuner: in tune within'**
+  /// **'In tune within'**
   String get inTuneZoneTitle;
 
   /// No description provided for @inTuneZoneSubtitle.
@@ -845,13 +851,13 @@ abstract class AppLocalizations {
   /// No description provided for @guideRing.
   ///
   /// In en, this message translates to:
-  /// **'The metronome and the harmony start and stop by touching the middle of their dial.'**
+  /// **'Each section starts and stops when you touch the middle of its dial. In Harmony, touch a note.'**
   String get guideRing;
 
   /// No description provided for @guideTempo.
   ///
   /// In en, this message translates to:
-  /// **'Touch the pencil to type the tempo, or tap TAP. Hold − or + and the tempo runs, faster and faster.'**
+  /// **'Hold − or + and the tempo runs, faster and faster.'**
   String get guideTempo;
 
   /// No description provided for @guideSwipe.
@@ -859,24 +865,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Swipe left and right to change section.'**
   String get guideSwipe;
-
-  /// No description provided for @guideSwipeVertical.
-  ///
-  /// In en, this message translates to:
-  /// **'Turned sideways, swipe up and down over the dial or the tabs to change section.'**
-  String get guideSwipeVertical;
-
-  /// No description provided for @guideDrone.
-  ///
-  /// In en, this message translates to:
-  /// **'In Harmony, tap a note to play it. Hold C♯ or F♯ to write them D♭ or G♭.'**
-  String get guideDrone;
-
-  /// No description provided for @guideTuner.
-  ///
-  /// In en, this message translates to:
-  /// **'The tuner listens by itself when nothing is playing. If something is, touch its dial: the metronome and the harmony pause.'**
-  String get guideTuner;
 
   /// No description provided for @guideVolume.
   ///
@@ -895,48 +883,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Write as {note}'**
   String writeAs(String note);
-
-  /// No description provided for @guidePage1Title.
-  ///
-  /// In en, this message translates to:
-  /// **'Play'**
-  String get guidePage1Title;
-
-  /// No description provided for @guidePage2Title.
-  ///
-  /// In en, this message translates to:
-  /// **'Move around'**
-  String get guidePage2Title;
-
-  /// No description provided for @guidePage3Title.
-  ///
-  /// In en, this message translates to:
-  /// **'Tune and volume'**
-  String get guidePage3Title;
-
-  /// No description provided for @guideNext.
-  ///
-  /// In en, this message translates to:
-  /// **'Next'**
-  String get guideNext;
-
-  /// No description provided for @guidePageOf.
-  ///
-  /// In en, this message translates to:
-  /// **'Page {n} of {total}'**
-  String guidePageOf(int n, int total);
-
-  /// No description provided for @guideLock.
-  ///
-  /// In en, this message translates to:
-  /// **'For rehearsals, lock the gestures in the settings: swiping between sections then does nothing.'**
-  String get guideLock;
-
-  /// No description provided for @guideCents.
-  ///
-  /// In en, this message translates to:
-  /// **'A cent is a hundredth of a semitone: within a few cents a note is in tune.'**
-  String get guideCents;
 
   /// No description provided for @progressionBluesShort.
   ///
@@ -1133,7 +1079,7 @@ abstract class AppLocalizations {
   /// No description provided for @transpositionTitle.
   ///
   /// In en, this message translates to:
-  /// **'Tuner: transposing instrument'**
+  /// **'Transposing instrument'**
   String get transpositionTitle;
 
   /// No description provided for @transpositionSubtitle.

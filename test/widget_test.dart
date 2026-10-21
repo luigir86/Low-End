@@ -429,11 +429,15 @@ void main() {
 
     await tester.tap(find.byTooltip('Settings'));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('languageMenu')));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Italiano'));
     await tester.pumpAndSettle();
     expect(find.text('Impostazioni'), findsOneWidget);
     expect(find.text('La di riferimento'), findsOneWidget);
 
+    await tester.tap(find.byKey(const Key('noteNamesMenu')));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('C D E'));
     await tester.pumpAndSettle();
     // The reference A is further down the page now.
@@ -644,12 +648,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Gestures and shortcuts'), findsOneWidget);
     expect(settings.seenGuide, isTrue);
-    // Three short pages: Next, Next, Got it.
-    expect(find.text('Got it'), findsNothing);
-    await tester.tap(find.text('Next'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Next'));
-    await tester.pumpAndSettle();
+    // One page, four tips, closed by Got it.
+    expect(find.byType(ListTile), findsNWidgets(4));
     await tester.ensureVisible(find.text('Got it'));
     await tester.tap(find.text('Got it'));
     await tester.pumpAndSettle();
@@ -666,7 +666,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Gestures and shortcuts'));
     await tester.pumpAndSettle();
-    expect(find.text('Next'), findsOneWidget);
+    expect(find.text('Got it'), findsOneWidget);
   });
 
   testWidgets(

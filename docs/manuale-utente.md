@@ -11,7 +11,7 @@ Le schede in basso (a sinistra con il telefono in orizzontale) sono **Metronomo*
 - Una **scheda** porta solo alla sua sezione: non avvia né ferma mai nulla. **Ogni sezione avvia e ferma il proprio suono dal centro del suo cerchio.**
 - **Scorri** a destra o a sinistra per cambiare sezione. Con il telefono in orizzontale le schede passano in una colonna a sinistra e l'ingranaggio resta in alto a destra: **scorri verso l'alto o il basso** sul cerchio o sulle schede (non sulle righe a destra, che possono scorrere) per cambiare sezione. Dev'essere un gesto rapido: un trascinamento lento non fa nulla. La prima volta che giri il telefono in orizzontale un breve suggerimento lo ricorda.
 - Per le prove, **Blocca i gesti** nelle impostazioni disattiva gli scorrimenti tra le sezioni. Le schede continuano a funzionare.
-- La prima volta compare una breve **guida ai gesti**; la ritrovi in *Impostazioni → Gesti e scorciatoie*.
+- La prima volta compare una **guida ai gesti** di una pagina; la ritrovi in *Impostazioni → Gesti e scorciatoie*.
 - Sotto ogni cerchio ci sono tre righe. Metronomo e Armonia lasciano vuota la prima e usano la seconda e la terza, così i comandi stanno più in basso, vicino al pollice; l'accordatore le usa tutte e tre: la barra dei cent per prima, vicino allo strobo, poi Cromatico / strumento e il La di riferimento.
 
 Il volume è quello del telefono: usa i suoi tasti.
@@ -52,20 +52,21 @@ Dodici tasti intorno a un cerchio (di norma nel cerchio delle quinte; nelle impo
 
 ## Impostazioni
 
-L'ingranaggio in alto apre le impostazioni:
+L'ingranaggio in alto apre le impostazioni, divise in tre gruppi:
 
-| Impostazione | Scelte |
-| --- | --- |
-| Lingua | Come il telefono, inglese, italiano |
-| Tieni lo schermo acceso | Mentre suona o l'accordatore ascolta (attivo di default) |
-| Nomi delle note | Come la lingua, Do Re Mi, C D E |
-| La di riferimento | ogni hertz da 415 a 445, per l'accordatore e l'armonia |
-| Cerchio dell'armonia | Cerchio delle quinte, oppure in semitoni |
-| Numeri delle ottave | Scientifica (La4 = 440 Hz, il Mi grave del basso è Mi1; di default) o Italiana (La3 = 440 Hz); cambia solo il numero |
-| Blocca i gesti | Disattiva gli scorrimenti tra le sezioni |
-| Accordatore: intonato entro | ±2, ±5 o ±10 cent |
-| Accordatore: strumento traspositore | Do (suono reale), Si♭, Mi♭, Fa |
-| Gesti e scorciatoie | Mostra di nuovo la guida |
+| Gruppo | Impostazione | Scelte |
+| --- | --- | --- |
+| Generale | Lingua | Come il telefono, inglese, italiano |
+| Generale | Nomi delle note | Come la lingua, Do Re Mi, C D E |
+| Generale | Tieni lo schermo acceso | Mentre suona o l'accordatore ascolta (attivo di default) |
+| Generale | Blocca i gesti | Disattiva gli scorrimenti tra le sezioni |
+| Generale | Numeri delle ottave | Scientifica (La4 = 440 Hz, il Mi grave del basso è Mi1; di default) o Italiana (La3 = 440 Hz); cambia solo il numero |
+| Accordatore | La di riferimento | ogni hertz da 415 a 445, per l'accordatore e l'armonia |
+| Accordatore | Intonato entro | ±2, ±5 o ±10 cent |
+| Accordatore | Strumento traspositore | Do (suono reale), Si♭, Mi♭, Fa |
+| Armonia | Cerchio dell'armonia | Cerchio delle quinte, oppure in semitoni |
+
+In fondo, **Gesti e scorciatoie** mostra di nuovo la guida, su una pagina.
 
 **Ringraziamenti** va alla Power Flower Orchestra di Fossano, che ha ispirato e provato quest’app; il suo pulsante apre la loro pagina Instagram nel browser del telefono. **Informazioni su Low End** (in fondo alle impostazioni) mostra la licenza, il link al codice sorgente (anch'esso aperto nel browser) e, sotto *Visualizza licenze*, le licenze di tutto ciò con cui l'app è costruita, font e suoni del pianoforte compresi.
 

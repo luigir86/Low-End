@@ -260,6 +260,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get settingsTitle => 'Impostazioni';
 
   @override
+  String get settingsGeneral => 'Generale';
+
+  @override
   String get languageLabel => 'Lingua';
 
   @override
@@ -419,7 +422,7 @@ class AppLocalizationsIt extends AppLocalizations {
       'Per le prove: niente scorrimenti tra le sezioni';
 
   @override
-  String get inTuneZoneTitle => 'Accordatore: intonato entro';
+  String get inTuneZoneTitle => 'Intonato entro';
 
   @override
   String get inTuneZoneSubtitle =>
@@ -430,26 +433,14 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get guideRing =>
-      'Metronomo e armonia partono e si fermano toccando il centro del loro cerchio.';
+      'Ogni sezione parte e si ferma toccando il centro del suo cerchio. In Armonia tocca una nota.';
 
   @override
   String get guideTempo =>
-      'Tocca la matita per scrivere il tempo, o batti TAP. Tieni premuto − o + e il tempo scorre, sempre più veloce.';
+      'Tieni premuto − o + e il tempo scorre, sempre più veloce.';
 
   @override
   String get guideSwipe => 'Scorri a destra e a sinistra per cambiare sezione.';
-
-  @override
-  String get guideSwipeVertical =>
-      'Con il telefono in orizzontale, scorri verso l\'alto o il basso sul cerchio o sulle schede per cambiare sezione.';
-
-  @override
-  String get guideDrone =>
-      'In Armonia tocca una nota per farla suonare. Tieni premuto Do♯ o Fa♯ per scriverli Re♭ o Sol♭.';
-
-  @override
-  String get guideTuner =>
-      'L\'accordatore ascolta da solo se nulla suona. Se suona qualcosa, tocca il suo cerchio: metronomo e armonia vanno in pausa.';
 
   @override
   String get guideVolume =>
@@ -462,31 +453,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String writeAs(String note) {
     return 'Scrivi come $note';
   }
-
-  @override
-  String get guidePage1Title => 'Suonare';
-
-  @override
-  String get guidePage2Title => 'Muoversi';
-
-  @override
-  String get guidePage3Title => 'Accordare e volume';
-
-  @override
-  String get guideNext => 'Avanti';
-
-  @override
-  String guidePageOf(int n, int total) {
-    return 'Pagina $n di $total';
-  }
-
-  @override
-  String get guideLock =>
-      'Per le prove, blocca i gesti dalle impostazioni: lo scorrimento tra le sezioni non fa più nulla.';
-
-  @override
-  String get guideCents =>
-      'Il cent è un centesimo di semitono: entro pochi cent una nota è intonata.';
 
   @override
   String get progressionBluesShort => 'Blues';
@@ -595,7 +561,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get backbeatShort => '2 e 4';
 
   @override
-  String get transpositionTitle => 'Accordatore: strumento traspositore';
+  String get transpositionTitle => 'Strumento traspositore';
 
   @override
   String get transpositionSubtitle =>
