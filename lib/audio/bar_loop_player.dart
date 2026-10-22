@@ -98,9 +98,12 @@ class BarLoopPlayer {
             _soloud.getPosition(old).inMicroseconds % _length.inMicroseconds,
       );
       final leader = follows ? LoopTransport.instance.phaseOf(name) : null;
-      if (leader != null && _bar > Duration.zero) {
+      if (_bar > Duration.zero) {
         // Back on the other loop's beat: the old loop went on at the old
-        // tempo while the new one was made, and drifted from it.
+        // tempo while the new one was made, and drifted from it. With no
+        // other loop, the old loop's own place in its bar: the new loop may
+        // hold another number of bars (an arpeggio that runs on over
+        // several), and must keep the beat all the same.
         position = LoopTransport.followerPosition(
           oldPosition: was,
           oldBar: _bar,
@@ -109,7 +112,9 @@ class BarLoopPlayer {
             1,
             (length.inMicroseconds / bar.inMicroseconds).round(),
           ),
-          leaderPhase: leader,
+          leaderPhase:
+              leader ??
+              (was.inMicroseconds % _bar.inMicroseconds) / _bar.inMicroseconds,
         );
       } else {
         // The old loop's place, as a fraction of its length.

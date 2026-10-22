@@ -221,7 +221,55 @@ void main() {
         signature: TimeSignature.twoFour,
       );
       expect(_energy(loop, 0, 200), greaterThan(0));
-      expect(loop.length, (ClickSound.sampleRate * 60 / 240).round() * 2);
+      // Two bars of 2/4: the arpeggio runs on into the second (root, third
+      // | fifth, third) before it comes round.
+      expect(loop.length, (ClickSound.sampleRate * 60 / 240).round() * 4);
+    });
+
+    test('in a bar of one beat, an arpeggio runs on over the bars', () {
+      final loop = PianoSound.loop(
+        samples: samples,
+        chords: [cMajor],
+        style: PianoStyle.arpeggio,
+        bpm: 60,
+        signature: TimeSignature.oneOne,
+      );
+      final beat = ClickSound.sampleRate;
+      // Not the root alone: root | third | fifth | third, a bar each.
+      expect(loop.length, beat * 4);
+      const expected = [60, 64, 67, 64];
+      for (var b = 0; b < 4; b++) {
+        final pitch = _pitch(loop, b * beat + 100, 800);
+        final now = _hz(expected[b]);
+        final before = _hz(expected[(b + 3) % 4]);
+        final low = math.min(now, before) * 0.85;
+        final high = math.max(now, before) * 1.15;
+        expect(
+          pitch,
+          allOf(greaterThan(low), lessThan(high)),
+          reason: 'bar $b: heard $pitch Hz',
+        );
+      }
+      // A seventh chord in 1/1 takes six bars to come round; in 4/4 a
+      // triad still fits in one.
+      expect(
+        PianoSound.barsOf(
+          [
+            [60, 64, 67, 70],
+          ],
+          PianoStyle.arpeggio,
+          TimeSignature.oneOne,
+        ).length,
+        6,
+      );
+      expect(
+        PianoSound.barsOf(
+          [cMajor],
+          PianoStyle.arpeggio,
+          TimeSignature.fourFour,
+        ).length,
+        1,
+      );
     });
 
     test('a bar of one beat (1/1) works in every style', () {
