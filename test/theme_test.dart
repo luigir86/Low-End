@@ -53,7 +53,7 @@ void main() {
       greaterThanOrEqualTo(3),
     );
     expect(
-      contrast(extra.strobeSegments, extra.strobeBackground),
+      contrast(c.secondary, extra.strobeBackground),
       greaterThanOrEqualTo(3),
     );
     for (final v in [extra.inTune, extra.close, extra.off]) {

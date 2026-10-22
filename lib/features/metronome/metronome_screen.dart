@@ -11,7 +11,6 @@ import '../../audio/audio_scope.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/choice_menu.dart';
 import '../../widgets/dial.dart';
-import '../../widgets/pill_switch.dart';
 import '../../widgets/row_controls.dart';
 import 'metronome_controller.dart';
 import 'note_icon.dart';
@@ -41,12 +40,13 @@ class MetronomeScreen extends StatelessWidget {
         // The first row, a pill like the tuner's, chooses the bar: the time
         // signature and what fills each beat. The second only sets the tempo:
         // TAP, − + and the pencil.
-        upper: PillSwitch(
+        upper: Row(
           key: const Key('barSwitch'),
-          leftFilled: false,
-          rightFilled: false,
-          left: _SignatureButton(metronome: metronome),
-          right: _SubdivisionField(metronome: metronome),
+          children: [
+            Expanded(child: _SignatureButton(metronome: metronome)),
+            const SizedBox(width: 8),
+            Expanded(child: _SubdivisionField(metronome: metronome)),
+          ],
         ),
         lower: Column(
           mainAxisSize: MainAxisSize.min,
@@ -208,6 +208,7 @@ class _BeatRingState extends State<_BeatRing>
                     frame: _ringFrame,
                     colors: theme.colorScheme,
                     downbeat: LowEndColors.of(context).downbeat,
+                    disc: LowEndColors.of(context).strobeBackground,
                   ),
                 ),
               ),
@@ -237,6 +238,7 @@ class _RingPainter extends CustomPainter {
     required ValueNotifier<int> frame,
     required this.colors,
     required this.downbeat,
+    required this.disc,
   }) : super(repaint: frame);
 
   final MetronomeController metronome;
@@ -248,6 +250,10 @@ class _RingPainter extends CustomPainter {
 
   /// The colour of the "one".
   final Color downbeat;
+
+  /// The disc under the ring, into which the beats not lit recede while the
+  /// metronome plays, as the notes not sounding do in the harmony.
+  final Color disc;
 
   /// How fast the single segment of a one-beat bar fades.
   static double _decay(MetronomeController metronome) =>
@@ -287,7 +293,10 @@ class _RingPainter extends CustomPainter {
         color = Color.lerp(colors.outlineVariant, downbeat, t)!;
         flash = t > 0.5;
       } else if (b != beat) {
-        color = colors.outlineVariant;
+        // Playing, the other beats recede: only the lit one stands out.
+        color = beat == null
+            ? colors.outlineVariant
+            : Color.lerp(disc, colors.surface, 0.6)!;
       } else if (metronome.isSilent(b)) {
         // A beat left silent (1 and 3, with the click on 2 and 4) only
         // glows: the place in the bar is still seen.
@@ -296,10 +305,11 @@ class _RingPainter extends CustomPainter {
         color = downbeat;
       } else if (signature.grouped && !opens) {
         // The weak pulses of a group are softer than its first.
-        color = colors.outline.withValues(alpha: 0.6);
+        color = colors.secondary.withValues(alpha: 0.6);
       } else {
-        // A step softer than the "one", which is the accent itself.
-        color = colors.outline;
+        // The colour of the rest of a chord in the harmony: a step softer
+        // than the "one", as the chord's notes are than its root.
+        color = colors.secondary;
       }
       // The lit "one" is also wider, into the ring's margins: it stands out
       // by its shape as well as by its colour.
@@ -311,7 +321,9 @@ class _RingPainter extends CustomPainter {
         startAngle: b * slice + start,
         sweep: slice - start - end,
         color: color,
-        border: (count == 1 ? flash : b == beat) ? null : colors.outline,
+        border: (count == 1 ? flash : b == beat || beat != null)
+            ? null
+            : colors.outline,
       );
     }
   }
@@ -321,7 +333,8 @@ class _RingPainter extends CustomPainter {
       old.metronome != metronome ||
       old.signature != signature ||
       old.colors != colors ||
-      old.downbeat != downbeat;
+      old.downbeat != downbeat ||
+      old.disc != disc;
 }
 
 /// What the hub shows: the tempo, or, while the click waits for the piano's
@@ -441,36 +454,22 @@ class _SubdivisionField extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final subdivision = metronome.subdivision;
     final enabled = metronome.subdivisionApplies;
-    return PillSwitch.half(
-      left: false,
-      child: Semantics(
-        button: true,
-        enabled: enabled,
+    return Builder(
+      builder: (field) => LabeledField(
+        key: const Key('subdivisionMenu'),
         label: l10n.subdivisionLabel,
         value: subdivisionName(l10n, subdivision),
-        excludeSemantics: true,
-        onTap: enabled ? () => _choose(context) : null,
-        child: AnimatedOpacity(
-          duration: MediaQuery.disableAnimationsOf(context)
-              ? Duration.zero
-              : Durations.short4,
-          opacity: enabled ? 1 : 0.38,
-          child: InkWell(
-            key: const Key('subdivisionMenu'),
-            onTap: enabled ? () => _choose(context) : null,
-            child: PillSwitch.label(
-              context,
-              false,
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  NoteIcon(subdivision, height: 26),
-                  const Icon(Icons.arrow_drop_down),
-                ],
-              ),
-            ),
+        display: Align(
+          alignment: AlignmentDirectional.centerStart,
+          heightFactor: 1,
+          // As tall as a line of text, so that the field grows with large
+          // text as the time signature beside it does.
+          child: NoteIcon(
+            subdivision,
+            height: MediaQuery.textScalerOf(context).scale(24),
           ),
         ),
+        onTap: enabled ? () => _choose(field) : null,
       ),
     );
   }
@@ -646,29 +645,12 @@ class _SignatureButton extends StatelessWidget {
     final value = metronome.backbeat && metronome.backbeatApplies
         ? '${signature.label} · ${l10n.backbeatShort}'
         : signature.label;
-    return PillSwitch.half(
-      left: true,
-      child: Semantics(
-        button: true,
+    return Builder(
+      builder: (field) => LabeledField(
+        key: const Key('signatureMenu'),
         label: l10n.timeSignature,
         value: value,
-        excludeSemantics: true,
-        onTap: () => _choose(context),
-        child: InkWell(
-          key: const Key('signatureMenu'),
-          onTap: () => _choose(context),
-          child: PillSwitch.label(
-            context,
-            false,
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(value, maxLines: 1),
-                const Icon(Icons.arrow_drop_down),
-              ],
-            ),
-          ),
-        ),
+        onTap: () => _choose(field),
       ),
     );
   }

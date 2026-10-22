@@ -770,6 +770,24 @@ abstract class AppLocalizations {
   /// **'Instrument'**
   String get tuningInstrument;
 
+  /// Name of the Harmony field that chooses between one chord and a progression.
+  ///
+  /// In en, this message translates to:
+  /// **'Mode'**
+  String get voicingLabel;
+
+  /// No description provided for @voicingChordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One note or chord, until you stop it'**
+  String get voicingChordHint;
+
+  /// No description provided for @voicingProgressionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Chords in turn, in time with the metronome'**
+  String get voicingProgressionHint;
+
   /// Under Chromatic in the tuner's instrument menu, where the other entries show their open strings.
   ///
   /// In en, this message translates to:

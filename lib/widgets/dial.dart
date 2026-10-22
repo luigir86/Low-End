@@ -252,7 +252,7 @@ class DialLayout extends StatelessWidget {
     final block = size + _dialGap + 3 * rowHeight;
     final free = math.max(0.0, area.height - 32 - block);
     final slack = math.min(free * 0.2, 32.0);
-    final gap = math.min(free * 0.4, 48.0);
+    const gap = 0.0;
     return (size: size, top: free - slack - gap, gap: gap);
   }
 
