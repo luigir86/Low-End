@@ -46,8 +46,12 @@ class MediaNotificationAudio implements BackgroundAudio {
         config: const AudioServiceConfig(
           androidNotificationChannelId: 'com.luigir86.low_end.playback',
           androidNotificationChannelName: 'Low End',
-          // Paused, the notification stays: it is how the sound is resumed.
-          androidStopForegroundOnPause: false,
+          // Paused, the notification stays (it is how the sound is resumed)
+          // but the service leaves the foreground, Android's default: kept
+          // in the foreground, the notification could not be removed when
+          // the sound stops, and stayed with a play button that does
+          // nothing.
+          androidStopForegroundOnPause: true,
           // A plain white lion: Android paints the small icon of the
           // notification one colour, and the coloured launcher icon would
           // come out as a blob.
