@@ -770,6 +770,12 @@ abstract class AppLocalizations {
   /// **'Instrument'**
   String get tuningInstrument;
 
+  /// Under Chromatic in the tuner's instrument menu, where the other entries show their open strings.
+  ///
+  /// In en, this message translates to:
+  /// **'Any note, no strings to choose'**
+  String get tuningChromaticHint;
+
   /// No description provided for @tuningGuitar.
   ///
   /// In en, this message translates to:

@@ -12,7 +12,7 @@ Le schede in basso (a sinistra con il telefono in orizzontale) sono **Metronomo*
 - **Scorri** a destra o a sinistra per cambiare sezione. Con il telefono in orizzontale le schede passano in una colonna a sinistra e l'ingranaggio resta in alto a destra: **scorri verso l'alto o il basso** sul cerchio o sulle schede (non sulle righe a destra, che possono scorrere) per cambiare sezione. Dev'essere un gesto rapido: un trascinamento lento non fa nulla. La prima volta che giri il telefono in orizzontale un breve suggerimento lo ricorda.
 - Per le prove, **Blocca i gesti** nelle impostazioni disattiva gli scorrimenti tra le sezioni. Le schede continuano a funzionare.
 - La prima volta compare una **guida ai gesti** di una pagina; la ritrovi in *Impostazioni → Gesti e scorciatoie*.
-- Sotto ogni cerchio ci sono tre righe. Metronomo e Armonia lasciano vuota la prima e usano la seconda e la terza, così i comandi stanno più in basso, vicino al pollice; l'accordatore le usa tutte e tre: la barra dei cent per prima, vicino allo strobo, poi Cromatico / strumento e il La di riferimento.
+- Sotto ogni cerchio ci sono tre righe. Metronomo e Armonia lasciano vuota la prima e usano la seconda e la terza, così i comandi stanno più in basso, vicino al pollice; l'accordatore le usa tutte e tre: la barra dei cent per prima, vicino allo strobo, poi il campo Strumento e il La di riferimento.
 
 Il volume è quello del telefono: usa i suoi tasti.
 
@@ -44,8 +44,8 @@ Dodici tasti intorno a un cerchio (di norma nel cerchio delle quinte; nelle impo
 - **Se metronomo o armonia stanno suonando**, entrare nell'accordatore non ferma nulla: il cerchio dice *Ascolta* e *Ascoltare mette in pausa ciò che suona*. Tocca il cerchio e vanno in pausa, così il microfono sente solo il tuo strumento, con un avviso *In pausa mentre accordi* e un pulsante **Riprendi** che li fa ripartire. Uscendo dall'accordatore non riprende nulla da solo.
 - Il La di riferimento è nella terza riga: **−** e **+** si muovono di 1 Hz, la matita permette di scrivere il valore o scegliere uno di quelli standard (415, 432, 440, 442 Hz).
 - Sente le note da 28 Hz fino a 2800 Hz (il limite acuto del violino e del flauto) e riconosce qualsiasi nota, senza dover scegliere prima la corda. Con il basso scelto ascolta solo fino a 700 Hz, perché le voci non disturbino.
-- **Strumenti traspositori**: nelle *Impostazioni* scegli Si♭ (clarinetto, tromba, sax soprano e tenore), Mi♭ (sax contralto e baritono) o Fa (corno), e l'accordatore cromatico mostra la nota **scritta**, con la tonalità accanto a «Cromatico» nella prima riga e sul cerchio.
-- La metà **Strumento** della seconda riga (a sinistra c'è Cromatico) apre un menu con chitarra, violino, viola, violoncello, ukulele e basso, e mostra il numero della corda.
+- **Strumenti traspositori**: nelle *Impostazioni* scegli Si♭ (clarinetto, tromba, sax soprano e tenore), Mi♭ (sax contralto e baritono) o Fa (corno), e l'accordatore cromatico mostra la nota **scritta**, con la tonalità accanto a «Cromatico» nel campo Strumento e sul cerchio.
+- Il campo **Strumento** dice sempre cosa stai accordando. Il suo menu comincia con Cromatico (qualsiasi nota), poi chitarra, violino, viola, violoncello, ukulele e basso con le loro corde a vuoto; con uno strumento l'accordatore mostra il numero della corda. L'ultimo strumento scelto resta ricordato.
 - L'accordatore smette di ascoltare quando lasci la sezione, apri le impostazioni o porti l'app in secondo piano.
 - Il suono è analizzato sul telefono e non viene mai registrato né inviato.
 - Se hai negato il microfono, consentilo nelle impostazioni del telefono in *App › Low End › Autorizzazioni*; l'app mostra un pulsante che apre quella pagina.

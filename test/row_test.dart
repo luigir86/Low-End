@@ -9,6 +9,8 @@ import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/features/metronome/time_signature.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
+import 'package:low_end/widgets/reference_pitch_row.dart';
+import 'package:low_end/widgets/row_controls.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<AudioScope> _pump(WidgetTester tester, AppSettings settings) async {
@@ -200,23 +202,19 @@ void main() {
     scope.drone.stop();
   });
 
-  testWidgets('the tuning switch keeps its press glow inside the pill', (
+  testWidgets('the instrument field is as tall as the reference A under it', (
     tester,
   ) async {
     await _pump(tester, AppSettings());
     await tester.tap(find.text('Tuner'));
     await tester.pumpAndSettle();
-    for (final key in ['tuningChromatic', 'tuningInstrument']) {
-      expect(
-        find.ancestor(
-          of: find.byKey(Key(key)),
-          matching: find.byType(ClipPath),
-        ),
-        findsWidgets,
-        reason: key,
-      );
-    }
-    final size = tester.getSize(find.byKey(const Key('tuningChromatic')));
-    expect(size.height, 48);
+    final instrument = tester.getSize(find.byKey(const Key('instrumentMenu')));
+    final reference = tester.getSize(
+      find.descendant(
+        of: find.byType(ReferencePitchRow),
+        matching: find.byType(LabeledField),
+      ),
+    );
+    expect(instrument.height, reference.height);
   });
 }

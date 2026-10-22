@@ -14,7 +14,7 @@ import '../../audio/pitch.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/choice_menu.dart';
 import '../../widgets/dial.dart';
-import '../../widgets/pill_switch.dart';
+import '../../widgets/row_controls.dart';
 import '../../widgets/reference_pitch_row.dart';
 import 'tuner_controller.dart';
 import 'tuner_reading.dart';
@@ -146,8 +146,8 @@ class _TunerPanelState extends State<TunerPanel> {
                   ],
                 ),
           // Chromatic or an instrument, in the place of the harmony's
-          // Root / Chord / Progression.
-          upper: _TuningSwitch(settings: settings),
+          // Chord / Progression.
+          upper: _InstrumentField(settings: settings),
           // Listening starts and stops from the middle of the dial, like the
           // other two tabs; the last row is the reference A, in the same
           // pieces as the rows of the metronome and the harmony.
@@ -176,14 +176,14 @@ String _tuningName(AppLocalizations l10n, TunerTuning tuning) =>
       TunerTuning.bass => l10n.tuningBass,
     };
 
-/// Chromatic, or the strings of an instrument chosen from a menu, in the
-/// first row under the dial, drawn like the harmony's Root /
-/// Chord / Progression switches of the other tabs: 40 dp high to the eye,
-/// with 48 dp to touch. With strings, the tuner names the nearest open
-/// string, its number, and says how far off it is. The last instrument
-/// stays chosen.
-class _TuningSwitch extends StatelessWidget {
-  const _TuningSwitch({required this.settings});
+/// What the tuner listens for, in the first row under the dial: one field,
+/// like the harmony's chord menu, that always names what is being tuned.
+/// Chromatic comes first, as the note alone does in the chord menu; then the
+/// instruments with their open strings. With strings, the tuner names the
+/// nearest open string, its number, and says how far off it is. The last
+/// instrument stays remembered while the tuner is chromatic.
+class _InstrumentField extends StatelessWidget {
+  const _InstrumentField({required this.settings});
 
   final AppSettings settings;
 
@@ -194,79 +194,44 @@ class _TuningSwitch extends StatelessWidget {
     String strings(TunerTuning t) => t.strings
         .map((n) => n.label(names, numbering: settings.octaveNumbering))
         .join(' ');
-    final chromatic = settings.tunerChromatic;
-    Widget label(bool selected, Widget child) =>
-        PillSwitch.label(context, selected, child);
-    return PillSwitch(
-      key: const Key('tuningSwitch'),
-      leftFilled: chromatic,
-      rightFilled: !chromatic,
-      left: PillSwitch.half(
-        left: true,
-        child: Semantics(
-          button: true,
-          selected: chromatic,
-          child: InkWell(
-            key: const Key('tuningChromatic'),
-            onTap: () => settings.setTunerChromatic(true),
-            child: label(
-              chromatic,
-              Text(
-                settings.transposition == Transposition.c
-                    ? l10n.tuningChromatic
-                    : '${l10n.tuningChromatic} · '
-                          '${Note(settings.transposition.key, 4).name(names)}',
-                maxLines: 1,
+    // A transposing instrument says its key: "Chromatic · B♭".
+    final chromaticName = settings.transposition == Transposition.c
+        ? l10n.tuningChromatic
+        : '${l10n.tuningChromatic} · '
+              '${Note(settings.transposition.key, 4).name(names)}';
+    return Builder(
+      builder: (field) => LabeledField(
+        key: const Key('instrumentMenu'),
+        label: l10n.tuningInstrument,
+        value: settings.tunerChromatic
+            ? chromaticName
+            : _tuningName(l10n, settings.tunerInstrument),
+        onTap: () async {
+          final picked = await showChoiceMenu<TunerTuning>(
+            anchor: field,
+            selected: settings.tuning,
+            choices: [
+              Choice(
+                value: TunerTuning.chromatic,
+                title: chromaticName,
+                subtitle: l10n.tuningChromaticHint,
               ),
-            ),
-          ),
-        ),
-      ),
-      right: PillSwitch.half(
-        left: false,
-        child: Semantics(
-          button: true,
-          selected: !chromatic,
-          child: Builder(
-            builder: (half) => InkWell(
-              key: const Key('tuningInstrument'),
-              // Touched, the half is chosen at once, with the instrument it
-              // had; the menu that opens offers another.
-              onTap: () async {
-                settings.setTunerChromatic(false);
-                final picked = await showChoiceMenu(
-                  anchor: half,
-                  selected: settings.tunerInstrument,
-                  choices: [
-                    for (final t in TunerTuning.instruments)
-                      Choice(
-                        value: t,
-                        title: _tuningName(l10n, t),
-                        subtitle: strings(t),
-                      ),
-                  ],
-                );
-                if (picked != null) settings.setTunerInstrument(picked);
-              },
-              child: Tooltip(
-                message: l10n.tuningInstrument,
-                child: label(
-                  !chromatic,
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        _tuningName(l10n, settings.tunerInstrument),
-                        maxLines: 1,
-                      ),
-                      const Icon(Icons.arrow_drop_down),
-                    ],
-                  ),
+              for (final t in TunerTuning.instruments)
+                Choice(
+                  value: t,
+                  title: _tuningName(l10n, t),
+                  subtitle: strings(t),
                 ),
-              ),
-            ),
-          ),
-        ),
+            ],
+          );
+          if (picked == null) return;
+          if (picked.isChromatic) {
+            settings.setTunerChromatic(true);
+          } else {
+            settings.setTunerInstrument(picked);
+            settings.setTunerChromatic(false);
+          }
+        },
       ),
     );
   }

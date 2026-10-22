@@ -386,6 +386,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get tuningInstrument => 'Strumento';
 
   @override
+  String get tuningChromaticHint => 'Qualsiasi nota, senza scegliere la corda';
+
+  @override
   String get tuningGuitar => 'Chitarra';
 
   @override
