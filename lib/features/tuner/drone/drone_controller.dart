@@ -170,6 +170,14 @@ class DroneController extends ChangeNotifier {
   /// chose a continuous tone (see the class).
   bool get _patterned => usesPiano;
 
+  /// True when a new note or chord should keep the piano's place in the
+  /// bar: struck on every beat (or arpeggiated), the pulse carries on and
+  /// the new chord comes in on it, rather than the bar starting over (or
+  /// waiting for the metronome's "one") with a stumble in the beat. Struck
+  /// once a bar, or as a progression, it starts from the top.
+  bool get _keepsTheBeat =>
+      _voicing == DroneVoicing.chord && _style != DroneStyle.held;
+
   /// Whether the piano can play at all (the styles are offered only then).
   bool get hasPiano => _piano != null;
 
@@ -352,7 +360,11 @@ class DroneController extends ChangeNotifier {
 
   void setPitchClass(int pitchClass) {
     if (pitchClass == _note.pitchClass) return;
-    _update(() => _note = Note(pitchClass, rootOctave), restart: true);
+    _update(
+      () => _note = Note(pitchClass, rootOctave),
+      restart: true,
+      carryOn: _keepsTheBeat,
+    );
   }
 
   void setVoicing(DroneVoicing voicing) {
@@ -365,7 +377,7 @@ class DroneController extends ChangeNotifier {
 
   void setChord(ChordQuality chord) {
     if (chord == _chord) return;
-    _update(() => _chord = chord);
+    _update(() => _chord = chord, carryOn: _keepsTheBeat);
   }
 
   void setProgression(Progression progression) {

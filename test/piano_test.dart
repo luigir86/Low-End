@@ -764,13 +764,43 @@ void main() {
       expect(piano.startAt, Duration.zero);
     });
 
-    test('changing the key restarts from the first beat', () async {
+    test('struck on every beat, a new note or chord keeps the beat', () async {
       drone.setVoicing(DroneVoicing.chord);
       drone.setStyle(DroneStyle.beat);
       await drone.tapNote(0);
       await drone.tapNote(2); // D
       await Future<void>.delayed(const Duration(milliseconds: 10));
       expect(piano.chords!.single.first, 50);
+      expect(piano.startAt, isNull);
+
+      drone.setChord(ChordQuality.minor);
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(piano.startAt, isNull);
+
+      drone.setStyle(DroneStyle.arpeggio);
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await drone.tapNote(4); // E
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(piano.chords!.single.first, 52);
+      expect(piano.startAt, isNull);
+    });
+
+    test('struck once a bar, a new note starts from the first beat', () async {
+      drone.setVoicing(DroneVoicing.chord);
+      drone.setStyle(DroneStyle.held);
+      await drone.tapNote(0);
+      await drone.tapNote(2); // D
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(piano.chords!.single.first, 50);
+      expect(piano.startAt, Duration.zero);
+    });
+
+    test('a new key restarts a progression from the first beat', () async {
+      drone.setVoicing(DroneVoicing.progression);
+      drone.setStyle(DroneStyle.beat);
+      await drone.tapNote(0);
+      await drone.tapNote(2); // D
+      await Future<void>.delayed(const Duration(milliseconds: 10));
       expect(piano.startAt, Duration.zero);
     });
 
