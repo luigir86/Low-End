@@ -228,6 +228,13 @@ class BarLoopPlayer {
       if (old != null) await _soloud.stop(old);
       if (oldSource != null) await _soloud.disposeSource(oldSource);
     }
+    if (startsAt != null) {
+      // Counted from now, not from when the wait was read: making the old
+      // loop's tail took a while, and whoever lines the screen up with the
+      // sound starts counting when this returns.
+      delay = delay - since.elapsed;
+      if (delay < Duration.zero) delay = Duration.zero;
+    }
     return (position: position, delay: delay);
   }
 
