@@ -119,7 +119,8 @@ abstract final class LowEndTheme {
         // TAP, the chosen half of a switch and the selected tab's pill.
         primaryContainer: container,
         onPrimaryContainer: Palette.inkOnDark,
-        // The rest of a chord on the circle of fifths.
+        // The rest of a chord on the circle of fifths, and the beats after
+        // the "one" on the metronome.
         secondary: chord,
         onSecondary: _readableOn(chord),
         secondaryContainer: container,
@@ -140,7 +141,7 @@ abstract final class LowEndTheme {
         surfaceContainer: Palette.ebonyShade1,
         surfaceContainerHigh: Palette.ebonyShade2,
         surfaceContainerHighest: Palette.ebonyShade3,
-        // Borders and the lit beats: 3 : 1 on the disc.
+        // Borders: 3 : 1 on the disc.
         outline: tint(0.75),
         // Keys and beats that are off.
         outlineVariant: tint(0.26),
@@ -154,7 +155,7 @@ abstract final class LowEndTheme {
         // weigh no more than the note in the middle; still 3 : 1 on the disc.
         strobeSegments: tint(0.6),
         // The "one" is the accent at full strength, drawn thicker; the other
-        // beats are the accent too, a step softer.
+        // beats take the colour of a chord's other notes (secondary).
         downbeat: Palette.bronze,
       ),
     );

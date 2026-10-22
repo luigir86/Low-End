@@ -314,10 +314,14 @@ void main() {
       expect(find.text('La7'), findsOneWidget);
 
       // To a progression and back: the chord is still the one chosen.
-      await tester.tap(find.text('Progressione').first);
+      await tester.tap(find.byKey(const Key('voicingMenu')));
+      await _settle(tester);
+      await tester.tap(find.text('Progressione').last);
       await _settle(tester);
       expect(scope.drone.voicing, DroneVoicing.progression);
-      await tester.tap(find.text('Accordo').first);
+      await tester.tap(find.byKey(const Key('voicingMenu')));
+      await _settle(tester);
+      await tester.tap(find.text('Accordo').last);
       await _settle(tester);
       expect(scope.drone.voicing, DroneVoicing.chord);
 

@@ -78,10 +78,10 @@ void main() {
     tester,
   ) async {
     final scope = await _pump(tester, AppSettings());
-    // The time signature is a bare field with "4/4" in it: no title, which
-    // would not fit, but a screen reader still announces its name.
+    // The time signature is a field with its name on the border, like the
+    // tuner's instrument, and a screen reader announces the name too.
     final semantics = tester.ensureSemantics();
-    expect(find.text('Time signature'), findsNothing);
+    expect(find.text('Time signature'), findsOneWidget);
     expect(find.bySemanticsLabel('Time signature'), findsOneWidget);
     semantics.dispose();
     expect(find.text('4/4'), findsOneWidget);
