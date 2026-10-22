@@ -62,11 +62,21 @@ class MediaNotificationAudio implements BackgroundAudio {
         throw error;
       });
 
+  /// The last change asked for: each waits for the one before, so that a
+  /// stop and a start close together reach Android in their order.
+  Future<void> _last = Future.value();
+
   @override
   Future<void> show(
     MediaState state, {
     required String title,
     String text = '',
+  }) => _last = _last.then((_) => _show(state, title: title, text: text));
+
+  Future<void> _show(
+    MediaState state, {
+    required String title,
+    required String text,
   }) async {
     if (!_supported) return;
     try {
@@ -82,6 +92,12 @@ class MediaNotificationAudio implements BackgroundAudio {
       final handler = await _start();
       if (state == MediaState.off) {
         await handler.hide();
+        // Android may still be taking the service out of the foreground
+        // when audio_service removes the notification, and then keeps it,
+        // with a pause button that does nothing: removed again a moment
+        // later.
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+        await _channel.invokeMethod<void>('cancel');
       } else {
         handler.show(
           playing: state == MediaState.playing,
