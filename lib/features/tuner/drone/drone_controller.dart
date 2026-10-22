@@ -135,6 +135,10 @@ class DroneController extends ChangeNotifier {
   /// what it plays has changed; false when only the tempo did, and it
   /// carries on from where it was.
   var _fromTheTop = true;
+
+  /// True when the next piano loop, carrying on, must come in on the next
+  /// beat: a new note or chord, struck as the old one would have been.
+  var _onTheBeat = false;
   double _a4 = 440;
   var _disposed = false;
 
@@ -363,7 +367,7 @@ class DroneController extends ChangeNotifier {
     _update(
       () => _note = Note(pitchClass, rootOctave),
       restart: true,
-      carryOn: _keepsTheBeat,
+      onTheBeat: _keepsTheBeat,
     );
   }
 
@@ -377,7 +381,7 @@ class DroneController extends ChangeNotifier {
 
   void setChord(ChordQuality chord) {
     if (chord == _chord) return;
-    _update(() => _chord = chord, carryOn: _keepsTheBeat);
+    _update(() => _chord = chord, onTheBeat: _keepsTheBeat);
   }
 
   void setProgression(Progression progression) {
@@ -396,15 +400,18 @@ class DroneController extends ChangeNotifier {
   }
 
   /// Applies [change]; with [restart], a progression starts again from its
-  /// first chord.
+  /// first chord. With [carryOn] the piano carries on from where it is; with
+  /// [onTheBeat] too, but the new chord comes in on its next beat.
   void _update(
     VoidCallback change, {
     bool restart = false,
     bool carryOn = false,
+    bool onTheBeat = false,
   }) {
     change();
     if (restart) _step = 0;
-    if (!carryOn) _fromTheTop = true;
+    if (onTheBeat) _onTheBeat = true;
+    if (!carryOn && !onTheBeat) _fromTheTop = true;
     _notify();
     if (!_playing) return;
     _prepareProgression();
@@ -578,7 +585,9 @@ class DroneController extends ChangeNotifier {
       await _output.stop();
     }
     final fromTheTop = _fromTheTop;
+    final onTheBeat = _onTheBeat;
     _fromTheTop = false;
+    _onTheBeat = false;
     final chords = _pianoChords;
     final bpm = _lastBpm = _clock.bpm;
     final signature = _lastSignature = _clock.signature;
@@ -592,6 +601,7 @@ class DroneController extends ChangeNotifier {
       a4: _a4,
       volume: _volume,
       startAt: fromTheTop ? Duration.zero : null,
+      onTheBeat: onTheBeat,
     );
     if (!_playing || _disposed) return;
     final bar = _clock.barLength;

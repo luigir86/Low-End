@@ -32,6 +32,10 @@ class BarLoopPlayer {
   /// the other without a jump. Zero for the clicks, which are short.
   final Duration crossfade;
 
+  /// How long before a pulse the old loop gives way to the new one (see
+  /// [play]): enough for no click, short enough to be heard as the beat.
+  static const _switchLead = Duration(milliseconds: 10);
+
   AudioSource? _source;
   SoundHandle? _handle;
   Duration _length = Duration.zero;
@@ -61,11 +65,16 @@ class BarLoopPlayer {
   /// [tailFor], when a new loop replaces one from its start, gives what the
   /// old loop sounds like let go at a place in it (see [stop]); it plays
   /// from the moment the old one stops.
+  ///
+  /// [onPulse], for a loop that carries on, is the length of its pulse: the
+  /// old loop then plays to its next pulse and gives way there, so that a
+  /// new chord is struck on the beat instead of fading in between two.
   Future<LoopStart> play(
     Uint8List wav,
     Duration bar, {
     Duration? startAt,
     Duration preRoll = Duration.zero,
+    Duration? onPulse,
     Uint8List Function(Duration position)? tailFor,
   }) async {
     await ensureSoLoud();
@@ -140,16 +149,33 @@ class BarLoopPlayer {
         // Without its tail the old loop is simply cut, as it used to be.
       }
     }
-    final fade = carryOn && crossfade > Duration.zero;
+    // A new chord carrying on: the engine time at which the old loop gives
+    // way, just before the next pulse, the new one then sounding whole.
+    Duration? switchAt;
+    if (carryOn && onPulse != null && onPulse > Duration.zero) {
+      var wait =
+          onPulse -
+          Duration(
+            microseconds: position.inMicroseconds % onPulse.inMicroseconds,
+          );
+      while (wait < _switchLead + const Duration(milliseconds: 50)) {
+        wait += onPulse;
+      }
+      switchAt = _soloud.getEngineTime() + wait - _switchLead;
+    }
+    final fade = carryOn && crossfade > Duration.zero && switchAt == null;
     if (wait == null) {
       handle = _soloud.play(
         source,
         paused: true,
         looping: true,
-        volume: fade ? 0 : _volume,
+        volume: fade || switchAt != null ? 0 : _volume,
       );
       if (seekTo > Duration.zero) _soloud.seek(handle, seekTo);
       _soloud.setPause(handle, false);
+      if (switchAt != null) {
+        _soloud.fadeScheduled(handle, switchAt, _volume, _switchLead);
+      }
       if (fade) _soloud.fadeVolume(handle, _volume, crossfade);
       tail?.playNow(_volume);
     } else {
@@ -172,7 +198,14 @@ class BarLoopPlayer {
     _bar = bar;
     LoopTransport.instance.unregister(name, old);
     LoopTransport.instance.register(name, handle, bar, startsAt: startsAt);
-    if (old != null && startsAt != null) {
+    if (old != null && switchAt != null) {
+      // Both run together, silent the new one, until the pulse.
+      _soloud.fadeScheduled(old, switchAt, 0, _switchLead, thenStop: true);
+      final gone = switchAt - _soloud.getEngineTime() + _switchLead;
+      Future<void>.delayed(gone + const Duration(milliseconds: 100), () {
+        if (oldSource != null) _soloud.disposeSource(oldSource);
+      });
+    } else if (old != null && startsAt != null) {
       // The old loop plays on until the new one comes in, and stops at that
       // very sample, so that the two "ones" do not both sound.
       _soloud.stopScheduled(old, startsAt);

@@ -756,6 +756,8 @@ void main() {
       expect(piano.plays, plays + 1);
       expect(piano.bpm, 100);
       expect(piano.startAt, isNull);
+      // A tempo crosses over at once, not on the next beat.
+      expect(piano.onTheBeat, isFalse);
 
       clock.signature = TimeSignature.sixEight;
       clock.announce();
@@ -772,10 +774,12 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 10));
       expect(piano.chords!.single.first, 50);
       expect(piano.startAt, isNull);
+      expect(piano.onTheBeat, isTrue);
 
       drone.setChord(ChordQuality.minor);
       await Future<void>.delayed(const Duration(milliseconds: 10));
       expect(piano.startAt, isNull);
+      expect(piano.onTheBeat, isTrue);
 
       drone.setStyle(DroneStyle.arpeggio);
       await Future<void>.delayed(const Duration(milliseconds: 10));
@@ -853,6 +857,7 @@ class _SlowPianoOutput extends SilentPianoOutput {
     required double a4,
     required double volume,
     Duration? startAt,
+    bool onTheBeat = false,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 20));
     return super.play(
@@ -863,6 +868,7 @@ class _SlowPianoOutput extends SilentPianoOutput {
       a4: a4,
       volume: volume,
       startAt: startAt,
+      onTheBeat: onTheBeat,
     );
   }
 }
