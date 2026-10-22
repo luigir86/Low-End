@@ -376,8 +376,7 @@ class _StrobeDiscState extends State<_StrobeDisc>
                 // A still marker for players who turned animations off.
                 stillCents: _animate ? null : r?.cents,
                 scale: theme.colorScheme.outline,
-                // Waiting for a note: soft segments with a clear edge.
-                edge: r == null ? theme.colorScheme.outline : null,
+                edge: theme.colorScheme.outline,
               ),
             ),
           ),
@@ -446,7 +445,7 @@ class _DiscPainter extends CustomPainter {
   final Color hub;
   final double? stillCents;
   final Color scale;
-  final Color? edge;
+  final Color edge;
 
   static const _count = 32;
 

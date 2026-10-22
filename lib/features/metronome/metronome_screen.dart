@@ -285,13 +285,11 @@ class _RingPainter extends CustomPainter {
           : DialGeometry.gap / 2 + (closes ? groupGap / 2 : 0);
       // Beat 0 starts at 12 o'clock, then clockwise.
       var color = colors.outlineVariant;
-      var flash = false;
       if (count == 1 && beat != null) {
         // The only segment is always "the beat": it flashes and fades.
         final since = metronome.sinceBeat ?? Duration.zero;
         final t = math.exp(-since.inMicroseconds / 1e6 / _decay(metronome));
         color = Color.lerp(colors.outlineVariant, downbeat, t)!;
-        flash = t > 0.5;
       } else if (b != beat) {
         // Playing, the other beats recede: only the lit one stands out.
         color = beat == null
@@ -321,9 +319,7 @@ class _RingPainter extends CustomPainter {
         startAngle: b * slice + start,
         sweep: slice - start - end,
         color: color,
-        border: (count == 1 ? flash : b == beat || beat != null)
-            ? null
-            : colors.outline,
+        border: colors.outline,
       );
     }
   }
