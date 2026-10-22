@@ -147,7 +147,12 @@ class _Handler extends BaseAudioHandler {
     );
   }
 
-  Future<void> hide() => super.stop();
+  /// Not playing first, so that the service leaves the foreground: Android
+  /// would otherwise keep the notification after the stop.
+  Future<void> hide() {
+    playbackState.add(playbackState.value.copyWith(playing: false));
+    return super.stop();
+  }
 
   @override
   Future<void> play() async => _commands.add(MediaCommand.play);
