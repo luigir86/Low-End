@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/dial.dart';
 import '../widgets/flip_detector.dart';
 import '../widgets/section_float.dart';
+import '../widgets/section_icons.dart';
 import 'app_navigation.dart';
 import 'guide.dart';
 import 'settings_page.dart';
@@ -221,20 +222,17 @@ class _HomeShellState extends State<HomeShell> {
         final entries = [
           (
             section: AppSection.metronome,
-            icon: Icons.timer_outlined,
-            selectedIcon: Icons.timer,
+            glyph: SectionGlyph.metronome,
             label: l10n.metronomeTab,
           ),
           (
             section: AppSection.drone,
-            icon: Icons.graphic_eq,
-            selectedIcon: null,
+            glyph: SectionGlyph.piano,
             label: l10n.harmonyTab,
           ),
           (
             section: AppSection.tuner,
-            icon: Icons.mic_none,
-            selectedIcon: Icons.mic,
+            glyph: SectionGlyph.tuningFork,
             label: l10n.tunerTab,
           ),
         ];
@@ -263,11 +261,11 @@ class _HomeShellState extends State<HomeShell> {
                                   NavigationRailDestination(
                                     icon: _TabIcon(
                                       section: e.section,
-                                      icon: e.icon,
+                                      icon: SectionIcon(e.glyph),
                                     ),
                                     selectedIcon: _TabIcon(
                                       section: e.section,
-                                      icon: e.selectedIcon ?? e.icon,
+                                      icon: SectionIcon(e.glyph, filled: true),
                                     ),
                                     label: FittedBox(
                                       fit: BoxFit.scaleDown,
@@ -297,10 +295,13 @@ class _HomeShellState extends State<HomeShell> {
                   destinations: [
                     for (final e in entries)
                       NavigationDestination(
-                        icon: _TabIcon(section: e.section, icon: e.icon),
+                        icon: _TabIcon(
+                          section: e.section,
+                          icon: SectionIcon(e.glyph),
+                        ),
                         selectedIcon: _TabIcon(
                           section: e.section,
-                          icon: e.selectedIcon ?? e.icon,
+                          icon: SectionIcon(e.glyph, filled: true),
                         ),
                         label: e.label,
                       ),
@@ -319,7 +320,7 @@ class _TabIcon extends StatelessWidget {
   const _TabIcon({required this.section, required this.icon});
 
   final AppSection section;
-  final IconData icon;
+  final Widget icon;
 
   @override
   Widget build(BuildContext context) {
@@ -329,7 +330,7 @@ class _TabIcon extends StatelessWidget {
       AppSection.drone => scope.drone,
       AppSection.tuner => null,
     };
-    if (sound == null) return Icon(icon);
+    if (sound == null) return icon;
     // Only the icon listens: the bar is not built again on every change.
     return ListenableBuilder(
       listenable: sound,
@@ -341,7 +342,7 @@ class _TabIcon extends StatelessWidget {
         };
         return Semantics(
           value: playing ? AppLocalizations.of(context).sectionPlaying : null,
-          child: Badge(isLabelVisible: playing, child: Icon(icon)),
+          child: Badge(isLabelVisible: playing, child: icon),
         );
       },
     );
