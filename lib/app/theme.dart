@@ -38,8 +38,11 @@ class LowEndColors extends ThemeExtension<LowEndColors> {
     required this.inTune,
     required this.close,
     required this.off,
-    required this.strobeBackground,
+    required this.disc,
     required this.downbeat,
+    required this.beatReceded,
+    required this.beatSilent,
+    required this.beatWeak,
   });
 
   /// Within a few cents.
@@ -51,10 +54,23 @@ class LowEndColors extends ThemeExtension<LowEndColors> {
   /// Further off.
   final Color off;
 
-  final Color strobeBackground;
+  /// The disc of every dial: under the beats, the keys and the strobe.
+  final Color disc;
 
   /// The first beat of the bar on the metronome's ring.
   final Color downbeat;
+
+  /// The beats not lit while the metronome plays: they recede into the
+  /// disc, as the harmony's silent notes do.
+  final Color beatReceded;
+
+  /// A beat left silent (1 and 3, with the click on 2 and 4) when it comes
+  /// round: it only glows, so the place in the bar is still seen.
+  final Color beatSilent;
+
+  /// The weak pulses of a group (6/8) when they come round: softer than its
+  /// first.
+  final Color beatWeak;
 
   static LowEndColors of(BuildContext context) =>
       Theme.of(context).extension<LowEndColors>()!;
@@ -64,14 +80,20 @@ class LowEndColors extends ThemeExtension<LowEndColors> {
     Color? inTune,
     Color? close,
     Color? off,
-    Color? strobeBackground,
+    Color? disc,
     Color? downbeat,
+    Color? beatReceded,
+    Color? beatSilent,
+    Color? beatWeak,
   }) => LowEndColors(
     inTune: inTune ?? this.inTune,
     close: close ?? this.close,
     off: off ?? this.off,
-    strobeBackground: strobeBackground ?? this.strobeBackground,
+    disc: disc ?? this.disc,
     downbeat: downbeat ?? this.downbeat,
+    beatReceded: beatReceded ?? this.beatReceded,
+    beatSilent: beatSilent ?? this.beatSilent,
+    beatWeak: beatWeak ?? this.beatWeak,
   );
 
   @override
@@ -81,12 +103,11 @@ class LowEndColors extends ThemeExtension<LowEndColors> {
       inTune: Color.lerp(inTune, other.inTune, t)!,
       close: Color.lerp(close, other.close, t)!,
       off: Color.lerp(off, other.off, t)!,
-      strobeBackground: Color.lerp(
-        strobeBackground,
-        other.strobeBackground,
-        t,
-      )!,
+      disc: Color.lerp(disc, other.disc, t)!,
       downbeat: Color.lerp(downbeat, other.downbeat, t)!,
+      beatReceded: Color.lerp(beatReceded, other.beatReceded, t)!,
+      beatSilent: Color.lerp(beatSilent, other.beatSilent, t)!,
+      beatWeak: Color.lerp(beatWeak, other.beatWeak, t)!,
     );
   }
 }
@@ -105,12 +126,14 @@ abstract final class LowEndTheme {
     // 3 : 1 on the disc (the strobe and the beats are drawn in it too) and
     // 4.5 : 1 under the light ink of the note names.
     final chord = tint(0.58);
+    final disc = tint(0.1);
+    final outline = tint(0.75);
     return _build(
       ColorScheme(
         brightness: Brightness.dark,
         primary: Palette.bronze,
         onPrimary: Palette.walnutDeep,
-        // TAP, the chosen half of a switch and the selected tab's pill.
+        // TAP and the indicator of the selected tab.
         primaryContainer: container,
         onPrimaryContainer: Palette.inkOnDark,
         // The rest of a chord on the circle of fifths, and the beats after
@@ -119,8 +142,6 @@ abstract final class LowEndTheme {
         onSecondary: _readableOn(chord),
         secondaryContainer: container,
         onSecondaryContainer: Palette.inkOnDark,
-        tertiary: Palette.bronze,
-        onTertiary: Palette.walnutDeep,
         error: Palette.off,
         onError: Palette.walnutDeep,
         surface: Palette.ebony,
@@ -136,7 +157,7 @@ abstract final class LowEndTheme {
         surfaceContainerHigh: Palette.ebonyShade2,
         surfaceContainerHighest: Palette.ebonyShade3,
         // Borders: 3 : 1 on the disc.
-        outline: tint(0.75),
+        outline: outline,
         // Keys and beats that are off.
         outlineVariant: tint(0.26),
       ),
@@ -144,10 +165,13 @@ abstract final class LowEndTheme {
         inTune: Palette.inTune,
         close: Palette.close,
         off: Palette.off,
-        strobeBackground: tint(0.1),
+        disc: disc,
         // The "one" is the accent at full strength, drawn thicker; the other
         // beats take the colour of a chord's other notes (secondary).
         downbeat: Palette.bronze,
+        beatReceded: Color.lerp(disc, Palette.ebony, 0.6)!,
+        beatSilent: Color.alphaBlend(outline.withValues(alpha: 0.35), disc),
+        beatWeak: Color.alphaBlend(chord.withValues(alpha: 0.6), disc),
       ),
     );
   }();
@@ -202,7 +226,7 @@ abstract final class LowEndTheme {
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: scheme.surfaceContainer,
         indicatorColor: scheme.primaryContainer,
-        minWidth: 96,
+        minWidth: LowEndShape.railWidth,
         // The rail does not take the app's font by itself.
         selectedLabelTextStyle: TextStyle(
           fontFamily: 'Edwin',
@@ -221,14 +245,8 @@ abstract final class LowEndTheme {
       // The dot on the tab of a section that is playing: the accent, not
       // the red of an error.
       badgeTheme: BadgeThemeData(backgroundColor: scheme.primary),
-      cardTheme: CardThemeData(
-        color: scheme.surfaceContainerLow,
-        surfaceTintColor: Colors.transparent,
-        shape: shape,
-        elevation: 0,
-      ),
       // The menu of every list of choices (`showChoiceMenu`): round corners
-      // like the cards, on the raised surface, with no tint.
+      // like the buttons, on the raised surface, with no tint.
       popupMenuTheme: PopupMenuThemeData(
         color: scheme.surfaceContainerHigh,
         surfaceTintColor: Colors.transparent,
@@ -239,13 +257,27 @@ abstract final class LowEndTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(shape: shape),
       ),
+      // Every outlined button alike: the ink of the text, a border that
+      // reads on the disc, and both dimmed at the end of a range.
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(shape: shape),
+        style:
+            OutlinedButton.styleFrom(
+              shape: shape,
+              foregroundColor: scheme.onSurface,
+              disabledForegroundColor: scheme.onSurface.withValues(alpha: 0.38),
+            ).copyWith(
+              side: WidgetStateProperty.resolveWith(
+                (states) => BorderSide(
+                  color: states.contains(WidgetState.disabled)
+                      ? scheme.outlineVariant
+                      : scheme.outline,
+                ),
+              ),
+            ),
       ),
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: SegmentedButton.styleFrom(
-          // As high as a finger (the harmony's switch under its dial is
-          // taller still, in its own style).
+          // As high as a finger.
           minimumSize: const Size(0, 48),
           selectedBackgroundColor: scheme.primaryContainer,
           selectedForegroundColor: scheme.onPrimaryContainer,
@@ -253,17 +285,6 @@ abstract final class LowEndTheme {
           // that is.
           foregroundColor: scheme.onSurfaceVariant,
         ),
-      ),
-      chipTheme: ChipThemeData(
-        selectedColor: scheme.primary,
-        secondarySelectedColor: scheme.primary,
-        labelStyle: TextStyle(color: scheme.onSurface),
-        secondaryLabelStyle: TextStyle(color: scheme.onPrimary),
-      ),
-      sliderTheme: SliderThemeData(
-        activeTrackColor: scheme.primary,
-        thumbColor: scheme.primary,
-        inactiveTrackColor: scheme.outlineVariant,
       ),
     );
   }

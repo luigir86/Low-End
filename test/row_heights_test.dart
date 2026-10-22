@@ -40,7 +40,7 @@ void main() {
         final heights = {
           for (final finder in [
             find.byType(LabeledField),
-            find.byType(RowChip),
+            find.byType(RowButton),
             find.byKey(const Key('chordMenu')),
             find.byType(FilterChip),
           ])

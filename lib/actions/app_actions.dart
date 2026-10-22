@@ -5,10 +5,13 @@ import '../app/settings.dart';
 import '../audio/pitch.dart';
 import '../features/metronome/metronome_controller.dart';
 import '../features/metronome/subdivision.dart';
+import '../features/metronome/time_signature.dart';
 import '../features/tuner/drone/drone_controller.dart';
+import '../features/tuner/drone/example_song.dart';
 import '../features/tuner/drone/harmony.dart';
 import '../features/tuner/tuner_controller.dart';
 import '../features/tuner/tuner_reading.dart';
+import '../features/tuner/tuner_tuning.dart';
 
 /// One thing the app can do, described so a language model (or any other
 /// program) can find it, call it and understand the answer.
@@ -98,7 +101,9 @@ class AppActions {
           'drone (playing, note, voicing, chord, progression, style, held tone, '
           'current step of a progression); the metronome (playing, '
           'tempo, time signature, subdivision, click on 2 and 4) and the '
-          'settings (reference A, language, note names, transposition). '
+          'settings (reference A, language, note and octave names, the '
+          "tuner's instrument, in-tune zone and transposition, the circle, "
+          'screen on, locked gestures). '
           '"playing" is true as soon as a start is asked, also while the '
           "sound waits for the other one's next bar line. Notes are always "
           'written with letters and octave (Bb4), whatever the note names '
@@ -162,12 +167,11 @@ class AppActions {
       name: 'metronome_start',
       description:
           'Opens the metronome (so the tuner, if listening, stops listening) '
-          'and starts it, in its current time signature, at the tempo given '
-          'or the current one; subdivision and backbeat given are applied '
-          'first. If it is already playing, only the settings change. If '
-          "Harmony is playing, the click comes in on the piano's next bar "
-          'line, after a countdown. The time signature cannot be changed by '
-          'actions.',
+          'and starts it, at the tempo given or the current one; the time '
+          'signature, subdivision and backbeat given are applied first. If '
+          'it is already playing, only the settings change. If Harmony is '
+          "playing, the click comes in on the piano's next bar line, after a "
+          'countdown.',
       parameters: _metronomeParameters,
     ),
     const AppAction(
@@ -179,9 +183,10 @@ class AppActions {
     const AppAction(
       name: 'metronome_set',
       description:
-          'Changes the tempo, what sounds inside each beat or the click on 2 '
-          'and 4, without starting, stopping or changing section. Give at '
-          'least one. The settings are remembered for the next launch.',
+          'Changes the time signature, the tempo, what sounds inside each '
+          'beat or the click on 2 and 4, without starting, stopping or '
+          'changing section. Give at least one. The settings are remembered '
+          'for the next launch.',
       parameters: _metronomeParameters,
     ),
     const AppAction(
@@ -210,9 +215,11 @@ class AppActions {
       name: 'settings_set',
       description:
           'Changes and saves the app settings (give any of them): the '
-          'language of the app, how note names are written, and the key of '
-          'a transposing instrument for the chromatic tuner. All the values '
-          'are checked first: if one is wrong, none is applied.',
+          'language, how note names and octaves are written, the tuner '
+          "(instrument, in-tune zone, the key of a transposing instrument), "
+          'the Harmony circle, keeping the screen on and locking the swipes '
+          'between sections. All the values are checked first: if one is '
+          'wrong, none is applied.',
       parameters: {
         'transposition': {
           'type': 'string',
@@ -231,15 +238,71 @@ class AppActions {
           'type': 'string',
           'enum': ['auto', 'solfege', 'letters'],
           'description':
-              '"solfege" is Do Re Mi with Italian octave numbers (La3 = 440 '
-              'Hz), "letters" is C D E (A4 = 440 Hz), "auto" follows the '
-              'app language.',
+              '"solfege" is Do Re Mi, "letters" is C D E, "auto" follows the '
+              'app language. The octave numbers are set apart, with '
+              'octave_numbering.',
+        },
+        'octave_numbering': {
+          'type': 'string',
+          'enum': ['scientific', 'italian'],
+          'description':
+              'How octaves are numbered on screen: scientific (A4 = 440 Hz, '
+              'the low E of a bass is E1) or italian (La3 = 440 Hz, Mi0).',
+        },
+        'tuner_instrument': {
+          'type': 'string',
+          'enum': [
+            'chromatic',
+            'guitar',
+            'bass',
+            'ukulele',
+            'violin',
+            'viola',
+            'cello',
+          ],
+          'description':
+              'What the tuner tunes: any note (chromatic), or the open '
+              'strings of an instrument, shown with their string number. '
+              'Bass listens up to 700 Hz, the others up to 2800 Hz.',
+        },
+        'in_tune_cents': {
+          'type': 'number',
+          'enum': [2, 5, 10],
+          'description':
+              'How close a note must be, in cents either way, to count as '
+              'in tune.',
+        },
+        'circle_layout': {
+          'type': 'string',
+          'enum': ['fifths', 'chromatic'],
+          'description':
+              'How the twelve notes are laid round the Harmony dial: by '
+              'fifths, or in semitones as on the fingerboard.',
+        },
+        'keep_screen_on': {
+          'type': 'boolean',
+          'description':
+              'Keeps the screen on while something plays or the tuner '
+              'listens.',
+        },
+        'lock_gestures': {
+          'type': 'boolean',
+          'description':
+              'Turns off swiping between sections (the tabs and the actions '
+              'still work).',
         },
       },
     ),
   ];
 
   static const _metronomeParameters = {
+    'time_signature': {
+      'type': 'string',
+      'enum': ['1/1', '2/4', '3/4', '4/4', '5/4', '6/8', '7/8', '9/8', '12/8'],
+      'description':
+          'The bar, with its beats grouped as counted (5/4 as 3+2, 7/8 as '
+          '2+2+3). Applied before bpm, which is checked against it.',
+    },
     'bpm': {
       'type': 'integer',
       'minimum': MetronomeController.minBpm,
@@ -335,6 +398,30 @@ class AppActions {
           'true for a steady tone instead of the piano struck again and '
           'again (the style then does not apply); false for the piano.',
     },
+    'flat': {
+      'type': 'boolean',
+      'description':
+          'Writes the note, if it is C# or F#, as Db or Gb (true) or back '
+          '(false), on the dial and in the chord names. The sound is the '
+          'same.',
+    },
+    'song': {
+      'type': 'string',
+      'enum': [
+        'Autumn Leaves',
+        'Blue Bossa',
+        'Twist and Shout',
+        'Stand by Me',
+        'Sweet Home Chicago',
+        'Let It Be',
+        'Hit the Road Jack',
+      ],
+      'description':
+          'An example song: sets its key, its progression and its tempo '
+          '(the metronome goes to 4/4 at that tempo), as touching it in the '
+          'list of example songs does. A note or progression given too is '
+          'applied after it.',
+    },
   };
 
   /// Actions that change the saved settings. A `lowend://` link is open to
@@ -410,7 +497,8 @@ class AppActions {
       case 'metronome_set':
         if (args.values.every((v) => v == null)) {
           throw ActionError(
-            '"metronome_set" needs "bpm", "subdivision" or "backbeat".',
+            '"metronome_set" needs "time_signature", "bpm", "subdivision" '
+            'or "backbeat".',
           );
         }
         _metronomeChange(args)();
@@ -439,16 +527,52 @@ class AppActions {
         final transposition = args['transposition'] == null
             ? null
             : _enum(Transposition.values, args['transposition']);
+        final numbering = args['octave_numbering'] == null
+            ? null
+            : _enum(OctaveNumbering.values, args['octave_numbering']);
+        final instrument = args['tuner_instrument'] == null
+            ? null
+            : _enum(TunerTuning.values, args['tuner_instrument']);
+        final inTune = switch (args['in_tune_cents']) {
+          null => null,
+          final num c when AppSettings.inTuneChoices.contains(c.toDouble()) =>
+            c.toDouble(),
+          _ => throw ActionError('"in_tune_cents" must be 2, 5 or 10.'),
+        };
+        final layout = args['circle_layout'] == null
+            ? null
+            : _enum(CircleLayout.values, args['circle_layout']);
+        final screenOn = _bool(args, 'keep_screen_on');
+        final locked = _bool(args, 'lock_gestures');
         if (language != null) settings.setLanguage(code);
         if (naming != null) settings.setNaming(naming);
         if (transposition != null) settings.setTransposition(transposition);
+        if (numbering != null) settings.setOctaveNumbering(numbering);
+        if (instrument == TunerTuning.chromatic) {
+          settings.setTunerChromatic(true);
+        } else if (instrument != null) {
+          settings.setTunerInstrument(instrument);
+        }
+        if (inTune != null) settings.setInTuneCents(inTune);
+        if (layout != null) settings.setCircleLayout(layout);
+        if (screenOn != null) settings.setKeepScreenOn(screenOn);
+        if (locked != null) settings.setGesturesLocked(locked);
     }
   }
 
   /// Checks the metronome arguments and returns the change they ask for,
   /// to be made only once all of them are known to be good.
   void Function() _metronomeChange(Map<String, Object?> args) {
-    final bpm = _bpm(args);
+    final signature = switch (args['time_signature']) {
+      null => null,
+      final Object label =>
+        TimeSignature.all.where((s) => s.label == label).firstOrNull ??
+            (throw ActionError(
+              '"time_signature" must be one of '
+              '${TimeSignature.all.map((s) => s.label).join(', ')}.',
+            )),
+    };
+    final bpm = _bpm(args, signature ?? metronome.signature);
     final subdivision = switch (args['subdivision']) {
       null => null,
       final Object name =>
@@ -464,6 +588,7 @@ class AppActions {
       _ => throw ActionError('"backbeat" must be true or false.'),
     };
     return () {
+      if (signature != null) metronome.setSignature(signature);
       if (bpm != null) metronome.setBpm(bpm);
       if (subdivision != null) metronome.setSubdivision(subdivision);
       if (backbeat != null) metronome.setBackbeat(backbeat);
@@ -491,27 +616,58 @@ class AppActions {
     final style = args['style'] == null
         ? null
         : _enum(DroneStyle.values, args['style']);
-    final heldTone = switch (args['held_tone']) {
+    final heldTone = _bool(args, 'held_tone');
+    final flat = _bool(args, 'flat');
+    final song = switch (args['song']) {
       null => null,
-      final bool b => b,
-      _ => throw ActionError('"held_tone" must be true or false.'),
+      final Object title =>
+        exampleSongs.where((s) => s.title == title).firstOrNull ??
+            (throw ActionError(
+              '"song" must be one of '
+              '${exampleSongs.map((s) => s.title).join(', ')}.',
+            )),
     };
     return () {
+      if (song != null) {
+        applySong(song, drone: drone, metronome: metronome);
+      }
       if (pitchClass != null) drone.setPitchClass(pitchClass);
       if (voicing != null) drone.setVoicing(voicing);
       if (chord != null) drone.setChord(chord);
       if (progression != null) drone.setProgression(progression);
       if (style != null) drone.setStyle(style);
       if (heldTone != null) drone.setContinuous(heldTone);
+      final key = drone.note.pitchClass;
+      if (flat != null && flat != drone.spelledFlat(key)) {
+        drone.toggleSpelling(key);
+      }
     };
   }
+
+  /// The boolean argument [key], or null when not given.
+  static bool? _bool(Map<String, Object?> args, String key) =>
+      switch (args[key]) {
+        null => null,
+        final bool b => b,
+        _ => throw ActionError('"$key" must be true or false.'),
+      };
 
   /// Everything an assistant needs to know about the app right now.
   Map<String, Object?> state() {
     final hz = tuner.frequency;
     final reading = hz == null
         ? null
-        : TunerReading.of(hz, a4: settings.a4, tolerance: settings.inTuneCents);
+        : TunerReading.of(
+            hz,
+            a4: settings.a4,
+            tolerance: settings.inTuneCents,
+            tuning: settings.tuning,
+          );
+    // As on screen: a transposing instrument reads its own notes only in the
+    // chromatic tuner; the strings of the instruments sound as written.
+    final transposition = settings.tuning.isChromatic
+        ? settings.transposition
+        : Transposition.c;
     return {
       'section': navigation.section.name,
       'settings': {
@@ -519,6 +675,12 @@ class AppActions {
         'language': settings.languageCode ?? 'system',
         'note_names': settings.naming.name,
         'transposition': settings.transposition.name,
+        'octave_numbering': settings.octaveNumbering.name,
+        'tuner_instrument': settings.tuning.name,
+        'in_tune_cents': settings.inTuneCents,
+        'circle_layout': settings.circleLayout.name,
+        'keep_screen_on': settings.keepScreenOn,
+        'lock_gestures': settings.gesturesLocked,
       },
       'tuner': {
         'status': tuner.status.name,
@@ -529,9 +691,7 @@ class AppActions {
                 'played': noteId(reading.played),
                 // What a transposing instrument reads, in the chromatic
                 // tuner (see settings.transposition).
-                'written': noteId(
-                  settings.transposition.written(reading.target),
-                ),
+                'written': noteId(transposition.written(reading.target)),
                 'frequency_hz': _round(reading.frequency),
                 'cents': _round(reading.cents),
                 'in_tune': reading.inTune,
@@ -546,6 +706,7 @@ class AppActions {
         'progression': drone.progression.name,
         'style': drone.style.name,
         'held_tone': drone.continuous,
+        'flat': drone.spelledFlat(drone.note.pitchClass),
         'progression_step': drone.voicing == DroneVoicing.progression
             ? drone.step
             : null,
@@ -595,19 +756,19 @@ class AppActions {
         '"$name" must be one of ${values.map((v) => v.name).join(', ')}.',
       ));
 
-  /// The `bpm` argument, checked against the current time signature, or
-  /// null when not given.
-  int? _bpm(Map<String, Object?> args) {
+  /// The `bpm` argument, checked against [signature], or null when not
+  /// given.
+  int? _bpm(Map<String, Object?> args, TimeSignature signature) {
     final v = args['bpm'];
     if (v == null) return null;
     final bpm = _number(v, 'bpm');
-    final max = metronome.maxTempo;
+    final max = MetronomeController.maxBpmFor(signature);
     if (bpm != bpm.roundToDouble() ||
         bpm < MetronomeController.minBpm ||
         bpm > max) {
       throw ActionError(
         '"bpm" must be a whole number from ${MetronomeController.minBpm} '
-        'to $max in ${metronome.signature.label}.',
+        'to $max in ${signature.label}.',
       );
     }
     return bpm.round();

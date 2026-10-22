@@ -7,6 +7,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../metronome/time_signature.dart';
 import 'drone_controller.dart';
 import 'drone_panel.dart';
+import 'example_song.dart';
 import 'harmony.dart';
 
 /// The key written out: "La maggiore", "C minor", spelled as the key is
@@ -85,7 +86,7 @@ class _KeySheet extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final disc = LowEndColors.of(context).strobeBackground;
+    final disc = LowEndColors.of(context).disc;
     final showsKey = drone.showsKey;
     // Each degree once, in the order of the progression.
     final seen = <String>{};
@@ -174,17 +175,6 @@ class _KeySheet extends StatelessWidget {
   }
 }
 
-/// Sets the key, the progression and the tempo of [song] and shows them.
-void applySong(AudioScope scope, ExampleSong song) {
-  scope.drone
-    ..setPitchClass(song.pitchClass)
-    ..setProgression(song.progression)
-    ..setVoicing(DroneVoicing.progression);
-  scope.metronome
-    ..setSignature(TimeSignature.fourFour)
-    ..setBpm(song.bpm);
-}
-
 /// The list of example songs; choosing one applies it and closes the list.
 Future<void> showSongsSheet(BuildContext context) {
   final scope = AudioScope.of(context);
@@ -227,7 +217,11 @@ Future<void> showSongsSheet(BuildContext context) {
                     '${BeatUnit.quarter.symbol} = ${song.bpm}',
                   ),
                   onTap: () {
-                    applySong(scope, song);
+                    applySong(
+                      song,
+                      drone: scope.drone,
+                      metronome: scope.metronome,
+                    );
                     Navigator.of(sheet).pop();
                   },
                 ),

@@ -36,14 +36,14 @@ class ReferencePitchRow extends StatelessWidget {
                 onTap: () => _choose(context),
               ),
             ),
-            const SizedBox(width: 6),
-            RowChip(
+            const SizedBox(width: rowGap),
+            RowButton(
               label: const Icon(Icons.remove, size: 24),
               tooltip: l10n.lowerPitch,
               onPressed: a4 > minReferencePitch ? () => step(-1) : null,
             ),
-            const SizedBox(width: 4),
-            RowChip(
+            const SizedBox(width: rowGap),
+            RowButton(
               label: const Icon(Icons.add, size: 24),
               tooltip: l10n.higherPitch,
               onPressed: a4 < maxReferencePitch ? () => step(1) : null,

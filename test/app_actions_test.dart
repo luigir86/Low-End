@@ -13,6 +13,18 @@ import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
 import 'package:low_end/features/tuner/tuner_controller.dart';
+import 'package:low_end/features/tuner/tuner_tuning.dart';
+import 'package:low_end/features/tuner/drone/harmony.dart';
+import 'package:low_end/audio/pitch.dart';
+
+import 'dart:math' as math;
+import 'dart:typed_data';
+
+/// [samples] of a sine at [hz], at 16 kHz, loud enough to be heard.
+Float64List sine(double hz, int samples) => Float64List.fromList([
+  for (var i = 0; i < samples; i++)
+    0.5 * math.sin(2 * math.pi * hz * i / 16000),
+]);
 
 void main() {
   late SilentToneOutput output;
@@ -116,10 +128,101 @@ void main() {
       'language': 'it',
       'note_names': 'letters',
       'transposition': 'c',
+      'octave_numbering': 'scientific',
+      'tuner_instrument': 'chromatic',
+      'in_tune_cents': 5.0,
+      'circle_layout': 'fifths',
+      'keep_screen_on': true,
+      'lock_gestures': false,
     });
     expect(settings.a4, 438);
     await actions.call('settings_set', {'language': 'system'});
     expect(settings.languageCode, isNull);
+  });
+
+  test('every setting on the settings page is an action too', () async {
+    final result = await actions.call('settings_set', {
+      'octave_numbering': 'italian',
+      'tuner_instrument': 'violin',
+      'in_tune_cents': 2,
+      'circle_layout': 'chromatic',
+      'keep_screen_on': false,
+      'lock_gestures': true,
+    });
+    expect(result['ok'], true);
+    expect(settings.octaveNumbering, OctaveNumbering.italian);
+    expect(settings.tuning, TunerTuning.violin);
+    expect(settings.inTuneCents, 2);
+    expect(settings.circleLayout, CircleLayout.chromatic);
+    expect(settings.keepScreenOn, isFalse);
+    expect(settings.gesturesLocked, isTrue);
+    await actions.call('settings_set', {'tuner_instrument': 'chromatic'});
+    expect(settings.tuning, TunerTuning.chromatic);
+    // One wrong value and nothing changes.
+    final refused = await actions.call('settings_set', {
+      'in_tune_cents': 3,
+      'circle_layout': 'fifths',
+    });
+    expect(refused['ok'], false);
+    expect(settings.circleLayout, CircleLayout.chromatic);
+  });
+
+  test('the tuner state reads the strings of the instrument chosen', () async {
+    settings.setTunerInstrument(TunerTuning.bass);
+    settings.setTransposition(Transposition.bFlat);
+    await actions.call('tuner_start');
+    // A low E a little flat: the bass's fourth string.
+    mic.add(sine(40.8, 16000 * 2));
+    final state = (await actions.call('get_state'))['state']! as Map;
+    final reading = (state['tuner'] as Map)['reading'] as Map;
+    expect(reading['target'], 'E1');
+    // The strings sound as written: no transposition outside the chromatic.
+    expect(reading['written'], 'E1');
+  });
+
+  test('an example song and the spelling of the key are actions', () async {
+    var result = await actions.call('drone_set', {'song': 'Blue Bossa'});
+    expect(result['ok'], true);
+    expect(actions.drone.voicing, DroneVoicing.progression);
+    expect(actions.drone.note.pitchClass, 0);
+    expect(actions.metronome.bpm, 140);
+    expect(
+      (await actions.call('drone_set', {'song': 'Yesterday'}))['ok'],
+      false,
+    );
+    result = await actions.call('drone_set', {'note': 'F#', 'flat': true});
+    expect(actions.drone.spelledFlat(6), isTrue);
+    expect(((result['state']! as Map)['drone'] as Map)['flat'], true);
+    await actions.call('drone_set', {'flat': false});
+    expect(actions.drone.spelledFlat(6), isFalse);
+  });
+
+  test('the time signature is an action, checked with the tempo', () async {
+    var result = await actions.call('metronome_set', {
+      'time_signature': '7/8',
+      'bpm': 300,
+    });
+    expect(result['ok'], true);
+    expect(actions.metronome.signature.label, '7/8');
+    expect(actions.metronome.bpm, 300);
+    // 300 is too fast for quarter notes: refused, and nothing changes.
+    result = await actions.call('metronome_set', {
+      'time_signature': '4/4',
+      'bpm': 300,
+    });
+    expect(result['ok'], false);
+    expect(actions.metronome.signature.label, '7/8');
+    expect(
+      (await actions.call('metronome_set', {'time_signature': '4/3'}))['ok'],
+      false,
+    );
+  });
+
+  test('the song list of the actions is the list on screen', () {
+    final action = AppActions.catalog.firstWhere((a) => a.name == 'drone_set');
+    expect((action.parameters['song']! as Map)['enum'], [
+      for (final s in exampleSongs) s.title,
+    ]);
   });
 
   test('starting the tuner shows it, leaving it turns the mic off', () async {

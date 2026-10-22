@@ -12,6 +12,7 @@ import '../widgets/section_icons.dart';
 import 'app_navigation.dart';
 import 'guide.dart';
 import 'settings_page.dart';
+import 'style.dart';
 import 'theme.dart';
 
 /// Main screen with bottom navigation between the app's sections.
@@ -120,7 +121,7 @@ class _HomeShellState extends State<HomeShell> {
   }
 
   /// A tap on a tab goes to its section; what plays is started and stopped
-  /// from the section itself (the middle of its dial, the pill under it).
+  /// from the section itself (the middle of its dial).
   void _onDestination(int i) =>
       AudioScope.of(context).navigation.open(AppSection.values[i]);
 
@@ -162,7 +163,7 @@ class _HomeShellState extends State<HomeShell> {
                 pages: _pages,
                 scrolls: _scrolls,
                 landscape: landscape,
-                disc: LowEndColors.of(context).strobeBackground,
+                disc: LowEndColors.of(context).disc,
                 hub: Theme.of(context).colorScheme.surface,
               ),
             ),
@@ -247,9 +248,8 @@ class _HomeShellState extends State<HomeShell> {
                   ? Row(
                       children: [
                         FlipDetector(
-                          // 96 dp however long the names: they shrink to fit.
                           child: SizedBox(
-                            width: 96,
+                            width: LowEndShape.railWidth,
                             child: NavigationRail(
                               key: const Key('tabRail'),
                               selectedIndex: section.index,
@@ -283,7 +283,7 @@ class _HomeShellState extends State<HomeShell> {
             ),
           ),
           // The tabs only go to a section; each one starts and stops its own
-          // sound (the middle of the dial, the pill under it).
+          // sound (the middle of the dial).
           bottomNavigationBar: landscape
               ? null
               : NavigationBar(

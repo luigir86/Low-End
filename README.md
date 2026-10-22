@@ -58,7 +58,7 @@ To the **Power Flower Orchestra of Fossano**, who inspired this app and put it t
 
 Nothing here is promised.
 
-- Metronome: more time signatures, a tempo trainer, latency compensation.
+- Metronome: more time signatures, a tempo trainer.
 - Harmony: more progressions and chords, just intonation.
 - More languages (Spanish, German, French, Portuguese, Japanese).
 - A PDF library for sheet music, set lists and annotations, and later PDF to MusicXML and MIDI playback.
@@ -107,7 +107,7 @@ Send the `arm64-v8a` file: it fits almost every phone from the last ten years. T
 
 ### Google Play
 
-`flutter build appbundle --release` makes the bundle for the store. It is signed with the upload key named in `android/key.properties` (git-ignored); without that file the build falls back to the debug key, which the store rejects. The listing texts, graphics and the console checklist are in [store/](store/README.md).
+`flutter build appbundle --release` makes the bundle for the store. It is signed with the upload key named in `android/key.properties` (git-ignored); without that file a release build stops with an error, so nothing is ever signed with the debug key by mistake. The listing texts, graphics and the console checklist are in [store/](store/README.md).
 
 ## Translations
 

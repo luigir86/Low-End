@@ -139,9 +139,13 @@ class PianoLibrary {
       data.lengthInBytes,
     );
     final samples = await _decode(flac, flacFrames(flac));
-    return Int16List.fromList([
-      for (final v in samples) (v * 32768).round().clamp(-32768, 32767),
-    ]);
+    // Straight into the 16-bit list: a channel is up to half a million
+    // samples, converted on the screen's thread.
+    final out = Int16List(samples.length);
+    for (var i = 0; i < samples.length; i++) {
+      out[i] = (samples[i] * 32768).round().clamp(-32768, 32767);
+    }
+    return out;
   }
 
   /// The number of samples in a FLAC file, from its header (the 36 bits

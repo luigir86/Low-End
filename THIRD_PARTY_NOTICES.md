@@ -41,7 +41,7 @@ The Android build also contains AndroidX, Kotlin (`kotlin-stdlib`, `kotlinx-coro
 
 ## Sounds and images
 
-- **Piano notes**: *Salamander Grand Piano V3* by Alexander Holm, released into the **public domain** on 4 March 2022. Details in [assets/piano/README.md](assets/piano/README.md).
+- **Piano notes**: *Salamander Grand Piano V3* by Alexander Holm, released into the **public domain** on 4 March 2022. Details in [tool/piano_samples.md](tool/piano_samples.md).
 - **Material Icons** (Flutter's built-in icon font): Apache-2.0.
 - **Fonts**, both under the **SIL Open Font License 1.1**, bundled in `assets/fonts/` with their licences (`OFL-Edwin.txt`, `OFL-NotoMusic.txt`) and used unmodified: *Edwin* by MuseScore (all the text, with the ♭ and ♯ signs; regular and bold) and *Noto Music* by the Noto Project Authors (only the ♩ sign, which Edwin lacks). The earlier Barlow fonts were removed because Edwin already covers every other character the app writes.
 

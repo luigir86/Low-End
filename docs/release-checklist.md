@@ -5,7 +5,7 @@ marks anything that cannot be confirmed from the code.
 
 ## 1. Version and build
 
-- [ ] `pubspec.yaml`: `version: 1.1.0+2` (name `1.1.0`, versionCode `2`).
+- [ ] `pubspec.yaml`: `version: 1.2.0+3` (name `1.2.0`, versionCode `3`).
       1.0.0+1 is in the closed test since 2026-10-19. The number after `+`
       must grow with every upload to Play.
 - [ ] Target SDK: `flutter.targetSdkVersion` (36 with the current Flutter
@@ -22,8 +22,9 @@ marks anything that cannot be confirmed from the code.
 
 - [ ] `android/app/build.gradle.kts` reads `android/key.properties`
       (git-ignored: `storeFile`, `storePassword`, `keyAlias`, `keyPassword`).
-      With the file the release build is signed with that key; **without it the
-      build silently falls back to the debug key**, which Play rejects.
+      With the file the release build is signed with that key; without it a
+      release build stops with an error (`build.gradle.kts`), so nothing is
+      signed with the debug key by mistake.
 - [ ] In a git worktree `key.properties` is not present: copy it from the main
       checkout before building the AAB.
 - [ ] TO VERIFY: the keystore (and its passwords) is backed up outside this PC

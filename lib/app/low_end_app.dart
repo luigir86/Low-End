@@ -191,12 +191,17 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
   }
 
   /// Stops whatever sounds, with a notice that says why and a button to play
-  /// it again.
+  /// it again. Headphones pulled out pause it as a music player does: the
+  /// notification stays, paused, with its play button.
   void _pauseFor(_Pause why) {
     final drone = _drone.isPlaying, metronome = _metronome.isPlaying;
     if (!drone && !metronome) return;
-    if (drone) _drone.stop();
-    if (metronome) _metronome.stop();
+    if (why == _Pause.unplugged) {
+      _pauseInNotification();
+    } else {
+      if (drone) _drone.stop();
+      if (metronome) _metronome.stop();
+    }
     final l10n = _notificationTexts();
     _messenger.currentState
       ?..hideCurrentSnackBar()
@@ -303,15 +308,7 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     switch (command) {
       case MediaCommand.pause:
         if (!_drone.isPlaying && !_metronome.isPlaying) return;
-        _heldDrone = _drone.isPlaying;
-        _heldMetronome = _metronome.isPlaying;
-        _pausedFromNotification = true;
-        _stoppingFromNotification = true;
-        _drone.stop();
-        _metronome.stop();
-        _stoppingFromNotification = false;
-        // Shows the paused notification, whatever the stops showed.
-        _onPlayingChanged();
+        _pauseInNotification();
       case MediaCommand.play:
         if (!_pausedFromNotification) return;
         if (_heldDrone) _drone.start();
@@ -323,6 +320,20 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
         // Nothing was playing when paused: the notification must go anyway.
         _onPlayingChanged();
     }
+  }
+
+  /// Stops what plays and keeps the notification, paused, to play it again
+  /// from there: its pause button, or the headphones pulled out.
+  void _pauseInNotification() {
+    _heldDrone = _drone.isPlaying;
+    _heldMetronome = _metronome.isPlaying;
+    _pausedFromNotification = true;
+    _stoppingFromNotification = true;
+    _drone.stop();
+    _metronome.stop();
+    _stoppingFromNotification = false;
+    // Shows the paused notification, whatever the stops showed.
+    _onPlayingChanged();
   }
 
   Locale _locale() =>

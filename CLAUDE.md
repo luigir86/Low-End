@@ -34,7 +34,7 @@ flutter test test/app_actions_test.dart --update-goldens   # regenerates docs/ll
 ## Known traps
 
 - Files use CRLF on this Windows setup (`core.autocrlf=true`): edit tools that match multi-line text may fail; the actions golden test tolerates CRLF.
-- The repo lives in OneDrive: syncing can lock files in `build/` or `.dart_tool/`; retry or pause sync if a build fails on file access.
+- The working clone on the PC is `C:\Users\ribal\Projects\LowEnd`, outside OneDrive; the old copies under OneDrive are obsolete. The upload key lives outside the repository (see `android/key.properties`): never move or delete it.
 - `lib/l10n/app_localizations*.dart` are generated: change the `.arb` and run `flutter gen-l10n`, never edit them by hand.
 - Python is not installed; use Dart or shell for scripts. Flutter is in `C:\src\flutter\bin`.
 - Work in the worktree/branch you were given; do not stash or reset.

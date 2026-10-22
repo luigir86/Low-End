@@ -48,16 +48,10 @@ void main() {
     // The notes of a chord on the circle of fifths.
     expect(contrast(c.onSecondary, c.secondary), greaterThanOrEqualTo(4.5));
     expect(contrast(c.outline, c.surface), greaterThanOrEqualTo(3));
-    expect(
-      contrast(c.outline, extra.strobeBackground),
-      greaterThanOrEqualTo(3),
-    );
-    expect(
-      contrast(c.secondary, extra.strobeBackground),
-      greaterThanOrEqualTo(3),
-    );
+    expect(contrast(c.outline, extra.disc), greaterThanOrEqualTo(3));
+    expect(contrast(c.secondary, extra.disc), greaterThanOrEqualTo(3));
     for (final v in [extra.inTune, extra.close, extra.off]) {
-      expect(contrast(v, extra.strobeBackground), greaterThanOrEqualTo(3));
+      expect(contrast(v, extra.disc), greaterThanOrEqualTo(3));
       expect(contrast(v, c.surface), greaterThanOrEqualTo(3));
     }
   });
@@ -72,7 +66,7 @@ void main() {
   });
 
   test('the dial reads at a glance (WCAG 1.4.11)', () {
-    final disc = extra.strobeBackground;
+    final disc = extra.disc;
     // The edge of every segment, on the disc.
     expect(contrast(c.outline, disc), greaterThanOrEqualTo(3));
     // The "one", the accent itself (it also stands out by being wider),

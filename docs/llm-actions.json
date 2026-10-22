@@ -1,7 +1,7 @@
 [
   {
     "name": "get_state",
-    "description": "Returns what the app is doing now, without changing anything: the section on screen (metronome, drone, tuner); the tuner (status idle, starting, listening, permissionDenied or failed, and the last note heard with its cents off); the Harmony section, called drone (playing, note, voicing, chord, progression, style, held tone, current step of a progression); the metronome (playing, tempo, time signature, subdivision, click on 2 and 4) and the settings (reference A, language, note names, transposition). \"playing\" is true as soon as a start is asked, also while the sound waits for the other one's next bar line. Notes are always written with letters and octave (Bb4), whatever the note names setting. Loudness follows the phone's media volume.",
+    "description": "Returns what the app is doing now, without changing anything: the section on screen (metronome, drone, tuner); the tuner (status idle, starting, listening, permissionDenied or failed, and the last note heard with its cents off); the Harmony section, called drone (playing, note, voicing, chord, progression, style, held tone, current step of a progression); the metronome (playing, tempo, time signature, subdivision, click on 2 and 4) and the settings (reference A, language, note and octave names, the tuner's instrument, in-tune zone and transposition, the circle, screen on, locked gestures). \"playing\" is true as soon as a start is asked, also while the sound waits for the other one's next bar line. Notes are always written with letters and octave (Bb4), whatever the note names setting. Loudness follows the phone's media volume.",
     "input_schema": {
       "type": "object",
       "properties": {},
@@ -106,6 +106,23 @@
         "held_tone": {
           "type": "boolean",
           "description": "true for a steady tone instead of the piano struck again and again (the style then does not apply); false for the piano."
+        },
+        "flat": {
+          "type": "boolean",
+          "description": "Writes the note, if it is C# or F#, as Db or Gb (true) or back (false), on the dial and in the chord names. The sound is the same."
+        },
+        "song": {
+          "type": "string",
+          "enum": [
+            "Autumn Leaves",
+            "Blue Bossa",
+            "Twist and Shout",
+            "Stand by Me",
+            "Sweet Home Chicago",
+            "Let It Be",
+            "Hit the Road Jack"
+          ],
+          "description": "An example song: sets its key, its progression and its tempo (the metronome goes to 4/4 at that tempo), as touching it in the list of example songs does. A note or progression given too is applied after it."
         }
       },
       "additionalProperties": false
@@ -122,10 +139,25 @@
   },
   {
     "name": "metronome_start",
-    "description": "Opens the metronome (so the tuner, if listening, stops listening) and starts it, in its current time signature, at the tempo given or the current one; subdivision and backbeat given are applied first. If it is already playing, only the settings change. If Harmony is playing, the click comes in on the piano's next bar line, after a countdown. The time signature cannot be changed by actions.",
+    "description": "Opens the metronome (so the tuner, if listening, stops listening) and starts it, at the tempo given or the current one; the time signature, subdivision and backbeat given are applied first. If it is already playing, only the settings change. If Harmony is playing, the click comes in on the piano's next bar line, after a countdown.",
     "input_schema": {
       "type": "object",
       "properties": {
+        "time_signature": {
+          "type": "string",
+          "enum": [
+            "1/1",
+            "2/4",
+            "3/4",
+            "4/4",
+            "5/4",
+            "6/8",
+            "7/8",
+            "9/8",
+            "12/8"
+          ],
+          "description": "The bar, with its beats grouped as counted (5/4 as 3+2, 7/8 as 2+2+3). Applied before bpm, which is checked against it."
+        },
         "bpm": {
           "type": "integer",
           "minimum": 30,
@@ -163,10 +195,25 @@
   },
   {
     "name": "metronome_set",
-    "description": "Changes the tempo, what sounds inside each beat or the click on 2 and 4, without starting, stopping or changing section. Give at least one. The settings are remembered for the next launch.",
+    "description": "Changes the time signature, the tempo, what sounds inside each beat or the click on 2 and 4, without starting, stopping or changing section. Give at least one. The settings are remembered for the next launch.",
     "input_schema": {
       "type": "object",
       "properties": {
+        "time_signature": {
+          "type": "string",
+          "enum": [
+            "1/1",
+            "2/4",
+            "3/4",
+            "4/4",
+            "5/4",
+            "6/8",
+            "7/8",
+            "9/8",
+            "12/8"
+          ],
+          "description": "The bar, with its beats grouped as counted (5/4 as 3+2, 7/8 as 2+2+3). Applied before bpm, which is checked against it."
+        },
         "bpm": {
           "type": "integer",
           "minimum": 30,
@@ -252,6 +299,23 @@
         "held_tone": {
           "type": "boolean",
           "description": "true for a steady tone instead of the piano struck again and again (the style then does not apply); false for the piano."
+        },
+        "flat": {
+          "type": "boolean",
+          "description": "Writes the note, if it is C# or F#, as Db or Gb (true) or back (false), on the dial and in the chord names. The sound is the same."
+        },
+        "song": {
+          "type": "string",
+          "enum": [
+            "Autumn Leaves",
+            "Blue Bossa",
+            "Twist and Shout",
+            "Stand by Me",
+            "Sweet Home Chicago",
+            "Let It Be",
+            "Hit the Road Jack"
+          ],
+          "description": "An example song: sets its key, its progression and its tempo (the metronome goes to 4/4 at that tempo), as touching it in the list of example songs does. A note or progression given too is applied after it."
         }
       },
       "additionalProperties": false
@@ -278,7 +342,7 @@
   },
   {
     "name": "settings_set",
-    "description": "Changes and saves the app settings (give any of them): the language of the app, how note names are written, and the key of a transposing instrument for the chromatic tuner. All the values are checked first: if one is wrong, none is applied.",
+    "description": "Changes and saves the app settings (give any of them): the language, how note names and octaves are written, the tuner (instrument, in-tune zone, the key of a transposing instrument), the Harmony circle, keeping the screen on and locking the swipes between sections. All the values are checked first: if one is wrong, none is applied.",
     "input_schema": {
       "type": "object",
       "properties": {
@@ -308,7 +372,53 @@
             "solfege",
             "letters"
           ],
-          "description": "\"solfege\" is Do Re Mi with Italian octave numbers (La3 = 440 Hz), \"letters\" is C D E (A4 = 440 Hz), \"auto\" follows the app language."
+          "description": "\"solfege\" is Do Re Mi, \"letters\" is C D E, \"auto\" follows the app language. The octave numbers are set apart, with octave_numbering."
+        },
+        "octave_numbering": {
+          "type": "string",
+          "enum": [
+            "scientific",
+            "italian"
+          ],
+          "description": "How octaves are numbered on screen: scientific (A4 = 440 Hz, the low E of a bass is E1) or italian (La3 = 440 Hz, Mi0)."
+        },
+        "tuner_instrument": {
+          "type": "string",
+          "enum": [
+            "chromatic",
+            "guitar",
+            "bass",
+            "ukulele",
+            "violin",
+            "viola",
+            "cello"
+          ],
+          "description": "What the tuner tunes: any note (chromatic), or the open strings of an instrument, shown with their string number. Bass listens up to 700 Hz, the others up to 2800 Hz."
+        },
+        "in_tune_cents": {
+          "type": "number",
+          "enum": [
+            2,
+            5,
+            10
+          ],
+          "description": "How close a note must be, in cents either way, to count as in tune."
+        },
+        "circle_layout": {
+          "type": "string",
+          "enum": [
+            "fifths",
+            "chromatic"
+          ],
+          "description": "How the twelve notes are laid round the Harmony dial: by fifths, or in semitones as on the fingerboard."
+        },
+        "keep_screen_on": {
+          "type": "boolean",
+          "description": "Keeps the screen on while something plays or the tuner listens."
+        },
+        "lock_gestures": {
+          "type": "boolean",
+          "description": "Turns off swiping between sections (the tabs and the actions still work)."
         }
       },
       "additionalProperties": false
