@@ -46,7 +46,7 @@ Bronze on ebony (full notes in [tema-bronzo.md](tema-bronzo.md)): always dark, n
 | --- | --- |
 | Surface, text, muted text | ebony `ebony`, `inkOnDark`, `inkOnDarkMuted` with a quarter of bronze |
 | Accent (the lit "one", the note sounding on the harmony, the borders) | bronze `#D4A373` |
-| Shades of the accent | the bronze mixed into the ebony: disc 10 %, keys and beats that are off 26 %, the chosen pill and TAP 20 %, the rest of a chord and the metronome's other lit beats 55 % (`secondary`), the tuner's segments 60 % (so the strobe does not outweigh the note), borders 75 %. While the metronome plays, its unlit beats recede into the disc as the harmony's silent notes do |
+| Shades of the accent | the bronze mixed into the ebony: disc 10 %, keys and beats that are off 26 %, the chosen pill and TAP 20 %, the rest of a chord, the metronome's other lit beats and the strobe's outer band 58 % (`secondary`: 3 : 1 on the disc, 4.5 : 1 under the light ink), borders 75 %; the strobe's inner band, the fast one next to the note, is the full bronze. While the metronome plays, its unlit beats recede into the disc as the harmony's silent notes do |
 | The metronome's "one" | the accent at full strength, and wider than the other beats (it fills the ring's margins), so it is told by its shape too |
 | Choices of a switch | the chosen one filled, in ink; the others in the muted ink, never in the accent |
 | Icons on the row of controls | the ink of the text; the bronze is on the borders |

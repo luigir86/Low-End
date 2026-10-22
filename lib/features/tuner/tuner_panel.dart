@@ -348,14 +348,19 @@ class _StrobeDiscState extends State<_StrobeDisc>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final r = widget.reading;
-    // The segments stay the tuner's own colour (silver) whatever the pitch:
-    // the verdict is told by the note, its words and its arrow, and by the
-    // direction the segments turn. Softer than the full silver, and in dark
-    // softer than the borders too, so that the ring, with its many segments,
-    // weighs no more than the other tabs' and the note leads.
-    final segments = r == null || widget.held
+    // The segments keep the same colours whatever the pitch: the verdict is
+    // told by the note, its words and its arrow, and by the direction the
+    // segments turn.
+    final idle = r == null || widget.held;
+    // Hearing a note: the inner band, which turns twice as fast and next to
+    // the note, in the full accent; the outer one in the colour of a chord's
+    // other notes, as on the other dials.
+    final segments = idle
         ? theme.colorScheme.outlineVariant
-        : LowEndColors.of(context).strobeSegments;
+        : theme.colorScheme.secondary;
+    final innerSegments = idle
+        ? theme.colorScheme.outlineVariant
+        : theme.colorScheme.primary;
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -366,6 +371,7 @@ class _StrobeDiscState extends State<_StrobeDisc>
               painter: _DiscPainter(
                 phase: _phase,
                 segments: segments,
+                innerSegments: innerSegments,
                 hub: theme.colorScheme.surface,
                 // A still marker for players who turned animations off.
                 stillCents: _animate ? null : r?.cents,
@@ -425,6 +431,7 @@ class _DiscPainter extends CustomPainter {
   _DiscPainter({
     required this.phase,
     required this.segments,
+    required this.innerSegments,
     required this.hub,
     required this.stillCents,
     required this.scale,
@@ -433,6 +440,9 @@ class _DiscPainter extends CustomPainter {
 
   final ValueNotifier<double> phase;
   final Color segments;
+
+  /// The inner band, which turns twice as fast.
+  final Color innerSegments;
   final Color hub;
   final double? stillCents;
   final Color scale;
@@ -456,7 +466,7 @@ class _DiscPainter extends CustomPainter {
           startAngle: i * step + turn,
           // Narrower than the gaps between them: a lighter ring.
           sweep: step * 0.4,
-          color: segments,
+          color: band == 0 ? segments : innerSegments,
           inner: band == 0 ? split + bandGap / 2 : dial.ringInner,
           outer: band == 0 ? dial.ringOuter : split - bandGap / 2,
           border: edge,
@@ -522,6 +532,7 @@ class _DiscPainter extends CustomPainter {
   @override
   bool shouldRepaint(_DiscPainter old) =>
       old.segments != segments ||
+      old.innerSegments != innerSegments ||
       old.hub != hub ||
       old.stillCents != stillCents ||
       old.scale != scale ||
