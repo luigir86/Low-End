@@ -30,8 +30,10 @@ Future<void> _open(
     ),
   );
   await tester.pumpAndSettle();
+  await tester.tap(find.byKey(const Key('voicingMenu')));
+  await tester.pumpAndSettle();
   await tester.tap(
-    find.text(language == 'en' ? 'Progression' : 'Progressione'),
+    find.text(language == 'en' ? 'Progression' : 'Progressione').last,
   );
   await tester.pumpAndSettle();
 }

@@ -383,6 +383,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tuningInstrument => 'Instrument';
 
   @override
+  String get voicingLabel => 'Mode';
+
+  @override
+  String get voicingChordHint => 'One note or chord, until you stop it';
+
+  @override
+  String get voicingProgressionHint =>
+      'Chords in turn, in time with the metronome';
+
+  @override
   String get tuningChromaticHint => 'Any note, no strings to choose';
 
   @override

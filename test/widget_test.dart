@@ -736,9 +736,9 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Metronome'), findsOneWidget);
       expect(find.text('Harmony'), findsOneWidget);
-      // The time signature field has no title, but a name for screen readers.
+      // The time signature field is named on its border and for screen readers.
       final semantics = tester.ensureSemantics();
-      expect(find.text('Time signature'), findsNothing);
+      expect(find.text('Time signature'), findsOneWidget);
       expect(find.bySemanticsLabel('Time signature'), findsOneWidget);
       semantics.dispose();
       // The tuner tab is a tuning fork.

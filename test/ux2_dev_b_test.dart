@@ -99,7 +99,9 @@ void main() {
     await tester.pumpAndSettle();
     // The songs have their own button, before the progression menu.
     expect(find.byTooltip('Example songs'), findsNothing, reason: 'chord');
-    await tester.tap(find.text('Progression'));
+    await tester.tap(find.byKey(const Key('voicingMenu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Progression').last);
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Example songs'));
     await tester.pumpAndSettle();

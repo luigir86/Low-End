@@ -16,7 +16,7 @@ The three tabs are **Metronome**, **Harmony** and **Tuner**, and the app opens o
 
 - Tempo from 30 to 250 BPM (up to 400 in 7/8, where it counts eighths): touch the pencil to type it, touch − or + to move by one or hold them to run, or tap TAP. The tempo has its Italian name under it (Andante, Allegro…).
 - Time signatures 1/1 (one click a bar), 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8, with the beats grouped the way you count them.
-- A ring that lights up beat by beat (the downbeat marked) and a short, dry woodblock-like click (higher on the downbeat). The second row under the dial (the first is left empty) is a pill with two halves: the time signature on the left, and on the right a menu of what fills each beat (quarter notes, eighths, triplets, sixteenths, and swung eighths and sixteenths, played long-short as MuseScore plays "Swing"). The time signature list also has a click on 2 and 4 only. The audio engine loops a whole bar, so the time stays steady.
+- A ring that lights up beat by beat (the downbeat marked) and a short, dry woodblock-like click (higher on the downbeat). The second row under the dial (the first is left empty) has two fields: the time signature, and a menu of what fills each beat (quarter notes, eighths, triplets, sixteenths, and swung eighths and sixteenths, played long-short as MuseScore plays "Swing"). The time signature list also has a click on 2 and 4 only. The audio engine loops a whole bar, so the time stays steady.
 - Tempo, time signature, subdivision and the click on 2 and 4 are kept for the next launch.
 
 ### Harmony

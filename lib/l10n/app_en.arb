@@ -242,6 +242,12 @@
   },
   "tuningChromatic": "Chromatic",
   "tuningInstrument": "Instrument",
+  "voicingLabel": "Mode",
+  "@voicingLabel": {
+    "description": "Name of the Harmony field that chooses between one chord and a progression."
+  },
+  "voicingChordHint": "One note or chord, until you stop it",
+  "voicingProgressionHint": "Chords in turn, in time with the metronome",
   "tuningChromaticHint": "Any note, no strings to choose",
   "@tuningChromaticHint": {
     "description": "Under Chromatic in the tuner's instrument menu, where the other entries show their open strings."

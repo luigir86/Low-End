@@ -5,7 +5,6 @@ import 'package:low_end/audio/click_output.dart';
 import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/widgets/dial.dart';
-import 'package:low_end/widgets/pill_switch.dart';
 import 'package:low_end/widgets/reference_pitch_row.dart';
 
 /// The three round dials (beats, circle of fifths, strobe) and the rows under
@@ -151,7 +150,7 @@ void main() {
       inInclusiveRange(metro[3].top, metro[3].bottom),
     );
     expect(
-      tester.getRect(find.byType(PillSwitch).last).center.dy,
+      tester.getRect(find.byKey(const Key('barSwitch')).last).center.dy,
       inInclusiveRange(metro[2].top, metro[2].bottom),
     );
   });

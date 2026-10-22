@@ -39,7 +39,6 @@ class LowEndColors extends ThemeExtension<LowEndColors> {
     required this.close,
     required this.off,
     required this.strobeBackground,
-    required this.strobeSegments,
     required this.downbeat,
   });
 
@@ -54,10 +53,6 @@ class LowEndColors extends ThemeExtension<LowEndColors> {
 
   final Color strobeBackground;
 
-  /// The tuner's turning segments, a step softer than the borders: many
-  /// bright segments on the ebony weighed more than the note in the middle.
-  final Color strobeSegments;
-
   /// The first beat of the bar on the metronome's ring.
   final Color downbeat;
 
@@ -70,14 +65,12 @@ class LowEndColors extends ThemeExtension<LowEndColors> {
     Color? close,
     Color? off,
     Color? strobeBackground,
-    Color? strobeSegments,
     Color? downbeat,
   }) => LowEndColors(
     inTune: inTune ?? this.inTune,
     close: close ?? this.close,
     off: off ?? this.off,
     strobeBackground: strobeBackground ?? this.strobeBackground,
-    strobeSegments: strobeSegments ?? this.strobeSegments,
     downbeat: downbeat ?? this.downbeat,
   );
 
@@ -93,7 +86,6 @@ class LowEndColors extends ThemeExtension<LowEndColors> {
         other.strobeBackground,
         t,
       )!,
-      strobeSegments: Color.lerp(strobeSegments, other.strobeSegments, t)!,
       downbeat: Color.lerp(downbeat, other.downbeat, t)!,
     );
   }
@@ -110,7 +102,9 @@ abstract final class LowEndTheme {
   /// choice of theme (docs/tema-bronzo.md).
   static final dark = () {
     final container = tint(0.2);
-    final chord = tint(0.55);
+    // 3 : 1 on the disc (the strobe and the beats are drawn in it too) and
+    // 4.5 : 1 under the light ink of the note names.
+    final chord = tint(0.58);
     return _build(
       ColorScheme(
         brightness: Brightness.dark,
@@ -119,7 +113,8 @@ abstract final class LowEndTheme {
         // TAP, the chosen half of a switch and the selected tab's pill.
         primaryContainer: container,
         onPrimaryContainer: Palette.inkOnDark,
-        // The rest of a chord on the circle of fifths.
+        // The rest of a chord on the circle of fifths, and the beats after
+        // the "one" on the metronome.
         secondary: chord,
         onSecondary: _readableOn(chord),
         secondaryContainer: container,
@@ -140,7 +135,7 @@ abstract final class LowEndTheme {
         surfaceContainer: Palette.ebonyShade1,
         surfaceContainerHigh: Palette.ebonyShade2,
         surfaceContainerHighest: Palette.ebonyShade3,
-        // Borders and the lit beats: 3 : 1 on the disc.
+        // Borders: 3 : 1 on the disc.
         outline: tint(0.75),
         // Keys and beats that are off.
         outlineVariant: tint(0.26),
@@ -150,11 +145,8 @@ abstract final class LowEndTheme {
         close: Palette.close,
         off: Palette.off,
         strobeBackground: tint(0.1),
-        // A step softer than the borders, so that the strobe's many segments
-        // weigh no more than the note in the middle; still 3 : 1 on the disc.
-        strobeSegments: tint(0.6),
         // The "one" is the accent at full strength, drawn thicker; the other
-        // beats are the accent too, a step softer.
+        // beats take the colour of a chord's other notes (secondary).
         downbeat: Palette.bronze,
       ),
     );
