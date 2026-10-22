@@ -46,8 +46,12 @@ class MediaNotificationAudio implements BackgroundAudio {
         config: const AudioServiceConfig(
           androidNotificationChannelId: 'com.luigir86.low_end.playback',
           androidNotificationChannelName: 'Low End',
-          // Paused, the notification stays: it is how the sound is resumed.
-          androidStopForegroundOnPause: false,
+          // Paused, the notification stays (it is how the sound is resumed)
+          // but the service leaves the foreground, Android's default: kept
+          // in the foreground, the notification could not be removed when
+          // the sound stops, and stayed with a play button that does
+          // nothing.
+          androidStopForegroundOnPause: true,
           // A plain white lion: Android paints the small icon of the
           // notification one colour, and the coloured launcher icon would
           // come out as a blob.
@@ -58,11 +62,21 @@ class MediaNotificationAudio implements BackgroundAudio {
         throw error;
       });
 
+  /// The last change asked for: each waits for the one before, so that a
+  /// stop and a start close together reach Android in their order.
+  Future<void> _last = Future.value();
+
   @override
   Future<void> show(
     MediaState state, {
     required String title,
     String text = '',
+  }) => _last = _last.then((_) => _show(state, title: title, text: text));
+
+  Future<void> _show(
+    MediaState state, {
+    required String title,
+    required String text,
   }) async {
     if (!_supported) return;
     try {
@@ -78,6 +92,12 @@ class MediaNotificationAudio implements BackgroundAudio {
       final handler = await _start();
       if (state == MediaState.off) {
         await handler.hide();
+        // Android may still be taking the service out of the foreground
+        // when audio_service removes the notification, and then keeps it,
+        // with a pause button that does nothing: removed again a moment
+        // later.
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+        await _channel.invokeMethod<void>('cancel');
       } else {
         handler.show(
           playing: state == MediaState.playing,
@@ -143,7 +163,15 @@ class _Handler extends BaseAudioHandler {
     );
   }
 
-  Future<void> hide() => super.stop();
+  /// Not playing and idle in one step: the service leaves the foreground
+  /// (Android keeps a foreground service's notification) and removes the
+  /// notification, with no update of it in between that could post it again.
+  Future<void> hide() async => playbackState.add(
+    playbackState.value.copyWith(
+      playing: false,
+      processingState: AudioProcessingState.idle,
+    ),
+  );
 
   @override
   Future<void> play() async => _commands.add(MediaCommand.play);
