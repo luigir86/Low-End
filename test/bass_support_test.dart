@@ -336,15 +336,31 @@ void main() {
 
       scope.navigation.open(AppSection.tuner);
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('tuningSwitch')), findsOneWidget);
+      // One field that names what is tuned: Chromatic first in its menu.
+      final field = find.byKey(const Key('instrumentMenu'));
       expect(settings.tuning, TunerTuning.chromatic);
-      await tester.tap(find.byKey(const Key('tuningInstrument')));
+      expect(
+        find.descendant(of: field, matching: find.text('Chromatic')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: field, matching: find.text('Guitar')),
+        findsNothing,
+        reason: 'the remembered instrument is not shown while chromatic',
+      );
+      await tester.tap(field);
       await tester.pumpAndSettle();
-      expect(settings.tuning, TunerTuning.guitar);
+      expect(find.text('Any note, no strings to choose'), findsOneWidget);
       await tester.tap(find.text('Violin').last);
       await tester.pumpAndSettle();
       expect(settings.tuning, TunerTuning.violin);
-      await tester.tap(find.byKey(const Key('tuningChromatic')));
+      expect(
+        find.descendant(of: field, matching: find.text('Violin')),
+        findsOneWidget,
+      );
+      await tester.tap(field);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Chromatic').last);
       await tester.pumpAndSettle();
       expect(settings.tuning, TunerTuning.chromatic);
       expect(settings.tunerInstrument, TunerTuning.violin);

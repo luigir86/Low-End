@@ -242,6 +242,10 @@
   },
   "tuningChromatic": "Chromatic",
   "tuningInstrument": "Instrument",
+  "tuningChromaticHint": "Any note, no strings to choose",
+  "@tuningChromaticHint": {
+    "description": "Under Chromatic in the tuner's instrument menu, where the other entries show their open strings."
+  },
   "tuningGuitar": "Guitar",
   "tuningViolin": "Violin",
   "tuningViola": "Viola",

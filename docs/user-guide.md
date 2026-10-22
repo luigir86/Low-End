@@ -12,7 +12,7 @@ The tabs at the bottom (on the left when the phone is sideways) are **Metronome*
 - **Swipe** left or right to change section. With the phone turned sideways the tabs move to a column on the left and the settings gear stays top right: **swipe up or down** over the dial or the tabs (not over the rows on the right, which may scroll) to change section. It has to be a quick flick: a slow drag does nothing. The first time you turn the phone sideways a short hint says so.
 - For rehearsals, **Lock the gestures** in the settings turns off the swipes between sections. The tabs still work.
 - The first time you open the app a one-page **gesture guide** appears. It is also in *Settings → Gestures and shortcuts*.
-- Under every dial there are three rows. Metronome and Harmony leave the first empty and use the second and third, so their controls sit lower, near the thumb; the tuner uses all three, with the cents bar first, next to the strobe, then the Chromatic / instrument switch and the reference A.
+- Under every dial there are three rows. Metronome and Harmony leave the first empty and use the second and third, so their controls sit lower, near the thumb; the tuner uses all three, with the cents bar first, next to the strobe, then the Instrument field and the reference A.
 
 The volume is the phone's: use its volume keys.
 
@@ -44,8 +44,8 @@ Twelve keys round a dial (by default in the circle of fifths; you can ask for se
 - **If the metronome or the harmony is playing**, coming to the tuner stops nothing: the dial says *Listen* and *Listening pauses what is playing*. Touch the dial and they pause, so the microphone hears only your instrument, with a notice *Paused while you tune* and a **Resume** button that starts them again. Nothing resumes by itself when you leave the tuner.
 - The reference A is in the third row: **−** and **+** move by 1 Hz, and the pencil takes a typed value or one of the standard ones (415, 432, 440, 442 Hz).
 - It hears notes from 28 Hz up to 2800 Hz (the top of the violin and of the flute), and it names any note, with no string to choose first. With the bass chosen it listens up to 700 Hz only, so that voices do not get in the way.
-- **Transposing instruments**: in *Settings*, choose B♭ (clarinet, trumpet, soprano and tenor sax), E♭ (alto and baritone sax) or F (horn), and the chromatic tuner names the **written** note, with the key beside "Chromatic" on the first row and on the dial.
-- The **Instrument** half of the second row (the left half is Chromatic) opens a menu of guitar, violin, viola, cello, ukulele and bass, and shows the number of the string.
+- **Transposing instruments**: in *Settings*, choose B♭ (clarinet, trumpet, soprano and tenor sax), E♭ (alto and baritone sax) or F (horn), and the chromatic tuner names the **written** note, with the key beside "Chromatic" in the Instrument field and on the dial.
+- The **Instrument** field always names what you are tuning. Its menu starts with Chromatic (any note), then guitar, violin, viola, cello, ukulele and bass with their open strings; with an instrument the tuner shows the number of the string. The last instrument stays remembered.
 - The tuner stops listening when you leave the section, open the settings or send the app to the background.
 - The sound is analysed on the phone and never recorded or sent anywhere.
 - If you said no to the microphone, allow it in the phone settings under *Apps › Low End › Permissions*; the app shows a button that opens that page.
