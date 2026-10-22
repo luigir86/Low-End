@@ -21,7 +21,7 @@ abstract class AudioRoute {
   void dispose();
 }
 
-/// [AudioRoute] from Android's AudioManager, through MainActivity.
+/// [AudioRoute] from Android's AudioManager, through AudioRoute.kt.
 class AndroidAudioRoute implements AudioRoute {
   AndroidAudioRoute() {
     _channel.setMethodCallHandler(_onCall);

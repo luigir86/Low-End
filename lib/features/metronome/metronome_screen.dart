@@ -37,7 +37,7 @@ class MetronomeScreen extends StatelessWidget {
       listenable: metronome,
       builder: (context, _) => DialLayout(
         dial: _BeatRing(metronome: metronome),
-        // The first row, a pill like the tuner's, chooses the bar: the time
+        // The upper row, two fields like the tuner's, chooses the bar: the time
         // signature and what fills each beat. The second only sets the tempo:
         // TAP, − + and the pencil.
         upper: Row(
@@ -54,7 +54,7 @@ class MetronomeScreen extends StatelessWidget {
             Row(
               children: [
                 Expanded(child: _TapButton(metronome: metronome)),
-                const SizedBox(width: 6),
+                const SizedBox(width: rowGap),
                 _StepButton(
                   icon: Icons.remove,
                   tooltip: l10n.slower,
@@ -63,7 +63,7 @@ class MetronomeScreen extends StatelessWidget {
                       : null,
                   onHold: (unit) => metronome.nudge(-1, unit),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: rowGap),
                 _StepButton(
                   icon: Icons.add,
                   tooltip: l10n.faster,
@@ -207,8 +207,7 @@ class _BeatRingState extends State<_BeatRing>
                     signature: metronome.signature,
                     frame: _ringFrame,
                     colors: theme.colorScheme,
-                    downbeat: LowEndColors.of(context).downbeat,
-                    disc: LowEndColors.of(context).strobeBackground,
+                    beats: LowEndColors.of(context),
                   ),
                 ),
               ),
@@ -237,8 +236,7 @@ class _RingPainter extends CustomPainter {
     required this.signature,
     required ValueNotifier<int> frame,
     required this.colors,
-    required this.downbeat,
-    required this.disc,
+    required this.beats,
   }) : super(repaint: frame);
 
   final MetronomeController metronome;
@@ -248,12 +246,9 @@ class _RingPainter extends CustomPainter {
   final TimeSignature signature;
   final ColorScheme colors;
 
-  /// The colour of the "one".
-  final Color downbeat;
-
-  /// The disc under the ring, into which the beats not lit recede while the
-  /// metronome plays, as the notes not sounding do in the harmony.
-  final Color disc;
+  /// The colours of the beats: the "one", and the ones that recede, stay
+  /// silent or are weak.
+  final LowEndColors beats;
 
   /// How fast the single segment of a one-beat bar fades.
   static double _decay(MetronomeController metronome) =>
@@ -289,21 +284,19 @@ class _RingPainter extends CustomPainter {
         // The only segment is always "the beat": it flashes and fades.
         final since = metronome.sinceBeat ?? Duration.zero;
         final t = math.exp(-since.inMicroseconds / 1e6 / _decay(metronome));
-        color = Color.lerp(colors.outlineVariant, downbeat, t)!;
+        color = Color.lerp(colors.outlineVariant, beats.downbeat, t)!;
       } else if (b != beat) {
         // Playing, the other beats recede: only the lit one stands out.
-        color = beat == null
-            ? colors.outlineVariant
-            : Color.lerp(disc, colors.surface, 0.6)!;
+        color = beat == null ? colors.outlineVariant : beats.beatReceded;
       } else if (metronome.isSilent(b)) {
         // A beat left silent (1 and 3, with the click on 2 and 4) only
         // glows: the place in the bar is still seen.
-        color = colors.outline.withValues(alpha: 0.35);
+        color = beats.beatSilent;
       } else if (b == 0) {
-        color = downbeat;
+        color = beats.downbeat;
       } else if (signature.grouped && !opens) {
         // The weak pulses of a group are softer than its first.
-        color = colors.secondary.withValues(alpha: 0.6);
+        color = beats.beatWeak;
       } else {
         // The colour of the rest of a chord in the harmony: a step softer
         // than the "one", as the chord's notes are than its root.
@@ -329,8 +322,7 @@ class _RingPainter extends CustomPainter {
       old.metronome != metronome ||
       old.signature != signature ||
       old.colors != colors ||
-      old.downbeat != downbeat ||
-      old.disc != disc;
+      old.beats != beats;
 }
 
 /// What the hub shows: the tempo, or, while the click waits for the piano's
@@ -436,10 +428,11 @@ String beatUnitName(AppLocalizations l10n, BeatUnit unit) => switch (unit) {
   BeatUnit.eighth => l10n.beatUnitEighth,
 };
 
-/// What fills each beat, the right half of the pill: a quarter note, two
-/// eighths, a triplet, four sixteenths, or the swung eighths and sixteenths
-/// (softer clicks between the beats). It shows the notes and opens a menu of
-/// them. Bars counted in eighths are always played plain, so it is off there.
+/// What fills each beat, the second field of the upper row: a quarter
+/// note, two eighths, a triplet, four sixteenths, or the swung eighths and
+/// sixteenths (softer clicks between the beats). It shows the notes and
+/// opens a menu of them. Bars counted in eighths are always played plain,
+/// so it is off there.
 class _SubdivisionField extends StatelessWidget {
   const _SubdivisionField({required this.metronome});
 
@@ -608,7 +601,7 @@ class _StepButtonState extends State<_StepButton> {
           _stop();
           _holding = false;
         },
-        child: RowChip(
+        child: RowButton(
           label: Icon(widget.icon, size: 24),
           // A tap steps by one; the end of a hold has already stepped.
           onPressed: onStep == null
@@ -626,8 +619,8 @@ class _StepButtonState extends State<_StepButton> {
   }
 }
 
-/// The left half of the pill: shows the time signature and opens the list to
-/// choose another.
+/// The first field of the upper row: shows the time signature and opens the
+/// list to choose another.
 class _SignatureButton extends StatelessWidget {
   const _SignatureButton({required this.metronome});
 
@@ -734,7 +727,7 @@ class _TapButtonState extends State<_TapButton> {
         // As wide as the room it is given (half the row): the chip itself
         // only takes the width of its label.
         child: LayoutBuilder(
-          builder: (context, box) => RowChip(
+          builder: (context, box) => RowButton(
             // The tap is counted by the Listener; this only shows the ripple.
             onPressed: () {},
             // Coloured: the one chip of the row that is a button to press.
@@ -745,7 +738,7 @@ class _TapButtonState extends State<_TapButton> {
               child: Center(
                 child: Text(
                   'TAP',
-                  style: rowChipStyle(
+                  style: rowButtonStyle(
                     context,
                     color: Theme.of(context).colorScheme.onPrimaryContainer,
                   )?.copyWith(letterSpacing: 1),

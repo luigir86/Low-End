@@ -3,10 +3,10 @@ Low End is a practice companion for musicians: a metronome, a piano harmony sect
 METRONOME
 • Tempo from 30 to 250 BPM: type it with the pencil, hold − or + to run through it, or use TAP.
 • Time signatures 1/1, 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 and 12/8, with the beats grouped the way you count them.
-• A ring that lights up beat by beat, with the downbeat marked, and a short, dry click that stays steady. One pill holds the time signature and a menu of what fills each beat (quarters, eighths, triplets, sixteenths, and swung eighths and sixteenths, as MuseScore plays "Swing"); or choose a click on 2 and 4 only.
+• A ring that lights up beat by beat, with the downbeat marked, and a short, dry click that stays steady. Two fields under the dial choose the time signature and what fills each beat (quarters, eighths, triplets, sixteenths, and swung eighths and sixteenths, as MuseScore plays "Swing"); or choose a click on 2 and 4 only.
 
 HARMONY
-• Twelve keys on a dial: touch a note and it plays on a real piano, in time with the metronome.
+• Twelve keys on a dial: touch a note and it plays on a real grand piano, recorded in stereo, in time with the metronome.
 • The note alone, or a major, minor or seventh chord, struck once a bar, on every beat or as an arpeggio.
 • Progressions to practise over, one chord per bar: II–V–I (major and minor), I–IV–V, I–VI–IV–V and the twelve-bar blues, in any key, each named after a song you know, with the Roman numerals on the keys.
 • Example songs set the key, the progression and the tempo in one tap.
@@ -24,6 +24,7 @@ MADE FOR PLAYING
 • Each section starts and stops its own sound from the middle of its dial. The tabs and the swipes only change section.
 • Swipe left and right to change section; for rehearsals, lock the gestures in the settings.
 • Keeps playing with the screen off, with a notification that says what is sounding. The screen can stay on while you play.
+• Unplug the headphones and the sound stops, instead of carrying on from the phone's speaker.
 • A dark look in bronze and ebony, easy on the eyes on stage; English and Italian; note names as C D E or Do Re Mi.
 • Built to be accessible: screen-reader labels, enlargeable text, and colours that are never the only cue.
 

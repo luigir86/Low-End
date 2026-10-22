@@ -365,6 +365,8 @@ abstract final class PianoSound {
       }
     }
 
+    // Where the arpeggio of the bar before stopped (see [_arpeggioRunsOn]).
+    var arpeggioCount = 0;
     for (var bar = 0; bar < chords.length; bar++) {
       final chord = chords[bar];
       final start = bar * barLength;
@@ -418,8 +420,14 @@ abstract final class PianoSound {
             );
           }
         case PianoStyle.arpeggio:
-          // The notes go up and down the chord one after another.
-          var count = 0;
+          // The notes go up and down the chord one after another; in a bar
+          // too short to hold them all, on from where the bar before left
+          // off, so that it is not the root alone.
+          final runsOn =
+              bar > 0 &&
+              _arpeggioRunsOn(signature, chord.length) &&
+              listEquals(chords[bar - 1], chord);
+          var count = runsOn ? arpeggioCount : 0;
           for (var pulse = 0; pulse < signature.beats; pulse++) {
             final accent = signature.accent(pulse);
             final tone = _arpeggioTone(signature, count++, chord.length);
@@ -439,9 +447,36 @@ abstract final class PianoSound {
               ),
             );
           }
+          arpeggioCount = count;
       }
     }
     return strokes;
+  }
+
+  /// True when an arpeggio of [tones] notes goes on from one bar to the
+  /// next: the bar has fewer beats than the chord has notes (1/1, 2/4, a
+  /// seventh chord in 3/4), so that, starting over in each bar, it would
+  /// never reach the top of the chord.
+  static bool _arpeggioRunsOn(TimeSignature signature, int tones) =>
+      !signature.grouped && tones > 1 && signature.beats < tones;
+
+  /// The bars a loop of [chords] (one per bar) holds: [chords] themselves,
+  /// except a single chord arpeggiated in a bar too short for it (see
+  /// [_arpeggioRunsOn]), which is repeated for as many bars as the
+  /// arpeggio takes to come round to its root again.
+  static List<PianoChord> barsOf(
+    List<PianoChord> chords,
+    PianoStyle style,
+    TimeSignature signature,
+  ) {
+    if (style != PianoStyle.arpeggio ||
+        chords.length != 1 ||
+        !_arpeggioRunsOn(signature, chords.single.length)) {
+      return chords;
+    }
+    final cycle = 2 * chords.single.length - 2;
+    final bars = cycle ~/ cycle.gcd(signature.beats);
+    return List.filled(bars, chords.single);
   }
 
   /// Adds [stroke] to [out] (its two channels), whose first sample is the
@@ -566,11 +601,12 @@ abstract final class PianoSound {
     required TimeSignature signature,
     double a4 = 440,
   }) {
+    final bars = barsOf(chords, style, signature);
     final beat = (ClickSound.sampleRate * 60 / bpm).round();
-    final length = beat * signature.beats * chords.length;
+    final length = beat * signature.beats * bars.length;
     final out = (left: Float64List(length), right: Float64List(length));
     final strokes = _strokes(
-      chords: chords,
+      chords: bars,
       style: style,
       bpm: bpm,
       signature: signature,
@@ -663,8 +699,9 @@ abstract final class PianoSound {
     double a4 = 440,
   }) {
     final rate = ClickSound.sampleRate;
+    final bars = barsOf(chords, style, signature);
     final beat = (rate * 60 / bpm).round();
-    final length = beat * signature.beats * chords.length;
+    final length = beat * signature.beats * bars.length;
     // Enough before it for the room to be full, as it is in the loop.
     final before = rate * 2;
     final after = tailLength.inMicroseconds * rate ~/ 1000000;
@@ -674,7 +711,7 @@ abstract final class PianoSound {
     );
     final origin = position - before;
     final strokes = _strokes(
-      chords: chords,
+      chords: bars,
       style: style,
       bpm: bpm,
       signature: signature,

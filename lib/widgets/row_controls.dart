@@ -79,15 +79,19 @@ class LabeledField extends StatelessWidget {
 const rowLineHeight = 24.0;
 const rowButtonPadding = 16.0;
 
-/// Room a [RowChip] takes round its label, across.
+/// Room a [RowButton] takes round its label, across.
 const rowButtonInset = 24.0;
+
+/// The space between two blocks of a row (a field, a button), the same in
+/// every row of every section.
+const rowGap = 8.0;
 
 /// A button of the row: TAP, − and + on the metronome and the tuner. A
 /// Material button, outlined; with [filled] a tonal one, to say that it is
 /// the button to press (TAP), unlike the ones that only step a value.
 /// With [onPressed] null it is dimmed (the end of a range).
-class RowChip extends StatelessWidget {
-  const RowChip({
+class RowButton extends StatelessWidget {
+  const RowButton({
     super.key,
     required this.label,
     this.tooltip,
@@ -102,7 +106,6 @@ class RowChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     // At least as tall as a line of text, so that an icon button grows with
     // large text as the field beside it does.
     final content = ConstrainedBox(
@@ -131,26 +134,11 @@ class RowChip extends StatelessWidget {
           )
         : OutlinedButton(
             onPressed: onPressed,
-            style:
-                OutlinedButton.styleFrom(
-                  padding: padding,
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  foregroundColor: scheme.onSurface,
-                  side: BorderSide(color: scheme.outline),
-                  disabledForegroundColor: scheme.onSurface.withValues(
-                    alpha: 0.38,
-                  ),
-                  disabledBackgroundColor: Colors.transparent,
-                ).copyWith(
-                  side: WidgetStateProperty.resolveWith(
-                    (states) => BorderSide(
-                      color: states.contains(WidgetState.disabled)
-                          ? scheme.outlineVariant
-                          : scheme.outline,
-                    ),
-                  ),
-                ),
+            style: OutlinedButton.styleFrom(
+              padding: padding,
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
             child: named,
           );
     return tooltip == null
@@ -159,17 +147,16 @@ class RowChip extends StatelessWidget {
   }
 }
 
-/// The text of a [RowChip]: bold, the size of a body.
-TextStyle? rowChipStyle(BuildContext context, {Color? color}) =>
+/// The text of a [RowButton]: bold, the size of a body.
+TextStyle? rowButtonStyle(BuildContext context, {Color? color}) =>
     Theme.of(context).textTheme.titleMedium?.copyWith(
       fontWeight: FontWeight.w700,
       color: color ?? Theme.of(context).colorScheme.onSurface,
     );
 
 /// The button at the end of the row (the pencil, the sound options): boxed
-/// like the chips beside it, with its icon in the ink of their text (the
-/// borders carry the tab's colour), so that the row is a line of equal
-/// blocks. The gap before it is its own, or the gap after it when it
+/// like the buttons beside it, with its icon in the ink of their text, so
+/// that the row is a line of equal blocks. The gap before it is its own, or the gap after it when it
 /// [leads] the row (the example songs).
 class RowIconButton extends StatelessWidget {
   const RowIconButton({
@@ -188,9 +175,9 @@ class RowIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: leads
-        ? const EdgeInsetsDirectional.only(end: 4)
-        : const EdgeInsetsDirectional.only(start: 4),
-    child: RowChip(
+        ? const EdgeInsetsDirectional.only(end: rowGap)
+        : const EdgeInsetsDirectional.only(start: rowGap),
+    child: RowButton(
       label: Icon(
         icon,
         size: 24,

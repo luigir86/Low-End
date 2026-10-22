@@ -1,5 +1,8 @@
 # Piano recordings
 
+The files are in `assets/piano/` (this note lives here, since everything in
+that folder is packed into the app).
+
 Thirteen notes (C2 to C5, a minor third apart) from the **Salamander Grand
 Piano V3** by Alexander Holm, a Yamaha C5, in three velocity layers of the
 sixteen recorded (5 soft, 8 normal, 11 firm), and the sound of the dampers

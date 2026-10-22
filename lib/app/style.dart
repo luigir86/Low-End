@@ -56,8 +56,7 @@ abstract final class LowEndShape {
   /// Corner radius of buttons, cards and menus.
   static const radius = 16.0;
 
-  /// Height of a button in a row under a dial: the time signature, TAP,
-  /// − + and the pencil, the chord menu, the Root / Chord / Progression
-  /// switch.
-  static const row = 64.0;
+  /// Width of the rail of the tabs, in landscape, however long the names:
+  /// they shrink to fit.
+  static const railWidth = 96.0;
 }

@@ -354,6 +354,40 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
   });
 
+  testWidgets('unplugged, the notification stays paused to play again', (
+    tester,
+  ) async {
+    final route = FakeAudioRoute();
+    final audio = _RecordingAudio();
+    await tester.pumpWidget(
+      LowEndApp(
+        toneOutput: SilentToneOutput(),
+        clickOutput: SilentClickOutput(),
+        micInput: FakeMicInput(),
+        audioRoute: route,
+        backgroundAudio: audio,
+      ),
+    );
+    await tester.pumpAndSettle();
+    final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
+    await scope.metronome.start();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(audio.state, MediaState.playing);
+
+    // As a music player does: paused, with its play button, not gone.
+    route.unplug();
+    await tester.pump();
+    expect(scope.metronome.isPlaying, isFalse);
+    expect(audio.state, MediaState.paused);
+
+    audio.input.add(MediaCommand.play);
+    await tester.pump();
+    expect(scope.metronome.isPlaying, isTrue);
+    expect(audio.state, MediaState.playing);
+    await scope.metronome.stop();
+    await tester.pump(const Duration(milliseconds: 300));
+  });
+
   testWidgets('unplugging with nothing playing says nothing', (tester) async {
     final route = FakeAudioRoute();
     await tester.pumpWidget(

@@ -144,7 +144,7 @@ class _FifthsDial extends StatelessWidget {
                   chord: chord,
                   receding: receding,
                   colors: theme.colorScheme,
-                  disc: LowEndColors.of(context).strobeBackground,
+                  disc: LowEndColors.of(context).disc,
                 ),
               ),
             ),

@@ -17,25 +17,25 @@ Three sections: **Metronome**, **Harmony** (Armonia) and **Tuner**. Harmony keep
   - `tuner_stop` pauses the tuner like the Pause button: it stays paused, also when coming back to the section, until `tuner_start` or a touch on the dial.
   - `metronome_start` and `drone_play` leave the tuner, so its microphone turns off.
 - **Locking the gestures** ("Blocca i gesti" in the settings) only disables swiping between sections. Actions, including `open_section`, still work.
-- Loudness follows the phone's media volume; there is no volume or balance action. The sound is a piano in equal temperament; the metronome has no settable time signature in actions (state reports it as `time_signature`).
+- Loudness follows the phone's media volume; there is no volume or balance action. The sound is a piano in equal temperament.
 - The app is always dark (bronze theme); there is no theme setting.
 
 ## Actions
 
 | Action | Arguments | What it does |
 |---|---|---|
-| `get_state` | none | Changes nothing. Returns the section on screen, the tuner (status `idle`, `starting`, `listening`, `permissionDenied` or `failed`; the last reading with target note, played note, `written` note for a transposing instrument, frequency, cents, `in_tune`), Harmony (`playing`, note, `frequency_hz`, voicing, chord, progression, style, `held_tone`, `progression_step`, `audio_failed`), the metronome (`playing`, `bpm`, `time_signature`, `subdivision`, `backbeat`) and the settings (reference A, language, note names, transposition) |
+| `get_state` | none | Changes nothing. Returns the section on screen, the tuner (status `idle`, `starting`, `listening`, `permissionDenied` or `failed`; the last reading with target note, played note, `written` note for a transposing instrument, frequency, cents, `in_tune`), Harmony (`playing`, note, `frequency_hz`, voicing, chord, progression, style, `held_tone`, `flat`, `progression_step`, `audio_failed`), the metronome (`playing`, `bpm`, `time_signature`, `subdivision`, `backbeat`) and the settings (reference A, language, note names, transposition, `octave_numbering`, `tuner_instrument`, `in_tune_cents`, `circle_layout`, `keep_screen_on`, `lock_gestures`). With an instrument chosen, the target is its nearest string |
 | `open_section` | `section`: `tuner`, `drone` (Harmony) or `metronome` | Shows the section. Starts and stops nothing, except the tuner's microphone as described above |
 | `tuner_start` | none | Opens the tuner and listens; pauses the metronome and Harmony if they play. The answer says `listening`, or `permissionDenied` / `failed` |
 | `tuner_stop` | none | Pauses the tuner and turns the microphone off, until `tuner_start` |
-| `drone_play` | all optional: `note`, `voicing`, `chord`, `progression`, `style`, `held_tone` | Opens Harmony, applies the arguments and plays the piano if it was not playing (if it was, only the arguments change). See below for the values |
+| `drone_play` | all optional: `song`, `note`, `voicing`, `chord`, `progression`, `style`, `held_tone`, `flat` | Opens Harmony, applies the arguments and plays the piano if it was not playing (if it was, only the arguments change). See below for the values |
 | `drone_stop` | none | Stops Harmony, also during the countdown |
 | `drone_set` | same as `drone_play` | Changes Harmony without starting, stopping or changing section |
-| `metronome_start` | all optional: `bpm`, `subdivision`, `backbeat` | Opens the metronome, applies the arguments and starts it if it was not playing, in its current time signature |
+| `metronome_start` | all optional: `time_signature`, `bpm`, `subdivision`, `backbeat` | Opens the metronome, applies the arguments and starts it if it was not playing |
 | `metronome_stop` | none | Stops the metronome, also during the countdown |
-| `metronome_set` | `bpm`, `subdivision`, `backbeat` (at least one) | Changes the metronome without starting, stopping or changing section. Remembered for the next launch |
+| `metronome_set` | `time_signature`, `bpm`, `subdivision`, `backbeat` (at least one) | Changes the metronome without starting, stopping or changing section. Remembered for the next launch |
 | `set_reference_pitch` | `hz` (required) | A4: a whole number of hertz from 415 to 445, shared by tuner and Harmony, saved in the settings |
-| `settings_set` | all optional: `language`, `note_names`, `transposition` | App `language` (`system`, `en`, `it`), `note_names` (`auto`, `solfege`, `letters`) and the `transposition` of the chromatic tuner (`c`, `bFlat`, `eFlat`, `f`). If one value is wrong none is applied |
+| `settings_set` | all optional: `language`, `note_names`, `octave_numbering`, `tuner_instrument`, `in_tune_cents`, `transposition`, `circle_layout`, `keep_screen_on`, `lock_gestures` | Everything on the settings page and the tuner's Instrument field: app `language` (`system`, `en`, `it`), `note_names` (`auto`, `solfege`, `letters`), `octave_numbering` (`scientific`, `italian`), `tuner_instrument` (`chromatic`, `guitar`, `bass`, `ukulele`, `violin`, `viola`, `cello`), `in_tune_cents` (2, 5, 10), the `transposition` of the chromatic tuner (`c`, `bFlat`, `eFlat`, `f`), `circle_layout` (`fifths`, `chromatic`), `keep_screen_on` and `lock_gestures` (booleans). If one value is wrong none is applied |
 
 Values:
 
@@ -45,6 +45,9 @@ Values:
 - `progression` (with voicing `progression`): `twoFiveOne`, `minorTwoFiveOne`, `oneFourFive`, `oneSixFourFive`, `blues`, `oneSixTwoFive`, `oneFiveSixFour`, `andalusian` (minor key). One chord per bar, at the metronome tempo.
 - `style`: `held` (struck once a bar), `beat` (on every beat), `arpeggio` (one note a beat). A `root` voicing is always sustained.
 - `held_tone`: `true` for a steady tone instead of the piano struck again and again (the style then does not apply), `false` for the piano.
+- `flat`: `true` writes the note, if it is C# or F#, as Db or Gb (on the dial and in the chord names); the sound is the same.
+- `song`: an example song (`Autumn Leaves`, `Blue Bossa`, `Twist and Shout`, `Stand by Me`, `Sweet Home Chicago`, `Let It Be`, `Hit the Road Jack`): sets its key, progression and tempo, and the metronome to 4/4, as touching it on screen does.
+- `time_signature`: `1/1`, `2/4`, `3/4`, `4/4`, `5/4`, `6/8`, `7/8`, `9/8`, `12/8`. Applied before `bpm`, which is checked against it.
 - `bpm`: a whole number from 30 to 250, or to 400 in 7/8. It counts the beat of the current time signature (quarters in x/4, dotted quarters in 6/8, 9/8, 12/8, eighths in 7/8), so the same number can be refused after the signature changes.
 - `subdivision`: `quarters`, `eighths`, `swing_eighths`, `triplets`, `sixteenths`, `swing_sixteenths`. Only heard in bars counted in quarters.
 - `backbeat`: `true` clicks only on beats 2 and 4. Only heard in 2/4 and 4/4.

@@ -28,6 +28,10 @@ abstract class PianoOutput {
   /// old one was, as a tempo change should; otherwise it starts that far in
   /// and, if the metronome is playing, waits for its next bar line. Says
   /// where and when it began.
+  ///
+  /// [onTheBeat], carrying on, keeps the old loop until its next beat and
+  /// the new one comes in on it: a new chord, struck when the old one
+  /// would have been struck again.
   Future<LoopStart> play({
     required List<PianoChord> chords,
     required PianoStyle style,
@@ -36,6 +40,7 @@ abstract class PianoOutput {
     required double a4,
     required double volume,
     Duration? startAt,
+    bool onTheBeat = false,
   });
 
   Future<void> stop();
@@ -139,9 +144,13 @@ class PianoLibrary {
       data.lengthInBytes,
     );
     final samples = await _decode(flac, flacFrames(flac));
-    return Int16List.fromList([
-      for (final v in samples) (v * 32768).round().clamp(-32768, 32767),
-    ]);
+    // Straight into the 16-bit list: a channel is up to half a million
+    // samples, converted on the screen's thread.
+    final out = Int16List(samples.length);
+    for (var i = 0; i < samples.length; i++) {
+      out[i] = (samples[i] * 32768).round().clamp(-32768, 32767);
+    }
+    return out;
   }
 
   /// The number of samples in a FLAC file, from its header (the 36 bits
@@ -204,6 +213,7 @@ class SoLoudPianoOutput implements PianoOutput {
     required double a4,
     required double volume,
     Duration? startAt,
+    bool onTheBeat = false,
   }) async {
     _forget?.cancel();
     await ensureSoLoud();
@@ -232,6 +242,7 @@ class SoLoudPianoOutput implements PianoOutput {
       rendered.wav,
       bar,
       startAt: startAt,
+      onPulse: onTheBeat ? bar ~/ signature.beats : null,
       tailFor: was == null ? null : (position) => _tail(was, position),
     );
   }
@@ -290,6 +301,7 @@ class SilentPianoOutput implements PianoOutput {
   int? bpm;
   TimeSignature? signature;
   Duration? startAt;
+  bool onTheBeat = false;
   double volume = 0;
   var plays = 0;
 
@@ -305,12 +317,14 @@ class SilentPianoOutput implements PianoOutput {
     required double a4,
     required double volume,
     Duration? startAt,
+    bool onTheBeat = false,
   }) async {
     this.chords = chords;
     this.style = style;
     this.bpm = bpm;
     this.signature = signature;
     this.startAt = startAt;
+    this.onTheBeat = onTheBeat;
     this.volume = volume;
     plays++;
     return (position: startAt ?? Duration.zero, delay: delay);

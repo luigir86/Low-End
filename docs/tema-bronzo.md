@@ -21,7 +21,7 @@ Un solo colore per tutta l'app, il **bronzo miele** del leone dell'icona, su fon
 | Sfondo, ebano | #141312 (superfici #1C1B19, #262422, #312F2C) |
 | Testo | #EFEDEA, attenuato #C9C5BF mescolato al 25% di bronzo |
 
-Ogni altra tinta è il bronzo **mescolato nell'ebano** (`LowEndTheme.tint`): disco 10%, tasti e battiti spenti 26%, pillola scelta e TAP 20%, note dell'accordo 55%, segmenti dello strobo 60%, bordi e battiti accesi 75%. Il primo battito è il bronzo pieno, e più largo.
+Ogni altra tinta è il bronzo **mescolato nell'ebano** (`LowEndTheme.tint`): disco 10% (`LowEndColors.disc`), tasti e battiti spenti 26%, TAP e indicatore della scheda scelta 20%, note dell'accordo, battiti accesi dopo il primo e banda esterna dello strobo 58% (`secondary`), bordi 75%. Il primo battito e la banda interna dello strobo sono il bronzo pieno; il primo battito è anche più largo. Mentre il metronomo suona, i battiti spenti si ritirano nel disco (`beatReceded`), un battito lasciato muto (click su 2 e 4) appena si accende (`beatSilent`) e i movimenti deboli di un gruppo del 6/8 sono più tenui (`beatWeak`): tre tinte con nome in `LowEndColors`, nessuna opacità scritta nelle schermate.
 
 La schermata di avvio di Android usa l'ebano (`android/app/src/main/res/values/colors.xml`), senza variante notte.
 
@@ -31,7 +31,7 @@ Intonato verde #8FD19E, quasi giallo #F2DA4E, lontano rosso puro #FF5F56. Stanno
 
 ## 5. Contrasto (WCAG)
 
-`test/theme_test.dart` controlla: bronzo sullo sfondo almeno 4,5 : 1; bordi, battiti accesi e segmenti dello strobo sul disco almeno 3 : 1; testo sulla pillola e sulle note dell'accordo almeno 4,5 : 1; verdetti sul disco e sullo sfondo almeno 3 : 1.
+`test/theme_test.dart` controlla: bronzo sullo sfondo almeno 4,5 : 1; bordi, battiti accesi e segmenti dello strobo sul disco almeno 3 : 1; testo su TAP e sulle note dell'accordo almeno 4,5 : 1; verdetti sul disco e sullo sfondo almeno 3 : 1.
 
 ## 6. Icona
 
