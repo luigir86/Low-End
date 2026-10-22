@@ -39,16 +39,16 @@ class DialGeometry {
     canvas.drawCircle(center, this.hub, Paint()..color = hub);
   }
 
-  /// Width of the edge drawn round a segment that is off, see
-  /// [paintSegment].
-  static const offEdge = 1.5;
+  /// Width of the edge drawn round every segment, see [paintSegment].
+  static const edgeWidth = 1.5;
 
   /// Paints one ring segment from [startAngle] (0 is the top, clockwise)
   /// across [sweep] radians, between radii [inner] and [outer] (the whole
   /// ring by default). With a [border], an edge of that colour goes round
-  /// it: a segment that is off keeps a soft fill, so that the lit ones stand
-  /// out, and the edge (the theme's outline, at least 3:1 on the disc)
-  /// keeps its shape visible.
+  /// it. The dials give every segment the same edge, lit or off (the
+  /// theme's outline, at least 3:1 on the disc): a segment that is off
+  /// keeps a soft fill, so that the lit ones stand out by their colour, and
+  /// the edge keeps the shape of each one visible.
   void paintSegment(
     Canvas canvas, {
     required double startAngle,
@@ -99,7 +99,7 @@ class DialGeometry {
         Paint()
           ..color = border
           ..style = PaintingStyle.stroke
-          ..strokeWidth = offEdge
+          ..strokeWidth = edgeWidth
           ..strokeJoin = StrokeJoin.round,
       );
     }

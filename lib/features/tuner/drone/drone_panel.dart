@@ -269,7 +269,7 @@ class _FifthsPainter extends CustomPainter {
             : recedes
             ? Color.lerp(disc, colors.surface, 0.6)!
             : colors.outlineVariant,
-        border: lit || inChord || recedes ? null : colors.outline,
+        border: colors.outline,
       );
     }
   }

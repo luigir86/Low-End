@@ -73,7 +73,7 @@ void main() {
 
   test('the dial reads at a glance (WCAG 1.4.11)', () {
     final disc = extra.strobeBackground;
-    // The edge of a segment that is off, on the disc.
+    // The edge of every segment, on the disc.
     expect(contrast(c.outline, disc), greaterThanOrEqualTo(3));
     // The "one", the accent itself (it also stands out by being wider),
     // against the disc.
