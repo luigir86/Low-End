@@ -16,6 +16,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
+import androidx.core.app.NotificationManagerCompat
 import com.ryanheise.audioservice.AudioServiceActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -73,6 +74,11 @@ class MainActivity : AudioServiceActivity() {
                     ) {
                         requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
                     }
+                    result.success(null)
+                } else if (call.method == "cancel") {
+                    // The media notification, once nothing plays (1124 is
+                    // audio_service's id for it).
+                    NotificationManagerCompat.from(this).cancel(1124)
                     result.success(null)
                 } else {
                     result.notImplemented()

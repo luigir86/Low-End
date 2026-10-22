@@ -50,10 +50,14 @@
                 <data android:scheme="lowend" android:host="action"/>
             </intent-filter>
         </activity>
+        <!-- Not exported: only the app's own notification and headset
+             buttons reach it. Exported, Android 11+ keeps a "resume" media
+             card with a play button after the sound stops, a button that
+             has nothing to resume. -->
         <service
             android:name="com.ryanheise.audioservice.AudioService"
             android:foregroundServiceType="mediaPlayback"
-            android:exported="true"
+            android:exported="false"
             tools:ignore="Instantiatable">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
