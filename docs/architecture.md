@@ -54,7 +54,7 @@ Every outside thing sits behind an interface with a silent or fake twin (`ToneOu
 
 ## Playing with the screen off
 
-`MediaNotificationAudio` (on `audio_service`) runs a foreground service of type `mediaPlayback` with a notification, so Android does not freeze the app. It asks for `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_MEDIA_PLAYBACK`, `POST_NOTIFICATIONS` and `WAKE_LOCK`. `WakelockScreenAwake` keeps the screen on, optionally, while something plays or the tuner listens.
+`MediaNotificationAudio` (on `audio_service`) runs a foreground service of type `mediaPlayback` with a notification, so Android does not freeze the app. The notification is there only while something plays, or after its own pause; the service is not exported, so Android 11+ keeps no "resume" card with a play button once the sound stops. It asks for `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_MEDIA_PLAYBACK`, `POST_NOTIFICATIONS` and `WAKE_LOCK`. `WakelockScreenAwake` keeps the screen on, optionally, while something plays or the tuner listens.
 
 ## Settings
 
