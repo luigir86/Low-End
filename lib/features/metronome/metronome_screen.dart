@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/gestures.dart' show kLongPressTimeout;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
 
 import '../../app/theme.dart';
 import '../../audio/audio_scope.dart';
@@ -191,7 +192,11 @@ class _BeatRingState extends State<_BeatRing>
         type: MaterialType.transparency,
         child: InkWell(
           customBorder: const CircleBorder(),
-          onTap: metronome.toggle,
+          // Felt in the hand as well: on stage the eyes are on the music.
+          onTap: () {
+            HapticFeedback.lightImpact();
+            metronome.toggle();
+          },
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -734,7 +739,11 @@ class _TapButtonState extends State<_TapButton> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    void tap() => widget.metronome.tap(_clock.elapsed);
+    void tap() {
+      HapticFeedback.lightImpact();
+      widget.metronome.tap(_clock.elapsed);
+    }
+
     return Semantics(
       label: l10n.tapTempo,
       button: true,

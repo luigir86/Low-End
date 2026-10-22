@@ -17,6 +17,10 @@
   },
   "timeSignature": "Time signature",
   "backgroundPlaying": "Playing in the background",
+  "sectionPlaying": "Playing",
+  "@sectionPlaying": {
+    "description": "Said by screen readers on the tab of a section that is sounding, where a dot shows it."
+  },
   "slower": "Slower",
   "faster": "Faster",
   "tapTempo": "Tap the tempo",
@@ -176,6 +180,10 @@
     }
   },
   "settingsTitle": "Settings",
+  "settingsGeneral": "General",
+  "@settingsGeneral": {
+    "description": "The first group of the settings page: what concerns the whole app."
+  },
   "languageLabel": "Language",
   "languageSystem": "Same as the phone",
   "noteNamesLabel": "Note names",
@@ -261,15 +269,12 @@
   "swipeHint": "Swipe up or down over the dial or the tabs to change section.",
   "gesturesLockedTitle": "Lock the gestures",
   "gesturesLockedSubtitle": "For rehearsals: no swiping between sections",
-  "inTuneZoneTitle": "Tuner: in tune within",
+  "inTuneZoneTitle": "In tune within",
   "inTuneZoneSubtitle": "How far off a note can be, in cents (hundredths of a semitone), and still show as in tune",
   "guideTitle": "Gestures and shortcuts",
-  "guideRing": "The metronome and the harmony start and stop by touching the middle of their dial.",
-  "guideTempo": "Touch the pencil to type the tempo, or tap TAP. Hold − or + and the tempo runs, faster and faster.",
+  "guideRing": "Each section starts and stops when you touch the middle of its dial. In Harmony, touch a note.",
+  "guideTempo": "Hold − or + and the tempo runs, faster and faster.",
   "guideSwipe": "Swipe left and right to change section.",
-  "guideSwipeVertical": "Turned sideways, swipe up and down over the dial or the tabs to change section.",
-  "guideDrone": "In Harmony, tap a note to play it. Hold C♯ or F♯ to write them D♭ or G♭.",
-  "guideTuner": "The tuner listens by itself when nothing is playing. If something is, touch its dial: the metronome and the harmony pause.",
   "guideVolume": "The volume is the phone's: use its volume keys.",
   "guideDone": "Got it",
   "writeAs": "Write as {note}",
@@ -281,23 +286,6 @@
       }
     }
   },
-  "guidePage1Title": "Play",
-  "guidePage2Title": "Move around",
-  "guidePage3Title": "Tune and volume",
-  "guideNext": "Next",
-  "guidePageOf": "Page {n} of {total}",
-  "@guidePageOf": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "guideLock": "For rehearsals, lock the gestures in the settings: swiping between sections then does nothing.",
-  "guideCents": "A cent is a hundredth of a semitone: within a few cents a note is in tune.",
   "progressionBluesShort": "Blues",
   "keyLine": "{progression} in {key}",
   "@keyLine": {
@@ -355,7 +343,7 @@
   "backbeatTitle": "Click on 2 and 4",
   "backbeatSubtitle": "Beats 1 and 3 stay silent, as on a jazz hi-hat. In 2/4 and 4/4.",
   "backbeatShort": "2 & 4",
-  "transpositionTitle": "Tuner: transposing instrument",
+  "transpositionTitle": "Transposing instrument",
   "transpositionSubtitle": "For B♭, E♭ and F instruments, the chromatic tuner names the written note",
   "transpositionConcert": "Concert pitch",
   "transpositionKey": "in {key}",

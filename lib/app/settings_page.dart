@@ -9,7 +9,8 @@ import 'about.dart';
 import 'guide.dart';
 import 'settings.dart';
 
-/// Language, theme, screen, note names and reference A, plus the About box.
+/// The settings in three groups (the whole app, the tuner, the harmony), then
+/// the thanks, the guide and the About box.
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
@@ -31,102 +32,68 @@ class SettingsPage extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.symmetric(vertical: 8),
             children: [
-              _Section(title: l10n.languageLabel),
-              RadioGroup<String?>(
-                groupValue: settings.languageCode,
-                onChanged: settings.setLanguage,
-                child: Column(
-                  children: [
-                    RadioListTile<String?>(
-                      value: null,
-                      title: Text(l10n.languageSystem),
-                    ),
+              // What the whole app speaks and shows.
+              _Section(title: l10n.settingsGeneral),
+              ListTile(
+                // The field is taller than a one-line tile: room around it.
+                contentPadding: _MenuField.tilePadding,
+                title: Text(l10n.languageLabel),
+                trailing: _MenuField<String>(
+                  key: const Key('languageMenu'),
+                  label: l10n.languageLabel,
+                  width: _MenuField.wide,
+                  // '' is the phone's language: a menu closed without a
+                  // choice gives null.
+                  selected: settings.languageCode ?? '',
+                  choices: [
+                    Choice(value: '', title: l10n.languageSystem),
                     // Each language in its own name, so it can be found
                     // whatever the app is showing.
-                    const RadioListTile<String?>(
-                      value: 'en',
-                      title: Text('English'),
-                    ),
-                    const RadioListTile<String?>(
-                      value: 'it',
-                      title: Text('Italiano'),
-                    ),
+                    const Choice(value: 'en', title: 'English'),
+                    const Choice(value: 'it', title: 'Italiano'),
                   ],
+                  onSelected: (code) =>
+                      settings.setLanguage(code.isEmpty ? null : code),
                 ),
               ),
-              const Divider(),
+              ListTile(
+                // The field is taller than a one-line tile: room around it.
+                contentPadding: _MenuField.tilePadding,
+                title: Text(l10n.noteNamesLabel),
+                trailing: _MenuField<NoteNaming>(
+                  key: const Key('noteNamesMenu'),
+                  label: l10n.noteNamesLabel,
+                  width: _MenuField.wide,
+                  selected: settings.naming,
+                  choices: [
+                    Choice(value: NoteNaming.auto, title: l10n.noteNamesAuto),
+                    Choice(
+                      value: NoteNaming.solfege,
+                      title: l10n.noteNamesSolfege,
+                    ),
+                    Choice(
+                      value: NoteNaming.letters,
+                      title: l10n.noteNamesLetters,
+                    ),
+                  ],
+                  onSelected: settings.setNaming,
+                ),
+              ),
               SwitchListTile(
                 value: settings.keepScreenOn,
                 onChanged: settings.setKeepScreenOn,
                 title: Text(l10n.keepScreenOnTitle),
                 subtitle: Text(l10n.keepScreenOnSubtitle),
               ),
-              const Divider(),
-              _Section(title: l10n.noteNamesLabel),
-              RadioGroup<NoteNaming>(
-                groupValue: settings.naming,
-                onChanged: (n) => settings.setNaming(n!),
-                child: Column(
-                  children: [
-                    RadioListTile(
-                      value: NoteNaming.auto,
-                      title: Text(l10n.noteNamesAuto),
-                    ),
-                    RadioListTile(
-                      value: NoteNaming.solfege,
-                      title: Text(l10n.noteNamesSolfege),
-                    ),
-                    RadioListTile(
-                      value: NoteNaming.letters,
-                      title: Text(l10n.noteNamesLetters),
-                    ),
-                  ],
-                ),
+              SwitchListTile(
+                value: settings.gesturesLocked,
+                onChanged: settings.setGesturesLocked,
+                title: Text(l10n.gesturesLockedTitle),
+                subtitle: Text(l10n.gesturesLockedSubtitle),
               ),
-              const Divider(),
-              _Section(title: l10n.referencePitch),
               ListTile(
-                title: Text(l10n.referencePitchHint(example)),
-                // The field announces its name too, not only "440 Hz".
-                trailing: _MenuField<double>(
-                  key: const Key('referencePitchMenu'),
-                  label: l10n.referencePitch,
-                  selected: settings.a4,
-                  choices: [
-                    for (final hz in referencePitches)
-                      Choice(value: hz, title: '${hz.round()} Hz'),
-                  ],
-                  onSelected: settings.setReferencePitch,
-                ),
-              ),
-              const Divider(),
-              _Section(title: l10n.circleLayoutLabel),
-              RadioGroup<CircleLayout>(
-                groupValue: settings.circleLayout,
-                onChanged: (c) => settings.setCircleLayout(c!),
-                child: Column(
-                  children: [
-                    RadioListTile(
-                      value: CircleLayout.fifths,
-                      title: Text(l10n.circleLayoutFifths),
-                    ),
-                    RadioListTile(
-                      value: CircleLayout.chromatic,
-                      title: Text(l10n.circleLayoutChromatic),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(),
-              _Section(title: l10n.octaveNumberingLabel),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-                child: Text(
-                  l10n.octaveNumberingHint,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
+                title: Text(l10n.octaveNumberingLabel),
+                subtitle: Text(l10n.octaveNumberingHint),
               ),
               RadioGroup<OctaveNumbering>(
                 groupValue: settings.octaveNumbering,
@@ -169,11 +136,22 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
               const Divider(),
-              SwitchListTile(
-                value: settings.gesturesLocked,
-                onChanged: settings.setGesturesLocked,
-                title: Text(l10n.gesturesLockedTitle),
-                subtitle: Text(l10n.gesturesLockedSubtitle),
+              // Everything the tuner compares with, together.
+              _Section(title: l10n.tunerTab),
+              ListTile(
+                title: Text(l10n.referencePitch),
+                subtitle: Text(l10n.referencePitchHint(example)),
+                // The field announces its name too, not only "440 Hz".
+                trailing: _MenuField<double>(
+                  key: const Key('referencePitchMenu'),
+                  label: l10n.referencePitch,
+                  selected: settings.a4,
+                  choices: [
+                    for (final hz in referencePitches)
+                      Choice(value: hz, title: '${hz.round()} Hz'),
+                  ],
+                  onSelected: settings.setReferencePitch,
+                ),
               ),
               ListTile(
                 title: Text(l10n.inTuneZoneTitle),
@@ -220,6 +198,25 @@ class SettingsPage extends StatelessWidget {
                     onSelectionChanged: (s) =>
                         settings.setTransposition(s.first),
                   ),
+                ),
+              ),
+              const Divider(),
+              _Section(title: l10n.harmonyTab),
+              ListTile(title: Text(l10n.circleLayoutLabel)),
+              RadioGroup<CircleLayout>(
+                groupValue: settings.circleLayout,
+                onChanged: (c) => settings.setCircleLayout(c!),
+                child: Column(
+                  children: [
+                    RadioListTile(
+                      value: CircleLayout.fifths,
+                      title: Text(l10n.circleLayoutFifths),
+                    ),
+                    RadioListTile(
+                      value: CircleLayout.chromatic,
+                      title: Text(l10n.circleLayoutChromatic),
+                    ),
+                  ],
                 ),
               ),
               const Divider(),
@@ -298,16 +295,25 @@ class _MenuField<T> extends StatelessWidget {
     required this.selected,
     required this.choices,
     required this.onSelected,
+    this.width = 136,
   });
 
+  /// For words rather than numbers: "Follow the language".
+  static const double wide = 176;
+
+  /// Around a tile whose only line is its title, so that two such fields
+  /// one under the other do not touch.
+  static const tilePadding = EdgeInsets.symmetric(horizontal: 16, vertical: 4);
+
   final String label;
+  final double width;
   final T selected;
   final List<Choice<T>> choices;
   final ValueChanged<T> onSelected;
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    width: 136,
+    width: width,
     child: LabeledField(
       label: label,
       showLabel: false,

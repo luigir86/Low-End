@@ -221,6 +221,9 @@ abstract final class LowEndTheme {
           color: scheme.onSurface,
         ),
       ),
+      // The dot on the tab of a section that is playing: the accent, not
+      // the red of an error.
+      badgeTheme: BadgeThemeData(backgroundColor: scheme.primary),
       cardTheme: CardThemeData(
         color: scheme.surfaceContainerLow,
         surfaceTintColor: Colors.transparent,

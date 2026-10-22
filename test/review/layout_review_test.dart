@@ -256,6 +256,8 @@ void main() {
       await h.scope.drone.tapNote(9);
       await tester.tap(find.byIcon(Icons.settings_outlined));
       await h.settle('open settings');
+      await tester.tap(find.byKey(const Key('languageMenu')));
+      await h.settle('language menu');
       await tester.tap(find.text('Italiano'));
       await h.settle('italiano');
       expect(find.text('Impostazioni'), findsOneWidget);

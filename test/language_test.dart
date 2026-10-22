@@ -83,11 +83,16 @@ void main() {
     await open(tester, const [Locale('it', 'IT')], settings: settings);
     await tester.tap(find.byTooltip('Impostazioni'));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('languageMenu')));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('English'));
     await tester.pumpAndSettle();
     expect(settings.languageCode, 'en');
     expect(find.text('Settings'), findsOneWidget);
-    await tester.tap(find.text('Same as the phone'));
+    await tester.tap(find.byKey(const Key('languageMenu')));
+    await tester.pumpAndSettle();
+    // The menu's line, not the field's.
+    await tester.tap(find.text('Same as the phone').last);
     await tester.pumpAndSettle();
     expect(settings.languageCode, isNull);
     expect(find.text('Impostazioni'), findsWidgets);

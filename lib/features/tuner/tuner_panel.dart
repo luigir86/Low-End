@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
 
 import '../../app/app_navigation.dart';
 import '../../app/settings.dart';
@@ -108,13 +109,19 @@ class _TunerPanelState extends State<TunerPanel> {
           ),
           // The cents scale sits in the first row, next to the strobe, which the
           // other tabs leave empty. Announced by screen readers, e.g. when the
-          // microphone is denied, a message takes its place.
-          header: message == null
-              ? _CentsBar(
-                  reading: reading,
-                  held: _tuner.held,
-                  tolerance: settings.inTuneCents,
-                  listening: _tuner.isListening,
+          // microphone is denied, a message takes its place. Paused, the
+          // middle of the dial already says Listen: the scale stays, empty,
+          // and only screen readers hear that the tuner paused.
+          header: message == null || _tuner.status == TunerStatus.idle
+              ? Semantics(
+                  liveRegion: message != null,
+                  label: message,
+                  child: _CentsBar(
+                    reading: reading,
+                    held: _tuner.held,
+                    tolerance: settings.inTuneCents,
+                    listening: _tuner.isListening,
+                  ),
                 )
               : Column(
                   mainAxisSize: MainAxisSize.min,
@@ -124,11 +131,7 @@ class _TunerPanelState extends State<TunerPanel> {
                       child: Text(
                         message,
                         textAlign: TextAlign.center,
-                        style: _tuner.status == TunerStatus.idle
-                            ? theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                              )
-                            : TextStyle(color: theme.colorScheme.error),
+                        style: TextStyle(color: theme.colorScheme.error),
                       ),
                     ),
                     // A way out of a no: straight to the app's settings.
@@ -423,7 +426,10 @@ class _StrobeDiscState extends State<_StrobeDisc>
                 child: InkWell(
                   key: const Key('tunerHub'),
                   customBorder: const CircleBorder(),
-                  onTap: widget.onToggle,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    widget.onToggle();
+                  },
                   child: Center(
                     child: FractionallySizedBox(
                       widthFactor: 0.5 / DialGeometry.hubFraction,

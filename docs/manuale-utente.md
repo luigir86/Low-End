@@ -11,7 +11,7 @@ Le schede in basso (a sinistra con il telefono in orizzontale) sono **Metronomo*
 - Una **scheda** porta solo alla sua sezione: non avvia né ferma mai nulla. **Ogni sezione avvia e ferma il proprio suono dal centro del suo cerchio.**
 - **Scorri** a destra o a sinistra per cambiare sezione. Con il telefono in orizzontale le schede passano in una colonna a sinistra e l'ingranaggio resta in alto a destra: **scorri verso l'alto o il basso** sul cerchio o sulle schede (non sulle righe a destra, che possono scorrere) per cambiare sezione. Dev'essere un gesto rapido: un trascinamento lento non fa nulla. La prima volta che giri il telefono in orizzontale un breve suggerimento lo ricorda.
 - Per le prove, **Blocca i gesti** nelle impostazioni disattiva gli scorrimenti tra le sezioni. Le schede continuano a funzionare.
-- La prima volta compare una breve **guida ai gesti**; la ritrovi in *Impostazioni → Gesti e scorciatoie*.
+- La prima volta compare una **guida ai gesti** di una pagina; la ritrovi in *Impostazioni → Gesti e scorciatoie*.
 - Sotto ogni cerchio ci sono tre righe. Metronomo e Armonia lasciano vuota la prima e usano la seconda e la terza, così i comandi stanno più in basso, vicino al pollice; l'accordatore le usa tutte e tre: la barra dei cent per prima, vicino allo strobo, poi Cromatico / strumento e il La di riferimento.
 
 Il volume è quello del telefono: usa i suoi tasti.
@@ -33,8 +33,8 @@ Dodici tasti intorno a un cerchio (di norma nel cerchio delle quinte; nelle impo
 - **Tocca un tasto** per sentirlo su un vero pianoforte, a tempo con il metronomo. **Toccalo di nuovo**, o tocca il centro del cerchio, per fermarlo; toccando il centro da fermo suona di nuovo l'ultima nota. Armonia e metronomo possono suonare insieme o da soli.
 - **Tieni premuto Do♯ o Fa♯** per scriverli Re♭ o Sol♭.
 - **Accordo**: la nota da sola (la prima voce del menu), oppure maggiore, minore, settima di dominante, settima maggiore (maj7), settima minore (m7), semidiminuito (m7♭5), diminuito o quarta sospesa (sus4), costruito sulla nota. **Progressione**: un accordo per battuta, nella tonalità della nota toccata: II–V–I (maggiore e minore, a settime), I–IV–V, I–VI–IV–V, I–V–VI–IV, la cadenza andalusa (in tonalità minore), I–VI–II–V e il blues di dodici battute. Quelle jazz sono a settime, le altre a triadi. Il menu dice cos'è ognuna: *Standard jazz, come Autumn Leaves* (II–V–I), *Jazz in tonalità minore, come Blue Bossa*, *Rock ’n’ roll, come Twist and Shout* (I–IV–V), *Pop anni ’50–’60, come Stand by Me* (I–VI–IV–V) e *Blues, come Sweet Home Chicago*. Mentre l'Armonia suona, il cerchio attenua le note che non senti; con una progressione attenua le note fuori dalla tonalità e scrive in piccolo i numeri romani (II, V, I) sulle note su cui stanno; restano fermi: leggi II, poi vai al V. Tocca un numero per vedere cosa significa. Al centro, una fila di pallini mostra le battute della progressione, quello pieno è l'accordo che suona.
-- **Brani d'esempio**: in fondo alle opzioni del suono; toccandone uno imposti in un colpo tonalità, progressione e tempo.
-- **Opzioni del suono** (il pulsante in fondo alla terza riga): il **tono continuo** (un suono fisso al posto del pianoforte ribattuto) e lo **stile**: accordo battuto una volta a battuta, a ogni tempo, oppure arpeggiato, secondo tempo e misura del metronomo. La fondamentale suona sempre nell'ottava 3 (La3 = 220 Hz in numerazione scientifica), che l'altoparlante del telefono rende bene; le altre note dell'accordo stanno vicine sopra di lei, come le suonerebbe la mano di un pianista. In fondo, **Brani d'esempio** e **Legenda e gradi**, che spiega i colori del cerchio e i numeri.
+- **Brani d'esempio**: il pulsante a sinistra del menu delle progressioni (in modalità Progressione); toccandone uno imposti in un colpo tonalità, progressione e tempo.
+- **Opzioni del suono** (il pulsante in fondo alla terza riga): il **tono continuo** (un suono fisso al posto del pianoforte ribattuto) e lo **stile**: accordo battuto una volta a battuta, a ogni tempo, oppure arpeggiato, secondo tempo e misura del metronomo. La fondamentale suona sempre nell'ottava 3 (La3 = 220 Hz in numerazione scientifica), che l'altoparlante del telefono rende bene; le altre note dell'accordo stanno vicine sopra di lei, come le suonerebbe la mano di un pianista. In fondo, **Legenda e gradi**, che spiega i colori del cerchio e i numeri.
 - **Partire insieme**: se il metronomo sta già suonando, l'armonia entra sulla battuta successiva del metronomo e, fino ad allora, al centro del cerchio compaiono i secondi che mancano. Lo stesso vale per il metronomo, se lo avvii mentre l'armonia suona.
 
 ## Accordatore
@@ -52,20 +52,21 @@ Dodici tasti intorno a un cerchio (di norma nel cerchio delle quinte; nelle impo
 
 ## Impostazioni
 
-L'ingranaggio in alto apre le impostazioni:
+L'ingranaggio in alto apre le impostazioni, divise in tre gruppi:
 
-| Impostazione | Scelte |
-| --- | --- |
-| Lingua | Come il telefono, inglese, italiano |
-| Tieni lo schermo acceso | Mentre suona o l'accordatore ascolta (attivo di default) |
-| Nomi delle note | Come la lingua, Do Re Mi, C D E |
-| La di riferimento | ogni hertz da 415 a 445, per l'accordatore e l'armonia |
-| Cerchio dell'armonia | Cerchio delle quinte, oppure in semitoni |
-| Numeri delle ottave | Scientifica (La4 = 440 Hz, il Mi grave del basso è Mi1; di default) o Italiana (La3 = 440 Hz); cambia solo il numero |
-| Blocca i gesti | Disattiva gli scorrimenti tra le sezioni |
-| Accordatore: intonato entro | ±2, ±5 o ±10 cent |
-| Accordatore: strumento traspositore | Do (suono reale), Si♭, Mi♭, Fa |
-| Gesti e scorciatoie | Mostra di nuovo la guida |
+| Gruppo | Impostazione | Scelte |
+| --- | --- | --- |
+| Generale | Lingua | Come il telefono, inglese, italiano |
+| Generale | Nomi delle note | Come la lingua, Do Re Mi, C D E |
+| Generale | Tieni lo schermo acceso | Mentre suona o l'accordatore ascolta (attivo di default) |
+| Generale | Blocca i gesti | Disattiva gli scorrimenti tra le sezioni |
+| Generale | Numeri delle ottave | Scientifica (La4 = 440 Hz, il Mi grave del basso è Mi1; di default) o Italiana (La3 = 440 Hz); cambia solo il numero |
+| Accordatore | La di riferimento | ogni hertz da 415 a 445, per l'accordatore e l'armonia |
+| Accordatore | Intonato entro | ±2, ±5 o ±10 cent |
+| Accordatore | Strumento traspositore | Do (suono reale), Si♭, Mi♭, Fa |
+| Armonia | Cerchio dell'armonia | Cerchio delle quinte, oppure in semitoni |
+
+In fondo, **Gesti e scorciatoie** mostra di nuovo la guida, su una pagina.
 
 **Ringraziamenti** va alla Power Flower Orchestra di Fossano, che ha ispirato e provato quest’app; il suo pulsante apre la loro pagina Instagram nel browser del telefono. **Informazioni su Low End** (in fondo alle impostazioni) mostra la licenza, il link al codice sorgente (anch'esso aperto nel browser) e, sotto *Visualizza licenze*, le licenze di tutto ciò con cui l'app è costruita, font e suoni del pianoforte compresi.
 

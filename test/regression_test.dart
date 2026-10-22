@@ -167,6 +167,28 @@ void main() {
       expect(mic.isCapturing, isTrue);
     });
 
+    testWidgets('the tab of a section that plays carries a dot, seen from '
+        'the other tabs', (tester) async {
+      final scope = await _pumpApp(tester);
+      Iterable<Badge> lit() => tester
+          .widgetList<Badge>(find.byType(Badge))
+          .where((b) => b.isLabelVisible);
+      expect(lit(), isEmpty);
+      await scope.drone.tapNote(9);
+      await _settle(tester);
+      expect(lit(), hasLength(1), reason: 'only the harmony plays');
+      final harmonyTab = tester.getSemantics(
+        find.ancestor(
+          of: find.text('Harmony'),
+          matching: find.byType(NavigationDestination),
+        ),
+      );
+      expect(harmonyTab.value, contains('Playing'));
+      await scope.drone.stop();
+      await _settle(tester);
+      expect(lit(), isEmpty);
+    });
+
     testWidgets('a pause by the player lasts across tabs, pages and the '
         'background', (tester) async {
       final mic = FakeMicInput();
@@ -174,7 +196,10 @@ void main() {
       await tester.tap(find.byKey(const Key('tunerHub')));
       await _settle(tester);
       expect(mic.isCapturing, isFalse);
-      expect(find.text('Tuner paused: tap Listen'), findsOneWidget);
+      // The middle of the dial says Listen; the line over the scale is for
+      // screen readers only.
+      expect(find.text('Tuner paused: tap Listen'), findsNothing);
+      expect(find.bySemanticsLabel('Tuner paused: tap Listen'), findsOneWidget);
 
       scope.navigation.open(AppSection.drone);
       await _settle(tester);

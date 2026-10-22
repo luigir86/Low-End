@@ -42,6 +42,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backgroundPlaying => 'Playing in the background';
 
   @override
+  String get sectionPlaying => 'Playing';
+
+  @override
   String get slower => 'Slower';
 
   @override
@@ -254,6 +257,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTitle => 'Settings';
 
   @override
+  String get settingsGeneral => 'General';
+
+  @override
   String get languageLabel => 'Language';
 
   @override
@@ -416,7 +422,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'For rehearsals: no swiping between sections';
 
   @override
-  String get inTuneZoneTitle => 'Tuner: in tune within';
+  String get inTuneZoneTitle => 'In tune within';
 
   @override
   String get inTuneZoneSubtitle =>
@@ -427,26 +433,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideRing =>
-      'The metronome and the harmony start and stop by touching the middle of their dial.';
+      'Each section starts and stops when you touch the middle of its dial. In Harmony, touch a note.';
 
   @override
-  String get guideTempo =>
-      'Touch the pencil to type the tempo, or tap TAP. Hold − or + and the tempo runs, faster and faster.';
+  String get guideTempo => 'Hold − or + and the tempo runs, faster and faster.';
 
   @override
   String get guideSwipe => 'Swipe left and right to change section.';
-
-  @override
-  String get guideSwipeVertical =>
-      'Turned sideways, swipe up and down over the dial or the tabs to change section.';
-
-  @override
-  String get guideDrone =>
-      'In Harmony, tap a note to play it. Hold C♯ or F♯ to write them D♭ or G♭.';
-
-  @override
-  String get guideTuner =>
-      'The tuner listens by itself when nothing is playing. If something is, touch its dial: the metronome and the harmony pause.';
 
   @override
   String get guideVolume => 'The volume is the phone\'s: use its volume keys.';
@@ -458,31 +451,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String writeAs(String note) {
     return 'Write as $note';
   }
-
-  @override
-  String get guidePage1Title => 'Play';
-
-  @override
-  String get guidePage2Title => 'Move around';
-
-  @override
-  String get guidePage3Title => 'Tune and volume';
-
-  @override
-  String get guideNext => 'Next';
-
-  @override
-  String guidePageOf(int n, int total) {
-    return 'Page $n of $total';
-  }
-
-  @override
-  String get guideLock =>
-      'For rehearsals, lock the gestures in the settings: swiping between sections then does nothing.';
-
-  @override
-  String get guideCents =>
-      'A cent is a hundredth of a semitone: within a few cents a note is in tune.';
 
   @override
   String get progressionBluesShort => 'Blues';
@@ -591,7 +559,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backbeatShort => '2 & 4';
 
   @override
-  String get transpositionTitle => 'Tuner: transposing instrument';
+  String get transpositionTitle => 'Transposing instrument';
 
   @override
   String get transpositionSubtitle =>

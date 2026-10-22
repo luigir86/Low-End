@@ -11,7 +11,7 @@ The tabs at the bottom (on the left when the phone is sideways) are **Metronome*
 - A **tab** only takes you to its section: it never starts or stops anything. **Each section starts and stops its own sound from the middle of its dial.**
 - **Swipe** left or right to change section. With the phone turned sideways the tabs move to a column on the left and the settings gear stays top right: **swipe up or down** over the dial or the tabs (not over the rows on the right, which may scroll) to change section. It has to be a quick flick: a slow drag does nothing. The first time you turn the phone sideways a short hint says so.
 - For rehearsals, **Lock the gestures** in the settings turns off the swipes between sections. The tabs still work.
-- The first time you open the app a short **gesture guide** appears. It is also in *Settings → Gestures and shortcuts*.
+- The first time you open the app a one-page **gesture guide** appears. It is also in *Settings → Gestures and shortcuts*.
 - Under every dial there are three rows. Metronome and Harmony leave the first empty and use the second and third, so their controls sit lower, near the thumb; the tuner uses all three, with the cents bar first, next to the strobe, then the Chromatic / instrument switch and the reference A.
 
 The volume is the phone's: use its volume keys.
@@ -33,8 +33,8 @@ Twelve keys round a dial (by default in the circle of fifths; you can ask for se
 - **Touch a key** to play it on a real piano, in time with the metronome. **Touch it again**, or the middle of the dial, to stop; touching the middle while it is stopped plays the last note again. The harmony and the metronome can play together or alone.
 - **Hold C♯ or F♯** to write them D♭ or G♭.
 - **Chord**: the note alone (the first entry of the menu), or major, minor, dominant 7, maj7, m7, half-diminished (m7♭5), diminished or sus4, built on the note. **Progression**: one chord per bar, in the key of the note you touched: II–V–I (major and minor, in sevenths), I–IV–V, I–VI–IV–V, I–V–VI–IV, the Andalusian cadence (in a minor key), I–VI–II–V and the twelve-bar blues. The jazz ones are in sevenths, the others in triads. The menu says what each is: *Jazz standard, like Autumn Leaves* (II–V–I), *Jazz in a minor key, like Blue Bossa*, *Rock ’n’ roll, like Twist and Shout* (I–IV–V), *’50s–’60s pop, like Stand by Me* (I–VI–IV–V) and *Blues, like Sweet Home Chicago*. While Harmony sounds, the dial fades the notes you do not hear; with a progression it fades the notes outside the key and writes the Roman numerals (II, V, I) small on the notes they stand on, and they stay put: read II, then go to V. Touch a numeral to see what it stands for. In the middle of the dial a row of dots shows the bars of the progression, the filled one being the chord sounding.
-- **Example songs**: at the bottom of the sound options; touching one sets the key, the progression and the tempo in one go.
-- **Sound options** (the button at the end of the third row): **held tone** (a steady tone instead of the piano struck again and again) and **style**: the chord struck once a bar, on every beat, or played as an arpeggio, at the metronome's tempo and time signature. The root always sounds in octave 3 (A3 = 220 Hz), which the phone's own speaker plays well; the rest of the chord sits close together above it, as a pianist's hand plays it. At the bottom, **Example songs** and **Legend and degrees**, which explains the colours of the dial and the numerals.
+- **Example songs**: the button left of the progression menu (in Progression mode); touching one sets the key, the progression and the tempo in one go.
+- **Sound options** (the button at the end of the third row): **held tone** (a steady tone instead of the piano struck again and again) and **style**: the chord struck once a bar, on every beat, or played as an arpeggio, at the metronome's tempo and time signature. The root always sounds in octave 3 (A3 = 220 Hz), which the phone's own speaker plays well; the rest of the chord sits close together above it, as a pianist's hand plays it. At the bottom, **Legend and degrees**, which explains the colours of the dial and the numerals.
 - **Starting together**: if the metronome is already playing, the harmony comes in on the metronome's next bar line, and until then the middle of the dial shows the seconds to go. The same goes for the metronome when you start it while the harmony plays.
 
 ## Tuner
@@ -52,20 +52,21 @@ Twelve keys round a dial (by default in the circle of fifths; you can ask for se
 
 ## Settings
 
-The gear at the top opens the settings:
+The gear at the top opens the settings, in three groups:
 
-| Setting | Choices |
-| --- | --- |
-| Language | Same as the phone, English, Italian |
-| Keep the screen on | While something plays or the tuner listens (on by default) |
-| Note names | Follow the language, Do Re Mi, C D E |
-| Reference A | every hertz from 415 to 445, for the tuner and the harmony |
-| Harmony circle | Circle of fifths, or in semitones |
-| Octave numbers | Scientific (A4 = 440 Hz, a bass's low E is E1; the default) or Italian (La3 = 440 Hz); only the number changes |
-| Lock the gestures | Turns off the swipes between sections |
-| Tuner: in tune within | ±2, ±5 or ±10 cents |
-| Tuner: transposing instrument | C (concert pitch), B♭, E♭, F |
-| Gestures and shortcuts | Shows the guide again |
+| Group | Setting | Choices |
+| --- | --- | --- |
+| General | Language | Same as the phone, English, Italian |
+| General | Note names | Follow the language, Do Re Mi, C D E |
+| General | Keep the screen on | While something plays or the tuner listens (on by default) |
+| General | Lock the gestures | Turns off the swipes between sections |
+| General | Octave numbers | Scientific (A4 = 440 Hz, a bass's low E is E1; the default) or Italian (La3 = 440 Hz); only the number changes |
+| Tuner | Reference A | every hertz from 415 to 445, for the tuner and the harmony |
+| Tuner | In tune within | ±2, ±5 or ±10 cents |
+| Tuner | Transposing instrument | C (concert pitch), B♭, E♭, F |
+| Harmony | Harmony circle | Circle of fifths, or in semitones |
+
+At the bottom, **Gestures and shortcuts** shows the one-page guide again.
 
 **Thanks** is for the Power Flower Orchestra of Fossano, who inspired this app and put it to the test; its button opens their Instagram page in the phone's browser. **About Low End** (at the bottom of the settings) shows the licence, the source-code link (also opened in the browser) and, under *View licences*, the licences of everything the app is built with, fonts and piano sounds included.
 
