@@ -17,12 +17,19 @@ class LabeledField extends StatelessWidget {
     required this.value,
     required this.onTap,
     this.showLabel = true,
+    this.display,
   });
 
   final String label;
   final bool showLabel;
   final String value;
-  final VoidCallback onTap;
+
+  /// Shown in place of [value] (the notes of a subdivision); [value] is
+  /// still what a screen reader says.
+  final Widget? display;
+
+  /// Null: the field is dimmed and does nothing.
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -32,27 +39,33 @@ class LabeledField extends StatelessWidget {
       label: label,
       value: value,
       excludeSemantics: true,
+      enabled: onTap != null,
       onTap: onTap,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(4),
-        onTap: onTap,
-        child: InputDecorator(
-          decoration: InputDecoration(
-            labelText: showLabel ? label : null,
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            border: const OutlineInputBorder(),
-            contentPadding: const EdgeInsets.fromLTRB(12, 16, 4, 16),
-            suffixIcon: const Icon(Icons.arrow_drop_down),
-            suffixIconConstraints: const BoxConstraints(
-              minWidth: 28,
-              minHeight: 24,
+      child: Opacity(
+        opacity: onTap == null ? 0.38 : 1,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(4),
+          onTap: onTap,
+          child: InputDecorator(
+            decoration: InputDecoration(
+              labelText: showLabel ? label : null,
+              floatingLabelBehavior: FloatingLabelBehavior.always,
+              border: const OutlineInputBorder(),
+              contentPadding: const EdgeInsets.fromLTRB(12, 16, 4, 16),
+              suffixIcon: const Icon(Icons.arrow_drop_down),
+              suffixIconConstraints: const BoxConstraints(
+                minWidth: 28,
+                minHeight: 24,
+              ),
             ),
-          ),
-          child: Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.bodyLarge,
+            child:
+                display ??
+                Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodyLarge,
+                ),
           ),
         ),
       ),

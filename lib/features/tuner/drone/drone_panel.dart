@@ -657,26 +657,34 @@ class _VoicingSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    // Long words ("Progressione") shrink rather than break mid-word.
-    Widget label(String text) =>
-        FittedBox(fit: BoxFit.scaleDown, child: Text(text, maxLines: 1));
     final progression = drone.voicing == DroneVoicing.progression;
-    return SizedBox(
-      width: double.infinity,
-      child: SegmentedButton<bool>(
-        // A tick would take room from the labels; the filled segment
-        // already shows the choice.
-        showSelectedIcon: false,
-        style: SegmentedButton.styleFrom(minimumSize: const Size(0, 64)),
-        segments: [
-          ButtonSegment(value: false, label: label(l10n.chordLabel)),
-          ButtonSegment(value: true, label: label(l10n.progressionLabel)),
-        ],
-        selected: {progression},
-        // Back from a progression, the note alone or the chord last chosen.
-        onSelectionChanged: (s) => drone.setVoicing(
-          s.first ? DroneVoicing.progression : drone.chordVoicing,
-        ),
+    // A field like the metronome's and the tuner's first row.
+    return Builder(
+      builder: (field) => LabeledField(
+        key: const Key('voicingMenu'),
+        label: l10n.voicingLabel,
+        value: progression ? l10n.progressionLabel : l10n.chordLabel,
+        onTap: () async {
+          final p = await showChoiceMenu<bool>(
+            anchor: field,
+            selected: progression,
+            choices: [
+              Choice(
+                value: false,
+                title: l10n.chordLabel,
+                subtitle: l10n.voicingChordHint,
+              ),
+              Choice(
+                value: true,
+                title: l10n.progressionLabel,
+                subtitle: l10n.voicingProgressionHint,
+              ),
+            ],
+          );
+          if (p == null) return;
+          // Back from a progression, the note alone or the chord last chosen.
+          drone.setVoicing(p ? DroneVoicing.progression : drone.chordVoicing);
+        },
       ),
     );
   }

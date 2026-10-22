@@ -386,6 +386,16 @@ class AppLocalizationsIt extends AppLocalizations {
   String get tuningInstrument => 'Strumento';
 
   @override
+  String get voicingLabel => 'Modalità';
+
+  @override
+  String get voicingChordHint => 'Una nota o un accordo, finché lo fermi';
+
+  @override
+  String get voicingProgressionHint =>
+      'Accordi in sequenza, a tempo col metronomo';
+
+  @override
   String get tuningChromaticHint => 'Qualsiasi nota, senza scegliere la corda';
 
   @override

@@ -11,7 +11,6 @@ import '../../audio/audio_scope.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/choice_menu.dart';
 import '../../widgets/dial.dart';
-import '../../widgets/pill_switch.dart';
 import '../../widgets/row_controls.dart';
 import 'metronome_controller.dart';
 import 'note_icon.dart';
@@ -41,12 +40,13 @@ class MetronomeScreen extends StatelessWidget {
         // The first row, a pill like the tuner's, chooses the bar: the time
         // signature and what fills each beat. The second only sets the tempo:
         // TAP, − + and the pencil.
-        upper: PillSwitch(
+        upper: Row(
           key: const Key('barSwitch'),
-          leftFilled: false,
-          rightFilled: false,
-          left: _SignatureButton(metronome: metronome),
-          right: _SubdivisionField(metronome: metronome),
+          children: [
+            Expanded(child: _SignatureButton(metronome: metronome)),
+            const SizedBox(width: 8),
+            Expanded(child: _SubdivisionField(metronome: metronome)),
+          ],
         ),
         lower: Column(
           mainAxisSize: MainAxisSize.min,
@@ -441,36 +441,17 @@ class _SubdivisionField extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final subdivision = metronome.subdivision;
     final enabled = metronome.subdivisionApplies;
-    return PillSwitch.half(
-      left: false,
-      child: Semantics(
-        button: true,
-        enabled: enabled,
+    return Builder(
+      builder: (field) => LabeledField(
+        key: const Key('subdivisionMenu'),
         label: l10n.subdivisionLabel,
         value: subdivisionName(l10n, subdivision),
-        excludeSemantics: true,
-        onTap: enabled ? () => _choose(context) : null,
-        child: AnimatedOpacity(
-          duration: MediaQuery.disableAnimationsOf(context)
-              ? Duration.zero
-              : Durations.short4,
-          opacity: enabled ? 1 : 0.38,
-          child: InkWell(
-            key: const Key('subdivisionMenu'),
-            onTap: enabled ? () => _choose(context) : null,
-            child: PillSwitch.label(
-              context,
-              false,
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  NoteIcon(subdivision, height: 26),
-                  const Icon(Icons.arrow_drop_down),
-                ],
-              ),
-            ),
-          ),
+        display: Align(
+          alignment: AlignmentDirectional.centerStart,
+          heightFactor: 1,
+          child: NoteIcon(subdivision, height: 24),
         ),
+        onTap: enabled ? () => _choose(field) : null,
       ),
     );
   }
@@ -646,29 +627,12 @@ class _SignatureButton extends StatelessWidget {
     final value = metronome.backbeat && metronome.backbeatApplies
         ? '${signature.label} · ${l10n.backbeatShort}'
         : signature.label;
-    return PillSwitch.half(
-      left: true,
-      child: Semantics(
-        button: true,
+    return Builder(
+      builder: (field) => LabeledField(
+        key: const Key('signatureMenu'),
         label: l10n.timeSignature,
         value: value,
-        excludeSemantics: true,
-        onTap: () => _choose(context),
-        child: InkWell(
-          key: const Key('signatureMenu'),
-          onTap: () => _choose(context),
-          child: PillSwitch.label(
-            context,
-            false,
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(value, maxLines: 1),
-                const Icon(Icons.arrow_drop_down),
-              ],
-            ),
-          ),
-        ),
+        onTap: () => _choose(field),
       ),
     );
   }
