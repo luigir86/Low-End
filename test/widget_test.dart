@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:low_end/widgets/section_icons.dart';
 import 'package:low_end/app/app_navigation.dart';
 import 'package:low_end/app/background_audio.dart';
 import 'package:low_end/app/settings.dart';
@@ -724,7 +725,7 @@ void main() {
   });
 
   testWidgets(
-    'the tabs and the time signature are named, the tuner is a microphone',
+    'the tabs and the time signature are named, the tuner is a tuning fork',
     (tester) async {
       tester.view.physicalSize = const Size(1080, 2400);
       tester.view.devicePixelRatio = 2.625;
@@ -740,8 +741,13 @@ void main() {
       expect(find.text('Time signature'), findsNothing);
       expect(find.bySemanticsLabel('Time signature'), findsOneWidget);
       semantics.dispose();
-      // The tuner tab is a microphone.
-      expect(find.byIcon(Icons.mic_none), findsOneWidget);
+      // The tuner tab is a tuning fork.
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is SectionIcon && w.glyph == SectionGlyph.tuningFork,
+        ),
+        findsOneWidget,
+      );
     },
   );
 

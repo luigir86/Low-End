@@ -211,12 +211,17 @@ abstract final class LowEndTheme {
         backgroundColor: scheme.surfaceContainer,
         indicatorColor: scheme.primaryContainer,
         minWidth: 96,
+        // The rail does not take the app's font by itself.
         selectedLabelTextStyle: TextStyle(
+          fontFamily: 'Edwin',
+          fontFamilyFallback: const ['NotoMusic'],
           fontSize: LowEndType.small,
           color: scheme.onSurface,
           fontWeight: FontWeight.w700,
         ),
         unselectedLabelTextStyle: TextStyle(
+          fontFamily: 'Edwin',
+          fontFamilyFallback: const ['NotoMusic'],
           fontSize: LowEndType.small,
           color: scheme.onSurface,
         ),
