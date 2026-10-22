@@ -147,12 +147,15 @@ class _Handler extends BaseAudioHandler {
     );
   }
 
-  /// Not playing first, so that the service leaves the foreground: Android
-  /// would otherwise keep the notification after the stop.
-  Future<void> hide() {
-    playbackState.add(playbackState.value.copyWith(playing: false));
-    return super.stop();
-  }
+  /// Not playing and idle in one step: the service leaves the foreground
+  /// (Android keeps a foreground service's notification) and removes the
+  /// notification, with no update of it in between that could post it again.
+  Future<void> hide() async => playbackState.add(
+    playbackState.value.copyWith(
+      playing: false,
+      processingState: AudioProcessingState.idle,
+    ),
+  );
 
   @override
   Future<void> play() async => _commands.add(MediaCommand.play);
