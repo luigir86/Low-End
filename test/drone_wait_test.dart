@@ -8,6 +8,7 @@ import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/piano_output.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
+import 'package:low_end/features/tuner/drone/harmony.dart';
 
 void main() {
   test('counts down the wait for the metronome\'s bar line', () async {
@@ -66,5 +67,46 @@ void main() {
     await scope.drone.stop();
     await tester.pump(const Duration(milliseconds: 200));
     expect(find.text('3'), findsNothing);
+  });
+
+  testWidgets('the hub writes a chord out, and the hertz of a note alone', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.625;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      LowEndApp(
+        toneOutput: SilentToneOutput(),
+        clickOutput: SilentClickOutput(),
+        pianoOutput: SilentPianoOutput(),
+        micInput: FakeMicInput(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final scope = AudioScope.of(tester.element(find.byType(HomeShell)));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Harmony'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    scope.drone
+      ..setPitchClass(9)
+      ..setVoicing(DroneVoicing.chord)
+      ..setChord(ChordQuality.major);
+    await scope.drone.start();
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.text('A C♯ E'), findsOneWidget);
+    // The root's frequency would mislead about a chord.
+    expect(find.textContaining('Hz'), findsNothing);
+
+    scope.drone.setVoicing(DroneVoicing.root);
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.text('A C♯ E'), findsNothing);
+    expect(find.text('220.0 Hz'), findsOneWidget);
+    await scope.drone.stop();
+    await tester.pump(const Duration(milliseconds: 200));
   });
 }
