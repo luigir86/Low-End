@@ -553,14 +553,20 @@ class _DialCenterState extends State<_DialCenter> {
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium,
             ),
+          // The chord written out: Si Re Fa♯. Its root's frequency would
+          // mislead, so the hertz are only for a note alone.
+          if (chord != null)
+            Text(
+              _chordNotes(chord, drone.rootLetter, names).join(' '),
+              textAlign: TextAlign.center,
+              style: muted,
+            )
+          else
+            Text(
+              l10n.frequencyHz(drone.frequency.toStringAsFixed(1)),
+              style: muted,
+            ),
           if (inProgression) ...[
-            // The chord written out: Si Re Fa♯.
-            if (chord != null)
-              Text(
-                _chordNotes(chord, drone.rootLetter, names).join(' '),
-                textAlign: TextAlign.center,
-                style: muted,
-              ),
             if (keyText != null)
               Text(keyText, textAlign: TextAlign.center, style: muted),
             const SizedBox(height: 6),
@@ -570,11 +576,7 @@ class _DialCenterState extends State<_DialCenter> {
               // Twelve bars of blues need smaller dots to fit.
               size: drone.progression.steps.length > 6 ? 7 : 10,
             ),
-          ] else
-            Text(
-              l10n.frequencyHz(drone.frequency.toStringAsFixed(1)),
-              style: muted,
-            ),
+          ],
         ],
       ),
     );
