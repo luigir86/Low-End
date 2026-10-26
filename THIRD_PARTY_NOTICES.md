@@ -29,7 +29,7 @@ Build and test only (not in the app): `flutter_test` and `flutter_lints` (BSD-3-
 
 Everything else that `pubspec.lock` lists comes from the Dart and Flutter teams or from small well-known authors, under these licences:
 
-- **BSD-3-Clause**: `args`, `async`, `code_assets`, `native_toolchain_c`, `objective_c`, `package_info_plus*`, `characters`, `collection`, `crypto`, `ffi`, `file`, `fixnum`, `glob`, `hooks`, `http`, `http_parser`, `jni` and its helpers, `logging`, `meta`, `path`, `path_provider*`, `platform`, `plugin_platform_interface`, `process`, `pub_semver`, `source_span`, `stack_trace`, `string_scanner`, `typed_data`, `vector_math`, `web`, `win32`, `xdg_directories`, `yaml`, and the platform packages of the plugins above.
+- **BSD-3-Clause**: `args`, `async`, `code_assets`, `native_toolchain_c`, `objective_c`, `package_info_plus*`, `characters`, `collection`, `crypto`, `ffi`, `file`, `fixnum`, `glob`, `ffi_leak_tracker`, `hooks`, `http`, `http_parser`, `jni` and its helpers, `js`, `logging`, `meta`, `path`, `path_provider*`, `platform`, `plugin_platform_interface`, `process`, `pub_semver`, `source_span`, `stack_trace`, `record_use`, `string_scanner`, `typed_data`, `vector_math`, `web`, `win32`, `xdg_directories`, `yaml`, and the platform packages of the plugins above.
 - **BSD-2-Clause**: `sqflite*` (used by the cache of `audio_service`).
 - **MIT**: `audio_service_*`, `audio_session`, `flutter_cache_manager`, `petitparser`, `synchronized`, `uuid`, `xml`.
 - **Apache-2.0**: `clock`, `material_color_utilities`, `rxdart`.
@@ -42,6 +42,7 @@ The Android build also contains AndroidX, Kotlin (`kotlin-stdlib`, `kotlinx-coro
 ## Sounds and images
 
 - **Piano notes**: *Salamander Grand Piano V3* by Alexander Holm, released into the **public domain** on 4 March 2022. Details in [tool/piano_samples.md](tool/piano_samples.md).
+- **App icon and logo** (`design/lion-logo.jpg`, the lion on the double-bass scroll, and the icons, logo and store graphics made from it): generated with an AI image tool by the author of Low End, then cut and coloured for the app by `tool/make_icons_test.dart`. Released with the app under the MIT License.
 - **Material Icons** (Flutter's built-in icon font): Apache-2.0.
 - **Fonts**, both under the **SIL Open Font License 1.1**, bundled in `assets/fonts/` with their licences (`OFL-Edwin.txt`, `OFL-NotoMusic.txt`) and used unmodified: *Edwin* by MuseScore (all the text, with the ♭ and ♯ signs; regular and bold) and *Noto Music* by the Noto Project Authors (only the ♩ sign, which Edwin lacks). The earlier Barlow fonts were removed because Edwin already covers every other character the app writes.
 
