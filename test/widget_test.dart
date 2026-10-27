@@ -833,6 +833,14 @@ void main() {
     await tester.tap(find.byIcon(Icons.edit_outlined));
     await tester.pumpAndSettle();
     expect(find.text('Type the tempo'), findsOneWidget);
+    // The keyboard waits for the number to be touched, which selects it all.
+    expect(tester.testTextInput.isVisible, isFalse);
+    await tester.tap(find.byType(TextField));
+    await tester.pumpAndSettle();
+    expect(tester.testTextInput.isVisible, isTrue);
+    final field = tester.widget<TextField>(find.byType(TextField));
+    expect(field.controller!.selection.start, 0);
+    expect(field.controller!.selection.end, field.controller!.text.length);
     await tester.enterText(find.byType(TextField), '132');
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();

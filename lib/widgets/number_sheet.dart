@@ -5,9 +5,11 @@ import 'choice_menu.dart';
 
 /// The one sheet for typing a number, opened by the pencil of a row: the
 /// tempo, the reference A. A sheet from the bottom, titled like the other
-/// sheets, with the number to type (all selected, so that typing replaces
-/// it), the range under it, the usual values to touch (the [shortcuts], the
-/// [current] one ticked like in a menu) and OK.
+/// sheets, with the number to type, the range under it, the usual values to
+/// touch (the [shortcuts], the [current] one ticked like in a menu) and OK.
+/// The keyboard opens only when the number is touched, so the sheet rises
+/// alone and a shortcut is one touch away; touching the number selects it
+/// all, so that typing replaces it.
 ///
 /// Returns the number typed, kept within [min]..[max], or a shortcut
 /// touched; null when closed, or with nothing typed.
@@ -60,18 +62,29 @@ class _NumberSheet extends StatefulWidget {
 
 class _NumberSheetState extends State<_NumberSheet> {
   late final _text = TextEditingController(text: '${widget.current}');
+  final _focus = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _text.selection = TextSelection(
-      baseOffset: 0,
-      extentOffset: _text.text.length,
-    );
+    _focus.addListener(_selectAllOnFocus);
+  }
+
+  /// After the frame, so that the touch placing the cursor comes first.
+  void _selectAllOnFocus() {
+    if (!_focus.hasFocus) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_focus.hasFocus) return;
+      _text.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: _text.text.length,
+      );
+    });
   }
 
   @override
   void dispose() {
+    _focus.dispose();
     _text.dispose();
     super.dispose();
   }
@@ -104,7 +117,7 @@ class _NumberSheetState extends State<_NumberSheet> {
               child: TextField(
                 key: widget.fieldKey,
                 controller: _text,
-                autofocus: true,
+                focusNode: _focus,
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.done,
                 inputFormatters: [
