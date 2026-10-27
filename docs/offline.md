@@ -33,6 +33,10 @@ aapt2 dump permissions build/app/outputs/flutter-apk/app-release.apk
 
 must list no `INTERNET`. On a phone, *Settings → Apps → Low End → Mobile data and Wi-Fi* shows no data used, and with airplane mode on every feature works the same.
 
+## The web app
+
+The web app ([web.md](web.md)) is fetched once from GitHub Pages, like any website, and its service worker then keeps every file on the device: from the second opening it starts with airplane mode on. It is built with `--no-web-resources-cdn` and `canvasKitBaseUrl`, so even the drawing engine comes from the site and not from Google's servers. To check it, open the browser's developer tools on the *Network* tab: every request goes to `luigir86.github.io`, and none after the files are kept.
+
 ## Why it matters
 
 It is what [PRIVACY.md](../PRIVACY.md) promises, and the Google Play *Data safety* answer ("no data collected or shared") rests on it. If a future feature ever needs the network, add the permission deliberately, update this page, the privacy policy and the Play declaration first.

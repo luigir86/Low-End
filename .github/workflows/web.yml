@@ -1,0 +1,49 @@
+name: Web app
+
+# Builds the web app and publishes it on GitHub Pages
+# (https://luigir86.github.io/low-end/) on every push to main. GitHub Pages
+# must be switched on once: Settings › Pages › Source: GitHub Actions.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One publication at a time; a newer push replaces one still waiting.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      # Everything from the site itself, nothing from Google's servers.
+      - run: flutter build web --release --no-web-resources-cdn --base-href /low-end/
+      # The service worker that keeps the app on the phone (docs/web.md).
+      - run: dart run tool/web_offline.dart build/web
+      # Debugging symbols of the drawing engine: never asked for.
+      - run: find build/web -name '*.symbols' -delete
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

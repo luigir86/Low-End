@@ -163,6 +163,7 @@
   "tunerIdleHint": "Tuner paused: tap Listen",
   "playAString": "Play a note",
   "micPermissionDenied": "Low End needs the microphone to hear your instrument. If you said no, allow it in the phone settings under Apps › Low End › Permissions.",
+  "micPermissionDeniedWeb": "Low End needs the microphone to hear your instrument. If you said no, allow it for this page in the browser settings, then tap Listen again.",
   "micUnavailable": "The microphone could not start on this device.",
   "inTune": "In tune",
   "flat": "Flat",

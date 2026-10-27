@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
@@ -134,8 +135,10 @@ class _TunerPanelState extends State<TunerPanel> {
                         style: TextStyle(color: theme.colorScheme.error),
                       ),
                     ),
-                    // A way out of a no: straight to the app's settings.
-                    if (_tuner.status == TunerStatus.permissionDenied) ...[
+                    // A way out of a no: straight to the app's settings
+                    // (a web page cannot open them).
+                    if (_tuner.status == TunerStatus.permissionDenied &&
+                        !kIsWeb) ...[
                       const SizedBox(height: 8),
                       FilledButton.icon(
                         onPressed: openAppSettings,
@@ -159,7 +162,8 @@ class _TunerPanelState extends State<TunerPanel> {
 
   String? _statusMessage(AppLocalizations l10n) => switch (_tuner.status) {
     TunerStatus.idle => l10n.tunerIdleHint,
-    TunerStatus.permissionDenied => l10n.micPermissionDenied,
+    TunerStatus.permissionDenied =>
+      kIsWeb ? l10n.micPermissionDeniedWeb : l10n.micPermissionDenied,
     TunerStatus.failed => l10n.micUnavailable,
     TunerStatus.starting || TunerStatus.listening => null,
   };

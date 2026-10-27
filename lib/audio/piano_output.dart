@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:isolate';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
@@ -11,6 +10,7 @@ import '../features/metronome/time_signature.dart';
 import 'bar_loop_player.dart';
 import 'click_sound.dart';
 import 'loop_transport.dart';
+import 'off_thread.dart';
 import 'piano_sound.dart';
 import 'soloud_engine.dart';
 
@@ -268,7 +268,7 @@ class SoLoudPianoOutput implements PianoOutput {
     int bpm,
     TimeSignature signature,
     double a4,
-  ) => Isolate.run(
+  ) => offThread(
     () => PianoSound.loopWav(
       samples: samples,
       chords: chords,

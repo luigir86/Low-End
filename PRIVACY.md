@@ -10,6 +10,7 @@ Low End collects no personal data. It has no server, no account and no internet 
 - **No network.** The app does not connect to the internet: no accounts, no analytics, no ads, no crash reporting, no fonts or files downloaded.
 - **Links you tap.** The settings and About have two links, to the Power Flower Orchestra's Instagram page and to the source code on GitHub. They open the phone's browser only when you tap them; the app itself sends nothing.
 - **Action links.** Other apps can open `lowend://action/...` links to press the app's buttons (see [docs/llm.md](docs/llm.md)). They can start a sound or show the tuner, but they cannot read your data or the microphone, and nothing leaves the phone.
+- **Web app.** The version for iPhone and browsers ([docs/web.md](docs/web.md)) is downloaded from GitHub Pages, which, like any website, receives your IP address and browser details when the files are fetched ([GitHub's privacy statement](https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement)). After that the files are kept on your device and the web app behaves as above: the microphone is used only by the tuner and only on the device, the settings stay in the browser's storage for this site, and nothing is sent anywhere.
 
 If this ever changes (for example a future, optional online service), this page and the app will say so before anything is sent.
 
@@ -27,6 +28,7 @@ Low End non raccoglie alcun dato personale. Non ha un server, non ha account e n
 - **Nessuna rete.** L'app non si collega a internet: niente account, analisi, pubblicità, segnalazioni di errore, né font o file scaricati.
 - **Link che tocchi.** Le impostazioni e le informazioni sull'app hanno due link, alla pagina Instagram della Power Flower Orchestra e al codice sorgente su GitHub. Aprono il browser del telefono solo se li tocchi; l'app stessa non invia nulla.
 - **Link di azione.** Altre app possono aprire link `lowend://action/...` per premere i pulsanti dell'app (vedi [docs/llm.md](docs/llm.md)). Possono avviare un suono o mostrare l'accordatore, ma non leggono i tuoi dati né il microfono, e nulla esce dal telefono.
+- **Web app.** La versione per iPhone e browser ([docs/web.md](docs/web.md)) si scarica da GitHub Pages, che, come ogni sito, riceve il tuo indirizzo IP e i dati del browser quando i file vengono scaricati ([informativa privacy di GitHub](https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement)). Dopo, i file restano sul tuo dispositivo e la web app si comporta come sopra: il microfono è usato solo dall'accordatore e solo sul dispositivo, le impostazioni restano nella memoria del browser per questo sito e nulla viene inviato.
 
 Se questo cambiasse (per esempio con un futuro servizio online facoltativo), questa pagina e l'app lo diranno prima che venga inviato qualcosa.
 

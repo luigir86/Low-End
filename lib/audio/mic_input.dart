@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:record/record.dart';
 
+import 'web_audio_session.dart';
+
 /// Captures sound from the microphone as mono samples from -1 to 1.
 ///
 /// Kept behind an interface so the rest of the app can be tested without a
@@ -41,6 +43,8 @@ class RecordMicInput implements MicInput {
 
   @override
   Future<Stream<Float64List>> start(int sampleRate) async {
+    // On the iPhone the web app's sound keeps playing while it listens.
+    setWebAudioSession(listening: true);
     while (true) {
       try {
         final bytes = await _rec.startStream(_config(sampleRate));
@@ -86,12 +90,15 @@ class RecordMicInput implements MicInput {
   @override
   Future<void> stop() async {
     await _recorder?.stop();
+    setWebAudioSession(listening: false);
   }
 }
 
 /// Opens the app's page in the phone settings, where the microphone can be
-/// allowed after a no. Returns false when it could not.
+/// allowed after a no. Returns false when it could not, as in the web app:
+/// a web page cannot open the phone settings.
 Future<bool> openAppSettings() async {
+  if (kIsWeb) return false;
   try {
     await const MethodChannel('low_end/app_settings')
         .invokeMethod<void>('open');

@@ -65,6 +65,19 @@ class AndroidAudioRoute implements AudioRoute {
   }
 }
 
+/// [AudioRoute] where the route cannot be known, as in the web app: the
+/// speaker's delay, and the headphones never seen coming out.
+class SpeakerAudioRoute implements AudioRoute {
+  @override
+  Duration get outputLatency => outputLatencyFor(AudioOutputKind.speaker);
+
+  @override
+  Stream<void> get unplugged => const Stream.empty();
+
+  @override
+  void dispose() {}
+}
+
 /// [AudioRoute] for tests: no delay, and headphones unplugged on demand.
 @visibleForTesting
 class FakeAudioRoute implements AudioRoute {

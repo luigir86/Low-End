@@ -1,5 +1,5 @@
-// Makes the launcher icons and the logo of the About page from
-// design/lion-logo.jpg, the lion's head on the dark blue background.
+// Makes the launcher icons, the web app's icons and the logo of the About
+// page from design/lion-logo.jpg, the lion's head on the dark blue background.
 //   flutter test tool/make_icons_test.dart
 import 'dart:io';
 import 'dart:math' as math;
@@ -235,6 +235,31 @@ void main() {
         }),
       );
       File('design/icon-512.png').copySync('store/graphics/icon-512.png');
+      // The web app: whole square icons (iPhone and the browsers round the
+      // corners themselves), and maskable ones, cut by Android to a shape
+      // that keeps only the middle 80%.
+      for (final size in [32, 180, 192, 512]) {
+        await _save(
+          switch (size) {
+            32 => 'web/favicon.png',
+            180 => 'web/icons/apple-touch-icon.png',
+            _ => 'web/icons/Icon-$size.png',
+          },
+          await _render(size, (c, s) {
+            _backdrop(c, s);
+            _lion(c, picture, s, 0.80);
+          }),
+        );
+      }
+      for (final size in [192, 512]) {
+        await _save(
+          'web/icons/Icon-maskable-$size.png',
+          await _render(size, (c, s) {
+            _backdrop(c, s);
+            _lion(c, picture, s, 0.60);
+          }),
+        );
+      }
       expect(math.min(picture.width, picture.height), 1024);
     });
   });

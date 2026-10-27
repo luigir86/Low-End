@@ -16,7 +16,8 @@ abstract class ScreenAwake {
 
 /// [ScreenAwake] backed by the wakelock_plus package.
 class WakelockScreenAwake implements ScreenAwake {
-  static bool get _supported => !kIsWeb && Platform.isAndroid;
+  // On the web, the page's wake lock (Safari 16.4 and later).
+  static bool get _supported => kIsWeb || Platform.isAndroid;
 
   bool? _on;
 

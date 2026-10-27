@@ -1,6 +1,6 @@
 # Low End
 
-Low End is a free, open-source practice app for musicians: a **metronome**, a piano **harmony** section and a **tuner**, in one light Android app. It was made by an amateur double bass player with the friends from the orchestra in mind, and it is useful to everyone who plays. It is built with [Flutter](https://flutter.dev), works fully offline and is available in English and Italian.
+Low End is a free, open-source practice app for musicians: a **metronome**, a piano **harmony** section and a **tuner**, in one light Android app, also usable on iPhone as a [web app](docs/web.md). It was made by an amateur double bass player with the friends from the orchestra in mind, and it is useful to everyone who plays. It is built with [Flutter](https://flutter.dev), works fully offline and is available in English and Italian.
 
 <p>
   <img src="store/graphics/phone/en-US/1_metronome.png" alt="Metronome" width="30%">
@@ -105,6 +105,10 @@ flutter build apk --release --split-per-abi
 
 Send the `arm64-v8a` file: it fits almost every phone from the last ten years. To measure how fast the app opens, run `flutter run --profile --trace-startup`: the times are written to `build/start_up_info.json` (`timeToFirstFrameMicros` is what you feel).
 
+### Web app (iPhone)
+
+The same code also runs in a browser: `.github/workflows/web.yml` publishes it on every push to `main` at https://luigir86.github.io/low-end/. On an iPhone, open it in Safari and choose *Share › Add to Home Screen*. What it can and cannot do there, and how to build it by hand, is in [docs/web.md](docs/web.md).
+
 ### Google Play
 
 `flutter build appbundle --release` makes the bundle for the store. It is signed with the upload key named in `android/key.properties` (git-ignored); without that file a release build stops with an error, so nothing is ever signed with the debug key by mistake. The listing texts, graphics and the console checklist are in [store/](store/README.md).
@@ -122,6 +126,7 @@ Texts live in `lib/l10n/app_en.arb` (English, the reference) and `lib/l10n/app_i
 | [docs/style.md](docs/style.md), [docs/tema-bronzo.md](docs/tema-bronzo.md) (the second in Italian) | Developers and designers: sizes, shapes and the bronze-on-ebony colours |
 | [docs/offline.md](docs/offline.md) | Proof that the app needs no internet, and how to check it |
 | [docs/llm.md](docs/llm.md) | Assistants and automation: the `lowend://` actions |
+| [docs/web.md](docs/web.md) | The web app for iPhone: installing it, its limits, how it is built |
 | [PRIVACY.md](PRIVACY.md) | Privacy policy: no data collected |
 | [LICENSE](LICENSE), [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) | The app's licence and those of everything it uses |
 | [store/README.md](store/README.md) | Google Play listing and checklist |
