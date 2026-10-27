@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:low_end/audio/audio_route.dart';
 import 'package:low_end/audio/off_thread.dart';
 import 'package:low_end/audio/soloud_engine.dart';
+import 'package:low_end/audio/web_audio_engine.dart';
 import 'package:low_end/audio/web_audio_session.dart';
 
 // The pieces the web app uses in place of Android's (docs/web.md).
@@ -20,5 +21,10 @@ void main() {
   test('the audio session is left alone outside a web page', () {
     setWebAudioSession(listening: true);
     setWebAudioSession(listening: false);
+  });
+
+  test('outside a web page the audio engine is not waited for', () async {
+    await webAudioEngineLoaded();
+    markWebAudioInUse();
   });
 }

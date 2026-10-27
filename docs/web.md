@@ -11,7 +11,7 @@ The Android app stays the main one: the web app has the same three sections, but
 - **iPhone or iPad:** open the address in **Safari**, tap *Share* (the square with the arrow), then *Add to Home Screen*. Safari 16.4 (iOS 16.4) or later.
 - **Android, Windows, Mac:** open it in Chrome or Edge; it works at once, and *Install app* in the browser's menu puts it among the apps.
 
-The files are then kept on the phone: from the second opening it starts fast and works with no network. A new version arrives by itself and is used from the opening after.
+The files are then kept on the phone: from the second opening it starts fast and works with no network. The very first opening reloads itself once, a moment after it appears, so that the sound is steady from the start (see *Sound* below). A new version arrives by itself and is used from the opening after.
 
 ## Limits
 
@@ -25,14 +25,15 @@ The files are then kept on the phone: from the second opening it starts fast and
 | Microphone permission | Asked once | iOS may ask again, even at every opening |
 | "Open settings" after a no to the microphone | Yes | No: the message says where to allow it |
 | Keeps the screen on | Yes | Yes, from iOS 18.4 for an app on the Home Screen |
-| First opening | Instant | A few seconds (about 5 MB), then fast |
+| First opening | Instant | A few seconds (3.5 to 4 MB), then fast |
 | Action links | `lowend://action/...` | `https://luigir86.github.io/low-end/#/action/...` |
 
 ## How it works
 
 Nothing is a second app: `web/` holds the page, its icons (made by `tool/make_icons_test.dart`) and the start-up script, and a few classes have a web version.
 
-- **Sound.** flutter_soloud ships the same engine compiled to WebAssembly; `web/index.html` loads it. It has two builds: one mixes on its own thread (an AudioWorklet) and needs the page to be *cross-origin isolated*, the other mixes on the page's thread, where a slow frame can make it crackle. GitHub Pages cannot send the two headers isolation needs (COOP and COEP), so our service worker adds them: the first opening uses the second build, every later one the first.
+- **Sound.** flutter_soloud ships the same engine compiled to WebAssembly. It has two builds: one mixes on its own thread (an AudioWorklet) and needs the page to be *cross-origin isolated*, the other mixes on the page's thread, where a slow frame can make it crackle. GitHub Pages cannot send the two headers isolation needs (COOP and COEP), so our service worker adds them. On the very first opening the worker only starts once the page is up: the page then reloads itself once, under the worker, unless a sound or the microphone has already started (`web/flutter_bootstrap.js`). So the steady build is used from the start, and the other only if the player touches play in that first moment.
+- **Starting fast.** `web/flutter_bootstrap.js` loads the audio engine only after the first frame, so the dial appears without waiting for it; a sound asked for before then loads it at once (`lib/audio/web_audio_engine.dart`). The service worker keeps only the drawing engine this browser uses (Flutter ships three, 37 MB together) and none of the audio engine's spare build.
 - **Heavy work.** The piano's loops and the held tone are made in an isolate on the phone; a page has none, so `offThread` (`lib/audio/off_thread.dart`) makes them on the page's thread there.
 - **Microphone.** The `record` package listens through the browser (getUserMedia) and gives the tuner the same 16 kHz samples, with automatic gain, echo cancelling and noise suppression switched off.
 - **Where the sound goes.** `SpeakerAudioRoute` stands in for `AndroidAudioRoute`; `MediaNotificationAudio` does nothing on the web.

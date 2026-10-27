@@ -1,6 +1,23 @@
 {{flutter_js}}
 {{flutter_build_config}}
 
+// The audio engine (flutter_soloud, in WebAssembly) is loaded once the app
+// is on screen, not before: it is not needed until the first sound, and
+// loading it earlier slowed the first screen down. The app waits for this
+// promise before its first sound (web_audio_engine_web.dart).
+window.lowEndAudioEngine = new Promise(function (resolve) {
+  let started = false;
+  window.lowEndLoadAudioEngine = function () {
+    if (started) return;
+    started = true;
+    const script = document.createElement('script');
+    script.src = 'assets/packages/flutter_soloud/web/init_soloud.js';
+    script.onload = resolve;
+    script.onerror = resolve;
+    document.head.appendChild(script);
+  };
+});
+
 // Everything comes from this site, nothing from Google's servers: the
 // drawing engine (CanvasKit) included, and Flutter's own service worker,
 // deprecated, is left out for ours (sw.js, made by tool/web_offline.dart).
@@ -12,17 +29,49 @@ _flutter.loader.load({
     const appRunner = await engineInitializer.initializeEngine();
     await appRunner.runApp();
     document.getElementById('loading')?.remove();
+    // After the first frame.
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        // On the very first opening the page will soon be opened again
+        // (see controllerchange below): the engine then waits for the
+        // first sound, if one comes before.
+        const firstOpening = 'serviceWorker' in navigator &&
+          !navigator.serviceWorker.controller;
+        if (!firstOpening) window.lowEndLoadAudioEngine();
+        keepOffline();
+      });
+    });
   },
 });
 
 // Keeps the app's files on the phone, so that it opens fast and works with
 // no network. Only in the published app: sw.js is not there in debug.
+// Started after the first frame, so that on the first opening its download
+// does not slow the app's own.
+function keepOffline() {
+  if (!('serviceWorker' in navigator)) return;
+  fetch('sw.js', { method: 'HEAD' })
+    .then(function (response) {
+      if (response.ok) navigator.serviceWorker.register('sw.js');
+    })
+    .catch(function () {});
+}
+
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    fetch('sw.js', { method: 'HEAD' })
-      .then(function (response) {
-        if (response.ok) navigator.serviceWorker.register('sw.js');
-      })
-      .catch(function () {});
+  // The first opening runs without the service worker, so without the
+  // headers it adds: the audio engine mixes on the page's thread, where it
+  // can skip beats. As soon as the worker takes over, the page is opened
+  // again with them, unless a sound or the microphone has already started
+  // (lowEndAudioInUse, set by the app); once per session, so that a browser
+  // that ignores the headers is not reloaded again and again.
+  navigator.serviceWorker.addEventListener('controllerchange', function () {
+    if (window.crossOriginIsolated || window.lowEndAudioInUse) return;
+    try {
+      if (sessionStorage.getItem('lowEndReloaded')) return;
+      sessionStorage.setItem('lowEndReloaded', '1');
+    } catch (_) {
+      return;
+    }
+    location.reload();
   });
 }

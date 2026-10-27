@@ -82,7 +82,7 @@ See [store/README.md](../store/README.md): `flutter build appbundle --release` f
 
 ## Web app
 
-The same code builds a web app for the iPhone (`web/`, published on GitHub Pages by `.github/workflows/web.yml`). The few differences sit behind the same interfaces as the tests' fakes: `SpeakerAudioRoute` for `AndroidAudioRoute`, no media notification, `offThread` in place of `Isolate.run`, Safari's audio session in `web_audio_session.dart`. What it cannot do on an iPhone, such as playing with the screen locked, is in [web.md](web.md).
+The same code builds a web app for the iPhone (`web/`, published on GitHub Pages by `.github/workflows/web.yml`). The few differences sit behind the same interfaces as the tests' fakes: `SpeakerAudioRoute` for `AndroidAudioRoute`, no media notification, `offThread` in place of `Isolate.run`, Safari's audio session in `web_audio_session.dart`, the audio engine loaded after the first frame (`web_audio_engine.dart`). What it cannot do on an iPhone, such as playing with the screen locked, is in [web.md](web.md).
 
 ## No network
 

@@ -25,25 +25,45 @@ void main(List<String> args) {
     hash = _fnv(hash, utf8.encode(path));
     hash = _fnv(hash, file.readAsBytesSync());
   }
+  for (final path in _engines.values.expand((paths) => paths)) {
+    if (!File('${root.path}/$path').existsSync()) {
+      stderr.writeln('$path is missing: the worker could not keep it.');
+      exit(1);
+    }
+  }
   final version = hash.toRadixString(16).padLeft(8, '0');
   File('${root.path}/sw.js')
       .writeAsStringSync(_worker(version, ['./', ...files]));
   stdout.writeln('sw.js: version $version, ${files.length} files kept.');
 }
 
-/// Whether the phone keeps [path] as soon as the app is installed. The
-/// drawing engine is left to the first time it is asked for: the browser
-/// takes one of its builds only, and they are 37 MB together. The sources
-/// and build scripts that flutter_soloud ships next to its WebAssembly are
-/// never asked for.
+/// Whether the phone keeps [path] as soon as the app is installed. Of the
+/// drawing engine's builds (37 MB together) only the browser's own is kept,
+/// chosen by the worker itself (see _engines). The audio engine's
+/// single-threaded build is used only before the worker takes over, when
+/// the page is not isolated; if a browser ever keeps using it, the worker
+/// keeps it the first time it is asked for. The sources and build scripts
+/// that flutter_soloud ships next to its WebAssembly are never asked for.
 bool _kept(String path) =>
     !path.startsWith('canvaskit/') &&
     !const {
       '.last_build_id',
       'flutter_service_worker.js',
       'sw.js',
+      'assets/packages/flutter_soloud/web/libflutter_soloud_plugin.js',
+      'assets/packages/flutter_soloud/web/libflutter_soloud_plugin.wasm',
     }.contains(path) &&
     !const ['.sh', '.bat', '.dart', '.deps', '.map'].any(path.endsWith);
+
+/// The drawing engine's builds the worker picks from, as Flutter does:
+/// Chrome's own, or the full one (Safari, also on the iPhone, and Firefox).
+const _engines = {
+  'chromium': [
+    'canvaskit/chromium/canvaskit.js',
+    'canvaskit/chromium/canvaskit.wasm',
+  ],
+  'full': ['canvaskit/canvaskit.js', 'canvaskit/canvaskit.wasm'],
+};
 
 // FNV-1a, 32 bits: enough to tell one build from the next.
 const _fnvOffset = 0x811c9dc5;
@@ -63,10 +83,16 @@ String _worker(String version, List<String> files) =>
 const CACHE = 'low-end-$version';
 const FILES = ${const JsonEncoder.withIndent('  ').convert(files)};
 
+// The drawing engine this browser takes, as Flutter chooses it: Chrome's
+// own build, or the full one (Safari, also on the iPhone, and Firefox).
+const ENGINE = /Chrome\\//.test(self.navigator.userAgent)
+  ? ${jsonEncode(_engines['chromium'])}
+  : ${jsonEncode(_engines['full'])};
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE)
-      .then((cache) => cache.addAll(FILES))
+      .then((cache) => cache.addAll([...FILES, ...ENGINE]))
       .then(() => self.skipWaiting()),
   );
 });
@@ -98,8 +124,8 @@ function isolated(response) {
   });
 }
 
-// What is kept comes from the phone; anything else (the drawing engine,
-// the first time) from the site, and is kept for next time.
+// What is kept comes from the phone; anything else from the site, and is
+// kept for next time.
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET') return;
