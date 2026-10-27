@@ -1,0 +1,37 @@
+{
+    "id": ".",
+    "name": "Low End",
+    "short_name": "Low End",
+    "description": "A metronome, a piano harmony section and a tuner for musicians.",
+    "start_url": ".",
+    "scope": ".",
+    "display": "standalone",
+    "orientation": "any",
+    "background_color": "#141312",
+    "theme_color": "#141312",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}

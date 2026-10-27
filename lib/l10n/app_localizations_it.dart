@@ -236,6 +236,10 @@ class AppLocalizationsIt extends AppLocalizations {
       'Low End ha bisogno del microfono per sentire il tuo strumento. Se hai risposto di no, consentilo nelle impostazioni del telefono in App › Low End › Autorizzazioni.';
 
   @override
+  String get micPermissionDeniedWeb =>
+      'Low End ha bisogno del microfono per sentire il tuo strumento. Se hai risposto di no, consentilo a questa pagina nelle impostazioni del browser, poi tocca di nuovo Ascolta.';
+
+  @override
   String get micUnavailable =>
       'Non è stato possibile avviare il microfono su questo dispositivo.';
 

@@ -11,6 +11,7 @@ dart format lib test      # always before committing
 flutter analyze
 flutter test              # or one file: flutter test test/app_actions_test.dart
 flutter test test/app_actions_test.dart --update-goldens   # regenerates docs/llm-actions.json
+flutter build web --release --no-web-resources-cdn   # the web app for iPhone (docs/web.md)
 ```
 
 ## Structure
@@ -24,6 +25,7 @@ flutter test test/app_actions_test.dart --update-goldens   # regenerates docs/ll
 - Entering the tuner stops nothing; touching the tuner dial (or `tuner_start`) pauses the metronome and Harmony with a "Resume" snackbar.
 - Harmony started while the click plays enters on the metronome's bar line with a countdown (and vice versa).
 - "Lock gestures" only disables swiping between sections.
+- The web app (`web/`, docs/web.md) is the same code: anything Android-only (MethodChannel, `dart:io`, `Isolate.run`) needs a web path too; check it with the web build.
 
 ## Conventions
 

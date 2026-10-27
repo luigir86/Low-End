@@ -494,6 +494,12 @@ abstract class AppLocalizations {
   /// **'Low End needs the microphone to hear your instrument. If you said no, allow it in the phone settings under Apps › Low End › Permissions.'**
   String get micPermissionDenied;
 
+  /// No description provided for @micPermissionDeniedWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Low End needs the microphone to hear your instrument. If you said no, allow it for this page in the browser settings, then tap Listen again.'**
+  String get micPermissionDeniedWeb;
+
   /// No description provided for @micUnavailable.
   ///
   /// In en, this message translates to:

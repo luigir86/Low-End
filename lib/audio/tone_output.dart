@@ -1,9 +1,8 @@
-import 'dart:isolate';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 
 import 'drone_sound.dart';
+import 'off_thread.dart';
 import 'soloud_engine.dart';
 
 /// Plays one or more sustained tones at once, as one sound.
@@ -49,7 +48,7 @@ class SoLoudToneOutput implements ToneOutput {
   static Future<Uint8List> _build(
     List<double> frequencies,
     List<double> gains,
-  ) => Isolate.run(() => DroneSound.loopWav(frequencies, gains));
+  ) => offThread(() => DroneSound.loopWav(frequencies, gains));
 
   /// The loaded tone for these frequencies, built the first time it is
   /// asked for.

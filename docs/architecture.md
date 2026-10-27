@@ -80,6 +80,10 @@ CI (`.github/workflows/ci.yml`) runs `dart format --set-exit-if-changed lib test
 
 See [store/README.md](../store/README.md): `flutter build appbundle --release` for Google Play, signed with the upload key in `android/key.properties` (git-ignored). Raise the number after `+` in `pubspec.yaml` before each upload. To install on a phone, `flutter build apk --release` and `adb install -r build/app/outputs/flutter-apk/app-release.apk` keep the app's data when the signing key is the same.
 
+## Web app
+
+The same code builds a web app for the iPhone (`web/`, published on GitHub Pages by `.github/workflows/web.yml`). The few differences sit behind the same interfaces as the tests' fakes: `SpeakerAudioRoute` for `AndroidAudioRoute`, no media notification, `offThread` in place of `Isolate.run`, Safari's audio session in `web_audio_session.dart`. What it cannot do on an iPhone, such as playing with the screen locked, is in [web.md](web.md).
+
 ## No network
 
-There is no networking code in `lib/`, the release manifest has no `INTERNET` permission and no font or file is downloaded. How this was checked is in [offline.md](offline.md).
+There is no networking code in `lib/`, the release manifest has no `INTERNET` permission and no font or file is downloaded. How this was checked is in [offline.md](offline.md). The web app is downloaded once from GitHub Pages and then kept on the phone by its service worker; it asks nothing of any other server.

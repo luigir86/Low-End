@@ -66,6 +66,7 @@
   "tunerIdleHint": "Accordatore in pausa: tocca Ascolta",
   "playAString": "Suona una nota",
   "micPermissionDenied": "Low End ha bisogno del microfono per sentire il tuo strumento. Se hai risposto di no, consentilo nelle impostazioni del telefono in App › Low End › Autorizzazioni.",
+  "micPermissionDeniedWeb": "Low End ha bisogno del microfono per sentire il tuo strumento. Se hai risposto di no, consentilo a questa pagina nelle impostazioni del browser, poi tocca di nuovo Ascolta.",
   "micUnavailable": "Non è stato possibile avviare il microfono su questo dispositivo.",
   "inTune": "Intonato",
   "flat": "Calante",

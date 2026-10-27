@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemNavigator;
 
 import '../actions/app_actions.dart';
 import '../audio/audio_route.dart';
@@ -84,10 +86,11 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
     outputLatency: () => _route.outputLatency,
   );
   // The real route only with the real sound: tests give their own outputs.
+  // A web page cannot know it.
   late final AudioRoute _route =
       widget.audioRoute ??
       (widget.toneOutput == null && widget.clickOutput == null
-          ? AndroidAudioRoute()
+          ? (kIsWeb ? SpeakerAudioRoute() : AndroidAudioRoute())
           : FakeAudioRoute());
   StreamSubscription<void>? _unplugged;
   late final _tuner = TunerController(widget.micInput ?? RecordMicInput());
@@ -352,8 +355,16 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
 
   /// Handles every link the app is opened with: runs an action link such as
   /// `lowend://action/drone_play?note=A`, sent by an assistant, a shortcut or
-  /// an automation app.
+  /// an automation app. In the web app the link is the page's address, such
+  /// as `…/low-end/#/action/drone_play?note=A`; it is then put back to the
+  /// plain address, so that reloading the page does not run it again.
   bool _runLink(Uri uri) {
+    if (kIsWeb && uri.path != '/') {
+      SystemNavigator.routeInformationUpdated(
+        uri: Uri(path: '/'),
+        replace: true,
+      );
+    }
     final link = AppActions.parseLink(uri);
     if (link == null) {
       // The app has a single page, so there is nothing else to open.
