@@ -3,7 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
 
-const sourceCodeUrl = 'https://github.com/luigir86/Low-End';
+const sourceCodeUrl = 'https://github.com/luigir86/low-end';
 
 /// The Instagram page of the Power Flower Orchestra of Fossano.
 const orchestraUrl = 'https://www.instagram.com/powerflowerorchestra/';

@@ -71,34 +71,45 @@ class ProgressionStep {
 }
 
 /// Standard progressions, one chord per bar, played over and over in the
-/// key of the note touched. Jazz ones are in sevenths, the others in triads.
+/// key of the note touched. Each lasts 4, 8 or 12 bars, as musical phrases
+/// do: a loop of three bars would start again where the ear still expects
+/// the I. Jazz ones are in sevenths, the others in triads. The menu lists
+/// them in this order.
 enum Progression {
-  /// Major II–V–I: in C, Dm7 G7 Cmaj7.
+  /// Major II–V–I, the I held for two bars: in C, Dm7 G7 Cmaj7 Cmaj7.
   twoFiveOne([
     ProgressionStep(2, ChordQuality.minor7, 'II'),
     ProgressionStep(7, ChordQuality.dominant, 'V'),
     ProgressionStep(0, ChordQuality.major7, 'I'),
+    ProgressionStep(0, ChordQuality.major7, 'I'),
   ]),
 
-  /// Minor II–V–I: in C, Dm7♭5 G7 Cm7.
+  /// Minor II–V–I, the I held for two bars: in C, Dm7♭5 G7 Cm7 Cm7.
   minorTwoFiveOne([
     ProgressionStep(2, ChordQuality.halfDiminished, 'II'),
     ProgressionStep(7, ChordQuality.dominant, 'V'),
     ProgressionStep(0, ChordQuality.minor7, 'I'),
+    ProgressionStep(0, ChordQuality.minor7, 'I'),
   ], minor: true),
 
-  /// I–IV–V: in C, C F G7.
-  oneFourFive([
-    ProgressionStep(0, ChordQuality.major, 'I'),
-    ProgressionStep(5, ChordQuality.major, 'IV'),
+  /// Down the circle of fifths, eight bars, as in Autumn Leaves: in C,
+  /// Dm7 G7 Cmaj7 Fmaj7 Bm7♭5 E7 Am7 Am7.
+  circleOfFifths([
+    ProgressionStep(2, ChordQuality.minor7, 'II'),
     ProgressionStep(7, ChordQuality.dominant, 'V'),
+    ProgressionStep(0, ChordQuality.major7, 'I'),
+    ProgressionStep(5, ChordQuality.major7, 'IV'),
+    ProgressionStep(11, ChordQuality.halfDiminished, 'VII'),
+    ProgressionStep(4, ChordQuality.dominant, 'III'),
+    ProgressionStep(9, ChordQuality.minor7, 'VI'),
+    ProgressionStep(9, ChordQuality.minor7, 'VI'),
   ]),
 
-  /// I–VI–IV–V: in C, C Am F G7.
-  oneSixFourFive([
-    ProgressionStep(0, ChordQuality.major, 'I'),
-    ProgressionStep(9, ChordQuality.minor, 'VI'),
-    ProgressionStep(5, ChordQuality.major, 'IV'),
+  /// I–VI–II–V, the jazz turnaround: in C, Cmaj7 A7 Dm7 G7.
+  oneSixTwoFive([
+    ProgressionStep(0, ChordQuality.major7, 'I'),
+    ProgressionStep(9, ChordQuality.dominant, 'VI'),
+    ProgressionStep(2, ChordQuality.minor7, 'II'),
     ProgressionStep(7, ChordQuality.dominant, 'V'),
   ]),
 
@@ -118,12 +129,41 @@ enum Progression {
     ProgressionStep(7, ChordQuality.dominant, 'V'),
   ]),
 
-  /// I–VI–II–V, the jazz turnaround: in C, Cmaj7 A7 Dm7 G7.
-  oneSixTwoFive([
-    ProgressionStep(0, ChordQuality.major7, 'I'),
-    ProgressionStep(9, ChordQuality.dominant, 'VI'),
-    ProgressionStep(2, ChordQuality.minor7, 'II'),
+  /// Minor blues, twelve bars: Im7 for four, IVm7 IVm7 Im7 Im7, ♭VI7 V7
+  /// Im7 V7. In C minor, Cm7 … Fm7 … A♭7 G7.
+  minorBlues([
+    ProgressionStep(0, ChordQuality.minor7, 'I'),
+    ProgressionStep(0, ChordQuality.minor7, 'I'),
+    ProgressionStep(0, ChordQuality.minor7, 'I'),
+    ProgressionStep(0, ChordQuality.minor7, 'I'),
+    ProgressionStep(5, ChordQuality.minor7, 'IV'),
+    ProgressionStep(5, ChordQuality.minor7, 'IV'),
+    ProgressionStep(0, ChordQuality.minor7, 'I'),
+    ProgressionStep(0, ChordQuality.minor7, 'I'),
+    ProgressionStep(8, ChordQuality.dominant, '♭VI'),
     ProgressionStep(7, ChordQuality.dominant, 'V'),
+    ProgressionStep(0, ChordQuality.minor7, 'I'),
+    ProgressionStep(7, ChordQuality.dominant, 'V'),
+  ], minor: true),
+
+  /// I–IV–V–IV: in C, C F G F.
+  oneFourFiveFour([
+    ProgressionStep(0, ChordQuality.major, 'I'),
+    ProgressionStep(5, ChordQuality.major, 'IV'),
+    ProgressionStep(7, ChordQuality.major, 'V'),
+    ProgressionStep(5, ChordQuality.major, 'IV'),
+  ]),
+
+  /// I–VI–IV–V, eight bars as in Stand by Me: in C, C C Am Am F G7 C C.
+  oneSixFourFive([
+    ProgressionStep(0, ChordQuality.major, 'I'),
+    ProgressionStep(0, ChordQuality.major, 'I'),
+    ProgressionStep(9, ChordQuality.minor, 'VI'),
+    ProgressionStep(9, ChordQuality.minor, 'VI'),
+    ProgressionStep(5, ChordQuality.major, 'IV'),
+    ProgressionStep(7, ChordQuality.dominant, 'V'),
+    ProgressionStep(0, ChordQuality.major, 'I'),
+    ProgressionStep(0, ChordQuality.major, 'I'),
   ]),
 
   /// I–V–VI–IV: in C, C G Am F.
@@ -169,11 +209,13 @@ class ExampleSong {
 /// The songs offered; none needs a flat or sharp key, so there is no
 /// spelling to choose.
 const exampleSongs = [
-  ExampleSong('Autumn Leaves', 7, Progression.twoFiveOne, 120),
+  ExampleSong('Tune Up', 2, Progression.twoFiveOne, 160),
   ExampleSong('Blue Bossa', 0, Progression.minorTwoFiveOne, 140),
-  ExampleSong('Twist and Shout', 2, Progression.oneFourFive, 124),
-  ExampleSong('Stand by Me', 9, Progression.oneSixFourFive, 118),
+  ExampleSong('Autumn Leaves', 7, Progression.circleOfFifths, 120),
+  ExampleSong('Mr. P.C.', 0, Progression.minorBlues, 160),
   ExampleSong('Sweet Home Chicago', 4, Progression.blues, 100),
-  ExampleSong('Let It Be', 0, Progression.oneFiveSixFour, 72),
+  ExampleSong('Wild Thing', 9, Progression.oneFourFiveFour, 108),
+  ExampleSong('Stand by Me', 9, Progression.oneSixFourFive, 118),
+  ExampleSong('With or Without You', 2, Progression.oneFiveSixFour, 110),
   ExampleSong('Hit the Road Jack', 9, Progression.andalusian, 168),
 ];

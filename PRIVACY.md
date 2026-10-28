@@ -14,7 +14,7 @@ Low End collects no personal data. It has no server, no account and no internet 
 
 If this ever changes (for example a future, optional online service), this page and the app will say so before anything is sent.
 
-Questions: open an issue at https://github.com/luigir86/Low-End/issues.
+Questions: open an issue at https://github.com/luigir86/low-end/issues.
 
 ---
 
@@ -32,4 +32,4 @@ Low End non raccoglie alcun dato personale. Non ha un server, non ha account e n
 
 Se questo cambiasse (per esempio con un futuro servizio online facoltativo), questa pagina e l'app lo diranno prima che venga inviato qualcosa.
 
-Domande: apri una segnalazione su https://github.com/luigir86/Low-End/issues.
+Domande: apri una segnalazione su https://github.com/luigir86/low-end/issues.

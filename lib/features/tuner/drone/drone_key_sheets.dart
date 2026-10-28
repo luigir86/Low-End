@@ -20,10 +20,10 @@ String keyName(AppLocalizations l10n, DroneController drone, NoteNames names) {
 }
 
 /// A progression by its numerals, or the name of the blues, which is too long
-/// to list: "II–V–I", "Blues".
+/// to list (the key says whether it is minor): "II–V–I", "Blues".
 String progressionShort(AppLocalizations l10n, Progression p) => switch (p) {
   Progression.minorTwoFiveOne => 'II–V–I',
-  Progression.blues => l10n.progressionBluesShort,
+  Progression.blues || Progression.minorBlues => l10n.progressionBluesShort,
   Progression.andalusian => 'I–♭VII–♭VI–V',
   _ => progressionName(l10n, p),
 };

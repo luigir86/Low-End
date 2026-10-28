@@ -227,8 +227,20 @@ abstract class AppLocalizations {
   /// No description provided for @progressionGenreRock.
   ///
   /// In en, this message translates to:
-  /// **'Rock ’n’ roll'**
+  /// **'’60s rock'**
   String get progressionGenreRock;
+
+  /// No description provided for @progressionGenrePopRock.
+  ///
+  /// In en, this message translates to:
+  /// **'Pop rock'**
+  String get progressionGenrePopRock;
+
+  /// No description provided for @progressionGenreMinorBlues.
+  ///
+  /// In en, this message translates to:
+  /// **'Minor jazz blues'**
+  String get progressionGenreMinorBlues;
 
   /// No description provided for @progressionGenrePop.
   ///
@@ -253,6 +265,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Andalusian cadence'**
   String get progressionAndalusian;
+
+  /// No description provided for @progressionCircleOfFifths.
+  ///
+  /// In en, this message translates to:
+  /// **'Circle of fifths'**
+  String get progressionCircleOfFifths;
+
+  /// No description provided for @progressionMinorBlues.
+  ///
+  /// In en, this message translates to:
+  /// **'Minor blues'**
+  String get progressionMinorBlues;
 
   /// A progression described by its genre and a well-known song that uses it, in the progression menu.
   ///

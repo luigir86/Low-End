@@ -372,16 +372,22 @@ class AppActions {
       'enum': [
         'twoFiveOne',
         'minorTwoFiveOne',
-        'oneFourFive',
-        'oneSixFourFive',
-        'blues',
+        'circleOfFifths',
         'oneSixTwoFive',
+        'blues',
+        'minorBlues',
+        'oneFourFiveFour',
+        'oneSixFourFive',
         'oneFiveSixFour',
         'andalusian',
       ],
       'description':
-          'The progression played when voicing is "progression": II-V-I, '
-          'minor II-V-I, I-IV-V, I-VI-IV-V, 12-bar blues, I-VI-II-V, I-V-VI-IV or the Andalusian cadence (minor).',
+          'The progression played when voicing is "progression", one chord a '
+          'bar, each 4, 8 or 12 bars long: II-V-I (Dm7 G7 Cmaj7 Cmaj7), '
+          'minor II-V-I, circle of fifths (8 bars, as in Autumn Leaves), '
+          'I-VI-II-V, 12-bar blues, minor blues (12 bars), I-IV-V-IV, '
+          'I-VI-IV-V (8 bars, as in Stand by Me), I-V-VI-IV or the Andalusian '
+          'cadence (minor).',
     },
     'style': {
       'type': 'string',
@@ -408,12 +414,14 @@ class AppActions {
     'song': {
       'type': 'string',
       'enum': [
-        'Autumn Leaves',
+        'Tune Up',
         'Blue Bossa',
-        'Twist and Shout',
-        'Stand by Me',
+        'Autumn Leaves',
+        'Mr. P.C.',
         'Sweet Home Chicago',
-        'Let It Be',
+        'Wild Thing',
+        'Stand by Me',
+        'With or Without You',
         'Hit the Road Jack',
       ],
       'description':

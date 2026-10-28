@@ -43,39 +43,48 @@ void main() {
   });
 
   // testWidgets for its fake clock: the bar timers run without waiting.
-  testWidgets('II–V–I in C plays Dm7, G7, Cmaj7, one chord a bar', (
-    tester,
-  ) async {
-    drone.setVoicing(DroneVoicing.progression);
-    await drone.tapNote(0); // C
-    await tester.pump();
-    expect(drone.currentChord?.root, 2);
-    expect(
-      output.frequencies,
-      _sounds([_hz(2), _hz(2) * 6 / 5, _hz(2) * 3 / 2, _hz(2) * 9 / 5]),
-    );
-    expect(drone.chordTones, {5, 9, 0}); // F, A and C
-    // The numerals stay on their notes while it plays.
-    expect(drone.degreeLabels, {2: 'II', 7: 'V', 0: 'I'});
-    // Every chord is made ready at the start.
-    expect(output.prepared, hasLength(3));
+  testWidgets(
+    'II–V–I in C plays Dm7, G7, Cmaj7 for two bars, one chord a bar',
+    (tester) async {
+      drone.setVoicing(DroneVoicing.progression);
+      await drone.tapNote(0); // C
+      await tester.pump();
+      expect(drone.currentChord?.root, 2);
+      expect(
+        output.frequencies,
+        _sounds([_hz(2), _hz(2) * 6 / 5, _hz(2) * 3 / 2, _hz(2) * 9 / 5]),
+      );
+      expect(drone.chordTones, {5, 9, 0}); // F, A and C
+      // The numerals stay on their notes while it plays.
+      expect(drone.degreeLabels, {2: 'II', 7: 'V', 0: 'I'});
+      // Every chord is made ready at the start.
+      expect(output.prepared, hasLength(4));
 
-    await tester.pump(const Duration(seconds: 2));
-    expect(drone.step, 1);
-    expect(output.frequencies.first, closeTo(_hz(7), 1e-9)); // G
-    // The dominant has its seventh.
-    final g = _hz(7);
-    expect(output.frequencies, _sounds([g, g * 5 / 4, g * 3 / 2, g * 16 / 9]));
+      await tester.pump(const Duration(seconds: 2));
+      expect(drone.step, 1);
+      expect(output.frequencies.first, closeTo(_hz(7), 1e-9)); // G
+      // The dominant has its seventh.
+      final g = _hz(7);
+      expect(
+        output.frequencies,
+        _sounds([g, g * 5 / 4, g * 3 / 2, g * 16 / 9]),
+      );
 
-    await tester.pump(const Duration(seconds: 2));
-    expect(drone.step, 2);
-    expect(output.frequencies.first, closeTo(_hz(0), 1e-9)); // C
+      await tester.pump(const Duration(seconds: 2));
+      expect(drone.step, 2);
+      expect(output.frequencies.first, closeTo(_hz(0), 1e-9)); // C
 
-    // And round again.
-    await tester.pump(const Duration(seconds: 2));
-    expect(drone.step, 0);
-    await drone.stop();
-  });
+      // The I is held for a second bar: four bars, as a phrase is.
+      await tester.pump(const Duration(seconds: 2));
+      expect(drone.step, 3);
+      expect(output.frequencies.first, closeTo(_hz(0), 1e-9));
+
+      // And round again.
+      await tester.pump(const Duration(seconds: 2));
+      expect(drone.step, 0);
+      await drone.stop();
+    },
+  );
 
   testWidgets('changes chord on the metronome\'s "one"', (tester) async {
     clock.barPhase = 0.75; // A quarter of the bar still to go.
@@ -148,7 +157,7 @@ void main() {
       ..setPitchClass(0);
     // II–V–I: Dm7, G7, Cmaj7.
     expect(drone.currentChord, (root: 2, quality: ChordQuality.minor7));
-    for (final p in [Progression.oneFourFive, Progression.oneSixFourFive]) {
+    for (final p in [Progression.oneFourFiveFour, Progression.oneSixFourFive]) {
       drone.setProgression(p);
       for (final s in p.steps.where(
         (s) => s.quality != ChordQuality.dominant,
@@ -195,31 +204,55 @@ void main() {
     }
 
     test('minor II–V–I in C♯ and F♯ minor', () {
-      expect(names(drone, 1, Progression.minorTwoFiveOne), ['D♯', 'G♯', 'C♯']);
-      expect(names(drone, 6, Progression.minorTwoFiveOne), ['G♯', 'C♯', 'F♯']);
+      expect(names(drone, 1, Progression.minorTwoFiveOne), [
+        'D♯',
+        'G♯',
+        'C♯',
+        'C♯',
+      ]);
+      expect(names(drone, 6, Progression.minorTwoFiveOne), [
+        'G♯',
+        'C♯',
+        'F♯',
+        'F♯',
+      ]);
     });
 
     test('I–VI–IV–V in F♯ has D♯ minor, not E♭', () {
       expect(names(drone, 6, Progression.oneSixFourFive), [
         'F♯',
+        'F♯',
+        'D♯',
         'D♯',
         'B',
         'C♯',
+        'F♯',
+        'F♯',
       ]);
     });
 
     test('the flat keys keep their flats', () {
-      expect(names(drone, 10, Progression.twoFiveOne), ['C', 'F', 'B♭']);
-      expect(names(drone, 3, Progression.oneFourFive), ['E♭', 'A♭', 'B♭']);
+      expect(names(drone, 10, Progression.twoFiveOne), ['C', 'F', 'B♭', 'B♭']);
+      expect(names(drone, 3, Progression.oneFourFiveFour), [
+        'E♭',
+        'A♭',
+        'B♭',
+        'A♭',
+      ]);
     });
 
     test('C♯ can be written D♭, and its chords follow: G♭, A♭', () {
       expect(drone.spelledFlat(1), isFalse);
       drone.toggleSpelling(1);
       expect(drone.spelledFlat(1), isTrue);
-      expect(names(drone, 1, Progression.oneFourFive), ['D♭', 'G♭', 'A♭']);
+      expect(names(drone, 1, Progression.oneFourFiveFour), [
+        'D♭',
+        'G♭',
+        'A♭',
+        'G♭',
+      ]);
       drone.toggleSpelling(6);
-      expect(names(drone, 6, Progression.twoFiveOne), ['A♭', 'D♭', 'G♭']);
+      expect(names(drone, 6, Progression.twoFiveOne), ['A♭', 'D♭', 'G♭', 'G♭']);
       // In solfège too.
       expect(spell(6, drone.keyLetter, NoteNames.solfege), 'Sol♭');
       // Only C♯/D♭ and F♯/G♭ change: E♭ stays E♭.
@@ -236,5 +269,49 @@ void main() {
     expect(steps.first.quality, ChordQuality.halfDiminished);
     expect(ChordQuality.halfDiminished.semitones, [3, 6, 10]);
     expect(steps.last.quality, ChordQuality.minor7);
+  });
+
+  test('every progression lasts 4, 8 or 12 bars, as phrases do', () {
+    for (final p in Progression.values) {
+      expect([4, 8, 12], contains(p.steps.length), reason: p.name);
+    }
+  });
+
+  test('the circle of fifths in G is Autumn Leaves: Am7 D7 Gmaj7 Cmaj7 F♯m7♭5 B7 Em7', () {
+    drone
+      ..setVoicing(DroneVoicing.progression)
+      ..setProgression(Progression.circleOfFifths)
+      ..setPitchClass(7);
+    final p = Progression.circleOfFifths;
+    expect(
+      [
+        for (var i = 0; i < p.steps.length; i++)
+          spell(
+            (7 + p.steps[i].offset) % 12,
+            drone.letterAt(i),
+            NoteNames.letters,
+          ),
+      ],
+      ['A', 'D', 'G', 'C', 'F♯', 'B', 'E', 'E'],
+    );
+    expect(p.steps[4].quality, ChordQuality.halfDiminished);
+    expect(p.steps[5].quality, ChordQuality.dominant);
+    expect(drone.keyIsMinor, isFalse);
+  });
+
+  test('the minor blues in C minor has A♭7 and G7 in bars 9 and 10', () {
+    drone
+      ..setVoicing(DroneVoicing.progression)
+      ..setProgression(Progression.minorBlues)
+      ..setPitchClass(0);
+    expect(drone.keyIsMinor, isTrue);
+    final p = Progression.minorBlues;
+    expect(
+      spell((0 + p.steps[8].offset) % 12, drone.letterAt(8), NoteNames.letters),
+      'A♭',
+    );
+    expect(p.steps[8].quality, ChordQuality.dominant);
+    expect(p.steps[9].offset, 7);
+    expect(p.steps.first.quality, ChordQuality.minor7);
   });
 }
