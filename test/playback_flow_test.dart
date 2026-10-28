@@ -161,6 +161,39 @@ void main() {
     });
   });
 
+  testWidgets('between two beats the metronome runs no frames', (tester) async {
+    final app = await _open(tester);
+    await app.scope.metronome.start();
+    // The beat is lit, then the ring waits for the next one: no frame is
+    // asked for in between (a slow test machine may be past it already).
+    for (var i = 0; i < 3; i++) {
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    final beat = app.scope.metronome.beat;
+    expect(beat, isNotNull);
+    if (app.scope.metronome.beat == beat) {
+      expect(tester.binding.hasScheduledFrame, isFalse);
+    }
+    await app.scope.metronome.stop();
+    await app.settle();
+    expect(tester.binding.hasScheduledFrame, isFalse);
+  });
+
+  testWidgets('coming to the harmony gets the piano ready, silently', (
+    tester,
+  ) async {
+    final piano = SilentPianoOutput();
+    final app = await _open(tester, piano: piano);
+    expect(piano.prepared, isNull);
+    await tester.tap(_harmonyTab);
+    await app.settle();
+    // The chord a touch would play: A major, its root in the bass.
+    expect(piano.prepared, hasLength(1));
+    expect(piano.prepared!.single.first % 12, 9);
+    expect(piano.chords, isNull);
+    expect(app.scope.drone.isPlaying, isFalse);
+  });
+
   group('the tuner pauses what plays', () {
     testWidgets('with nothing playing, it listens and says nothing', (
       tester,

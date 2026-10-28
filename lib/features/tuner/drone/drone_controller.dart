@@ -434,6 +434,16 @@ class DroneController extends ChangeNotifier {
         });
   }
 
+  /// Gets the piano ready, while nothing plays, for what a touch would play
+  /// now: the first chord then starts sooner.
+  void preparePiano() {
+    final piano = _piano;
+    if (piano == null || !usesPiano || _playing) return;
+    piano.prepare(_pianoChords).catchError((Object error) {
+      debugPrint('Drone could not prepare the piano: $error');
+    });
+  }
+
   /// Moves to the next chord at the next bar line.
   ///
   /// Held as one tone, the bar line is the metronome's "one" when it is
