@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:record/record.dart';
 
+import 'web_audio_engine.dart';
 import 'web_audio_session.dart';
 
 /// Captures sound from the microphone as mono samples from -1 to 1.
@@ -45,6 +46,7 @@ class RecordMicInput implements MicInput {
   Future<Stream<Float64List>> start(int sampleRate) async {
     // On the iPhone the web app's sound keeps playing while it listens.
     setWebAudioSession(listening: true);
+    markWebAudioInUse();
     while (true) {
       try {
         final bytes = await _rec.startStream(_config(sampleRate));

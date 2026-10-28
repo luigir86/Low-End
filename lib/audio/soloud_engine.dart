@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 
+import 'web_audio_engine.dart';
+
 /// How long the engine plays silence after it starts, before the first
 /// sound: the phone's audio output is still ramping up (routing to the
 /// speaker, fading in), and a click that begins at that moment comes out as
@@ -60,6 +62,8 @@ class EngineStarter {
 final _engine = EngineStarter(() async {
   final soloud = SoLoud.instance;
   if (soloud.isInitialized) return;
+  // The web page loads the engine after the first frame.
+  await webAudioEngineLoaded();
   await soloud.init(
     sampleRate: engineSampleRate,
     bufferSize: engineBufferFrames,
