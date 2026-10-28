@@ -20,7 +20,7 @@ The files are then kept on the phone: from the second opening it starts fast and
 | Sound with the screen locked or in another app | Yes, with the media notification | No: iOS pauses the page's sound |
 | Media notification, headphone buttons | Yes | No |
 | Stops when the headphones come out | Yes | No |
-| Beat light in time over Bluetooth | Yes (`AudioRoute`) | No: the page cannot tell where the sound goes, so the delay of the speaker is used |
+| Beat light in time over Bluetooth | Yes (`AudioRoute`) | As far as the browser knows: the light waits for the delay the browser gives for its own sound (`SpeakerAudioRoute`) |
 | Silent switch | Ignored (media volume) | Ignored too, with Safari's audio session (`web_audio_session.dart`) |
 | Microphone permission | Asked once | iOS may ask again, even at every opening |
 | "Open settings" after a no to the microphone | Yes | No: the message says where to allow it |

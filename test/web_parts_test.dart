@@ -26,5 +26,7 @@ void main() {
   test('outside a web page the audio engine is not waited for', () async {
     await webAudioEngineLoaded();
     markWebAudioInUse();
+    // Only a browser says how late its sound is heard.
+    expect(webOutputLatency(), isNull);
   });
 }

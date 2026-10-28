@@ -5,6 +5,22 @@
 // is on screen, not before: it is not needed until the first sound, and
 // loading it earlier slowed the first screen down. The app waits for this
 // promise before its first sound (web_audio_engine_web.dart).
+// The audio engine's own AudioContext, kept so the app can ask the browser
+// how late what it plays is heard (outputLatency, web_audio_engine_web.dart).
+// The app raises lowEndCatchAudioContext just before the engine starts; the
+// microphone's context, made at another time, is not taken for it.
+if (window.AudioContext) {
+  window.AudioContext = class extends window.AudioContext {
+    constructor(...args) {
+      super(...args);
+      if (window.lowEndCatchAudioContext) {
+        window.lowEndCatchAudioContext = false;
+        window.lowEndAudioContext = this;
+      }
+    }
+  };
+}
+
 window.lowEndAudioEngine = new Promise(function (resolve) {
   let started = false;
   window.lowEndLoadAudioEngine = function () {
