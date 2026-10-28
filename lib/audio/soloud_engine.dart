@@ -19,6 +19,11 @@ const engineSampleRate = 48000;
 /// than it is mixed (see [outputLatencyFor]).
 const engineBufferFrames = 2048;
 
+/// How long the engine's buffer holds a sound before it goes out.
+const engineBufferLatency = Duration(
+  microseconds: engineBufferFrames * 1000000 ~/ engineSampleRate,
+);
+
 /// Where the sound comes out, for [outputLatencyFor].
 enum AudioOutputKind { speaker, wired, bluetooth, bleAudio }
 
@@ -27,10 +32,7 @@ enum AudioOutputKind { speaker, wired, bluetooth, bleAudio }
 /// radio. The screen shows the beat that much later, so the light and the
 /// click come together.
 Duration outputLatencyFor(AudioOutputKind kind) {
-  const buffer = Duration(
-    microseconds: engineBufferFrames * 1000000 ~/ engineSampleRate,
-  );
-  return buffer +
+  return engineBufferLatency +
       switch (kind) {
         AudioOutputKind.speaker ||
         AudioOutputKind.wired => const Duration(milliseconds: 20),

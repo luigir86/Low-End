@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'soloud_engine.dart';
+import 'web_audio_engine.dart';
 
 /// Where the phone sends the sound, and the moment the headphones come out.
 ///
@@ -66,10 +67,17 @@ class AndroidAudioRoute implements AudioRoute {
 }
 
 /// [AudioRoute] where the route cannot be known, as in the web app: the
-/// speaker's delay, and the headphones never seen coming out.
+/// delay the browser gives (else the speaker's), and the headphones never
+/// seen coming out.
 class SpeakerAudioRoute implements AudioRoute {
+  /// The engine's buffer, then the browser's own delay, which on a phone
+  /// can be several times the app's (and takes in Bluetooth too).
   @override
-  Duration get outputLatency => outputLatencyFor(AudioOutputKind.speaker);
+  Duration get outputLatency {
+    final browser = webOutputLatency();
+    if (browser == null) return outputLatencyFor(AudioOutputKind.speaker);
+    return engineBufferLatency + browser;
+  }
 
   @override
   Stream<void> get unplugged => const Stream.empty();
