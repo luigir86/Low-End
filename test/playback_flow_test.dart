@@ -161,6 +161,24 @@ void main() {
     });
   });
 
+  testWidgets('between two beats the metronome runs no frames', (tester) async {
+    final app = await _open(tester);
+    await app.scope.metronome.start();
+    // The beat is lit, then the ring waits for the next one: no frame is
+    // asked for in between (a slow test machine may be past it already).
+    for (var i = 0; i < 3; i++) {
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    final beat = app.scope.metronome.beat;
+    expect(beat, isNotNull);
+    if (app.scope.metronome.beat == beat) {
+      expect(tester.binding.hasScheduledFrame, isFalse);
+    }
+    await app.scope.metronome.stop();
+    await app.settle();
+    expect(tester.binding.hasScheduledFrame, isFalse);
+  });
+
   group('the tuner pauses what plays', () {
     testWidgets('with nothing playing, it listens and says nothing', (
       tester,

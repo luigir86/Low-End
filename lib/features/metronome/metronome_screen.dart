@@ -121,6 +121,13 @@ class _BeatRingState extends State<_BeatRing>
 
   int? _lastBeat;
 
+  /// Wakes the frames again just before the next beat (see [_onFrame]).
+  Timer? _nextBeat;
+
+  /// How long before a beat the frames start again: enough for the timer
+  /// coming in a little late, so that the beat is lit on its first frame.
+  static const _wakeEarly = Duration(milliseconds: 40);
+
   void _onFrame(Duration _) {
     final metronome = widget.metronome;
     final beat = metronome.beat;
@@ -128,36 +135,54 @@ class _BeatRingState extends State<_BeatRing>
       _lastBeat = beat;
       _ringFrame.value++;
       _hubFrame.value++;
-      return;
+    } else if (metronome.waitLeft != null) {
+      _hubFrame.value++;
     }
-    if (metronome.waitLeft != null) _hubFrame.value++;
     // A bar of one beat has a single segment: it flashes on the beat and
     // fades, so that the beat is seen.
     final since = metronome.sinceBeat;
-    if (metronome.beatsPerBar == 1 &&
+    final flashing =
+        metronome.beatsPerBar == 1 &&
         since != null &&
-        since < _RingPainter.flashTime(metronome)) {
-      _ringFrame.value++;
-    }
+        since < _RingPainter.flashTime(metronome);
+    if (flashing && beat == _lastBeat) _ringFrame.value++;
+    // Between two beats nothing moves: no frames until just before the
+    // next one, which saves the battery (and, in a browser, redrawing the
+    // whole screen at every frame). Before the first beat (starting, or the
+    // countdown) frames go on.
+    if (beat == null || since == null || flashing) return;
+    final wait = metronome.pulseLength - since - _wakeEarly;
+    if (wait <= Duration.zero) return;
+    _ticker.stop();
+    _nextBeat = Timer(wait, _sync);
   }
 
   @override
   void initState() {
     super.initState();
+    widget.metronome.addListener(_sync);
     _sync();
   }
 
   @override
   void didUpdateWidget(_BeatRing oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.metronome != widget.metronome) {
+      oldWidget.metronome.removeListener(_sync);
+      widget.metronome.addListener(_sync);
+    }
     _sync();
   }
 
-  /// Runs frames only while the metronome plays, to save battery.
+  /// Runs frames only while the metronome plays, to save battery. Also
+  /// called just before a beat, and when the metronome changes (a new tempo
+  /// moves the next beat): the frames start again at once.
   void _sync() {
+    _nextBeat?.cancel();
+    _nextBeat = null;
     final playing = widget.metronome.isPlaying;
     if (playing && !_ticker.isActive) _ticker.start();
-    if (!playing && _ticker.isActive) {
+    if (!playing && (_ticker.isActive || _lastBeat != null)) {
       _ticker.stop();
       _lastBeat = null;
       _ringFrame.value++;
@@ -167,6 +192,8 @@ class _BeatRingState extends State<_BeatRing>
 
   @override
   void dispose() {
+    _nextBeat?.cancel();
+    widget.metronome.removeListener(_sync);
     _ticker.dispose();
     _ringFrame.dispose();
     _hubFrame.dispose();
