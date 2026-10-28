@@ -613,23 +613,27 @@ String chordSymbol(AppLocalizations l10n, DroneChord chord, String note) =>
 String progressionName(AppLocalizations l10n, Progression p) => switch (p) {
   Progression.twoFiveOne => 'II–V–I',
   Progression.minorTwoFiveOne => l10n.progressionMinorTwoFiveOne,
-  Progression.oneFourFive => 'I–IV–V',
-  Progression.oneSixFourFive => 'I–VI–IV–V',
-  Progression.blues => l10n.progressionBlues,
+  Progression.circleOfFifths => l10n.progressionCircleOfFifths,
   Progression.oneSixTwoFive => 'I–VI–II–V',
+  Progression.blues => l10n.progressionBlues,
+  Progression.minorBlues => l10n.progressionMinorBlues,
+  Progression.oneFourFiveFour => 'I–IV–V–IV',
+  Progression.oneSixFourFive => 'I–VI–IV–V',
   Progression.oneFiveSixFour => 'I–V–VI–IV',
   Progression.andalusian => l10n.progressionAndalusian,
 };
 
 /// The well-known song a progression is named after in the menu.
 String progressionSong(Progression p) => switch (p) {
-  Progression.twoFiveOne => 'Autumn Leaves',
+  Progression.twoFiveOne => 'Tune Up',
   Progression.minorTwoFiveOne => 'Blue Bossa',
-  Progression.oneFourFive => 'Twist and Shout',
-  Progression.oneSixFourFive => 'Stand by Me',
-  Progression.blues => 'Sweet Home Chicago',
+  Progression.circleOfFifths => 'Autumn Leaves',
   Progression.oneSixTwoFive => 'I Got Rhythm',
-  Progression.oneFiveSixFour => 'Let It Be',
+  Progression.blues => 'Sweet Home Chicago',
+  Progression.minorBlues => 'Mr. P.C.',
+  Progression.oneFourFiveFour => 'Wild Thing',
+  Progression.oneSixFourFive => 'Stand by Me',
+  Progression.oneFiveSixFour => 'With or Without You',
   Progression.andalusian => 'Hit the Road Jack',
 };
 
@@ -637,11 +641,13 @@ String progressionSong(Progression p) => switch (p) {
 String progressionGenre(AppLocalizations l10n, Progression p) => switch (p) {
   Progression.twoFiveOne => l10n.progressionGenreJazz,
   Progression.minorTwoFiveOne => l10n.progressionGenreMinorJazz,
-  Progression.oneFourFive => l10n.progressionGenreRock,
-  Progression.oneSixFourFive => l10n.progressionGenrePop,
-  Progression.blues => l10n.progressionGenreBlues,
+  Progression.circleOfFifths => l10n.progressionGenreJazz,
   Progression.oneSixTwoFive => l10n.progressionGenreJazz,
-  Progression.oneFiveSixFour => l10n.progressionGenrePop,
+  Progression.blues => l10n.progressionGenreBlues,
+  Progression.minorBlues => l10n.progressionGenreMinorBlues,
+  Progression.oneFourFiveFour => l10n.progressionGenreRock,
+  Progression.oneSixFourFive => l10n.progressionGenrePop,
+  Progression.oneFiveSixFour => l10n.progressionGenrePopRock,
   Progression.andalusian => l10n.progressionGenreFlamenco,
 };
 

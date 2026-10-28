@@ -75,7 +75,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get progressionGenreMinorJazz => 'Jazz in a minor key';
 
   @override
-  String get progressionGenreRock => 'Rock ’n’ roll';
+  String get progressionGenreRock => '’60s rock';
+
+  @override
+  String get progressionGenrePopRock => 'Pop rock';
+
+  @override
+  String get progressionGenreMinorBlues => 'Minor jazz blues';
 
   @override
   String get progressionGenrePop => '’50s–’60s pop';
@@ -88,6 +94,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get progressionAndalusian => 'Andalusian cadence';
+
+  @override
+  String get progressionCircleOfFifths => 'Circle of fifths';
+
+  @override
+  String get progressionMinorBlues => 'Minor blues';
 
   @override
   String progressionLike(String genre, String song) {

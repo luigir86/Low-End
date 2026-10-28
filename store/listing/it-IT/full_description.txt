@@ -8,7 +8,7 @@ METRONOMO
 ARMONIA
 • Dodici tasti su un cerchio: tocca una nota e suona su un vero pianoforte a coda, registrato in stereo, a tempo con il metronomo.
 • La nota da sola, oppure un accordo maggiore, minore o di settima, battuto una volta a battuta, a ogni movimento o arpeggiato.
-• Progressioni su cui studiare, un accordo per battuta: II–V–I (maggiore e minore), I–IV–V, I–VI–IV–V e il blues di dodici battute, in qualunque tonalità, ognuna con il nome di un brano che conosci e con i numeri romani sui tasti.
+• Dieci progressioni su cui studiare, un accordo per battuta e lunghe quattro, otto o dodici battute, come le frasi musicali: II–V–I (maggiore e minore), il ciclo delle quinte di Autumn Leaves, I–VI–II–V, il blues di dodici battute (maggiore e minore), I–IV–V–IV, I–VI–IV–V, I–V–VI–IV e la cadenza andalusa, in qualunque tonalità, ognuna con il nome di un brano che conosci e con i numeri romani sui tasti.
 • I brani d'esempio impostano tonalità, progressione e tempo in un tocco.
 • Oppure un tono continuo al posto del pianoforte. La fondamentale suona in un'ottava medio-grave che l'altoparlante del telefono rende bene; mentre suona, le note che non senti si attenuano sul cerchio.
 • Se avvii l'armonia mentre il click è in corso, entra sulla battuta successiva, con un conto alla rovescia al centro del cerchio.
@@ -31,7 +31,7 @@ PENSATA PER SUONARE
 PRIVATA E APERTA
 • Nessun account, nessuna pubblicità, nessun tracciamento, nessuna connessione a internet.
 • Il microfono è usato solo mentre l'accordatore è sullo schermo.
-• Software libero e open source con licenza MIT: https://github.com/luigir86/Low-End
+• Software libero e open source con licenza MIT: https://github.com/luigir86/low-end
 • Suoni del pianoforte: Salamander Grand Piano di Alexander Holm (pubblico dominio).
 
 Domande o idee? Scrivi a ribaluigi@gmail.com o apri una segnalazione su GitHub.

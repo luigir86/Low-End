@@ -33,8 +33,8 @@ Raise `version:` in `pubspec.yaml` (the number after `+` must grow with every up
 | Free or paid | Free |
 | Contains ads | No |
 | Contact email | ribaluigi@gmail.com |
-| Website | https://github.com/luigir86/Low-End |
-| Privacy policy | https://github.com/luigir86/Low-End/blob/main/PRIVACY.md |
+| Website | https://github.com/luigir86/low-end |
+| Privacy policy | https://github.com/luigir86/low-end/blob/main/PRIVACY.md |
 
 ## App content (declarations)
 
@@ -44,7 +44,7 @@ Raise `version:` in `pubspec.yaml` (the number after `+` must grow with every up
 - **Content rating** (IARC questionnaire): no violence, no sexual content, no gambling, no user-generated content, no sharing of location. Expected result: PEGI 3 / Everyone.
 - **Target audience**: 13 and over is the simplest choice (no ads, no data, but it is not aimed at children). Choosing "under 13" would add the Families policy requirements.
 - **Ads**: none. **News app**: no. **Government app**: no. **Financial features**: none. **Health features**: none.
-- **Open source**: MIT, source at https://github.com/luigir86/Low-End (it is in the description). Third-party licences: [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
+- **Open source**: MIT, source at https://github.com/luigir86/low-end (it is in the description). Third-party licences: [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
 
 ## Before going to production
 

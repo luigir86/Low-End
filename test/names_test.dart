@@ -47,9 +47,12 @@ void main() {
     expect(find.text('II–V–I'), findsOneWidget);
     await tester.tap(find.byKey(const Key('progressionMenu')));
     await tester.pumpAndSettle();
-    expect(find.text('Jazz standard, like Autumn Leaves'), findsOneWidget);
+    expect(find.text('Jazz standard, like Tune Up'), findsOneWidget);
     expect(find.text('Jazz in a minor key, like Blue Bossa'), findsOneWidget);
-    expect(find.text('Rock ’n’ roll, like Twist and Shout'), findsOneWidget);
+    expect(find.text('Jazz standard, like Autumn Leaves'), findsOneWidget);
+    expect(find.text('Minor jazz blues, like Mr. P.C.'), findsOneWidget);
+    expect(find.text('’60s rock, like Wild Thing'), findsOneWidget);
+    expect(find.text('Pop rock, like With or Without You'), findsOneWidget);
     expect(find.text('’50s–’60s pop, like Stand by Me'), findsOneWidget);
     expect(find.text('Blues, like Sweet Home Chicago'), findsOneWidget);
     expect(find.text('12-bar blues'), findsOneWidget);
@@ -65,7 +68,7 @@ void main() {
     await _open(tester, language: 'it', size: const Size(840, 1700));
     await tester.tap(find.byKey(const Key('progressionMenu')));
     await tester.pumpAndSettle();
-    expect(find.text('Standard jazz, come Autumn Leaves'), findsOneWidget);
+    expect(find.text('Standard jazz, come Tune Up'), findsOneWidget);
     expect(find.text('Blues in 12 battute'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('II–V–I minore'));

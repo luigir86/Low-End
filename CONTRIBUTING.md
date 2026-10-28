@@ -4,7 +4,7 @@ Thanks for helping! Low End is a small, free app for musicians. Bug reports, tra
 
 ## Reporting a problem or an idea
 
-Open an issue at https://github.com/luigir86/Low-End/issues. For tuner problems, say which phone you use, which instrument and note, and whether you used the phone's microphone or an external one.
+Open an issue at https://github.com/luigir86/low-end/issues. For tuner problems, say which phone you use, which instrument and note, and whether you used the phone's microphone or an external one.
 
 ## Changing the code
 
