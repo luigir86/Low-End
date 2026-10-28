@@ -179,6 +179,21 @@ void main() {
     expect(tester.binding.hasScheduledFrame, isFalse);
   });
 
+  testWidgets('coming to the harmony gets the piano ready, silently', (
+    tester,
+  ) async {
+    final piano = SilentPianoOutput();
+    final app = await _open(tester, piano: piano);
+    expect(piano.prepared, isNull);
+    await tester.tap(_harmonyTab);
+    await app.settle();
+    // The chord a touch would play: A major, its root in the bass.
+    expect(piano.prepared, hasLength(1));
+    expect(piano.prepared!.single.first % 12, 9);
+    expect(piano.chords, isNull);
+    expect(app.scope.drone.isPlaying, isFalse);
+  });
+
   group('the tuner pauses what plays', () {
     testWidgets('with nothing playing, it listens and says nothing', (
       tester,

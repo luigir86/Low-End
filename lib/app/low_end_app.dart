@@ -180,6 +180,8 @@ class _LowEndAppState extends State<LowEndApp> with WidgetsBindingObserver {
   /// itself: the click must not come back unasked, out of time with the band.
   void _onNavigationChanged() {
     _navigation.tunerVisible ? _tuner.resume() : _tuner.stop();
+    // Coming to the harmony: the piano's notes are read before the touch.
+    if (_navigation.section == AppSection.drone) _drone.preparePiano();
     _keepScreenOn();
   }
 

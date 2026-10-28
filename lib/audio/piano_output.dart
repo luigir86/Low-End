@@ -44,6 +44,10 @@ abstract class PianoOutput {
   });
 
   Future<void> stop();
+
+  /// Gets the audio engine and the recordings [chords] need ready while
+  /// nothing plays, so that playing them starts sooner.
+  Future<void> prepare(List<PianoChord> chords);
 }
 
 /// Decodes a mono FLAC file of [frames] samples to its samples, from -1
@@ -201,6 +205,9 @@ class SoLoudPianoOutput implements PianoOutput {
   Timer? _forget;
   static const _keepFor = Duration(seconds: 30);
 
+  /// How long recordings got ready by [prepare] wait for a touch.
+  static const _keepPreparedFor = Duration(minutes: 2);
+
   static Future<Float32List> _decodeFlac(Uint8List flac, int frames) =>
       SoLoud.instance.readSamplesFromMem(flac, frames);
 
@@ -290,6 +297,16 @@ class SoLoudPianoOutput implements PianoOutput {
     _forget?.cancel();
     _forget = Timer(_keepFor, _library.clear);
   }
+
+  @override
+  Future<void> prepare(List<PianoChord> chords) async {
+    await ensureSoLoud();
+    await _library.forChords(chords);
+    // Not played after all: they go, as after a stop, a while later.
+    if (_playing != null) return;
+    _forget?.cancel();
+    _forget = Timer(_keepPreparedFor, _library.clear);
+  }
 }
 
 /// [PianoOutput] that makes no sound; used where audio is unavailable.
@@ -332,4 +349,10 @@ class SilentPianoOutput implements PianoOutput {
 
   @override
   Future<void> stop() async => chords = null;
+
+  /// What [prepare] was last asked for.
+  List<PianoChord>? prepared;
+
+  @override
+  Future<void> prepare(List<PianoChord> chords) async => prepared = chords;
 }
