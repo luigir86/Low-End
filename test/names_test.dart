@@ -59,6 +59,11 @@ void main() {
     expect(find.text('Like Wild Thing'), findsOneWidget);
     expect(find.text('Like With or Without You'), findsOneWidget);
     expect(find.text('The ’50s progression, like Stand by Me'), findsOneWidget);
+    expect(find.text('I–♭VII–♭VI–V'), findsOneWidget);
+    expect(
+      find.text('Andalusian cadence, like Hit the Road Jack'),
+      findsOneWidget,
+    );
     expect(find.text('Like Sweet Home Chicago'), findsOneWidget);
     expect(find.text('Like Mr. P.C.'), findsOneWidget);
     expect(find.text('Like Tune Up'), findsOneWidget);

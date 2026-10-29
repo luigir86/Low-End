@@ -212,11 +212,11 @@ abstract class AppLocalizations {
   /// **'12-bar blues'**
   String get progressionBlues;
 
-  /// No description provided for @progressionAndalusian.
+  /// Under I–♭VII–♭VI–V in the progression menu: its name and a well-known song that uses it.
   ///
   /// In en, this message translates to:
-  /// **'Andalusian cadence'**
-  String get progressionAndalusian;
+  /// **'Andalusian cadence, like {song}'**
+  String progressionAndalusianLike(String song);
 
   /// No description provided for @progressionCircleOfFifths.
   ///

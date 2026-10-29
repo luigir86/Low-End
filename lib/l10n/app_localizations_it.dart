@@ -69,7 +69,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get progressionBlues => 'Blues in 12 battute';
 
   @override
-  String get progressionAndalusian => 'Cadenza andalusa';
+  String progressionAndalusianLike(String song) {
+    return 'Cadenza andalusa, come $song';
+  }
 
   @override
   String get progressionCircleOfFifths => 'Ciclo delle quinte';

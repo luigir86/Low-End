@@ -19,7 +19,7 @@
   "progressionLabel": "Progressione",
   "progressionMinorTwoFiveOne": "II–V–I minore",
   "progressionBlues": "Blues in 12 battute",
-  "progressionAndalusian": "Cadenza andalusa",
+  "progressionAndalusianLike": "Cadenza andalusa, come {song}",
   "progressionCircleOfFifths": "Ciclo delle quinte",
   "progressionMinorBlues": "Blues minore",
   "progressionLike": "Come {song}",

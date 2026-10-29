@@ -29,7 +29,15 @@
   "progressionLabel": "Progression",
   "progressionMinorTwoFiveOne": "II–V–I minor",
   "progressionBlues": "12-bar blues",
-  "progressionAndalusian": "Andalusian cadence",
+  "progressionAndalusianLike": "Andalusian cadence, like {song}",
+  "@progressionAndalusianLike": {
+    "description": "Under I–♭VII–♭VI–V in the progression menu: its name and a well-known song that uses it.",
+    "placeholders": {
+      "song": {
+        "type": "String"
+      }
+    }
+  },
   "progressionCircleOfFifths": "Circle of fifths",
   "progressionMinorBlues": "Minor blues",
   "progressionLike": "Like {song}",

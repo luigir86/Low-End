@@ -108,6 +108,14 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Example songs'));
     await tester.pumpAndSettle();
+    // In the sections of the progression menu.
+    for (final heading in ['Pop and rock', 'Blues', 'Jazz']) {
+      expect(find.text(heading), findsOneWidget);
+    }
+    expect(
+      tester.getTopLeft(find.text('Stand by Me')).dy,
+      lessThan(tester.getTopLeft(find.text('Blues')).dy),
+    );
     await tester.tap(find.text('Blue Bossa'));
     await tester.pumpAndSettle();
     expect(scope.drone.voicing, DroneVoicing.progression);

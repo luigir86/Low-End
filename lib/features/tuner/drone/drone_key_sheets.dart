@@ -24,7 +24,6 @@ String keyName(AppLocalizations l10n, DroneController drone, NoteNames names) {
 String progressionShort(AppLocalizations l10n, Progression p) => switch (p) {
   Progression.minorTwoFiveOne => 'II–V–I',
   Progression.blues || Progression.minorBlues => l10n.progressionBluesShort,
-  Progression.andalusian => 'I–♭VII–♭VI–V',
   _ => progressionName(l10n, p),
 };
 
@@ -207,7 +206,16 @@ Future<void> showSongsSheet(BuildContext context) {
                   ),
                 ),
               ),
-              for (final song in exampleSongs)
+              for (final (i, song) in exampleSongs.indexed) ...[
+                // The sections of the progression menu, in the same order.
+                if (i == 0 ||
+                    exampleSongs[i - 1].progression.section !=
+                        song.progression.section) ...[
+                  if (i > 0) const Divider(),
+                  _SongSection(
+                    progressionSectionName(l10n, song.progression.section),
+                  ),
+                ],
                 ListTile(
                   key: ValueKey('song-${song.title}'),
                   title: Text(song.title),
@@ -225,6 +233,7 @@ Future<void> showSongsSheet(BuildContext context) {
                     Navigator.of(sheet).pop();
                   },
                 ),
+              ],
               const SizedBox(height: 8),
             ],
           ),
@@ -266,6 +275,34 @@ class LegendTile extends StatelessWidget {
         ),
         const SizedBox(height: 8),
       ],
+    );
+  }
+}
+
+/// The heading of a section of the example songs, as in the progression
+/// menu: small muted words, announced as a heading.
+class _SongSection extends StatelessWidget {
+  const _SongSection(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Semantics(
+      header: true,
+      child: Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 0),
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Text(
+            text,
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

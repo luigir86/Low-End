@@ -620,7 +620,7 @@ String progressionName(AppLocalizations l10n, Progression p) => switch (p) {
   Progression.oneFourFiveFour => 'I–IV–V–IV',
   Progression.oneSixFourFive => 'I–VI–IV–V',
   Progression.oneFiveSixFour => 'I–V–VI–IV',
-  Progression.andalusian => l10n.progressionAndalusian,
+  Progression.andalusian => 'I–♭VII–♭VI–V',
 };
 
 /// The well-known song a progression is named after in the menu.
@@ -646,11 +646,13 @@ String progressionSectionName(AppLocalizations l10n, ProgressionSection s) =>
     };
 
 /// The line under the name in the menu: "Like Wild Thing"; for I–VI–IV–V
-/// also its common name, the "giro di Do" of Italian musicians.
-String progressionNote(AppLocalizations l10n, Progression p) =>
-    p == Progression.oneSixFourFive
-    ? l10n.progressionGiroLike(progressionSong(p))
-    : l10n.progressionLike(progressionSong(p));
+/// and I–♭VII–♭VI–V also their common names, the "giro di Do" of Italian
+/// musicians and the Andalusian cadence.
+String progressionNote(AppLocalizations l10n, Progression p) => switch (p) {
+  Progression.oneSixFourFive => l10n.progressionGiroLike(progressionSong(p)),
+  Progression.andalusian => l10n.progressionAndalusianLike(progressionSong(p)),
+  _ => l10n.progressionLike(progressionSong(p)),
+};
 
 /// Chord (the note alone being one of them) or Progression, full width, as
 /// tall as the other sections' first row.
