@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'style.dart';
 
@@ -119,6 +120,19 @@ abstract final class LowEndTheme {
   static Color tint(double amount) =>
       Color.lerp(Palette.ebony, Palette.bronze, amount)!;
 
+  /// The status bar and the navigation bar: see-through, the app drawn
+  /// under them from edge to edge, light icons on the dark screen. The same on
+  /// every Android version (from 15 it is the only way).
+  static const systemBars = SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+    statusBarBrightness: Brightness.dark,
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: Colors.transparent,
+    systemNavigationBarIconBrightness: Brightness.light,
+    systemNavigationBarContrastEnforced: false,
+  );
+
   /// The one theme: dark, bronze on ebony. There is no light theme and no
   /// choice of theme (docs/tema-bronzo.md).
   static final dark = () {
@@ -195,6 +209,8 @@ abstract final class LowEndTheme {
       scaffoldBackgroundColor: scheme.surface,
       extensions: [colors],
       appBarTheme: AppBarTheme(
+        // Otherwise a page with a title bar paints the navigation bar black.
+        systemOverlayStyle: systemBars,
         backgroundColor: scheme.surface,
         foregroundColor: scheme.onSurface,
         surfaceTintColor: Colors.transparent,
