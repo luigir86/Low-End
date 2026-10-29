@@ -56,7 +56,6 @@ void main() {
         matchesSemantics(label: heading, isHeader: true),
       );
     }
-    expect(find.text('Like Wild Thing'), findsOneWidget);
     expect(find.text('Like With or Without You'), findsOneWidget);
     expect(find.text('The ’50s progression, like Stand by Me'), findsOneWidget);
     expect(find.text('I–♭VII–♭VI–V'), findsOneWidget);

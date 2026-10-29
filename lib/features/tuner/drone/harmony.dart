@@ -87,14 +87,6 @@ enum Progression {
     ProgressionStep(7, ChordQuality.dominant, 'V'),
   ]),
 
-  /// I–IV–V–IV: in C, C F G F.
-  oneFourFiveFour([
-    ProgressionStep(0, ChordQuality.major, 'I'),
-    ProgressionStep(5, ChordQuality.major, 'IV'),
-    ProgressionStep(7, ChordQuality.major, 'V'),
-    ProgressionStep(5, ChordQuality.major, 'IV'),
-  ]),
-
   /// I–V–VI–IV: in C, C G Am F.
   oneFiveSixFour([
     ProgressionStep(0, ChordQuality.major, 'I'),
@@ -190,7 +182,6 @@ enum Progression {
 
   /// The section of the menu it is listed in.
   ProgressionSection get section => switch (this) {
-    oneFourFiveFour ||
     oneFiveSixFour ||
     oneSixFourFive ||
     andalusian => ProgressionSection.popRock,
@@ -232,7 +223,6 @@ class ExampleSong {
 /// flat or sharp key, so there is no spelling to choose.
 const exampleSongs = [
   ExampleSong('Stand by Me', 'Ben E. King', 9, Progression.oneSixFourFive, 118),
-  ExampleSong('Wild Thing', 'The Troggs', 9, Progression.oneFourFiveFour, 108),
   ExampleSong('With or Without You', 'U2', 2, Progression.oneFiveSixFour, 110),
   ExampleSong(
     'Hit the Road Jack',

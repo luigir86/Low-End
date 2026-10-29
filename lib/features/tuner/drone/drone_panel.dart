@@ -617,7 +617,6 @@ String progressionName(AppLocalizations l10n, Progression p) => switch (p) {
   Progression.oneSixTwoFive => 'I–VI–II–V',
   Progression.blues => l10n.progressionBlues,
   Progression.minorBlues => l10n.progressionMinorBlues,
-  Progression.oneFourFiveFour => 'I–IV–V–IV',
   Progression.oneSixFourFive => 'I–VI–IV–V',
   Progression.oneFiveSixFour => 'I–V–VI–IV',
   Progression.andalusian => 'I–♭VII–♭VI–V',
@@ -631,7 +630,6 @@ String progressionSong(Progression p) => switch (p) {
   Progression.oneSixTwoFive => 'I Got Rhythm',
   Progression.blues => 'Sweet Home Chicago',
   Progression.minorBlues => 'Mr. P.C.',
-  Progression.oneFourFiveFour => 'Wild Thing',
   Progression.oneSixFourFive => 'Stand by Me',
   Progression.oneFiveSixFour => 'With or Without You',
   Progression.andalusian => 'Hit the Road Jack',
@@ -645,7 +643,7 @@ String progressionSectionName(AppLocalizations l10n, ProgressionSection s) =>
       ProgressionSection.jazz => l10n.progressionSectionJazz,
     };
 
-/// The line under the name in the menu: "Like Wild Thing"; for I–VI–IV–V
+/// The line under the name in the menu: "Like With or Without You"; for I–VI–IV–V
 /// and I–♭VII–♭VI–V also their common names, the "giro di Do" of Italian
 /// musicians and the Andalusian cadence.
 String progressionNote(AppLocalizations l10n, Progression p) => switch (p) {

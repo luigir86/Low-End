@@ -160,7 +160,7 @@ void main() {
       ..setPitchClass(0);
     // II–V–I: Dm7, G7, Cmaj7.
     expect(drone.currentChord, (root: 2, quality: ChordQuality.minor7));
-    for (final p in [Progression.oneFourFiveFour, Progression.oneSixFourFive]) {
+    for (final p in [Progression.oneFiveSixFour, Progression.oneSixFourFive]) {
       drone.setProgression(p);
       for (final s in p.steps.where(
         (s) => s.quality != ChordQuality.dominant,
@@ -232,10 +232,10 @@ void main() {
 
     test('the flat keys keep their flats', () {
       expect(names(drone, 10, Progression.twoFiveOne), ['C', 'F', 'B♭', 'B♭']);
-      expect(names(drone, 3, Progression.oneFourFiveFour), [
+      expect(names(drone, 3, Progression.oneFiveSixFour), [
         'E♭',
-        'A♭',
         'B♭',
+        'C',
         'A♭',
       ]);
     });
@@ -244,10 +244,10 @@ void main() {
       expect(drone.spelledFlat(1), isFalse);
       drone.toggleSpelling(1);
       expect(drone.spelledFlat(1), isTrue);
-      expect(names(drone, 1, Progression.oneFourFiveFour), [
+      expect(names(drone, 1, Progression.oneFiveSixFour), [
         'D♭',
-        'G♭',
         'A♭',
+        'B♭',
         'G♭',
       ]);
       drone.toggleSpelling(6);
