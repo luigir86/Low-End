@@ -206,9 +206,19 @@ enum ProgressionSection { popRock, blues, jazz }
 /// and a comfortable tempo, set in one tap. The names are the songs' own and
 /// are not translated.
 class ExampleSong {
-  const ExampleSong(this.title, this.pitchClass, this.progression, this.bpm);
+  const ExampleSong(
+    this.title,
+    this.artist,
+    this.pitchClass,
+    this.progression,
+    this.bpm,
+  );
 
   final String title;
+
+  /// Who wrote it or made it known: the artist of the famous recording, or
+  /// for a jazz standard its composer ("Miles Davis").
+  final String artist;
 
   /// The key, in semitones above C.
   final int pitchClass;
@@ -221,13 +231,37 @@ class ExampleSong {
 /// The songs offered, in the order of the progression menu; none needs a
 /// flat or sharp key, so there is no spelling to choose.
 const exampleSongs = [
-  ExampleSong('Stand by Me', 9, Progression.oneSixFourFive, 118),
-  ExampleSong('Wild Thing', 9, Progression.oneFourFiveFour, 108),
-  ExampleSong('With or Without You', 2, Progression.oneFiveSixFour, 110),
-  ExampleSong('Hit the Road Jack', 9, Progression.andalusian, 168),
-  ExampleSong('Sweet Home Chicago', 4, Progression.blues, 100),
-  ExampleSong('Mr. P.C.', 0, Progression.minorBlues, 160),
-  ExampleSong('Tune Up', 2, Progression.twoFiveOne, 160),
-  ExampleSong('Blue Bossa', 0, Progression.minorTwoFiveOne, 140),
-  ExampleSong('Autumn Leaves', 7, Progression.circleOfFifths, 120),
+  ExampleSong('Stand by Me', 'Ben E. King', 9, Progression.oneSixFourFive, 118),
+  ExampleSong('Wild Thing', 'The Troggs', 9, Progression.oneFourFiveFour, 108),
+  ExampleSong('With or Without You', 'U2', 2, Progression.oneFiveSixFour, 110),
+  ExampleSong(
+    'Hit the Road Jack',
+    'Ray Charles',
+    9,
+    Progression.andalusian,
+    168,
+  ),
+  ExampleSong(
+    'Sweet Home Chicago',
+    'Robert Johnson',
+    4,
+    Progression.blues,
+    100,
+  ),
+  ExampleSong('Mr. P.C.', 'John Coltrane', 0, Progression.minorBlues, 160),
+  ExampleSong('Tune Up', 'Miles Davis', 2, Progression.twoFiveOne, 160),
+  ExampleSong(
+    'Blue Bossa',
+    'Kenny Dorham',
+    0,
+    Progression.minorTwoFiveOne,
+    140,
+  ),
+  ExampleSong(
+    'Autumn Leaves',
+    'Joseph Kosma',
+    7,
+    Progression.circleOfFifths,
+    120,
+  ),
 ];

@@ -219,7 +219,10 @@ Future<void> showSongsSheet(BuildContext context) {
                 ListTile(
                   key: ValueKey('song-${song.title}'),
                   title: Text(song.title),
+                  // Who made it known, then what it sets.
+                  isThreeLine: true,
                   subtitle: Text(
+                    '${song.artist}\n'
                     '${progressionShort(l10n, song.progression)} · '
                     '${_songKey(l10n, song, names)} · '
                     '${BeatUnit.quarter.symbol} = ${song.bpm}',

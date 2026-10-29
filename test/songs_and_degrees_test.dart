@@ -116,6 +116,9 @@ void main() {
       tester.getTopLeft(find.text('Stand by Me')).dy,
       lessThan(tester.getTopLeft(find.text('Blues')).dy),
     );
+    // Lower down the sheet: scrolled to first.
+    await tester.ensureVisible(find.text('Blue Bossa'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Blue Bossa'));
     await tester.pumpAndSettle();
     expect(scope.drone.voicing, DroneVoicing.progression);
@@ -137,6 +140,7 @@ void main() {
     expect(exampleSongs, isNotEmpty);
     for (final s in exampleSongs) {
       expect(s.title, isNotEmpty);
+      expect(s.artist, isNotEmpty);
       expect(s.pitchClass, inInclusiveRange(0, 11));
       expect(s.bpm, inInclusiveRange(60, 200));
     }
