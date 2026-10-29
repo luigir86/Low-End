@@ -370,9 +370,9 @@ class AppActions {
     'progression': {
       'type': 'string',
       'enum': [
+        'oneSixFourFive',
         'oneFourFiveFour',
         'oneFiveSixFour',
-        'oneSixFourFive',
         'andalusian',
         'blues',
         'minorBlues',
@@ -384,10 +384,11 @@ class AppActions {
       'description':
           'The progression played when voicing is "progression", one chord a '
           'bar, each 4, 8 or 12 bars long, from the easiest: pop and rock '
-          '(I-IV-V-IV, I-V-VI-IV, I-VI-IV-V or the Andalusian cadence, '
+          '(I-VI-IV-V, I-IV-V-IV, I-V-VI-IV or the Andalusian cadence, '
           'minor), blues (12-bar blues, minor blues) and jazz (II-V-I as '
           'Dm7 G7 Cmaj7 Cmaj7, minor II-V-I, I-VI-II-V, circle of fifths in '
-          '8 bars as in Autumn Leaves). I-IV-V-IV is the one chosen first.',
+          '8 bars as in Autumn Leaves). I-VI-IV-V, the "giro di Do", is the one '
+          'chosen first.',
     },
     'style': {
       'type': 'string',
@@ -414,9 +415,9 @@ class AppActions {
     'song': {
       'type': 'string',
       'enum': [
+        'Stand by Me',
         'Wild Thing',
         'With or Without You',
-        'Stand by Me',
         'Hit the Road Jack',
         'Sweet Home Chicago',
         'Mr. P.C.',

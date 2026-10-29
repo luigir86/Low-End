@@ -74,9 +74,19 @@ class ProgressionStep {
 /// key of the note touched. Each lasts 4, 8 or 12 bars, as musical phrases
 /// do: a loop of three bars would start again where the ear still expects
 /// the I. Jazz ones and the blues are in sevenths, the others in triads.
-/// The menu lists them in this order, from the easiest to the richest, in
-/// sections by [ProgressionSection].
+/// The menu lists them in this order: the giro di Do first, the one chosen
+/// at the start, then from the easiest to the richest, in sections by
+/// [ProgressionSection].
 enum Progression {
+  /// I–VI–IV–V, the "giro di Do" of Italian musicians and the doo-wop
+  /// progression, as in Stand by Me: in C, C Am F G7.
+  oneSixFourFive([
+    ProgressionStep(0, ChordQuality.major, 'I'),
+    ProgressionStep(9, ChordQuality.minor, 'VI'),
+    ProgressionStep(5, ChordQuality.major, 'IV'),
+    ProgressionStep(7, ChordQuality.dominant, 'V'),
+  ]),
+
   /// I–IV–V–IV: in C, C F G F.
   oneFourFiveFour([
     ProgressionStep(0, ChordQuality.major, 'I'),
@@ -91,15 +101,6 @@ enum Progression {
     ProgressionStep(7, ChordQuality.major, 'V'),
     ProgressionStep(9, ChordQuality.minor, 'VI'),
     ProgressionStep(5, ChordQuality.major, 'IV'),
-  ]),
-
-  /// I–VI–IV–V, the "giro di Do" of Italian musicians and the doo-wop
-  /// progression, as in Stand by Me: in C, C Am F G7.
-  oneSixFourFive([
-    ProgressionStep(0, ChordQuality.major, 'I'),
-    ProgressionStep(9, ChordQuality.minor, 'VI'),
-    ProgressionStep(5, ChordQuality.major, 'IV'),
-    ProgressionStep(7, ChordQuality.dominant, 'V'),
   ]),
 
   /// Andalusian cadence, in a minor key: in A, Am G F E.
@@ -220,9 +221,9 @@ class ExampleSong {
 /// The songs offered, in the order of the progression menu; none needs a
 /// flat or sharp key, so there is no spelling to choose.
 const exampleSongs = [
+  ExampleSong('Stand by Me', 9, Progression.oneSixFourFive, 118),
   ExampleSong('Wild Thing', 9, Progression.oneFourFiveFour, 108),
   ExampleSong('With or Without You', 2, Progression.oneFiveSixFour, 110),
-  ExampleSong('Stand by Me', 9, Progression.oneSixFourFive, 118),
   ExampleSong('Hit the Road Jack', 9, Progression.andalusian, 168),
   ExampleSong('Sweet Home Chicago', 4, Progression.blues, 100),
   ExampleSong('Mr. P.C.', 0, Progression.minorBlues, 160),

@@ -44,8 +44,8 @@ void main() {
   ) async {
     await _open(tester);
     // Chosen, the field says only the name: the song would not fit.
-    // The easiest comes first, and is the one chosen.
-    expect(find.text('I–IV–V–IV'), findsOneWidget);
+    // The giro di Do comes first, and is the one chosen.
+    expect(find.text('I–VI–IV–V'), findsOneWidget);
     await tester.tap(find.byKey(const Key('progressionMenu')));
     await tester.pumpAndSettle();
     // The genre is a section heading, the song is under each name.
