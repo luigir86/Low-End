@@ -46,7 +46,7 @@ Values:
 - `style`: `held` (struck once a bar), `beat` (on every beat), `arpeggio` (one note a beat). A `root` voicing is always sustained.
 - `held_tone`: `true` for a steady tone instead of the piano struck again and again (the style then does not apply), `false` for the piano.
 - `flat`: `true` writes the note, if it is C# or F#, as Db or Gb (on the dial and in the chord names); the sound is the same.
-- `song`: an example song (`Tune Up`, `Blue Bossa`, `Autumn Leaves`, `Mr. P.C.`, `Sweet Home Chicago`, `Wild Thing`, `Stand by Me`, `With or Without You`, `Hit the Road Jack`): sets its key, progression and tempo, and the metronome to 4/4, as touching it on screen does.
+- `song`: an example song (`Tune Up`, `Blue Bossa`, `Autumn Leaves`, `Sweet Home Chicago`, `Mr. P.C.`, `Wild Thing`, `Stand by Me`, `With or Without You`, `Hit the Road Jack`): sets its key, progression and tempo, and the metronome to 4/4, as touching it on screen does.
 - `time_signature`: `1/1`, `2/4`, `3/4`, `4/4`, `5/4`, `6/8`, `7/8`, `9/8`, `12/8`. Applied before `bpm`, which is checked against it.
 - `bpm`: a whole number from 30 to 250, or to 400 in 7/8. It counts the beat of the current time signature (quarters in x/4, dotted quarters in 6/8, 9/8, 12/8, eighths in 7/8), so the same number can be refused after the signature changes.
 - `subdivision`: `quarters`, `eighths`, `swing_eighths`, `triplets`, `sixteenths`, `swing_sixteenths`. Only heard in bars counted in quarters.

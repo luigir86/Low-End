@@ -8,6 +8,8 @@ import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
 import 'package:low_end/features/tuner/drone/harmony.dart';
+import 'package:low_end/features/tuner/drone/drone_panel.dart'
+    show progressionSong;
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<AudioScope> _launch(
@@ -111,6 +113,15 @@ void main() {
     expect(scope.drone.progression, Progression.minorTwoFiveOne);
     expect(scope.drone.note.pitchClass, 0);
     expect(scope.metronome.bpm, 140);
+  });
+
+  test('the example songs follow the order of the progression menu', () {
+    final order = [for (final s in exampleSongs) s.progression.index];
+    expect(order, [...order]..sort());
+    // And the menu names the same song as the list.
+    for (final s in exampleSongs) {
+      expect(progressionSong(s.progression), s.title);
+    }
   });
 
   test('every example song has a name, a key and a sensible tempo', () {

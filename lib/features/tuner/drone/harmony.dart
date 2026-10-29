@@ -206,14 +206,14 @@ class ExampleSong {
   final int bpm;
 }
 
-/// The songs offered; none needs a flat or sharp key, so there is no
-/// spelling to choose.
+/// The songs offered, in the order of the progression menu; none needs a
+/// flat or sharp key, so there is no spelling to choose.
 const exampleSongs = [
   ExampleSong('Tune Up', 2, Progression.twoFiveOne, 160),
   ExampleSong('Blue Bossa', 0, Progression.minorTwoFiveOne, 140),
   ExampleSong('Autumn Leaves', 7, Progression.circleOfFifths, 120),
-  ExampleSong('Mr. P.C.', 0, Progression.minorBlues, 160),
   ExampleSong('Sweet Home Chicago', 4, Progression.blues, 100),
+  ExampleSong('Mr. P.C.', 0, Progression.minorBlues, 160),
   ExampleSong('Wild Thing', 9, Progression.oneFourFiveFour, 108),
   ExampleSong('Stand by Me', 9, Progression.oneSixFourFive, 118),
   ExampleSong('With or Without You', 2, Progression.oneFiveSixFour, 110),
