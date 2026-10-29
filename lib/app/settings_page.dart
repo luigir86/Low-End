@@ -30,7 +30,12 @@ class SettingsPage extends StatelessWidget {
             4,
           ).label(names, numbering: settings.octaveNumbering);
           return ListView(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            // Its own padding replaces the one a list adds by itself: the end
+            // scrolls clear of the navigation bar, and the rows of a notch in
+            // landscape (the title bar has taken the top).
+            padding:
+                MediaQuery.paddingOf(context) +
+                const EdgeInsets.symmetric(vertical: 8),
             children: [
               // What the whole app speaks and shows.
               _Section(title: l10n.settingsGeneral),

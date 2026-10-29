@@ -399,6 +399,26 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('the end of the settings is not under the navigation bar', (
+      tester,
+    ) async {
+      // Android 15 draws every app from edge to edge: with the three
+      // buttons, the bar takes the bottom of the screen.
+      tester.view.padding = const FakeViewPadding(bottom: 120);
+      tester.view.viewPadding = const FakeViewPadding(bottom: 120);
+      await _pumpApp(tester);
+      await tester.tap(find.byTooltip('Settings'));
+      await _settle(tester);
+      final list = tester.widget<ListView>(
+        find.descendant(
+          of: find.byType(SettingsPage),
+          matching: find.byType(ListView),
+        ),
+      );
+      final bar = 120 / tester.view.devicePixelRatio;
+      expect((list.padding! as EdgeInsets).bottom, greaterThanOrEqualTo(bar));
+    });
   });
 
   test('Android keeps the settings out of cloud backups', () {

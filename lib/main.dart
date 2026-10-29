@@ -1,14 +1,22 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 
 import 'app/licenses.dart';
 import 'app/low_end_app.dart';
 import 'app/settings.dart';
+import 'app/theme.dart';
 import 'audio/web_audio_session.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (!kIsWeb) {
+    // From edge to edge on every Android, as Android 15 and later always are:
+    // each screen keeps its controls clear of the bars (SafeArea).
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setSystemUIOverlayStyle(LowEndTheme.systemBars);
+  }
   if (kIsWeb) {
     // In a web page Flutter shows the screen to VoiceOver and TalkBack only
     // when asked; the app must be usable with them from the start.
