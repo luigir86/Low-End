@@ -76,6 +76,7 @@ void main() {
     await tester.pumpAndSettle();
     scope.drone
       ..setPitchClass(9)
+      ..setProgression(Progression.twoFiveOne)
       ..setVoicing(DroneVoicing.progression);
     await tester.pumpAndSettle();
     expect(find.text('II–V–I in A major'), findsOneWidget);

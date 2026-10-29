@@ -3,21 +3,24 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 /// One line of a [showChoiceMenu]: the [title], and under it a [subtitle]
-/// in the muted ink ("Jazz standard, like Autumn Leaves", the strings of an
-/// instrument); a [leading] picture before them, as the note figures of the
-/// metronome.
+/// in the muted ink ("Like Autumn Leaves", the strings of an instrument); a
+/// [leading] picture before them, as the note figures of the metronome. A
+/// [section] different from the line before opens a new section of the
+/// menu under that heading ("Jazz").
 class Choice<T> {
   const Choice({
     required this.value,
     required this.title,
     this.subtitle,
     this.leading,
+    this.section,
   });
 
   final T value;
   final String title;
   final String? subtitle;
   final Widget? leading;
+  final String? section;
 }
 
 /// The one menu of the app, for every short list of choices: the
@@ -59,11 +62,17 @@ Future<T?> showChoiceMenu<T>({
       maxWidth: math.max(field.width, 320),
     ),
     items: [
-      for (final c in choices)
+      for (final (i, c) in choices.indexed) ...[
+        if (c.section != null &&
+            (i == 0 || choices[i - 1].section != c.section)) ...[
+          if (i > 0) const PopupMenuDivider(),
+          _SectionHeading<T>(c.section!),
+        ],
         PopupMenuItem<T>(
           value: c.value,
           child: _ChoiceLine(choice: c, selected: c.value == selected),
         ),
+      ],
     ],
   );
 }
@@ -118,6 +127,44 @@ class _ChoiceLine<T> extends StatelessWidget {
                   : const SizedBox.shrink(),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The heading of a section of the menu, in the small muted capitals of a
+/// Material 3 list subheader; it cannot be chosen.
+class _SectionHeading<T> extends PopupMenuEntry<T> {
+  const _SectionHeading(this.text);
+
+  final String text;
+
+  @override
+  double get height => 32;
+
+  @override
+  bool represents(T? value) => false;
+
+  @override
+  State<_SectionHeading<T>> createState() => _SectionHeadingState<T>();
+}
+
+class _SectionHeadingState<T> extends State<_SectionHeading<T>> {
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Semantics(
+      header: true,
+      child: Container(
+        height: widget.height,
+        alignment: AlignmentDirectional.bottomStart,
+        padding: const EdgeInsetsDirectional.fromSTEB(12, 0, 12, 4),
+        child: Text(
+          widget.text,
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
         ),
       ),
     );

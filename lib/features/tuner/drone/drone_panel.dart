@@ -637,23 +637,20 @@ String progressionSong(Progression p) => switch (p) {
   Progression.andalusian => 'Hit the Road Jack',
 };
 
-/// The genre the progression belongs to.
-String progressionGenre(AppLocalizations l10n, Progression p) => switch (p) {
-  Progression.twoFiveOne => l10n.progressionGenreJazz,
-  Progression.minorTwoFiveOne => l10n.progressionGenreMinorJazz,
-  Progression.circleOfFifths => l10n.progressionGenreJazz,
-  Progression.oneSixTwoFive => l10n.progressionGenreJazz,
-  Progression.blues => l10n.progressionGenreBlues,
-  Progression.minorBlues => l10n.progressionGenreMinorBlues,
-  Progression.oneFourFiveFour => l10n.progressionGenreRock,
-  Progression.oneSixFourFive => l10n.progressionGenrePop,
-  Progression.oneFiveSixFour => l10n.progressionGenrePopRock,
-  Progression.andalusian => l10n.progressionGenreFlamenco,
-};
+/// The heading of a section of the progression menu.
+String progressionSectionName(AppLocalizations l10n, ProgressionSection s) =>
+    switch (s) {
+      ProgressionSection.popRock => l10n.progressionSectionPopRock,
+      ProgressionSection.blues => l10n.progressionSectionBlues,
+      ProgressionSection.jazz => l10n.progressionSectionJazz,
+    };
 
-/// The line under the name in the menu: "Jazz standard, like Autumn Leaves".
+/// The line under the name in the menu: "Like Wild Thing"; for I–VI–IV–V
+/// also its common name, the "giro di Do" of Italian musicians.
 String progressionNote(AppLocalizations l10n, Progression p) =>
-    l10n.progressionLike(progressionGenre(l10n, p), progressionSong(p));
+    p == Progression.oneSixFourFive
+    ? l10n.progressionGiroLike(progressionSong(p))
+    : l10n.progressionLike(progressionSong(p));
 
 /// Chord (the note alone being one of them) or Progression, full width, as
 /// tall as the other sections' first row.
@@ -749,6 +746,7 @@ class _ChordMenu extends StatelessWidget {
                               value: p,
                               title: progressionName(l10n, p),
                               subtitle: progressionNote(l10n, p),
+                              section: progressionSectionName(l10n, p.section),
                             ),
                         ],
                       );

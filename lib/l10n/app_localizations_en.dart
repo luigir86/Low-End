@@ -69,30 +69,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get progressionBlues => '12-bar blues';
 
   @override
-  String get progressionGenreJazz => 'Jazz standard';
-
-  @override
-  String get progressionGenreMinorJazz => 'Jazz in a minor key';
-
-  @override
-  String get progressionGenreRock => '’60s rock';
-
-  @override
-  String get progressionGenrePopRock => 'Pop rock';
-
-  @override
-  String get progressionGenreMinorBlues => 'Minor jazz blues';
-
-  @override
-  String get progressionGenrePop => '’50s–’60s pop';
-
-  @override
-  String get progressionGenreBlues => 'Blues';
-
-  @override
-  String get progressionGenreFlamenco => 'Flamenco and rock';
-
-  @override
   String get progressionAndalusian => 'Andalusian cadence';
 
   @override
@@ -102,9 +78,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get progressionMinorBlues => 'Minor blues';
 
   @override
-  String progressionLike(String genre, String song) {
-    return '$genre, like $song';
+  String progressionLike(String song) {
+    return 'Like $song';
   }
+
+  @override
+  String progressionGiroLike(String song) {
+    return 'The ’50s progression, like $song';
+  }
+
+  @override
+  String get progressionSectionPopRock => 'Pop and rock';
+
+  @override
+  String get progressionSectionBlues => 'Blues';
+
+  @override
+  String get progressionSectionJazz => 'Jazz';
 
   @override
   String get thanksTitle => 'Thanks';

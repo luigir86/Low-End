@@ -47,6 +47,7 @@ void main() {
     'II–V–I in C plays Dm7, G7, Cmaj7 for two bars, one chord a bar',
     (tester) async {
       drone.setVoicing(DroneVoicing.progression);
+      drone.setProgression(Progression.twoFiveOne);
       await drone.tapNote(0); // C
       await tester.pump();
       expect(drone.currentChord?.root, 2);
@@ -101,6 +102,7 @@ void main() {
     tester,
   ) async {
     drone.setVoicing(DroneVoicing.progression);
+    drone.setProgression(Progression.twoFiveOne);
     await drone.tapNote(0);
     await tester.pump(const Duration(seconds: 2));
     expect(drone.step, 1);
@@ -154,6 +156,7 @@ void main() {
   test('jazz progressions are in sevenths, the others in triads', () {
     drone
       ..setVoicing(DroneVoicing.progression)
+      ..setProgression(Progression.twoFiveOne)
       ..setPitchClass(0);
     // II–V–I: Dm7, G7, Cmaj7.
     expect(drone.currentChord, (root: 2, quality: ChordQuality.minor7));
@@ -221,13 +224,9 @@ void main() {
     test('I–VI–IV–V in F♯ has D♯ minor, not E♭', () {
       expect(names(drone, 6, Progression.oneSixFourFive), [
         'F♯',
-        'F♯',
-        'D♯',
         'D♯',
         'B',
         'C♯',
-        'F♯',
-        'F♯',
       ]);
     });
 

@@ -370,24 +370,24 @@ class AppActions {
     'progression': {
       'type': 'string',
       'enum': [
-        'twoFiveOne',
-        'minorTwoFiveOne',
-        'circleOfFifths',
-        'oneSixTwoFive',
+        'oneFourFiveFour',
+        'oneFiveSixFour',
+        'oneSixFourFive',
+        'andalusian',
         'blues',
         'minorBlues',
-        'oneFourFiveFour',
-        'oneSixFourFive',
-        'oneFiveSixFour',
-        'andalusian',
+        'twoFiveOne',
+        'minorTwoFiveOne',
+        'oneSixTwoFive',
+        'circleOfFifths',
       ],
       'description':
           'The progression played when voicing is "progression", one chord a '
-          'bar, each 4, 8 or 12 bars long: II-V-I (Dm7 G7 Cmaj7 Cmaj7), '
-          'minor II-V-I, circle of fifths (8 bars, as in Autumn Leaves), '
-          'I-VI-II-V, 12-bar blues, minor blues (12 bars), I-IV-V-IV, '
-          'I-VI-IV-V (8 bars, as in Stand by Me), I-V-VI-IV or the Andalusian '
-          'cadence (minor).',
+          'bar, each 4, 8 or 12 bars long, from the easiest: pop and rock '
+          '(I-IV-V-IV, I-V-VI-IV, I-VI-IV-V or the Andalusian cadence, '
+          'minor), blues (12-bar blues, minor blues) and jazz (II-V-I as '
+          'Dm7 G7 Cmaj7 Cmaj7, minor II-V-I, I-VI-II-V, circle of fifths in '
+          '8 bars as in Autumn Leaves). I-IV-V-IV is the one chosen first.',
     },
     'style': {
       'type': 'string',
@@ -414,15 +414,15 @@ class AppActions {
     'song': {
       'type': 'string',
       'enum': [
+        'Wild Thing',
+        'With or Without You',
+        'Stand by Me',
+        'Hit the Road Jack',
+        'Sweet Home Chicago',
+        'Mr. P.C.',
         'Tune Up',
         'Blue Bossa',
         'Autumn Leaves',
-        'Sweet Home Chicago',
-        'Mr. P.C.',
-        'Wild Thing',
-        'Stand by Me',
-        'With or Without You',
-        'Hit the Road Jack',
       ],
       'description':
           'An example song: sets its key, its progression and its tempo '

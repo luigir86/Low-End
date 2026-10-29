@@ -212,54 +212,6 @@ abstract class AppLocalizations {
   /// **'12-bar blues'**
   String get progressionBlues;
 
-  /// No description provided for @progressionGenreJazz.
-  ///
-  /// In en, this message translates to:
-  /// **'Jazz standard'**
-  String get progressionGenreJazz;
-
-  /// No description provided for @progressionGenreMinorJazz.
-  ///
-  /// In en, this message translates to:
-  /// **'Jazz in a minor key'**
-  String get progressionGenreMinorJazz;
-
-  /// No description provided for @progressionGenreRock.
-  ///
-  /// In en, this message translates to:
-  /// **'’60s rock'**
-  String get progressionGenreRock;
-
-  /// No description provided for @progressionGenrePopRock.
-  ///
-  /// In en, this message translates to:
-  /// **'Pop rock'**
-  String get progressionGenrePopRock;
-
-  /// No description provided for @progressionGenreMinorBlues.
-  ///
-  /// In en, this message translates to:
-  /// **'Minor jazz blues'**
-  String get progressionGenreMinorBlues;
-
-  /// No description provided for @progressionGenrePop.
-  ///
-  /// In en, this message translates to:
-  /// **'’50s–’60s pop'**
-  String get progressionGenrePop;
-
-  /// No description provided for @progressionGenreBlues.
-  ///
-  /// In en, this message translates to:
-  /// **'Blues'**
-  String get progressionGenreBlues;
-
-  /// No description provided for @progressionGenreFlamenco.
-  ///
-  /// In en, this message translates to:
-  /// **'Flamenco and rock'**
-  String get progressionGenreFlamenco;
-
   /// No description provided for @progressionAndalusian.
   ///
   /// In en, this message translates to:
@@ -278,11 +230,35 @@ abstract class AppLocalizations {
   /// **'Minor blues'**
   String get progressionMinorBlues;
 
-  /// A progression described by its genre and a well-known song that uses it, in the progression menu.
+  /// A well-known song that uses the progression, under its name in the progression menu.
   ///
   /// In en, this message translates to:
-  /// **'{genre}, like {song}'**
-  String progressionLike(String genre, String song);
+  /// **'Like {song}'**
+  String progressionLike(String song);
+
+  /// Under I–VI–IV–V in the progression menu: its common name (in Italian, the giro di Do) and a well-known song that uses it.
+  ///
+  /// In en, this message translates to:
+  /// **'The ’50s progression, like {song}'**
+  String progressionGiroLike(String song);
+
+  /// No description provided for @progressionSectionPopRock.
+  ///
+  /// In en, this message translates to:
+  /// **'Pop and rock'**
+  String get progressionSectionPopRock;
+
+  /// No description provided for @progressionSectionBlues.
+  ///
+  /// In en, this message translates to:
+  /// **'Blues'**
+  String get progressionSectionBlues;
+
+  /// No description provided for @progressionSectionJazz.
+  ///
+  /// In en, this message translates to:
+  /// **'Jazz'**
+  String get progressionSectionJazz;
 
   /// No description provided for @thanksTitle.
   ///

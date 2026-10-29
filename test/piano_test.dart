@@ -674,6 +674,7 @@ void main() {
 
     test('a progression is one chord a bar, as a loop', () async {
       drone.setVoicing(DroneVoicing.progression);
+      drone.setProgression(Progression.twoFiveOne);
       drone.setStyle(DroneStyle.beat);
       await drone.tapNote(0);
       // II–V–I in C: Dm7, G7, Cmaj7 for two bars.
