@@ -370,24 +370,24 @@ class AppActions {
     'progression': {
       'type': 'string',
       'enum': [
-        'twoFiveOne',
-        'minorTwoFiveOne',
-        'circleOfFifths',
-        'oneSixTwoFive',
-        'blues',
-        'minorBlues',
-        'oneFourFiveFour',
         'oneSixFourFive',
         'oneFiveSixFour',
         'andalusian',
+        'blues',
+        'minorBlues',
+        'twoFiveOne',
+        'minorTwoFiveOne',
+        'oneSixTwoFive',
+        'circleOfFifths',
       ],
       'description':
           'The progression played when voicing is "progression", one chord a '
-          'bar, each 4, 8 or 12 bars long: II-V-I (Dm7 G7 Cmaj7 Cmaj7), '
-          'minor II-V-I, circle of fifths (8 bars, as in Autumn Leaves), '
-          'I-VI-II-V, 12-bar blues, minor blues (12 bars), I-IV-V-IV, '
-          'I-VI-IV-V (8 bars, as in Stand by Me), I-V-VI-IV or the Andalusian '
-          'cadence (minor).',
+          'bar, each 4, 8 or 12 bars long, from the easiest: pop and rock '
+          '(I-VI-IV-V, I-V-VI-IV or the Andalusian cadence, '
+          'minor), blues (12-bar blues, minor blues) and jazz (II-V-I as '
+          'Dm7 G7 Cmaj7 Cmaj7, minor II-V-I, I-VI-II-V, circle of fifths in '
+          '8 bars as in Autumn Leaves). I-VI-IV-V, the "giro di Do", is the one '
+          'chosen first.',
     },
     'style': {
       'type': 'string',
@@ -414,15 +414,14 @@ class AppActions {
     'song': {
       'type': 'string',
       'enum': [
-        'Tune Up',
-        'Blue Bossa',
-        'Autumn Leaves',
-        'Mr. P.C.',
-        'Sweet Home Chicago',
-        'Wild Thing',
         'Stand by Me',
         'With or Without You',
         'Hit the Road Jack',
+        'Sweet Home Chicago',
+        'Mr. P.C.',
+        'Tune Up',
+        'Blue Bossa',
+        'Autumn Leaves',
       ],
       'description':
           'An example song: sets its key, its progression and its tempo '

@@ -44,17 +44,38 @@ void main() {
   ) async {
     await _open(tester);
     // Chosen, the field says only the name: the song would not fit.
-    expect(find.text('II–V–I'), findsOneWidget);
+    // The giro di Do comes first, and is the one chosen.
+    expect(find.text('I–VI–IV–V'), findsOneWidget);
     await tester.tap(find.byKey(const Key('progressionMenu')));
     await tester.pumpAndSettle();
-    expect(find.text('Jazz standard, like Tune Up'), findsOneWidget);
-    expect(find.text('Jazz in a minor key, like Blue Bossa'), findsOneWidget);
-    expect(find.text('Jazz standard, like Autumn Leaves'), findsOneWidget);
-    expect(find.text('Minor jazz blues, like Mr. P.C.'), findsOneWidget);
-    expect(find.text('’60s rock, like Wild Thing'), findsOneWidget);
-    expect(find.text('Pop rock, like With or Without You'), findsOneWidget);
-    expect(find.text('’50s–’60s pop, like Stand by Me'), findsOneWidget);
-    expect(find.text('Blues, like Sweet Home Chicago'), findsOneWidget);
+    // The genre is a section heading, the song is under each name.
+    for (final heading in ['Pop and rock', 'Blues', 'Jazz']) {
+      expect(find.text(heading), findsOneWidget);
+      expect(
+        tester.getSemantics(find.text(heading)),
+        matchesSemantics(label: heading, isHeader: true),
+      );
+    }
+    expect(find.text('Like With or Without You'), findsOneWidget);
+    expect(find.text('The ’50s progression, like Stand by Me'), findsOneWidget);
+    expect(find.text('I–♭VII–♭VI–V'), findsOneWidget);
+    expect(
+      find.text('Andalusian cadence, like Hit the Road Jack'),
+      findsOneWidget,
+    );
+    expect(find.text('Like Sweet Home Chicago'), findsOneWidget);
+    expect(find.text('Like Mr. P.C.'), findsOneWidget);
+    expect(find.text('Like Tune Up'), findsOneWidget);
+    expect(find.text('Like Autumn Leaves'), findsOneWidget);
+    // From the easiest to the richest.
+    expect(
+      tester.getTopLeft(find.text('Pop and rock')).dy,
+      lessThan(tester.getTopLeft(find.text('Blues')).dy),
+    );
+    expect(
+      tester.getTopLeft(find.text('Blues')).dy,
+      lessThan(tester.getTopLeft(find.text('Jazz')).dy),
+    );
     expect(find.text('12-bar blues'), findsOneWidget);
     await tester.tap(find.text('12-bar blues'));
     await tester.pumpAndSettle();
@@ -68,7 +89,8 @@ void main() {
     await _open(tester, language: 'it', size: const Size(840, 1700));
     await tester.tap(find.byKey(const Key('progressionMenu')));
     await tester.pumpAndSettle();
-    expect(find.text('Standard jazz, come Tune Up'), findsOneWidget);
+    expect(find.text('Giro di Do, come Stand by Me'), findsOneWidget);
+    expect(find.text('Pop e rock'), findsOneWidget);
     expect(find.text('Blues in 12 battute'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('II–V–I minore'));

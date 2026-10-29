@@ -117,7 +117,7 @@ class DroneController extends ChangeNotifier {
   /// come back to from a progression.
   DroneVoicing _chordVoicing = DroneVoicing.root;
   ChordQuality _chord = ChordQuality.major;
-  Progression _progression = Progression.twoFiveOne;
+  Progression _progression = Progression.values.first;
   DroneStyle _style = DroneStyle.beat;
   int _step = 0;
   Timer? _barTimer;

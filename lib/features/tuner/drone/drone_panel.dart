@@ -617,10 +617,9 @@ String progressionName(AppLocalizations l10n, Progression p) => switch (p) {
   Progression.oneSixTwoFive => 'I–VI–II–V',
   Progression.blues => l10n.progressionBlues,
   Progression.minorBlues => l10n.progressionMinorBlues,
-  Progression.oneFourFiveFour => 'I–IV–V–IV',
   Progression.oneSixFourFive => 'I–VI–IV–V',
   Progression.oneFiveSixFour => 'I–V–VI–IV',
-  Progression.andalusian => l10n.progressionAndalusian,
+  Progression.andalusian => 'I–♭VII–♭VI–V',
 };
 
 /// The well-known song a progression is named after in the menu.
@@ -631,29 +630,27 @@ String progressionSong(Progression p) => switch (p) {
   Progression.oneSixTwoFive => 'I Got Rhythm',
   Progression.blues => 'Sweet Home Chicago',
   Progression.minorBlues => 'Mr. P.C.',
-  Progression.oneFourFiveFour => 'Wild Thing',
   Progression.oneSixFourFive => 'Stand by Me',
   Progression.oneFiveSixFour => 'With or Without You',
   Progression.andalusian => 'Hit the Road Jack',
 };
 
-/// The genre the progression belongs to.
-String progressionGenre(AppLocalizations l10n, Progression p) => switch (p) {
-  Progression.twoFiveOne => l10n.progressionGenreJazz,
-  Progression.minorTwoFiveOne => l10n.progressionGenreMinorJazz,
-  Progression.circleOfFifths => l10n.progressionGenreJazz,
-  Progression.oneSixTwoFive => l10n.progressionGenreJazz,
-  Progression.blues => l10n.progressionGenreBlues,
-  Progression.minorBlues => l10n.progressionGenreMinorBlues,
-  Progression.oneFourFiveFour => l10n.progressionGenreRock,
-  Progression.oneSixFourFive => l10n.progressionGenrePop,
-  Progression.oneFiveSixFour => l10n.progressionGenrePopRock,
-  Progression.andalusian => l10n.progressionGenreFlamenco,
-};
+/// The heading of a section of the progression menu.
+String progressionSectionName(AppLocalizations l10n, ProgressionSection s) =>
+    switch (s) {
+      ProgressionSection.popRock => l10n.progressionSectionPopRock,
+      ProgressionSection.blues => l10n.progressionSectionBlues,
+      ProgressionSection.jazz => l10n.progressionSectionJazz,
+    };
 
-/// The line under the name in the menu: "Jazz standard, like Autumn Leaves".
-String progressionNote(AppLocalizations l10n, Progression p) =>
-    l10n.progressionLike(progressionGenre(l10n, p), progressionSong(p));
+/// The line under the name in the menu: "Like With or Without You"; for I–VI–IV–V
+/// and I–♭VII–♭VI–V also their common names, the "giro di Do" of Italian
+/// musicians and the Andalusian cadence.
+String progressionNote(AppLocalizations l10n, Progression p) => switch (p) {
+  Progression.oneSixFourFive => l10n.progressionGiroLike(progressionSong(p)),
+  Progression.andalusian => l10n.progressionAndalusianLike(progressionSong(p)),
+  _ => l10n.progressionLike(progressionSong(p)),
+};
 
 /// Chord (the note alone being one of them) or Progression, full width, as
 /// tall as the other sections' first row.
@@ -749,6 +746,7 @@ class _ChordMenu extends StatelessWidget {
                               value: p,
                               title: progressionName(l10n, p),
                               subtitle: progressionNote(l10n, p),
+                              section: progressionSectionName(l10n, p.section),
                             ),
                         ],
                       );

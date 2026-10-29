@@ -9,6 +9,7 @@ import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/features/metronome/time_signature.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
+import 'package:low_end/features/tuner/drone/harmony.dart';
 import 'package:low_end/widgets/reference_pitch_row.dart';
 import 'package:low_end/widgets/row_controls.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -192,7 +193,9 @@ void main() {
     final scope = await _pump(tester, AppSettings());
     await tester.tap(find.text('Harmony').last);
     await tester.pumpAndSettle();
-    scope.drone.setVoicing(DroneVoicing.progression);
+    scope.drone
+      ..setProgression(Progression.twoFiveOne)
+      ..setVoicing(DroneVoicing.progression);
     await tester.pump();
     await tester.tap(find.text('C').first);
     await tester.pump();

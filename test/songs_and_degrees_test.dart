@@ -8,6 +8,8 @@ import 'package:low_end/audio/mic_input.dart';
 import 'package:low_end/audio/tone_output.dart';
 import 'package:low_end/features/tuner/drone/drone_controller.dart';
 import 'package:low_end/features/tuner/drone/harmony.dart';
+import 'package:low_end/features/tuner/drone/drone_panel.dart'
+    show progressionSong;
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<AudioScope> _launch(
@@ -74,6 +76,7 @@ void main() {
     await tester.pumpAndSettle();
     scope.drone
       ..setPitchClass(9)
+      ..setProgression(Progression.twoFiveOne)
       ..setVoicing(DroneVoicing.progression);
     await tester.pumpAndSettle();
     expect(find.text('II–V–I in A major'), findsOneWidget);
@@ -105,6 +108,17 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Example songs'));
     await tester.pumpAndSettle();
+    // In the sections of the progression menu.
+    for (final heading in ['Pop and rock', 'Blues', 'Jazz']) {
+      expect(find.text(heading), findsOneWidget);
+    }
+    expect(
+      tester.getTopLeft(find.text('Stand by Me')).dy,
+      lessThan(tester.getTopLeft(find.text('Blues')).dy),
+    );
+    // Lower down the sheet: scrolled to first.
+    await tester.ensureVisible(find.text('Blue Bossa'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Blue Bossa'));
     await tester.pumpAndSettle();
     expect(scope.drone.voicing, DroneVoicing.progression);
@@ -113,10 +127,20 @@ void main() {
     expect(scope.metronome.bpm, 140);
   });
 
+  test('the example songs follow the order of the progression menu', () {
+    final order = [for (final s in exampleSongs) s.progression.index];
+    expect(order, [...order]..sort());
+    // And the menu names the same song as the list.
+    for (final s in exampleSongs) {
+      expect(progressionSong(s.progression), s.title);
+    }
+  });
+
   test('every example song has a name, a key and a sensible tempo', () {
     expect(exampleSongs, isNotEmpty);
     for (final s in exampleSongs) {
       expect(s.title, isNotEmpty);
+      expect(s.artist, isNotEmpty);
       expect(s.pitchClass, inInclusiveRange(0, 11));
       expect(s.bpm, inInclusiveRange(60, 200));
     }

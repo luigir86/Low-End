@@ -29,29 +29,38 @@
   "progressionLabel": "Progression",
   "progressionMinorTwoFiveOne": "II–V–I minor",
   "progressionBlues": "12-bar blues",
-  "progressionGenreJazz": "Jazz standard",
-  "progressionGenreMinorJazz": "Jazz in a minor key",
-  "progressionGenreRock": "’60s rock",
-  "progressionGenrePopRock": "Pop rock",
-  "progressionGenreMinorBlues": "Minor jazz blues",
-  "progressionGenrePop": "’50s–’60s pop",
-  "progressionGenreBlues": "Blues",
-  "progressionGenreFlamenco": "Flamenco and rock",
-  "progressionAndalusian": "Andalusian cadence",
-  "progressionCircleOfFifths": "Circle of fifths",
-  "progressionMinorBlues": "Minor blues",
-  "progressionLike": "{genre}, like {song}",
-  "@progressionLike": {
-    "description": "A progression described by its genre and a well-known song that uses it, in the progression menu.",
+  "progressionAndalusianLike": "Andalusian cadence, like {song}",
+  "@progressionAndalusianLike": {
+    "description": "Under I–♭VII–♭VI–V in the progression menu: its name and a well-known song that uses it.",
     "placeholders": {
-      "genre": {
-        "type": "String"
-      },
       "song": {
         "type": "String"
       }
     }
   },
+  "progressionCircleOfFifths": "Circle of fifths",
+  "progressionMinorBlues": "Minor blues",
+  "progressionLike": "Like {song}",
+  "@progressionLike": {
+    "description": "A well-known song that uses the progression, under its name in the progression menu.",
+    "placeholders": {
+      "song": {
+        "type": "String"
+      }
+    }
+  },
+  "progressionGiroLike": "The ’50s progression, like {song}",
+  "@progressionGiroLike": {
+    "description": "Under I–VI–IV–V in the progression menu: its common name (in Italian, the giro di Do) and a well-known song that uses it.",
+    "placeholders": {
+      "song": {
+        "type": "String"
+      }
+    }
+  },
+  "progressionSectionPopRock": "Pop and rock",
+  "progressionSectionBlues": "Blues",
+  "progressionSectionJazz": "Jazz",
   "thanksTitle": "Thanks",
   "thanksInstagram": "Follow them on Instagram",
   "thanksText": "Thanks to the Power Flower Orchestra of Fossano, who inspired this app and put it to the test.",

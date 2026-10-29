@@ -47,6 +47,7 @@ void main() {
     'II–V–I in C plays Dm7, G7, Cmaj7 for two bars, one chord a bar',
     (tester) async {
       drone.setVoicing(DroneVoicing.progression);
+      drone.setProgression(Progression.twoFiveOne);
       await drone.tapNote(0); // C
       await tester.pump();
       expect(drone.currentChord?.root, 2);
@@ -101,6 +102,7 @@ void main() {
     tester,
   ) async {
     drone.setVoicing(DroneVoicing.progression);
+    drone.setProgression(Progression.twoFiveOne);
     await drone.tapNote(0);
     await tester.pump(const Duration(seconds: 2));
     expect(drone.step, 1);
@@ -154,10 +156,11 @@ void main() {
   test('jazz progressions are in sevenths, the others in triads', () {
     drone
       ..setVoicing(DroneVoicing.progression)
+      ..setProgression(Progression.twoFiveOne)
       ..setPitchClass(0);
     // II–V–I: Dm7, G7, Cmaj7.
     expect(drone.currentChord, (root: 2, quality: ChordQuality.minor7));
-    for (final p in [Progression.oneFourFiveFour, Progression.oneSixFourFive]) {
+    for (final p in [Progression.oneFiveSixFour, Progression.oneSixFourFive]) {
       drone.setProgression(p);
       for (final s in p.steps.where(
         (s) => s.quality != ChordQuality.dominant,
@@ -221,22 +224,18 @@ void main() {
     test('I–VI–IV–V in F♯ has D♯ minor, not E♭', () {
       expect(names(drone, 6, Progression.oneSixFourFive), [
         'F♯',
-        'F♯',
-        'D♯',
         'D♯',
         'B',
         'C♯',
-        'F♯',
-        'F♯',
       ]);
     });
 
     test('the flat keys keep their flats', () {
       expect(names(drone, 10, Progression.twoFiveOne), ['C', 'F', 'B♭', 'B♭']);
-      expect(names(drone, 3, Progression.oneFourFiveFour), [
+      expect(names(drone, 3, Progression.oneFiveSixFour), [
         'E♭',
-        'A♭',
         'B♭',
+        'C',
         'A♭',
       ]);
     });
@@ -245,10 +244,10 @@ void main() {
       expect(drone.spelledFlat(1), isFalse);
       drone.toggleSpelling(1);
       expect(drone.spelledFlat(1), isTrue);
-      expect(names(drone, 1, Progression.oneFourFiveFour), [
+      expect(names(drone, 1, Progression.oneFiveSixFour), [
         'D♭',
-        'G♭',
         'A♭',
+        'B♭',
         'G♭',
       ]);
       drone.toggleSpelling(6);

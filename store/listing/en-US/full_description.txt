@@ -8,7 +8,7 @@ METRONOME
 HARMONY
 • Twelve keys on a dial: touch a note and it plays on a real grand piano, recorded in stereo, in time with the metronome.
 • The note alone, or a major, minor or seventh chord, struck once a bar, on every beat or as an arpeggio.
-• Ten progressions to practise over, one chord per bar and four, eight or twelve bars long, as phrases are: II–V–I (major and minor), the circle of fifths of Autumn Leaves, I–VI–II–V, the twelve-bar blues (major and minor), I–IV–V–IV, I–VI–IV–V, I–V–VI–IV and the Andalusian cadence, in any key, each named after a song you know, with the Roman numerals on the keys.
+• Nine progressions to practise over, from the easiest, in sections for pop and rock, blues and jazz: I–VI–IV–V, I–V–VI–IV, the Andalusian cadence, the twelve-bar blues (major and minor), II–V–I (major and minor), I–VI–II–V and the circle of fifths of Autumn Leaves. One chord per bar, four, eight or twelve bars long as phrases are, in any key, each named after a song you know, with the Roman numerals on the keys.
 • Example songs set the key, the progression and the tempo in one tap.
 • Or a held tone instead of the piano. The root sits in a middle-low octave that a phone speaker plays well; while it sounds, the notes not heard fade on the dial.
 • Start the harmony while the click is running and it comes in on the next bar, with a countdown on the dial.
