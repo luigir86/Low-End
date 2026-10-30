@@ -45,6 +45,17 @@ Raise `version:` in `pubspec.yaml` (the number after `+` must grow with every up
 - **Target audience**: 13 and over is the simplest choice (no ads, no data, but it is not aimed at children). Choosing "under 13" would add the Families policy requirements.
 - **Ads**: none. **News app**: no. **Government app**: no. **Financial features**: none. **Health features**: none.
 - **Open source**: MIT, source at https://github.com/luigir86/low-end (it is in the description). Third-party licences: [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
+- **Trader status** (EU, asked again in the new Console form from November 2026): Low End is free, with no ads, no purchases and no donations, published by a private person, so the expected answer is "not a trader". Only the owner can make this declaration; a trader must show an address and a phone number on the listing.
+
+## Play policy check (October 2026 update)
+
+Checked against the manifest and the code on 2026-10-30; nothing to change in the app.
+
+- Local network, manage contacts, location, all files access, SMS / call log, accessibility API: the app asks for none of them (see the permissions above).
+- AppFunctions: the app has none. The `lowend://action/...` links are ordinary deep links that do only what the buttons do (docs/llm.md); if Android AppFunctions are added later, each must describe its action truthfully and do nothing more.
+- Subscriptions, payments, cryptocurrency, Japan payments authorisation: no purchases of any kind.
+- Play Age Signals: optional API, not needed (no content or feature depends on age).
+- App quality thresholds for memory and code optimisation (February 2027): the release build relies on Flutter's default R8 shrinking; check Android vitals and the app quality page in Play Console once before the deadline.
 
 ## Before going to production
 
